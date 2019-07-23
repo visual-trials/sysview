@@ -25,6 +25,12 @@ function init() {
                 resizable: true,
                 resizeObjectName: "PH" 
             },
+            { 
+                portId: "", 
+                fromLinkable: true, 
+                toLinkable: true, 
+                cursor: "pointer"
+            },
             $$(go.Shape, "Rectangle",
                 { name: "PH" },
                 new go.Binding("stroke", "stroke"),
@@ -52,6 +58,35 @@ function init() {
                         ),
         )
     )
+    
+    
+    sysViewDiagram.toolManager.linkingTool.temporaryLink =
+        $$(go.Link,
+            { layerName: "Tool" },
+            $$(go.Shape,
+                { stroke: "red", strokeWidth: 2, strokeDashArray: [4, 2] })
+        )
+    
+    let tempFromNode =
+        $$(go.Node,
+            { layerName: "Tool" },
+            $$(go.Shape, "RoundedRectangle",
+                { stroke: "chartreuse", strokeWidth: 3, fill: null, portId: "", width: 1, height: 1 }
+            )
+        )
+    sysViewDiagram.toolManager.linkingTool.temporaryFromNode = tempFromNode;
+    sysViewDiagram.toolManager.linkingTool.temporaryFromPort = tempFromNode.port;
+    
+    let tempToNode =
+        $$(go.Node,
+            { layerName: "Tool" },
+            $$(go.Shape, "RoundedRectangle",
+                { stroke: "cyan", strokeWidth: 3, fill: null, portId: "", width: 1, height: 1 }
+            )
+        )
+    sysViewDiagram.toolManager.linkingTool.temporaryToNode = tempToNode
+    sysViewDiagram.toolManager.linkingTool.temporaryToPort = tempToNode.port
+    
     
     /*
     sysViewDiagram.nodeTemplateMap.add("",
@@ -98,10 +133,7 @@ function getExampleData() {
     containersAndConnections.containers = []
     containersAndConnections.connections = []
     
-    let parentContainerIdentifier = ""
-    let containerIdentifier = ""
-    
-    let containerToAdd = {
+    let firstServer = {
         type: 'server',
         identifier: 'FirstServer',
         name: 'My First Server',
@@ -115,17 +147,55 @@ function getExampleData() {
         }
     }
     
-    containerIdentifier = addContainer(containerToAdd, parentContainerIdentifier, containersAndConnections)
+    let firstServerIdentifier = addContainer(firstServer, "", containersAndConnections)
     
-    containerToAdd.type = 'API'
-    containerToAdd.identifier = 'API1'
-    containerToAdd.position.x = 70
-    containerToAdd.position.y = 230
-    containerToAdd.size.width = 70
-    containerToAdd.size.height = 50
+    let firstAPI = {
+        type: 'API',
+        identifier: 'API1',
+        name: 'First API',
+        position: {
+            x: 70,
+            y: 230
+        },
+        size: {
+            width: 70,
+            height: 50
+        }
+    }
     
-    parentContainerIdentifier = containerIdentifier
-    containerIdentifier = addContainer(containerToAdd, parentContainerIdentifier, containersAndConnections)
+    let firstAPIIdentifier = addContainer(firstAPI, firstServerIdentifier, containersAndConnections)
+    
+    let secondServer = {
+        type: 'server',
+        identifier: 'SecondServer',
+        name: 'My Second Server',
+        position: {
+            x: 250,
+            y: 200
+        },
+        size: {
+            width: 100,
+            height: 150
+        }
+    }
+    
+    let secondServerIdentifier = addContainer(secondServer, "", containersAndConnections)
+    
+    let secondAPI = {
+        type: 'API',
+        identifier: 'API2',
+        name: 'Second API',
+        position: {
+            x: 270,
+            y: 230
+        },
+        size: {
+            width: 70,
+            height: 50
+        }
+    }
+    
+    let secondAPIIdentifier = addContainer(secondAPI, secondServerIdentifier, containersAndConnections)
     
     return containersAndConnections
 }
@@ -138,11 +208,11 @@ function addContainer(containerData, parentContainerIdentifier, containersAndCon
     let stroke = 'rgba(0, 0, 0, 1)'
     
     if (containerData.type === 'server') {
-        fill = 'rgba(200, 80, 0, 1)'
+        fill = 'rgba(200, 180, 0, 1)'
         stroke = 'rgba(200, 80, 0, 1)'
     }
     else if (containerData.type === 'API') {
-        fill = 'rgba(0, 80, 200, 1)'
+        fill = 'rgba(0, 180, 200, 1)'
         stroke = 'rgba(0, 80, 200, 1)'
     }
     else {
