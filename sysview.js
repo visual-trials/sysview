@@ -1,23 +1,8 @@
 
 let $$ = go.GraphObject.make
-let database = null
 let sysViewDiagram
 
 function init() {
-    
-    /* Firebase */
-    let firebaseConfig = {
-        apiKey: "AIzaSyDgvBneVxbbSoGjFly4--5PXMDhiBzCToI",
-        authDomain: "systemviewer-7c0e6.firebaseapp.com",
-        databaseURL: "https://systemviewer-7c0e6.firebaseio.com",
-        projectId: "systemviewer-7c0e6",
-        storageBucket: "",
-        messagingSenderId: "749942536427",
-        appId: "1:749942536427:web:2241c22f1ba44cbc"
-    }
-    firebase.initializeApp(firebaseConfig)
-  
-    database = firebase.database()
     
     /* Go.js */
     sysViewDiagram =
@@ -44,51 +29,28 @@ function init() {
     )
     
     // TODO: replace this eventually
-    // seedData()
-    
-    loadContainersAndConnectionsFromDB()
-    
+    let containersAndConnections = getExampleData()
+    loadDataIntoGraphModel(containersAndConnections)
     
 }
 
 function loadDataIntoGraphModel(containersAndConnections) {
-    
     sysViewDiagram.clear()
     sysViewDiagram.model = new go.GraphLinksModel(containersAndConnections.containers, containersAndConnections.connections)
 }
 
-function loadContainersAndConnectionsFromDB() {
+
+function getExampleData() {
     
     let containersAndConnections = []
     containersAndConnections.containers = []
     containersAndConnections.connections = []
     
-    // FIXME: this is awkward, maybe use rethinkdb? How do we load containers and connections at the same time?
-    let containerArray = []
-    let containersRef = database.ref('containers')
-    containersRef.on('value', function(snapshot) {
-        snapshot.forEach(function(childSnapshot) {
-            var containerKey = childSnapshot.key;
-            var containerData = childSnapshot.val();
-            console.log(containerData)
-            
-            containersAndConnections.containers.push({
-                x: containerData.position.x,
-                y: containerData.position.y,
-                width: containerData.size.width,
-                height: containerData.size.height,
-                fill: 'rgba(200, 80, 0, 1)',
-                stroke: 'rgba(200, 80, 0, 1)',
-            })
-            
-        })
-        
-        loadDataIntoGraphModel(containersAndConnections)
-    })
-}
-
-function seedData() {
-    let serverToAdd = {
+    let parentContainerIdentifier = null
+    let containerIdentifier = null
+    
+    let containerToAdd = {
+        type: 'server',
         identifier: 'FirstServer',
         name: 'My First Server',
         position: {
@@ -100,18 +62,33 @@ function seedData() {
             height: 150
         }
     }
-    addServer(serverToAdd)
+    
+    containerIdentifier = addContainer(containerToAdd, parentContainerIdentifier, containersAndConnections)
+    
+    return containersAndConnections
 }
 
-function addServer (serverInfo) {
-    // FIXME: create new containerId!
-    let containerId = 1
-    firebase.database().ref('containers/' + containerId).set({
-        identifier: serverInfo.identifier,
-        name: serverInfo.name,
-        type: 'Server',
-        position: serverInfo.position,
-        size: serverInfo.size
-    })    
+function addContainer(containerData, parentContainerIdentifier, containersAndConnections) {
+    
+    let containerIdentifier = containerData.identifier
+    
+    if (containerData.type === 'server') {
+        // TODO: determine absolute postiion based on absolute position of parent (we need a hashmap of containers (of the parent itself) for that)
+        containersAndConnections.containers.push({
+            x: containerData.position.x,
+            y: containerData.position.y,
+            width: containerData.size.width,
+            height: containerData.size.height,
+            isGroup: true,
+            groupIdentifier: parentContainerIdentifier,
+            fill: 'rgba(200, 80, 0, 1)',
+            stroke: 'rgba(200, 80, 0, 1)',
+        })
+    }
+    else {
+        console.log("ERROR: Unknown container type: " + containerData.type)
+    
+    }
+    
+    return containerIdentifier
 }
-
