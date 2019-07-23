@@ -72,6 +72,14 @@ function init() {
     )
     */
     
+    // notice whenever a transaction or undo/redo has occurred
+    sysViewDiagram.addModelChangedListener(function(evt) {
+        if (evt.isTransactionFinished) {
+            console.log(evt.model.nodeDataArray)
+            // TODO: implement this: saveModel(evt.model)
+        }
+    })
+    
     // TODO: replace this eventually
     let containersAndConnections = getExampleData()
     loadDataIntoGraphModel(containersAndConnections)
