@@ -40,8 +40,16 @@ function init() {
                             }
                         ),
             ),
-            // FIXME: this should be TwoWay as well!
-            new go.Binding("location", "loc", function (loc) { return new go.Point(loc.x, loc.y) })
+            new go.Binding("location", "position", 
+                            function (position) { 
+                                return new go.Point(position.x, position.y) 
+                            }
+                        )
+                        .makeTwoWay(
+                            function (location) { 
+                                return { x: location.x, y: location.y }
+                            }
+                        ),
         )
     )
     
@@ -82,8 +90,8 @@ function getExampleData() {
     containersAndConnections.containers = []
     containersAndConnections.connections = []
     
-    let parentContainerIdentifier = null
-    let containerIdentifier = null
+    let parentContainerIdentifier = ""
+    let containerIdentifier = ""
     
     let containerToAdd = {
         type: 'server',
@@ -101,6 +109,16 @@ function getExampleData() {
     
     containerIdentifier = addContainer(containerToAdd, parentContainerIdentifier, containersAndConnections)
     
+    containerToAdd.type = 'API'
+    containerToAdd.identifier = 'API1'
+    containerToAdd.position.x = 70
+    containerToAdd.position.y = 230
+    containerToAdd.size.width = 70
+    containerToAdd.size.height = 50
+    
+    parentContainerIdentifier = containerIdentifier
+    containerIdentifier = addContainer(containerToAdd, parentContainerIdentifier, containersAndConnections)
+    
     return containersAndConnections
 }
 
@@ -108,26 +126,37 @@ function addContainer(containerData, parentContainerIdentifier, containersAndCon
     
     let containerIdentifier = containerData.identifier
     
+    let fill = 'rgba(0, 0, 0, 1)'
+    let stroke = 'rgba(0, 0, 0, 1)'
+    
     if (containerData.type === 'server') {
-        // TODO: determine absolute postiion based on absolute position of parent (we need a hashmap of containers (of the parent itself) for that)
-        containersAndConnections.containers.push({
-            key: containerIdentifier,
-            name: containerData.name,
-            x: containerData.position.x,
-            y: containerData.position.y,
-            size: { 
-                width: containerData.size.width,
-                height: containerData.size.height,
-            },
-            isGroup: true,
-            groupIdentifier: parentContainerIdentifier,
-            fill: 'rgba(200, 80, 0, 1)',
-            stroke: 'rgba(200, 80, 0, 1)',
-        })
+        fill = 'rgba(200, 80, 0, 1)'
+        stroke = 'rgba(200, 80, 0, 1)'
+    }
+    else if (containerData.type === 'API') {
+        fill = 'rgba(0, 80, 200, 1)'
+        stroke = 'rgba(0, 80, 200, 1)'
     }
     else {
         console.log("ERROR: Unknown container type: " + containerData.type)
     }
     
+    // TODO: determine absolute postiion based on absolute position of parent (we need a hashmap of containers (of the parent itself) for that)
+    containersAndConnections.containers.push({
+        key: containerIdentifier,
+        name: containerData.name,
+        position: {
+            x: containerData.position.x,
+            y: containerData.position.y,
+        },
+        size: { 
+            width: containerData.size.width,
+            height: containerData.size.height,
+        },
+        isGroup: true,
+        group: parentContainerIdentifier,
+        fill: fill,
+        stroke: stroke,
+    })
     return containerIdentifier
 }
