@@ -12,6 +12,37 @@ function init() {
                 "animationManager.isEnabled": false,
             })
 
+    sysViewDiagram.groupTemplateMap.add("",
+        $$(go.Group, "Auto",
+            { 
+                fromSpot: go.Spot.Right, 
+                toSpot: go.Spot.Left,
+            },
+            {   
+                selectionObjectName: "PH",
+                locationObjectName: "PH",
+                resizable: true,
+                resizeObjectName: "PH" 
+            },
+            $$(go.Shape, "Rectangle",
+                { name: "PH" },
+                new go.Binding("stroke", "stroke"),
+                new go.Binding("fill", "fill"),
+                new go.Binding("desiredSize", "size", 
+                            function (size) { 
+                                return new go.Size(size.width, size.height) 
+                            }
+                        )
+                        .makeTwoWay(
+                            function (desiredSize) { 
+                                return { width: desiredSize.width, height: desiredSize.height }
+                            }
+                        ),
+            ),
+            new go.Binding("location", "loc", function (loc) { return new go.Point(loc.x, loc.y) })
+        )
+    )
+    
     sysViewDiagram.nodeTemplateMap.add("",
         $$(go.Node, "Auto",
             { 
@@ -21,6 +52,7 @@ function init() {
             $$(go.Shape, "Rectangle",
                 new go.Binding("stroke", "stroke"),
                 new go.Binding("fill", "fill"),
+                // FIXME: this is old:
                 new go.Binding("width", "width"),
                 new go.Binding("height", "height")
             ),
@@ -77,8 +109,10 @@ function addContainer(containerData, parentContainerIdentifier, containersAndCon
         containersAndConnections.containers.push({
             x: containerData.position.x,
             y: containerData.position.y,
-            width: containerData.size.width,
-            height: containerData.size.height,
+            size: { 
+                width: containerData.size.width,
+                height: containerData.size.height,
+            },
             isGroup: true,
             groupIdentifier: parentContainerIdentifier,
             fill: 'rgba(200, 80, 0, 1)',
