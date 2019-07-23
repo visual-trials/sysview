@@ -18,7 +18,8 @@ function init() {
                 fromSpot: go.Spot.Right, 
                 toSpot: go.Spot.Left,
             },
-            {   
+            { 
+                // TODO: we are using "PH" here. But does this exactly work?
                 selectionObjectName: "PH",
                 locationObjectName: "PH",
                 resizable: true,
@@ -39,10 +40,12 @@ function init() {
                             }
                         ),
             ),
+            // FIXME: this should be TwoWay as well!
             new go.Binding("location", "loc", function (loc) { return new go.Point(loc.x, loc.y) })
         )
     )
     
+    /*
     sysViewDiagram.nodeTemplateMap.add("",
         $$(go.Node, "Auto",
             { 
@@ -59,6 +62,7 @@ function init() {
             new go.Binding("location", "loc", function (loc) { return new go.Point(loc.x, loc.y) })
         )
     )
+    */
     
     // TODO: replace this eventually
     let containersAndConnections = getExampleData()
@@ -107,6 +111,8 @@ function addContainer(containerData, parentContainerIdentifier, containersAndCon
     if (containerData.type === 'server') {
         // TODO: determine absolute postiion based on absolute position of parent (we need a hashmap of containers (of the parent itself) for that)
         containersAndConnections.containers.push({
+            key: containerIdentifier,
+            name: containerData.name,
             x: containerData.position.x,
             y: containerData.position.y,
             size: { 
@@ -121,7 +127,6 @@ function addContainer(containerData, parentContainerIdentifier, containersAndCon
     }
     else {
         console.log("ERROR: Unknown container type: " + containerData.type)
-    
     }
     
     return containerIdentifier
