@@ -56,10 +56,14 @@ function init() {
                                 return { x: location.x, y: location.y }
                             }
                         ),
+            $$(go.TextBlock,
+                { stroke: "white", margin: 3 },
+                new go.Binding("text", "key")
+            )
         )
     )
     
-    
+    /*
     sysViewDiagram.toolManager.linkingTool.temporaryLink =
         $$(go.Link,
             { layerName: "Tool" },
@@ -86,6 +90,7 @@ function init() {
         )
     sysViewDiagram.toolManager.linkingTool.temporaryToNode = tempToNode
     sysViewDiagram.toolManager.linkingTool.temporaryToPort = tempToNode.port
+    */
     
     
     /*
@@ -142,8 +147,8 @@ function getExampleData() {
             y: 200
         },
         size: {
-            width: 100,
-            height: 150
+            width: 200,
+            height: 250
         }
     }
     
@@ -170,11 +175,11 @@ function getExampleData() {
         identifier: 'SecondServer',
         name: 'My Second Server',
         position: {
-            x: 250,
+            x: 350,
             y: 200
         },
         size: {
-            width: 100,
+            width: 150,
             height: 150
         }
     }
@@ -186,8 +191,8 @@ function getExampleData() {
         identifier: 'API2',
         name: 'Second API',
         position: {
-            x: 270,
-            y: 230
+            x: 380,
+            y: 210
         },
         size: {
             width: 70,
