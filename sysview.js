@@ -167,6 +167,14 @@ function drawContainer(container) {
         ctx.fillStyle = container.fill
         let screenContainerPosition = addOffsetToPosition(interaction.viewOffset, container.position)
         ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
+        
+        if (interaction.currentlySelectedContainer != null && 
+            container.identifier === interaction.currentlySelectedContainer.identifier) {
+                
+            ctx.lineWidth = 2
+            ctx.strokeStyle = "#FF0000"
+            ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
+        }
     }
     
     let textColor = "#000000"
@@ -206,7 +214,6 @@ function addOffsetToPosition(offset, position) {
 
 function handleMouseStateChange () {
     
-    
     if (mouseState.leftButtonHasGoneDown) {
         let containerAtMousePosition = findContainerAtScreenPosition(mouseState.position)
         
@@ -233,14 +240,14 @@ function handleMouseStateChange () {
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
         interaction.currentlySelectedContainer.position.x += mouseState.position.x - mouseState.previousPosition.x 
         interaction.currentlySelectedContainer.position.y += mouseState.position.y - mouseState.previousPosition.y
-        drawContainers()
     }
     
     if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
         interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x 
         interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
-        drawContainers()
     }
+    
+    drawContainers()
     
     // Reset mouse(event) data
     mouseState.previousPosition.x = mouseState.position.x
