@@ -131,6 +131,8 @@ let interaction = {
     currentlyHoveredContainer : null,
     currentlySelectedContainer : null,
     selectedContainerIsBeingDragged : false,
+    selectedContainerIsBeingResized : false,
+    selectedContainerResizeSide : null,
     mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
 
@@ -229,39 +231,11 @@ function handleMouseStateChange () {
     
     interaction.currentlyHoveredContainer = containerAtMousePosition
     
-    if (mouseState.leftButtonHasGoneDown) {
-        
-        if (containerAtMousePosition != null) {
-            interaction.currentlySelectedContainer = containerAtMousePosition
-            interaction.selectedContainerIsBeingDragged = true
-            
-            interaction.viewIsBeingDragged = false
-        }
-        else {
-            // we did not click on a container, so we clicked on the background
-            interaction.currentlySelectedContainer = null
-            interaction.selectedContainerIsBeingDragged = false
-            
-            interaction.viewIsBeingDragged = true
-        }
-    }
+    // Check mouse position
     
-    if (mouseState.leftButtonHasGoneUp) {
-        interaction.selectedContainerIsBeingDragged = false
-        interaction.viewIsBeingDragged = false
-    }
-    
-    if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
-        interaction.currentlySelectedContainer.position.x += mouseState.position.x - mouseState.previousPosition.x 
-        interaction.currentlySelectedContainer.position.y += mouseState.position.y - mouseState.previousPosition.y
-    }
-    
-    if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
-        interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x 
-        interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
-    }
-
     let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.position, interaction.currentlySelectedContainer)
+    
+    let mouseIsNearSelectedContainerBorder = false
     
     if (interaction.currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
         
@@ -272,18 +246,23 @@ function handleMouseStateChange () {
                  (selectedContainerNearness.x < 0 && selectedContainerNearness.y < 0))
         {
             interaction.mousePointerStyle = 'nw-resize'
+            mouseIsNearSelectedContainerBorder = true
         }
         else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
                  (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
         {
             interaction.mousePointerStyle = 'ne-resize'
+            mouseIsNearSelectedContainerBorder = true
         }
         else if (selectedContainerNearness.x !== 0) {
             interaction.mousePointerStyle = 'e-resize'
+            mouseIsNearSelectedContainerBorder = true
         }
         else if (selectedContainerNearness.y !== 0) {
             interaction.mousePointerStyle = 'n-resize'
+            mouseIsNearSelectedContainerBorder = true
         }
+        
     }
     else if (interaction.currentlyHoveredContainer != null) {
         interaction.mousePointerStyle = 'move'
@@ -292,6 +271,70 @@ function handleMouseStateChange () {
         interaction.mousePointerStyle = 'default'
     }
     
+    // Handle mouse clicking
+
+    if (mouseState.leftButtonHasGoneDown) {
+        
+        if (mouseIsNearSelectedContainerBorder) {
+            interaction.selectedContainerIsBeingResized = true
+            interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
+            
+            interaction.selectedContainerIsBeingDragged = false
+            interaction.viewIsBeingDragged = false
+        }
+        else if (containerAtMousePosition != null) {
+            interaction.currentlySelectedContainer = containerAtMousePosition
+            interaction.selectedContainerIsBeingDragged = true
+            
+            interaction.selectedContainerIsBeingResized = false
+            interaction.viewIsBeingDragged = false
+        }
+        else {
+            // we did not click on a container, so we clicked on the background
+            interaction.viewIsBeingDragged = true
+            
+            interaction.currentlySelectedContainer = null
+            interaction.selectedContainerIsBeingDragged = false
+            interaction.selectedContainerIsBeingResized = false
+        }
+    }
+    
+    if (mouseState.leftButtonHasGoneUp) {
+        interaction.selectedContainerIsBeingDragged = false
+        interaction.selectedContainerIsBeingResized = false
+        interaction.selectedContainerResizeSide = null
+        interaction.viewIsBeingDragged = false
+    }
+    
+    // Hande mouse movement
+    
+    if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
+        interaction.currentlySelectedContainer.position.x += mouseState.position.x - mouseState.previousPosition.x 
+        interaction.currentlySelectedContainer.position.y += mouseState.position.y - mouseState.previousPosition.y
+    }
+    
+    if (mouseState.hasMoved && interaction.selectedContainerIsBeingResized) {
+        if (interaction.selectedContainerResizeSide.x > 0) { // right side
+            interaction.currentlySelectedContainer.size.width += mouseState.position.x - mouseState.previousPosition.x 
+        }
+        if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
+            interaction.currentlySelectedContainer.size.height += mouseState.position.y - mouseState.previousPosition.y
+        }
+        if (interaction.selectedContainerResizeSide.x < 0) { // left side
+            interaction.currentlySelectedContainer.position.x += mouseState.position.x - mouseState.previousPosition.x 
+            interaction.currentlySelectedContainer.size.width -= mouseState.position.x - mouseState.previousPosition.x 
+        }
+        if (interaction.selectedContainerResizeSide.y < 0) { // top side
+            interaction.currentlySelectedContainer.position.y += mouseState.position.y - mouseState.previousPosition.y
+            interaction.currentlySelectedContainer.size.height -= mouseState.position.y - mouseState.previousPosition.y
+        }
+    }
+    
+    if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
+        interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x 
+        interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+    }
+
     drawCanvas()
     
     // Reset mouse(event) data
