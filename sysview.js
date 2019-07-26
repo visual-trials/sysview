@@ -149,7 +149,7 @@ function drawContainers() {
         drawContainer(container)
     }
     
-    // FIXME: when the mouse is moving its style doesn't get changed
+    // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
     canvasElement.style.cursor = interaction.mousePointerStyle
 }
 
@@ -245,8 +245,13 @@ function handleMouseStateChange () {
         interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
     }
 
+    /*
     if (interaction.currentlyHoveredContainer != null && interaction.currentlySelectedContainer != null &&
         interaction.currentlyHoveredContainer.identifier === interaction.currentlySelectedContainer.identifier) {
+        interaction.mousePointerStyle = 'move'
+    }
+    */
+    if (interaction.currentlyHoveredContainer != null) {
         interaction.mousePointerStyle = 'move'
     }
     else {
