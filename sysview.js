@@ -5,9 +5,8 @@ function init() {
     // TODO: replace this eventually
     containersAndConnections = getExampleData()
     
-    resizeCanvasToWindowSize()
     addInputListeners()
-    drawContainers()
+    drawCanvas()
 }
 
 function getExampleData() {
@@ -152,17 +151,22 @@ function resizeCanvasToWindowSize () {
     
 }
     
-function drawContainers() {
+function drawCanvas() {
+    
+    resizeCanvasToWindowSize()
     clearCanvas()
     
-    for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
-        let container = containersAndConnections.containers[containerIndex]
-        
-        drawContainer(container)
-    }
+    drawContainers()
     
     // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
     canvasElement.style.cursor = interaction.mousePointerStyle
+}
+
+function drawContainers() {
+    for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
+        let container = containersAndConnections.containers[containerIndex]
+        drawContainer(container)
+    }
 }
 
 function drawContainer(container) {
@@ -257,41 +261,38 @@ function handleMouseStateChange () {
         interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
     }
 
-    if (interaction.currentlyHoveredContainer != null && interaction.currentlySelectedContainer != null &&
-        interaction.currentlyHoveredContainer.identifier === interaction.currentlySelectedContainer.identifier) {
-        interaction.mousePointerStyle = 'move'
-    }
-    else if (interaction.currentlyHoveredContainer != null) {
+    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.position, interaction.currentlySelectedContainer)
+    
+    if (interaction.currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
         
-        // TODO: we should also be able to resize when we are just *outside* the container! (so not-hovering!)
-        
-        let containerSide = whichSideIsPositionFromContainer(mouseState.position, interaction.currentlyHoveredContainer)
-        
-        if (containerSide.x === 0 && containerSide.y === 0) {
+        if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
             interaction.mousePointerStyle = 'move'
         }
-        else if ((containerSide.x > 0 && containerSide.y > 0) ||
-                 (containerSide.x < 0 && containerSide.y < 0))
+        else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y > 0) ||
+                 (selectedContainerNearness.x < 0 && selectedContainerNearness.y < 0))
         {
             interaction.mousePointerStyle = 'nw-resize'
         }
-        else if ((containerSide.x > 0 && containerSide.y < 0) ||
-                 (containerSide.x < 0 && containerSide.y > 0))
+        else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
+                 (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
         {
             interaction.mousePointerStyle = 'ne-resize'
         }
-        else if (containerSide.x !== 0) {
+        else if (selectedContainerNearness.x !== 0) {
             interaction.mousePointerStyle = 'e-resize'
         }
-        else if (containerSide.y !== 0) {
+        else if (selectedContainerNearness.y !== 0) {
             interaction.mousePointerStyle = 'n-resize'
         }
+    }
+    else if (interaction.currentlyHoveredContainer != null) {
+        interaction.mousePointerStyle = 'move'
     }
     else {
         interaction.mousePointerStyle = 'default'
     }
     
-    drawContainers()
+    drawCanvas()
     
     // Reset mouse(event) data
     mouseState.previousPosition.x = mouseState.position.x
@@ -320,24 +321,41 @@ function findContainerAtScreenPosition(screenPosition) {
 }
 
 function whichSideIsPositionFromContainer(screenPosition, container) {
-    let containerScreenPosition = addOffsetToPosition(interaction.viewOffset, container.position)
     
     // FIXME: maybe if container is (very) small, we should make the margin smaller?
     let margin = 10
     
-    let side = { x: 0, y: 0 }
+    let side = { x: 0, y: 0, isNearContainer: true }
+    
+    if (container == null) {
+        return side
+    }
+    
+    let containerScreenPosition = addOffsetToPosition(interaction.viewOffset, container.position)
     
     if (screenPosition.x < containerScreenPosition.x + margin) {
         side.x = -1
+        if (screenPosition.x < containerScreenPosition.x - margin) {
+            side.isNearContainer = false
+        }
     }
     if (screenPosition.y < containerScreenPosition.y + margin) {
         side.y = -1
+        if (screenPosition.y < containerScreenPosition.y - margin) {
+            side.isNearContainer = false
+        }
     }
     if (screenPosition.x > containerScreenPosition.x + container.size.width - margin) {
         side.x = 1
+        if (screenPosition.x > containerScreenPosition.x + container.size.width + margin) {
+            side.isNearContainer = false
+        }
     }
     if (screenPosition.y > containerScreenPosition.y + container.size.height - margin) {
         side.y = 1
+        if (screenPosition.y > containerScreenPosition.y + container.size.height + margin) {
+            side.isNearContainer = false
+        }
     }
     return side
 }
@@ -450,6 +468,8 @@ function addInputListeners () {
     canvasElement.addEventListener("mousewheel", mouseWheelMoved, false)
     // Firefox
     canvasElement.addEventListener("DOMMouseScroll", mouseWheelMoved, false)
+    
+    window.addEventListener("resize", drawCanvas, false)
     
     // TODO: for now preventing the context-menu this way
     canvasElement.addEventListener('contextmenu', event => event.preventDefault());
