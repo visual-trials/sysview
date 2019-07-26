@@ -128,8 +128,10 @@ let ctx = canvasElement.getContext("2d")
 let interaction = {
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
+    currentlyHoveredContainer : null,
     currentlySelectedContainer : null,
-    selectedContainerIsBeingDragged : false
+    selectedContainerIsBeingDragged : false,
+    mousePointerStyle: 'auto'
 }
 
 function clearCanvas() {
@@ -146,6 +148,9 @@ function drawContainers() {
         
         drawContainer(container)
     }
+    
+    // FIXME: when the mouse is moving its style doesn't get changed
+    canvasElement.style.cursor = interaction.mousePointerStyle
 }
 
 function drawContainer(container) {
@@ -204,8 +209,11 @@ function addOffsetToPosition(offset, position) {
 
 function handleMouseStateChange () {
     
+    let containerAtMousePosition = findContainerAtScreenPosition(mouseState.position)
+    
+    interaction.currentlyHoveredContainer = containerAtMousePosition
+    
     if (mouseState.leftButtonHasGoneDown) {
-        let containerAtMousePosition = findContainerAtScreenPosition(mouseState.position)
         
         if (containerAtMousePosition != null) {
             interaction.currentlySelectedContainer = containerAtMousePosition
@@ -235,6 +243,14 @@ function handleMouseStateChange () {
     if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
         interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x 
         interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+    }
+
+    if (interaction.currentlyHoveredContainer != null && interaction.currentlySelectedContainer != null &&
+        interaction.currentlyHoveredContainer.identifier === interaction.currentlySelectedContainer.identifier) {
+        interaction.mousePointerStyle = 'move'
+    }
+    else {
+        interaction.mousePointerStyle = 'auto'
     }
     
     drawContainers()
