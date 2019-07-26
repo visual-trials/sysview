@@ -5,6 +5,7 @@ function init() {
     // TODO: replace this eventually
     containersAndConnections = getExampleData()
     
+    resizeCanvasToWindowSize()
     addInputListeners()
     drawContainers()
 }
@@ -140,6 +141,17 @@ function clearCanvas() {
     ctx.closePath()    
 }
 
+function resizeCanvasToWindowSize () {
+    
+    if ( canvasElement.width != window.innerWidth || canvasElement.height != window.innerHeight) {
+        canvasElement.style.width = window.innerWidth
+        canvasElement.style.height = window.innerHeight
+        canvasElement.width = window.innerWidth
+        canvasElement.height = window.innerHeight
+    }
+    
+}
+    
 function drawContainers() {
     clearCanvas()
     
