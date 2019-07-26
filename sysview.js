@@ -132,7 +132,7 @@ let interaction = {
     currentlyHoveredContainer : null,
     currentlySelectedContainer : null,
     selectedContainerIsBeingDragged : false,
-    mousePointerStyle: 'auto'
+    mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
 
 function clearCanvas() {
@@ -257,17 +257,38 @@ function handleMouseStateChange () {
         interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
     }
 
-    /*
     if (interaction.currentlyHoveredContainer != null && interaction.currentlySelectedContainer != null &&
         interaction.currentlyHoveredContainer.identifier === interaction.currentlySelectedContainer.identifier) {
         interaction.mousePointerStyle = 'move'
     }
-    */
-    if (interaction.currentlyHoveredContainer != null) {
-        interaction.mousePointerStyle = 'move'
+    else if (interaction.currentlyHoveredContainer != null) {
+        
+        // TODO: we should also be able to resize when we are just *outside* the container! (so not-hovering!)
+        
+        let containerSide = whichSideIsPositionFromContainer(mouseState.position, interaction.currentlyHoveredContainer)
+        
+        if (containerSide.x === 0 && containerSide.y === 0) {
+            interaction.mousePointerStyle = 'move'
+        }
+        else if ((containerSide.x > 0 && containerSide.y > 0) ||
+                 (containerSide.x < 0 && containerSide.y < 0))
+        {
+            interaction.mousePointerStyle = 'nw-resize'
+        }
+        else if ((containerSide.x > 0 && containerSide.y < 0) ||
+                 (containerSide.x < 0 && containerSide.y > 0))
+        {
+            interaction.mousePointerStyle = 'ne-resize'
+        }
+        else if (containerSide.x !== 0) {
+            interaction.mousePointerStyle = 'e-resize'
+        }
+        else if (containerSide.y !== 0) {
+            interaction.mousePointerStyle = 'n-resize'
+        }
     }
     else {
-        interaction.mousePointerStyle = 'auto'
+        interaction.mousePointerStyle = 'default'
     }
     
     drawContainers()
@@ -296,6 +317,29 @@ function findContainerAtScreenPosition(screenPosition) {
     }
     
     return null
+}
+
+function whichSideIsPositionFromContainer(screenPosition, container) {
+    let containerScreenPosition = addOffsetToPosition(interaction.viewOffset, container.position)
+    
+    // FIXME: maybe if container is (very) small, we should make the margin smaller?
+    let margin = 10
+    
+    let side = { x: 0, y: 0 }
+    
+    if (screenPosition.x < containerScreenPosition.x + margin) {
+        side.x = -1
+    }
+    if (screenPosition.y < containerScreenPosition.y + margin) {
+        side.y = -1
+    }
+    if (screenPosition.x > containerScreenPosition.x + container.size.width - margin) {
+        side.x = 1
+    }
+    if (screenPosition.y > containerScreenPosition.y + container.size.height - margin) {
+        side.y = 1
+    }
+    return side
 }
 
 function screenPositionIsInsideContainer(screenPosition, container) {
