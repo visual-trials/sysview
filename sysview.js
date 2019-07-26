@@ -1,3 +1,4 @@
+let containersAndConnections = null
 
 function init() {
    
@@ -7,18 +8,15 @@ function init() {
         
     
     // TODO: replace this eventually
-    let containersAndConnections = getExampleData()
+    containersAndConnections = getExampleData()
     
-    initSelfMade(containersAndConnections)
+    initSelfMade()
     
 }
 
-
 function getExampleData() {
     
-    let containersAndConnections = []
-    containersAndConnections.containers = []
-    containersAndConnections.connections = []
+    let exampleContainersAndConnections = { containers: [], connections: [] }
     
     let firstServer = {
         type: 'server',
@@ -34,7 +32,7 @@ function getExampleData() {
         }
     }
     
-    let firstServerIdentifier = addContainer(firstServer, "", containersAndConnections)
+    let firstServerIdentifier = addContainer(firstServer, "", exampleContainersAndConnections.containers)
     
     let firstAPI = {
         type: 'API',
@@ -50,7 +48,7 @@ function getExampleData() {
         }
     }
     
-    let firstAPIIdentifier = addContainer(firstAPI, firstServerIdentifier, containersAndConnections)
+    let firstAPIIdentifier = addContainer(firstAPI, firstServerIdentifier, exampleContainersAndConnections.containers)
     
     let secondServer = {
         type: 'server',
@@ -66,7 +64,7 @@ function getExampleData() {
         }
     }
     
-    let secondServerIdentifier = addContainer(secondServer, "", containersAndConnections)
+    let secondServerIdentifier = addContainer(secondServer, "", exampleContainersAndConnections.containers)
     
     let secondAPI = {
         type: 'API',
@@ -82,12 +80,12 @@ function getExampleData() {
         }
     }
     
-    let secondAPIIdentifier = addContainer(secondAPI, secondServerIdentifier, containersAndConnections)
+    let secondAPIIdentifier = addContainer(secondAPI, secondServerIdentifier, exampleContainersAndConnections.containers)
     
-    return containersAndConnections
+    return exampleContainersAndConnections
 }
 
-function addContainer(containerData, parentContainerIdentifier, containersAndConnections) {
+function addContainer(containerData, parentContainerIdentifier, containersToAddTo) {
     
     let containerIdentifier = containerData.identifier
     
@@ -107,7 +105,7 @@ function addContainer(containerData, parentContainerIdentifier, containersAndCon
     }
     
     // TODO: determine absolute postiion based on absolute position of parent (we need a hashmap of containers (of the parent itself) for that)
-    containersAndConnections.containers.push({
+    containersToAddTo.push({
         identifier: containerIdentifier,
         name: containerData.name,
         position: {
@@ -126,71 +124,49 @@ function addContainer(containerData, parentContainerIdentifier, containersAndCon
     return containerIdentifier
 }
 
-/* mxGraph */
-
-function initMxGraph(containerDiv)
-{
-    // Checks if the browser is supported
-    if (!mxClient.isBrowserSupported())
-    {
-        // Displays an error message if the browser is not supported.
-        mxUtils.error('Browser is not supported!', 200, false)
-    }
-    else
-    {
-        // Disables the built-in context menu
-        mxEvent.disableContextMenu(containerDiv);
-        
-        // Creates the graph inside the given container
-        let graph = new mxGraph(containerDiv)
-
-        // Enables rubberband selection
-        new mxRubberband(graph)
-        
-        // Gets the default parent for inserting new cells. This
-        // is normally the first child of the root (ie. layer 0).
-        let parent = graph.getDefaultParent()
-                        
-        // Adds cells to the model in a single step
-        graph.getModel().beginUpdate()
-        try
-        {
-            let v1 = graph.insertVertex(parent, null, 'Hello,', 20, 20, 80, 30)
-            let v2 = graph.insertVertex(parent, null, 'World!', 200, 150, 80, 30)
-            let e1 = graph.insertEdge(parent, null, '', v1, v2)
-        }
-        finally
-        {
-            // Updates the display
-            graph.getModel().endUpdate()
-        }
-    }
-}
-
 /* Self made */
 
-let currentlySelectedContainer = null
 let canvasElement = document.getElementById('canvas')
+let ctx = canvasElement.getContext("2d")
 
-function initSelfMade(containersAndConnections) {
-    
-    let ctx = canvasElement.getContext("2d")
+// Interaction info
+let interaction = {
+    viewOffset : { x: 0, y: 0},
+    viewIsBeingDragged : false,
+    currentlySelectedContainer : null,
+    selectedContainerIsBeingDragged : false
+}
+
+function initSelfMade() {
     addInputListeners()
+    drawContainers()
+}
+
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
+    ctx.beginPath() // See: http://codetheory.in/why-clearrect-might-not-be-clearing-canvas-pixels/
+    ctx.closePath()    
+}
+
+function drawContainers() {
+    clearCanvas()
     
     for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
         let container = containersAndConnections.containers[containerIndex]
         
-        drawContainer(ctx, container)
+        drawContainer(container)
     }
 }
 
-function drawContainer(ctx, container) {
+function drawContainer(container) {
+    
     {
         // Draw rectangle 
         ctx.lineWidth = 2
         ctx.strokeStyle = container.stroke
         ctx.fillStyle = container.fill
-        ctx.fillRect(container.position.x, container.position.y, container.size.width, container.size.height)
+        let screenContainerPosition = addOffsetToPosition(interaction.viewOffset, container.position)
+        ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
     }
     
     let textColor = "#000000"
@@ -212,16 +188,59 @@ function drawContainer(ctx, container) {
         textPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
         textPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
         
+        let screenTextPosition = addOffsetToPosition(interaction.viewOffset, textPosition)
+        
         // Draw the text at the text positions
         ctx.fillStyle = textColor
-        ctx.fillText(textToDraw, textPosition.x, textPosition.y)
+        ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
     }
     
 }
 
+function addOffsetToPosition(offset, position) {
+    let offsetPosition = { x: 0, y: 0}
+    offsetPosition.x = offset.x + position.x
+    offsetPosition.y = offset.y + position.y
+    return offsetPosition
+}
+
 function handleMouseStateChange () {
     
-    console.log(mouseState)
+    
+    if (mouseState.leftButtonHasGoneDown) {
+        let containerAtMousePosition = findContainerAtScreenPosition(mouseState.position)
+        
+        if (containerAtMousePosition != null) {
+            interaction.currentlySelectedContainer = containerAtMousePosition
+            interaction.selectedContainerIsBeingDragged = true
+            
+            interaction.viewIsBeingDragged = false
+        }
+        else {
+            // we did not click on a container, so we clicked on the background
+            interaction.currentlySelectedContainer = null
+            interaction.selectedContainerIsBeingDragged = false
+            
+            interaction.viewIsBeingDragged = true
+        }
+    }
+    
+    if (mouseState.leftButtonHasGoneUp) {
+        interaction.selectedContainerIsBeingDragged = false
+        interaction.viewIsBeingDragged = false
+    }
+    
+    if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
+        interaction.currentlySelectedContainer.position.x += mouseState.position.x - mouseState.previousPosition.x 
+        interaction.currentlySelectedContainer.position.y += mouseState.position.y - mouseState.previousPosition.y
+        drawContainers()
+    }
+    
+    if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
+        interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x 
+        interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+        drawContainers()
+    }
     
     // Reset mouse(event) data
     mouseState.previousPosition.x = mouseState.position.x
@@ -231,6 +250,37 @@ function handleMouseStateChange () {
     mouseState.leftButtonHasGoneUp = false
     mouseState.rightButtonHasGoneDown = false
     mouseState.rightButtonHasGoneUp = false
+}
+
+
+function findContainerAtScreenPosition(screenPosition) {
+    
+    // FIXME: you want to find this recursively!! (starting with children, then their parents etc)
+    
+    for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
+        let container = containersAndConnections.containers[containerIndex]
+        
+        if (screenPositionIsInsideContainer(screenPosition, container)) {
+            return container
+        }
+    }
+    
+    return null
+}
+
+function screenPositionIsInsideContainer(screenPosition, container) {
+    let containerScreenPosition = addOffsetToPosition(interaction.viewOffset, container.position)
+    
+    if (screenPosition.x < containerScreenPosition.x ||
+        screenPosition.y < containerScreenPosition.y ||
+        screenPosition.x > containerScreenPosition.x + container.size.width ||
+        screenPosition.y > containerScreenPosition.y + container.size.height) {
+            
+        return false
+    }
+    else {
+        return true
+    }
 }
 
 let mouseState = {
@@ -454,12 +504,54 @@ function initGoJS() {
     })
     
     // TODO: replace this eventually
-    let containersAndConnections = getExampleData()
+    containersAndConnections = getExampleData()
     loadDataIntoGraphModel(sysViewDiagram, containersAndConnections)
     
 }
 
-function loadDataIntoGraphModel(sysViewDiagram, containersAndConnections) {
+function loadDataIntoGraphModel(sysViewDiagram) {
     sysViewDiagram.clear()
     sysViewDiagram.model = new go.GraphLinksModel(containersAndConnections.containers, containersAndConnections.connections)
 }
+
+/* mxGraph */
+
+function initMxGraph(containerDiv)
+{
+    // Checks if the browser is supported
+    if (!mxClient.isBrowserSupported())
+    {
+        // Displays an error message if the browser is not supported.
+        mxUtils.error('Browser is not supported!', 200, false)
+    }
+    else
+    {
+        // Disables the built-in context menu
+        mxEvent.disableContextMenu(containerDiv);
+        
+        // Creates the graph inside the given container
+        let graph = new mxGraph(containerDiv)
+
+        // Enables rubberband selection
+        new mxRubberband(graph)
+        
+        // Gets the default parent for inserting new cells. This
+        // is normally the first child of the root (ie. layer 0).
+        let parent = graph.getDefaultParent()
+                        
+        // Adds cells to the model in a single step
+        graph.getModel().beginUpdate()
+        try
+        {
+            let v1 = graph.insertVertex(parent, null, 'Hello,', 20, 20, 80, 30)
+            let v2 = graph.insertVertex(parent, null, 'World!', 200, 150, 80, 30)
+            let e1 = graph.insertEdge(parent, null, '', v1, v2)
+        }
+        finally
+        {
+            // Updates the display
+            graph.getModel().endUpdate()
+        }
+    }
+}
+
