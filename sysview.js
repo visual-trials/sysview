@@ -1,56 +1,16 @@
 
 function init() {
    
-    /* mxGraph */
+    // let graphContainerDiv = document.getElementById('sysViewDiv')
     
-    let graphContainerDiv = document.getElementById('sysViewDiv')
-    
-    initMxGraph(graphContainerDiv);
+    // initMxGraph(graphContainerDiv);
         
     
     // TODO: replace this eventually
-    // let containersAndConnections = getExampleData()
+    let containersAndConnections = getExampleData()
     
-}
-
-
-function initMxGraph(containerDiv)
-{
-    // Checks if the browser is supported
-    if (!mxClient.isBrowserSupported())
-    {
-        // Displays an error message if the browser is not supported.
-        mxUtils.error('Browser is not supported!', 200, false)
-    }
-    else
-    {
-        // Disables the built-in context menu
-        mxEvent.disableContextMenu(containerDiv);
-        
-        // Creates the graph inside the given container
-        let graph = new mxGraph(containerDiv)
-
-        // Enables rubberband selection
-        new mxRubberband(graph)
-        
-        // Gets the default parent for inserting new cells. This
-        // is normally the first child of the root (ie. layer 0).
-        let parent = graph.getDefaultParent()
-                        
-        // Adds cells to the model in a single step
-        graph.getModel().beginUpdate()
-        try
-        {
-            let v1 = graph.insertVertex(parent, null, 'Hello,', 20, 20, 80, 30)
-            let v2 = graph.insertVertex(parent, null, 'World!', 200, 150, 80, 30)
-            let e1 = graph.insertEdge(parent, null, '', v1, v2)
-        }
-        finally
-        {
-            // Updates the display
-            graph.getModel().endUpdate()
-        }
-    }
+    initSelfMade(containersAndConnections)
+    
 }
 
 
@@ -166,17 +126,105 @@ function addContainer(containerData, parentContainerIdentifier, containersAndCon
     return containerIdentifier
 }
 
+/* mxGraph */
+
+function initMxGraph(containerDiv)
+{
+    // Checks if the browser is supported
+    if (!mxClient.isBrowserSupported())
+    {
+        // Displays an error message if the browser is not supported.
+        mxUtils.error('Browser is not supported!', 200, false)
+    }
+    else
+    {
+        // Disables the built-in context menu
+        mxEvent.disableContextMenu(containerDiv);
+        
+        // Creates the graph inside the given container
+        let graph = new mxGraph(containerDiv)
+
+        // Enables rubberband selection
+        new mxRubberband(graph)
+        
+        // Gets the default parent for inserting new cells. This
+        // is normally the first child of the root (ie. layer 0).
+        let parent = graph.getDefaultParent()
+                        
+        // Adds cells to the model in a single step
+        graph.getModel().beginUpdate()
+        try
+        {
+            let v1 = graph.insertVertex(parent, null, 'Hello,', 20, 20, 80, 30)
+            let v2 = graph.insertVertex(parent, null, 'World!', 200, 150, 80, 30)
+            let e1 = graph.insertEdge(parent, null, '', v1, v2)
+        }
+        finally
+        {
+            // Updates the display
+            graph.getModel().endUpdate()
+        }
+    }
+}
+
+/* Self made */
+
+function initSelfMade(containersAndConnections) {
+    let canvasElement = document.getElementById('canvas')
+    let ctx = canvasElement.getContext("2d")
+    
+    for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
+        let container = containersAndConnections.containers[containerIndex]
+        
+        drawContainer(ctx, container)
+    }
+}
+
+function drawContainer(ctx, container) {
+    {
+        // Draw rectangle 
+        ctx.lineWidth = 2
+        ctx.strokeStyle = container.stroke
+        ctx.fillStyle = container.fill
+        ctx.fillRect(container.position.x, container.position.y, container.size.width, container.size.height)
+    }
+    
+    let textColor = "#000000"
+    {
+        // Draw text
+        let textToDraw = container.identifier
+        
+        // Get text size
+        let textSize = {}
+        let fontSize = 12
+        ctx.font = fontSize + "px Arial"
+        let textHeightToFontSizeRatioArial = 1.1499023
+        
+        textSize.width = ctx.measureText(textToDraw).width
+        textSize.height = textHeightToFontSizeRatioArial * fontSize
+
+        // Determine text position
+        let textPosition = {}
+        textPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
+        textPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
+        
+        // Draw the text at the text positions
+        ctx.fillStyle = textColor
+        ctx.fillText(textToDraw, textPosition.x, textPosition.y)
+    }
+    
+    
+}
 
 
 
 /* Go.js */
 
 // let $$ = go.GraphObject.make
-// let sysViewDiagram
 
 function initGoJS() {    
     
-    sysViewDiagram =
+    let sysViewDiagram =
         $$(go.Diagram, "sysViewDiv",
             {
                 "undoManager.isEnabled": true,
@@ -293,11 +341,11 @@ function initGoJS() {
     
     // TODO: replace this eventually
     let containersAndConnections = getExampleData()
-    loadDataIntoGraphModel(containersAndConnections)
+    loadDataIntoGraphModel(sysViewDiagram, containersAndConnections)
     
 }
 
-function loadDataIntoGraphModel(containersAndConnections) {
+function loadDataIntoGraphModel(sysViewDiagram, containersAndConnections) {
     sysViewDiagram.clear()
     sysViewDiagram.model = new go.GraphLinksModel(containersAndConnections.containers, containersAndConnections.connections)
 }
