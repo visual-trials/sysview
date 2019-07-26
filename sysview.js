@@ -169,9 +169,13 @@ function initMxGraph(containerDiv)
 
 /* Self made */
 
+let currentlySelectedContainer = null
+let canvasElement = document.getElementById('canvas')
+
 function initSelfMade(containersAndConnections) {
-    let canvasElement = document.getElementById('canvas')
+    
     let ctx = canvasElement.getContext("2d")
+    addInputListeners()
     
     for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
         let container = containersAndConnections.containers[containerIndex]
@@ -213,9 +217,119 @@ function drawContainer(ctx, container) {
         ctx.fillText(textToDraw, textPosition.x, textPosition.y)
     }
     
-    
 }
 
+function handleMouseStateChange () {
+    
+    console.log(mouseState)
+    
+    // Reset mouse(event) data
+    mouseState.previousPosition.x = mouseState.position.x
+    mouseState.previousPosition.y = mouseState.position.y
+    mouseState.hasMoved = false
+    mouseState.leftButtonHasGoneDown = false
+    mouseState.leftButtonHasGoneUp = false
+    mouseState.rightButtonHasGoneDown = false
+    mouseState.rightButtonHasGoneUp = false
+}
+
+let mouseState = {
+    position : { x: 0, y: 0 },
+    previousPosition : { x: 0, y: 0 },
+    hasMoved : false,
+    leftButtonHasGoneDown : false,
+    leftButtonIsDown : false,
+    leftButtonHasGoneUp : false,
+    rightButtonHasGoneDown : false,
+    rightButtonIsDown : false,
+    rightButtonHasGoneUp : false,
+}
+
+function updateMousePosition(x, y) {
+    mouseState.position.x = x
+    mouseState.position.y = y
+    mouseState.hasMoved = mouseState.previousPosition.x != mouseState.position.x || 
+                          mouseState.previousPosition.y != mouseState.position.y
+}
+
+function mouseButtonDown (e) {
+        
+    if (e.button == 0) {
+        // left mouse button down
+        mouseState.leftButtonHasGoneDown = true
+        mouseState.leftButtonIsDown = true
+        handleMouseStateChange()
+    }
+    else if (e.button == 2) {
+        // right mouse button down
+        mouseState.rightButtonHasGoneDown = true
+        mouseState.rightButtonIsDown = true
+        handleMouseStateChange()
+    }
+
+    e.preventDefault()
+}
+
+function mouseButtonUp (e) {
+    if (e.button == 0) {
+        // left mouse button up
+        mouseState.leftButtonHasGoneUp = true
+        mouseState.leftButtonIsDown = false
+        handleMouseStateChange()
+    }
+    else if (e.button == 2) {
+        // right mouse button up
+        mouseState.rightButtonHasGoneUp = true
+        mouseState.rightButtonIsDown = false
+        handleMouseStateChange()
+    }
+
+    e.preventDefault()
+}
+
+function mouseEntered (e) {
+    updateMousePosition(e.offsetX, e.offsetY)
+    handleMouseStateChange()
+
+    e.preventDefault()
+}
+
+function mouseMoved (e) {
+    updateMousePosition(e.offsetX, e.offsetY)
+    handleMouseStateChange()
+
+    e.preventDefault()
+}
+
+function mouseExited (e) {
+    updateMousePosition(e.offsetX, e.offsetY)
+    handleMouseStateChange()
+
+    e.preventDefault()
+}
+
+function mouseWheelMoved (e) {
+    // TODO
+}
+    
+function addInputListeners () {
+    canvasElement.addEventListener("mousedown", mouseButtonDown, false)
+    // We want to know if the mouse goes up OUTSIDE the canvas, so we attach the eventlistener to the 'window' instead
+    window.addEventListener("mouseup", mouseButtonUp, false)
+    canvasElement.addEventListener("mousemove", mouseMoved, false)
+    // TODO: the mouseenter is not triggered on *page load* for Chrome. It is for FF.
+    //       See this link *why* we want to use it: 
+    //       https://stackoverflow.com/questions/2601097/how-to-get-the-mouse-position-without-events-without-moving-the-mouse
+    canvasElement.addEventListener("mouseenter", mouseEntered, false)
+    canvasElement.addEventListener("mouseleave", mouseExited, false)
+    // IE9, Chrome, Safari, Opera
+    canvasElement.addEventListener("mousewheel", mouseWheelMoved, false)
+    // Firefox
+    canvasElement.addEventListener("DOMMouseScroll", mouseWheelMoved, false)
+    
+    // TODO: for now preventing the context-menu this way
+    canvasElement.addEventListener('contextmenu', event => event.preventDefault());
+}
 
 
 /* Go.js */
