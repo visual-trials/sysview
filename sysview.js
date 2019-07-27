@@ -77,7 +77,42 @@ function getExampleData() {
     
     let secondAPIIdentifier = addContainer(secondAPI, secondServerIdentifier, exampleContainersAndConnections.containers)
     
+    
+    // Connections
+    
+    let firstAPIToSecondAPI = {
+        type: 'API2API',
+        identifier: '1to2',
+        name: 'My connection',
+        from: 'API1',
+        to: 'API2',
+    }
+    
+    addConnection(firstAPIToSecondAPI, exampleContainersAndConnections.connections)
+    
     return exampleContainersAndConnections
+}
+
+function addConnection(connectionData, connectionsToAddTo) {
+    
+    let connectionIdentifier = connectionData.identifier
+    
+    let stroke = 'rgba(0, 0, 0, 1)'
+
+    if (connectionData.type === 'API2API') {
+        stroke = 'rgba(0, 80, 200, 1)'
+    }
+    else {
+        console.log("ERROR: Unknown connection type: " + connectionData.type)
+    }
+    
+    connectionsToAddTo.push({
+        identifier: connectionIdentifier,
+        name: connectionData.name,
+        from: connectionData.from,
+        to: connectionData.to,
+        stroke: stroke,
+    })
 }
 
 function addContainer(containerData, parentContainerIdentifier, containersToAddTo) {
@@ -159,9 +194,89 @@ function drawCanvas() {
     clearCanvas()
     
     drawContainers()
+    drawConnections()
     
     // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
     canvasElement.style.cursor = interaction.mousePointerStyle
+}
+
+function drawConnections() {
+    for (let connectionIndex = 0; connectionIndex < containersAndConnections.connections.length; connectionIndex++) {
+        let connection = containersAndConnections.connections[connectionIndex]
+        drawConnection(connection)
+    }
+}
+
+function getContainerByIdentifier(identifier) {
+    // FIXME: use a hashmap instead!
+    for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
+        let container = containersAndConnections.containers[containerIndex]
+        if (container.identifier === identifier) {
+            return container
+        }
+    }
+    console.log("ERROR: unknown container identifier: " + identifier)
+    return null
+}
+
+function drawConnection(connection) {
+    
+    let fromContainer = getContainerByIdentifier(connection.from)
+    let toContainer = getContainerByIdentifier(connection.to)
+    let screenFromContainerPosition = addOffsetToPosition(interaction.viewOffset, fromContainer.position)
+    let screenToContainerPosition = addOffsetToPosition(interaction.viewOffset, toContainer.position)
+    
+    {
+        // Draw line 
+        ctx.lineWidth = 2
+        ctx.strokeStyle = connection.stroke
+        
+        // FIXME: don't draw from left-upper corner to left-upper corner!
+        ctx.beginPath()
+        ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
+        ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
+        ctx.stroke()
+        
+        if (interaction.currentlySelectedConnection != null && 
+            connection.identifier === interaction.currentlySelectedConnection.identifier) {
+                
+            ctx.lineWidth = 2
+            ctx.strokeStyle = "#FF0000"
+            
+            // FIXME: don't draw from left-upper corner to left-upper corner!
+            ctx.beginPath()
+            ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
+            ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
+            ctx.stroke()
+        }
+    }
+    
+    let textColor = "#000000"
+    {
+        // Draw text
+        let textToDraw = connection.identifier
+        
+        // Get text size
+        let textSize = {}
+        let fontSize = 12
+        ctx.font = fontSize + "px Arial"
+        let textHeightToFontSizeRatioArial = 1.1499023
+        
+        textSize.width = ctx.measureText(textToDraw).width
+        textSize.height = textHeightToFontSizeRatioArial * fontSize
+
+        // Determine text position
+        let textPosition = {}
+        // FIXME: textPosition.x = connection.position.x + (connection.size.width / 2) - (connection.width / 2)
+        // FIXME: textPosition.y = connection.position.y + (connection.size.height / 2) + (connection.height / 2) 
+        
+        // FIXME: let screenTextPosition = addOffsetToPosition(interaction.viewOffset, textPosition)
+        
+        // Draw the text at the text positions
+        ctx.fillStyle = textColor
+        // FIXME: ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
+    }
+    
 }
 
 function drawContainers() {
