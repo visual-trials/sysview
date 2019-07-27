@@ -407,10 +407,10 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
     
     if ((side === 1) || (side === 3)) {
         edgePoint.x += xFactor * (container.size.width / 2.)
-        edgePoint.y += yFactor * (container.size.width / 2.) * tanAngleBetweenPoints
+        edgePoint.y += -yFactor * (container.size.width / 2.) * tanAngleBetweenPoints
     } else {
         edgePoint.x += xFactor * (container.size.height / (2. * tanAngleBetweenPoints))
-        edgePoint.y += yFactor * (container.size.height /  2.)
+        edgePoint.y += -yFactor * (container.size.height /  2.)
     }
   
     edgePoint.x += container.position.x
