@@ -413,6 +413,8 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
         edgePoint.y += yFactor * (container.size.height /  2.)
     }
   
+    edgePoint.x += container.position.x
+    edgePoint.y += container.position.y
     return edgePoint
 }
 
