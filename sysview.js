@@ -223,16 +223,18 @@ function drawConnection(connection) {
     
     let fromContainer = getContainerByIdentifier(connection.from)
     let toContainer = getContainerByIdentifier(connection.to)
-    let screenFromContainerPosition = addOffsetToPosition(interaction.viewOffset, fromContainer.position)
-    let screenToContainerPosition = addOffsetToPosition(interaction.viewOffset, toContainer.position)
+    let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
+    let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
+    let screenFromContainerPosition = addOffsetToPosition(interaction.viewOffset, fromContainerCenterPosition)
+    let screenToContainerPosition = addOffsetToPosition(interaction.viewOffset, toContainerCenterPosition)
     
     {
         // Draw line 
         ctx.lineWidth = 2
         ctx.strokeStyle = connection.stroke
         
-        // FIXME: don't draw from left-upper corner to left-upper corner!
         ctx.beginPath()
+        // FIXME: don't draw from left-upper corner to left-upper corner!
         ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
         ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
         ctx.stroke()
@@ -338,6 +340,13 @@ function addOffsetToPosition(offset, position) {
     offsetPosition.x = offset.x + position.x
     offsetPosition.y = offset.y + position.y
     return offsetPosition
+}
+
+function getCenterPositonOfContainer(container) {
+    let centerPosition = { x: 0, y: 0 }
+    centerPosition.x = container.position.x + container.size.width / 2
+    centerPosition.y = container.position.y + container.size.height / 2
+    return centerPosition
 }
 
 function handleMouseStateChange () {
