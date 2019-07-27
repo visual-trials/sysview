@@ -223,10 +223,17 @@ function drawConnection(connection) {
     
     let fromContainer = getContainerByIdentifier(connection.from)
     let toContainer = getContainerByIdentifier(connection.to)
+    
     let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
     let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
-    let screenFromContainerPosition = addOffsetToPosition(interaction.viewOffset, fromContainerCenterPosition)
-    let screenToContainerPosition = addOffsetToPosition(interaction.viewOffset, toContainerCenterPosition)
+    
+    let angleBetweenPoints = getAngleBetweenPoints(fromContainerCenterPosition, toContainerCenterPosition)
+    
+    let fromContainerBorderPoint = getContainerBorderPointFromAngle(angleBetweenPoints, fromContainer, false)
+    let toContainerBorderPoint = getContainerBorderPointFromAngle(angleBetweenPoints, toContainer, true)
+    
+    let screenFromContainerPosition = addOffsetToPosition(interaction.viewOffset, fromContainerBorderPoint)
+    let screenToContainerPosition = addOffsetToPosition(interaction.viewOffset, toContainerBorderPoint)
     
     {
         // Draw line 
@@ -348,6 +355,67 @@ function getCenterPositonOfContainer(container) {
     centerPosition.y = container.position.y + container.size.height / 2
     return centerPosition
 }
+
+function getAngleBetweenPoints(fromPosition, toPosition) {
+    return Math.atan2(toPosition.y - fromPosition.y, toPosition.x - fromPosition.x);
+}
+
+function getAngleOfContainerRect(container) {
+    return Math.atan2(container.size.height, container.size.width);
+}
+
+function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverseAngle) {
+    
+    if (reverseAngle) {
+        angleBetweenPoints += Math.PI
+        if (angleBetweenPoints > Math.PI) {
+            angleBetweenPoints -= Math.PI*2
+        }
+    }
+    
+    let angleContainerRect = getAngleOfContainerRect(container)
+    
+    let side = null
+    if ((angleBetweenPoints > -angleContainerRect) && (angleBetweenPoints <= angleContainerRect)) {
+        side = 1
+    } else if ((angleBetweenPoints > angleContainerRect) && (angleBetweenPoints <= (Math.PI - angleContainerRect))) {
+        side = 2
+    } else if ((angleBetweenPoints > (Math.PI - angleContainerRect)) || (angleBetweenPoints <= -(Math.PI - angleContainerRect))) {
+        side = 3
+    } else {
+        side = 4
+    }
+    
+    let edgePoint = {x: container.size.width / 2, y: container.size.height / 2}
+    let xFactor = 1
+    let yFactor = 1
+  
+    if (side === 1) {
+        yFactor = -1
+    }
+    else if (side === 2) {
+        yFactor = -1
+    }
+    else if (side === 3) {
+        xFactor = -1
+    }
+    else if (side === 4) {
+        xFactor = -1
+    }
+  
+    let tanAngleBetweenPoints = Math.tan(angleBetweenPoints)
+    
+    if ((side === 1) || (side === 3)) {
+        edgePoint.x += xFactor * (container.size.width / 2.)
+        edgePoint.y += yFactor * (container.size.width / 2.) * tanAngleBetweenPoints
+    } else {
+        edgePoint.x += xFactor * (container.size.height / (2. * tanAngleBetweenPoints))
+        edgePoint.y += yFactor * (container.size.height /  2.)
+    }
+  
+    return edgePoint
+}
+
 
 function handleMouseStateChange () {
     
