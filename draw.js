@@ -23,6 +23,24 @@ function drawCanvas() {
     
     drawContainers()
     drawConnections()
+    
+    if (interaction.newConnectionBeingAdded != null) {
+        let fromContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.from)
+        let toContainer = null
+        if (interaction.newConnectionBeingAdded.to != null) {
+            toContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.to)
+        }
+        else {
+            toContainer = {
+                size: { width: 0, height: 0},
+                // FIXME: we should substract the viewOffset here!
+                position: { x: mouseState.position.x, y: mouseState.position.y }
+            }
+        }
+        drawConnection(interaction.newConnectionBeingAdded, fromContainer, toContainer)
+    }
+    
+    
     drawMenu()
     
     // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
@@ -89,14 +107,13 @@ function drawButton(buttonData, drawOnlySelected) {
 function drawConnections() {
     for (let connectionIndex = 0; connectionIndex < containersAndConnections.connections.length; connectionIndex++) {
         let connection = containersAndConnections.connections[connectionIndex]
-        drawConnection(connection)
+        let fromContainer = getContainerByIdentifier(connection.from)
+        let toContainer = getContainerByIdentifier(connection.to)
+        drawConnection(connection, fromContainer, toContainer)
     }
 }
 
-function drawConnection(connection) {
-    
-    let fromContainer = getContainerByIdentifier(connection.from)
-    let toContainer = getContainerByIdentifier(connection.to)
+function drawConnection(connection, fromContainer, toContainer) {
     
     let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
     let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)

@@ -221,13 +221,18 @@ function getContainerByIdentifier(identifier) {
 let interaction = {
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
-    currentlySelectedMode : 'view',
+    
     currentlyHoveredMode : null,
+    currentlySelectedMode : 'view',
+    
     currentlyHoveredContainer : null,
     currentlySelectedContainer : null,
     selectedContainerIsBeingDragged : false,
     selectedContainerIsBeingResized : false,
     selectedContainerResizeSide : null,
+    
+    newConnectionBeingAdded : null,
+    
     mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
 
@@ -244,6 +249,7 @@ function handleMouseStateChange () {
         interaction.currentlyHoveredMode = null
     }
     
+    
     // Check mouse position
     
     let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.position, interaction.currentlySelectedContainer)
@@ -253,6 +259,21 @@ function handleMouseStateChange () {
     if (interaction.currentlyHoveredMode != null) {
         // If we hover a menu button, we want to see a default mouse pointer
         interaction.mousePointerStyle = 'default'
+    }
+    else if (interaction.currentlySelectedMode === 'connect') {
+        // TODO: is this always correct?
+        interaction.mousePointerStyle = 'default'
+        
+        if (interaction.newConnectionBeingAdded != null) {
+            if (interaction.currentlyHoveredContainer != null &&
+                interaction.currentlyHoveredContainer.identifier !== interaction.newConnectionBeingAdded.from) {
+                // We are hovering over a different container than we started the connection from, so we should connect with it
+                interaction.newConnectionBeingAdded.to = interaction.currentlyHoveredContainer.identifier
+            }
+            else {
+                interaction.newConnectionBeingAdded.to = null
+            }
+        }
     }
     else if (interaction.currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
         
@@ -315,6 +336,17 @@ function handleMouseStateChange () {
             // Menu-click has higher priority than container-click, we check it first
             interaction.currentlySelectedMode = interaction.currentlyHoveredMode
         }
+        else if (interaction.currentlySelectedMode === 'connect') {
+            if (containerAtMousePosition != null) {
+                interaction.newConnectionBeingAdded = {
+                    type: 'new',
+                    identifier: '???', // FIXME:???
+                    name: 'New connection',
+                    from: containerAtMousePosition.identifier,
+                    to: null,
+                }
+            }
+        }
         else if (mouseIsNearSelectedContainerBorder) {
             interaction.selectedContainerIsBeingResized = true
             interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
@@ -337,6 +369,20 @@ function handleMouseStateChange () {
             interaction.selectedContainerIsBeingDragged = false
             interaction.selectedContainerIsBeingResized = false
         }
+    }
+    if (mouseState.leftButtonHasGoneUp) {
+        
+        if (interaction.currentlyHoveredMode == null && interaction.currentlySelectedMode === 'connect') {
+            // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.to is not null)
+            if (interaction.newConnectionBeingAdded != null && interaction.newConnectionBeingAdded.to != null) {
+                // FIXME: we should give this connection the correct properties (like type, color etc)
+                interaction.newConnectionBeingAdded.type = 'API2API'
+                addConnection(interaction.newConnectionBeingAdded, containersAndConnections.connections)
+            }
+            
+            interaction.newConnectionBeingAdded = null
+        }
+        
     }
     
     if (mouseState.leftButtonHasGoneUp) {
