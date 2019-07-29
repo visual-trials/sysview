@@ -69,7 +69,7 @@ function getExampleData() {
         identifier: 'FirstServer',
         name: 'My First Server',
         position: {
-            x: 50,
+            x: 250,
             y: 200
         },
         size: {
@@ -85,7 +85,7 @@ function getExampleData() {
         identifier: 'API1',
         name: 'First API',
         position: {
-            x: 70,
+            x: 270,
             y: 230
         },
         size: {
@@ -101,7 +101,7 @@ function getExampleData() {
         identifier: 'SecondServer',
         name: 'My Second Server',
         position: {
-            x: 350,
+            x: 550,
             y: 200
         },
         size: {
@@ -117,7 +117,7 @@ function getExampleData() {
         identifier: 'API2',
         name: 'Second API',
         position: {
-            x: 380,
+            x: 580,
             y: 210
         },
         size: {
