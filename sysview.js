@@ -1,9 +1,11 @@
 let containersAndConnections = null
 let menuIcons = {}
+let menuButtons = []
 
 function init() {
     
     initIcons()
+    initMenu()
     
     // TODO: replace this eventually
     containersAndConnections = getExampleData()
@@ -30,6 +32,33 @@ function initIcons() {
     }
 }
 
+function initMenu() {
+    menuButtons = [
+        {
+            mode: "view",
+        },
+        {
+            mode: "move",
+        },
+        {
+            mode: "connect",
+        }
+    ]
+    
+    let buttonPosition = { x: 20, y: 20 }
+    let buttonSize = { width: 32, height: 32 }
+    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
+        let buttonData = menuButtons[buttonIndex]
+        buttonData.position = {}
+        buttonData.position.x = buttonPosition.x
+        buttonData.position.y = buttonPosition.y
+        buttonData.size = {}
+        buttonData.size.width = buttonSize.width
+        buttonData.size.height = buttonSize.height
+        
+        buttonPosition.y += buttonSize.height
+    }
+}
 function getExampleData() {
     
     let exampleContainersAndConnections = { containers: [], connections: [] }
@@ -225,59 +254,55 @@ function drawCanvas() {
 
 function drawMenu() {
     
-    let menuButtons = [
-        {
-            mode: "view",
-        },
-        {
-            mode: "move",
-        },
-        {
-            mode: "connect",
-        }
-    ]
-    
-    let buttonPosition = { x: 20, y: 20 }
-    let buttonSize = { width: 32, height: 32 }
     for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
         let buttonData = menuButtons[buttonIndex]
-        // FIXME: we dont need this
-        buttonData.index = buttonIndex
-        
-        drawButton(buttonData, buttonPosition, buttonSize)
-        buttonPosition.y += buttonSize.height
+        let drawOnlySelected = false
+        drawButton(buttonData, drawOnlySelected)
+    }
+    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
+        let buttonData = menuButtons[buttonIndex]
+        let drawOnlySelected = true
+        drawButton(buttonData, drawOnlySelected)
     }
 }
 
-function drawButton(buttonData, buttonPosition, buttonSize) {
+function drawButton(buttonData, drawOnlySelected) {
     let buttonStroke = "#AAAAAA"
     let buttonFill = "#F8F8F8"
     
+    let buttonPosition = buttonData.position
+    let buttonSize = buttonData.size
+    
     {
-        // Draw rectangle 
-        ctx.lineWidth = 1
-        ctx.strokeStyle = buttonStroke
-        ctx.fillStyle = buttonFill
-        ctx.fillRect(buttonPosition.x, buttonPosition.y, buttonSize.width, buttonSize.height)
-        // TODO: how to deal with stoking and offset: 0.5 ?
-        ctx.strokeRect(buttonPosition.x + 0.5, buttonPosition.y + 0.5, buttonSize.width, buttonSize.height)
+        // Draw Rectangle 
+        
+        if (!drawOnlySelected) {
+            ctx.lineWidth = 1
+            ctx.strokeStyle = buttonStroke
+            ctx.fillStyle = buttonFill
+            ctx.fillRect(buttonPosition.x, buttonPosition.y, buttonSize.width, buttonSize.height)
+            // TODO: how to deal with stoking and offset: 0.5 ?
+            ctx.strokeRect(buttonPosition.x + 0.5, buttonPosition.y + 0.5, buttonSize.width, buttonSize.height)
+        }
         
         if (interaction.currentlySelectedMode != null && 
             buttonData.mode === interaction.currentlySelectedMode) {
                 
             ctx.lineWidth = 1
             ctx.fillStyle = "#FFFFFF"
-            // ctx.strokeStyle = "#000000"
+            ctx.strokeStyle = "#000000"
             ctx.fillRect(buttonPosition.x, buttonPosition.y, buttonSize.width, buttonSize.height)
             // TODO: how to deal with stoking and offset: 0.5 ?
             ctx.strokeRect(buttonPosition.x + 0.5, buttonPosition.y + 0.5, buttonSize.width, buttonSize.height)
         }
+        
+        // Draw Icon
+        if (menuIcons.hasOwnProperty(buttonData.mode)) {
+            ctx.drawImage(menuIcons[buttonData.mode], buttonPosition.x, buttonPosition.y)
+        }
     }
     
     
-    if (menuIcons.hasOwnProperty(buttonData.mode)) {
-        ctx.drawImage(menuIcons[buttonData.mode], buttonPosition.x, buttonPosition.y)
-    }
 
     /*
     let textColor = "#000000"
