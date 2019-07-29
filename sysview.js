@@ -532,8 +532,15 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
 function handleMouseStateChange () {
     
     let containerAtMousePosition = findContainerAtScreenPosition(mouseState.position)
+    let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
     
     interaction.currentlyHoveredContainer = containerAtMousePosition
+    if (menuButtonAtMousePosition != null) {
+        interaction.currentlyHoveredMode = menuButtonAtMousePosition.mode
+    }
+    else {
+        interaction.currentlyHoveredMode = null
+    }
     
     // Check mouse position
     
@@ -541,7 +548,11 @@ function handleMouseStateChange () {
     
     let mouseIsNearSelectedContainerBorder = false
     
-    if (interaction.currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
+    if (interaction.currentlyHoveredMode != null) {
+        // If we hover a menu button, we want to see a default mouse pointer
+        interaction.mousePointerStyle = 'default'
+    }
+    else if (interaction.currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
         
         if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
             interaction.mousePointerStyle = 'move'
@@ -579,7 +590,11 @@ function handleMouseStateChange () {
 
     if (mouseState.leftButtonHasGoneDown) {
         
-        if (mouseIsNearSelectedContainerBorder) {
+        if (interaction.currentlyHoveredMode != null) {
+            // Menu-click has higher priority than container-click, we check it first
+            interaction.currentlySelectedMode = interaction.currentlyHoveredMode
+        }
+        else if (mouseIsNearSelectedContainerBorder) {
             interaction.selectedContainerIsBeingResized = true
             interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
             
@@ -651,6 +666,23 @@ function handleMouseStateChange () {
     mouseState.rightButtonHasGoneUp = false
 }
 
+function findMenuButtonAtScreenPosition(screenPosition) {
+    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
+        let buttonData = menuButtons[buttonIndex]
+        
+        let buttonPosition = buttonData.position
+        let buttonSize = buttonData.size
+        
+        if (screenPosition.x >= buttonPosition.x &&
+            screenPosition.x <= buttonPosition.x + buttonSize.width &&
+            screenPosition.y >= buttonPosition.y &&
+            screenPosition.y <= buttonPosition.y + buttonSize.height) {
+            return buttonData
+        }
+        
+    }
+    return null
+}
 
 function findContainerAtScreenPosition(screenPosition) {
     
