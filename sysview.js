@@ -290,6 +290,26 @@ function handleMouseStateChange () {
     
     // Handle mouse clicking
 
+    // TODO: check if above empty space or container!
+    if (mouseState.rightButtonHasGoneDown) {
+        // FIXME: we need some lind of (incrmental) id here!
+        let extraServer = {
+            type: 'server',  // TODO: allow adding different kinds of containers
+            identifier: 'ExtraServer',
+            name: 'My Extra Server',
+            position: {
+                x: mouseState.position.x,
+                y: mouseState.position.y
+            },
+            size: {
+                width: 200,
+                height: 250
+            }
+        }
+        
+        let extraServerIdentifier = addContainer(extraServer, "", containersAndConnections.containers)
+    }
+
     if (mouseState.leftButtonHasGoneDown) {
         
         if (interaction.currentlyHoveredMode != null) {
