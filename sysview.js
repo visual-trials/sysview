@@ -214,6 +214,7 @@ let interaction = {
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
     currentlySelectedMode : 'view',
+    currentlyHoveredMode : null,
     currentlyHoveredContainer : null,
     currentlySelectedContainer : null,
     selectedContainerIsBeingDragged : false,
@@ -270,6 +271,11 @@ function drawButton(buttonData, drawOnlySelected) {
     let buttonStroke = "#AAAAAA"
     let buttonFill = "#F8F8F8"
     
+    if (interaction.currentlyHoveredMode != null && 
+        buttonData.mode === interaction.currentlyHoveredMode) {
+        buttonFill = "#FFFFFF"
+    }
+    
     let buttonPosition = buttonData.position
     let buttonSize = buttonData.size
     
@@ -302,35 +308,6 @@ function drawButton(buttonData, drawOnlySelected) {
         }
     }
     
-    
-
-    /*
-    let textColor = "#000000"
-    {
-        // Draw text
-        let textToDraw = container.identifier
-        
-        // Get text size
-        let textSize = {}
-        let fontSize = 12
-        ctx.font = fontSize + "px Arial"
-        let textHeightToFontSizeRatioArial = 1.1499023
-        
-        textSize.width = ctx.measureText(textToDraw).width
-        textSize.height = textHeightToFontSizeRatioArial * fontSize
-
-        // Determine text position
-        let textPosition = {}
-        textPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
-        textPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
-        
-        let screenTextPosition = addOffsetToPosition(interaction.viewOffset, textPosition)
-        
-        // Draw the text at the text positions
-        ctx.fillStyle = textColor
-        ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
-    }
-    */
 }
 
 function drawConnections() {
