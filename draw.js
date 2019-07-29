@@ -33,8 +33,8 @@ function drawCanvas() {
         else {
             toContainer = {
                 size: { width: 0, height: 0},
-                // FIXME: we should substract the viewOffset here!
-                position: { x: mouseState.position.x, y: mouseState.position.y }
+                position: { x: mouseState.position.x - interaction.viewOffset.x, 
+                            y: mouseState.position.y - interaction.viewOffset.y }
             }
         }
         drawConnection(interaction.newConnectionBeingAdded, fromContainer, toContainer)
