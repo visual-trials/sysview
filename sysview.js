@@ -1,12 +1,33 @@
 let containersAndConnections = null
+let menuIcons = {}
 
 function init() {
+    
+    initIcons()
     
     // TODO: replace this eventually
     containersAndConnections = getExampleData()
     
     addInputListeners()
     drawCanvas()
+}
+
+function initIcons() {
+
+    let menuIconsRaw = {}
+    // see: https://ezgif.com/image-to-datauri
+    menuIconsRaw['view'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAp0lEQVRYR+3W4QqAIAwE4Pn+D10ICTISvdvhCvRfYPZ52rRYcivJ37cD+FUCl5l+yZAEKqA25J3pHkcGawlIk2AAdVYyBAuQISIACSIKCCMUgBBCBaARSgCFUANghArQqmRf+ZbGXur0jOqLT/9MFyYW4M+FrYDRzCkEmoA/DcPLgALe+ocQCGB0tqcD/L8P7QVFAp8ANAR8ZVMlML37jTocwEkgPYEbdmUtIUAAjAQAAAAASUVORK5CYII='
+    menuIconsRaw['move'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAApUlEQVRYR+2V4QrAIAiE7f0feqOBEFtqepAN7Odw3pde2ij5tGR9KoCqAFqBiwjzEQLQxfmE80R/HMUhiAjATDwMEQEYZ1eqBzrINgBJyPv9M/lXWsA9n8VqAF3MzG8FWE/NAjAhNADN7d4lKuocXQG+ZaoHRgivCa3qPrmXgpSGb5sDEkMKwBG7IHUbvl8H5KXfm9A7EUPLCBbREqAtgOEKoCpwA2MJHyFyeKK8AAAAAElFTkSuQmCC'
+    
+    for (let mode in menuIconsRaw) {
+        let iconImage = new Image
+        iconImage.src = menuIconsRaw[mode]
+        iconImage.onload = function(){
+            menuIcons[mode] = iconImage
+            // FIXME: there is probably a better way to do this!
+            drawCanvas()
+        }
+    }
 }
 
 function getExampleData() {
@@ -163,6 +184,7 @@ let ctx = canvasElement.getContext("2d")
 let interaction = {
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
+    currentlySelectedMode : 'view',
     currentlyHoveredContainer : null,
     currentlySelectedContainer : null,
     selectedContainerIsBeingDragged : false,
@@ -195,9 +217,95 @@ function drawCanvas() {
     
     drawContainers()
     drawConnections()
+    drawMenu()
     
     // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
     canvasElement.style.cursor = interaction.mousePointerStyle
+}
+
+function drawMenu() {
+    
+    let menuButtons = [
+        {
+            mode: "view",
+        },
+        {
+            mode: "move",
+        },
+        {
+            mode: "connect",
+        }
+    ]
+    
+    let buttonPosition = { x: 20, y: 20 }
+    let buttonSize = { width: 32, height: 32 }
+    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
+        let buttonData = menuButtons[buttonIndex]
+        // FIXME: we dont need this
+        buttonData.index = buttonIndex
+        
+        drawButton(buttonData, buttonPosition, buttonSize)
+        buttonPosition.y += buttonSize.height
+    }
+}
+
+function drawButton(buttonData, buttonPosition, buttonSize) {
+    let buttonStroke = "#AAAAAA"
+    let buttonFill = "#F8F8F8"
+    
+    {
+        // Draw rectangle 
+        ctx.lineWidth = 1
+        ctx.strokeStyle = buttonStroke
+        ctx.fillStyle = buttonFill
+        ctx.fillRect(buttonPosition.x, buttonPosition.y, buttonSize.width, buttonSize.height)
+        // TODO: how to deal with stoking and offset: 0.5 ?
+        ctx.strokeRect(buttonPosition.x + 0.5, buttonPosition.y + 0.5, buttonSize.width, buttonSize.height)
+        
+        if (interaction.currentlySelectedMode != null && 
+            buttonData.mode === interaction.currentlySelectedMode) {
+                
+            ctx.lineWidth = 1
+            ctx.fillStyle = "#FFFFFF"
+            // ctx.strokeStyle = "#000000"
+            ctx.fillRect(buttonPosition.x, buttonPosition.y, buttonSize.width, buttonSize.height)
+            // TODO: how to deal with stoking and offset: 0.5 ?
+            ctx.strokeRect(buttonPosition.x + 0.5, buttonPosition.y + 0.5, buttonSize.width, buttonSize.height)
+        }
+    }
+    
+    
+    if (menuIcons.hasOwnProperty(buttonData.mode)) {
+        ctx.drawImage(menuIcons[buttonData.mode], buttonPosition.x, buttonPosition.y)
+    }
+
+    /*
+    let textColor = "#000000"
+    {
+        // Draw text
+        let textToDraw = container.identifier
+        
+        // Get text size
+        let textSize = {}
+        let fontSize = 12
+        ctx.font = fontSize + "px Arial"
+        let textHeightToFontSizeRatioArial = 1.1499023
+        
+        textSize.width = ctx.measureText(textToDraw).width
+        textSize.height = textHeightToFontSizeRatioArial * fontSize
+
+        // Determine text position
+        let textPosition = {}
+        textPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
+        textPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
+        
+        let screenTextPosition = addOffsetToPosition(interaction.viewOffset, textPosition)
+        
+        // Draw the text at the text positions
+        ctx.fillStyle = textColor
+        ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
+    }
+    */
 }
 
 function drawConnections() {
