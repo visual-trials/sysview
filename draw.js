@@ -18,11 +18,21 @@ function resizeCanvasToWindowSize () {
     
 function drawCanvas() {
     
-    resizeCanvasToWindowSize()
     clearCanvas()
+    resizeCanvasToWindowSize()
+    
+    /* Trying orthographic projection
+    ctx.save()
+    ctx.scale(1, 0.5)
+    ctx.rotate(30 * Math.PI / 180);
+    */
     
     drawContainers()
     drawConnections()
+    
+    /* Trying orthographic projection
+    ctx.restore()
+    */
     
     if (interaction.newConnectionBeingAdded != null) {
         let fromContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.from)
@@ -45,6 +55,7 @@ function drawCanvas() {
     
     // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
     canvasElement.style.cursor = interaction.mousePointerStyle
+    
 }
 
 function drawMenu() {
