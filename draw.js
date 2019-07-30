@@ -21,7 +21,9 @@ function drawCanvas() {
     clearCanvas()
     resizeCanvasToWindowSize()
     
-    drawContainers()
+    let rootContainer = containersAndConnections.containers[0]
+    drawContainers(rootContainer.children)
+    
     drawConnections()
     drawNewConnection()
     
@@ -108,10 +110,11 @@ function drawButton(buttonData, drawOnlySelected) {
 }
 
 function drawConnections() {
-    for (let connectionIndex = 0; connectionIndex < containersAndConnections.connections.length; connectionIndex++) {
-        let connection = containersAndConnections.connections[connectionIndex]
-        let fromContainer = getContainerByIdentifier(connection.from)
-        let toContainer = getContainerByIdentifier(connection.to)
+    for (let connectionId in containersAndConnections.connections) {
+        let connection = containersAndConnections.connections[connectionId]
+        
+        let fromContainer = containersAndConnections.containers[connection.fromId]
+        let toContainer = containersAndConnections.containers[connection.toId]
         drawConnection(connection, fromContainer, toContainer)
     }
 }
@@ -182,10 +185,12 @@ function drawConnection(connection, fromContainer, toContainer) {
     
 }
 
-function drawContainers() {
-    for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
-        let container = containersAndConnections.containers[containerIndex]
+function drawContainers(containerIds) {
+    for (let containerIndex = 0; containerIndex < containerIds.length; containerIndex++) {
+        let containerId = containerIds[containerIndex]
+        let container = containersAndConnections.containers[containerId]
         drawContainer(container)
+        drawContainers(container.children)
     }
 }
 
@@ -331,16 +336,29 @@ function findMenuButtonAtScreenPosition(screenPosition) {
     return null
 }
 
-function findContainerAtScreenPosition(screenPosition) {
+function findContainerAtScreenPosition(screenPosition, parentContainer = null) {
     
-    // FIXME: you want to find this recursively!! (starting with children, then their parents etc)
+    if (parentContainer == null) {
+        parentContainer = containersAndConnections.containers[0] // = root container
+    }
     
-    for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
-        let container = containersAndConnections.containers[containerIndex]
+    // TODO: for performance, we probably want to check if the mousepointer is above the parent, and only
+    //       then check its children (note: this assumes the children are always within the bounds of the parent!)
+    
+    // First check the children (since they are 'on-top' of the parent)
+    for (let containerIndex = 0; containerIndex < parentContainer.children.length; containerIndex++) {
+        let childContainerId = parentContainer.children[containerIndex]
+        let childContainer = containersAndConnections.containers[childContainerId]
         
-        if (screenPositionIsInsideContainer(screenPosition, container)) {
-            return container
+        let containerAtScreenPosition = findContainerAtScreenPosition(screenPosition, childContainer)
+        if (containerAtScreenPosition != null) {
+            return containerAtScreenPosition
         }
+    }
+    
+    // Then check the parent itself (but not if it's the root container)
+    if (parentContainer.id !== 0 && screenPositionIsInsideContainer(screenPosition, parentContainer)) {
+        return parentContainer
     }
     
     return null

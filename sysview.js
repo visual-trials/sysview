@@ -7,11 +7,33 @@ function init() {
     initIcons()
     initMenu()
     
+    initContainersAndConnections()
     // TODO: replace this eventually
-    containersAndConnections = getExampleData()
-    
+    initExampleData()
+
     addInputListeners()
     drawCanvas()
+}
+
+function initContainersAndConnections () {
+    containersAndConnections = { 
+        containers: {}, 
+        lastContainerId: 0, 
+        containerIdentifierToId: {},
+        
+        connections: {}, 
+        lastConnectionId: 0,
+        connectionIdentifierToId: {},
+    }
+    
+    let rootContainer = {
+        type: 'root',
+        id: 0,
+        identifier: 'root',
+        children: [],
+    }
+    
+    containersAndConnections.containers[0] = rootContainer
 }
 
 function initIcons() {
@@ -60,9 +82,9 @@ function initMenu() {
     }
 }
 
-function getExampleData() {
+function initExampleData() {
     
-    let exampleContainersAndConnections = { containers: [], connections: [] }
+    // let exampleContainersAndConnections = { containers: [], connections: [] }
     
     let firstServer = {
         type: 'server',
@@ -78,11 +100,12 @@ function getExampleData() {
         }
     }
     
-    let firstServerIdentifier = addContainer(firstServer, "", exampleContainersAndConnections.containers)
+    let firstServerId = createContainer(firstServer, "")
     
     let firstAPI = {
         type: 'API',
         identifier: 'API1',
+        parentIdentifier: 'FirstServer',
         name: 'First API',
         position: {
             x: 270,
@@ -94,7 +117,7 @@ function getExampleData() {
         }
     }
     
-    let firstAPIIdentifier = addContainer(firstAPI, firstServerIdentifier, exampleContainersAndConnections.containers)
+    let firstAPIId = createContainer(firstAPI)
     
     let secondServer = {
         type: 'server',
@@ -110,11 +133,12 @@ function getExampleData() {
         }
     }
     
-    let secondServerIdentifier = addContainer(secondServer, "", exampleContainersAndConnections.containers)
+    let secondServerId = createContainer(secondServer)
     
     let secondAPI = {
         type: 'API',
         identifier: 'API2',
+        parentIdentifier: 'SecondServer',
         name: 'Second API',
         position: {
             x: 580,
@@ -126,7 +150,7 @@ function getExampleData() {
         }
     }
     
-    let secondAPIIdentifier = addContainer(secondAPI, secondServerIdentifier, exampleContainersAndConnections.containers)
+    let secondAPIId = createContainer(secondAPI)
     
     
     // Connections
@@ -139,14 +163,21 @@ function getExampleData() {
         to: 'API2',
     }
     
-    addConnection(firstAPIToSecondAPI, exampleContainersAndConnections.connections)
-    
-    return exampleContainersAndConnections
+    createConnection(firstAPIToSecondAPI)
 }
 
-function addConnection(connectionData, connectionsToAddTo) {
+function getNewConnectionId () {
+    return ++containersAndConnections.lastConnectionId
+}
+
+function createConnection(connectionData) {
     
+    let connectionId = getNewConnectionId()
     let connectionIdentifier = connectionData.identifier
+    containersAndConnections.connectionIdentifierToId[connectionIdentifier] = connectionId
+    
+    let fromContainerId = containersAndConnections.containerIdentifierToId[connectionData.from]
+    let toContainerId = containersAndConnections.containerIdentifierToId[connectionData.to]
     
     let stroke = 'rgba(0, 0, 0, 1)'
 
@@ -157,18 +188,40 @@ function addConnection(connectionData, connectionsToAddTo) {
         console.log("ERROR: Unknown connection type: " + connectionData.type)
     }
     
-    connectionsToAddTo.push({
+    let newConnection = {
+        id: connectionId,
         identifier: connectionIdentifier,
         name: connectionData.name,
-        from: connectionData.from,
-        to: connectionData.to,
+        fromId: fromContainerId,
+        toId: toContainerId,
         stroke: stroke,
-    })
+    }
+    
+    containersAndConnections.connections[connectionId] = newConnection
+    
+    return connectionId
 }
 
-function addContainer(containerData, parentContainerIdentifier, containersToAddTo) {
+function getNewContainerId () {
+    return ++containersAndConnections.lastContainerId
+}
+
+function createContainer(containerData) {
     
+    let containerId = getNewContainerId()
     let containerIdentifier = containerData.identifier
+    containersAndConnections.containerIdentifierToId[containerIdentifier] = containerId
+    
+    let parentContainerIdentifier = containerData.parentIdentifier
+    let parentContainerId = null
+    let parentContainer = null
+    if (parentContainerIdentifier != null) {
+        parentContainerId = containersAndConnections.containerIdentifierToId[parentContainerIdentifier]
+    }
+    else {
+        parentContainerId = 0 // = root container
+    }
+    parentContainer = containersAndConnections.containers[parentContainerId]
     
     let fill = 'rgba(0, 0, 0, 1)'
     let stroke = 'rgba(0, 0, 0, 1)'
@@ -186,9 +239,11 @@ function addContainer(containerData, parentContainerIdentifier, containersToAddT
     }
     
     // TODO: determine absolute postiion based on absolute position of parent (we need a hashmap of containers (of the parent itself) for that)
-    containersToAddTo.push({
+    let newContainer = {
+        id: containerId,
         identifier: containerIdentifier,
         name: containerData.name,
+        parentContainerId: parentContainerId,
         position: {
             x: containerData.position.x,
             y: containerData.position.y,
@@ -197,24 +252,31 @@ function addContainer(containerData, parentContainerIdentifier, containersToAddT
             width: containerData.size.width,
             height: containerData.size.height,
         },
-        isGroup: true,
-        group: parentContainerIdentifier,
         fill: fill,
         stroke: stroke,
-    })
-    return containerIdentifier
+        children: [],
+    }
+    
+    containersAndConnections.containers[containerId] = newContainer
+    
+    if (parentContainer != null) {
+        parentContainer.children.push(containerId)
+    }
+    
+    return containerId
 }
 
 function getContainerByIdentifier(identifier) {
-    // FIXME: use a hashmap instead!
-    for (let containerIndex = 0; containerIndex < containersAndConnections.containers.length; containerIndex++) {
-        let container = containersAndConnections.containers[containerIndex]
-        if (container.identifier === identifier) {
-            return container
-        }
+    
+    containerId = containersAndConnections.containerIdentifierToId[containerIdentifier]
+    
+    if (containerId != null) {
+        return containersAndConnections.containers[containerId]
     }
-    console.log("ERROR: unknown container identifier: " + identifier)
-    return null
+    else {
+        console.log('ERROR: unknown containerIdentifier: ' + containerIdentifier)
+        return null
+    }
 }
 
 // Interaction info
@@ -249,6 +311,7 @@ function handleMouseStateChange () {
         interaction.currentlyHoveredMode = null
     }
     
+// FIXME: we should use .id instead of .identifier everywhere now!
     
     // Check mouse position
     
