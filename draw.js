@@ -22,6 +22,8 @@ function drawCanvas() {
     resizeCanvasToWindowSize()
     
     let rootContainer = containersAndConnections.containers[0]
+    // FIXME: this is overkill. it should already be up-to-date
+    // recalculateAbsolutePositions(rootContainer)
     drawContainers(rootContainer.children)
     
     drawConnections()
@@ -336,18 +338,39 @@ function findMenuButtonAtScreenPosition(screenPosition) {
     return null
 }
 
-function findContainerAtScreenPosition(screenPosition, parentContainer = null) {
+function recalculateAbsolutePositions(container = null) {
     
-    if (parentContainer == null) {
-        parentContainer = containersAndConnections.containers[0] // = root container
+    if (container == null) {
+        container = containersAndConnections.containers[0] // = root container
+    }
+    else {
+        parentContainer = containersAndConnections.containers[container.parentContainerId]
+        
+        container.position.x = parentContainer.position.x + container.relativePosition.x
+        container.position.y = parentContainer.position.y + container.relativePosition.y
+    }
+    
+    // First check the children (since they are 'on-top' of the parent)
+    for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
+        let childContainerId = container.children[containerIndex]
+        let childContainer = containersAndConnections.containers[childContainerId]
+        
+        recalculateAbsolutePositions(childContainer)
+    }
+}
+
+function findContainerAtScreenPosition(screenPosition, container = null) {
+    
+    if (container == null) {
+        container = containersAndConnections.containers[0] // = root container
     }
     
     // TODO: for performance, we probably want to check if the mousepointer is above the parent, and only
     //       then check its children (note: this assumes the children are always within the bounds of the parent!)
     
     // First check the children (since they are 'on-top' of the parent)
-    for (let containerIndex = 0; containerIndex < parentContainer.children.length; containerIndex++) {
-        let childContainerId = parentContainer.children[containerIndex]
+    for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
+        let childContainerId = container.children[containerIndex]
         let childContainer = containersAndConnections.containers[childContainerId]
         
         let containerAtScreenPosition = findContainerAtScreenPosition(screenPosition, childContainer)
@@ -357,8 +380,8 @@ function findContainerAtScreenPosition(screenPosition, parentContainer = null) {
     }
     
     // Then check the parent itself (but not if it's the root container)
-    if (parentContainer.id !== 0 && screenPositionIsInsideContainer(screenPosition, parentContainer)) {
-        return parentContainer
+    if (container.id !== 0 && screenPositionIsInsideContainer(screenPosition, container)) {
+        return container
     }
     
     return null

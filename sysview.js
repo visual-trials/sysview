@@ -10,6 +10,7 @@ function init() {
     initContainersAndConnections()
     // TODO: replace this eventually
     initExampleData()
+    recalculateAbsolutePositions()
 
     addInputListeners()
     drawCanvas()
@@ -30,6 +31,7 @@ function initContainersAndConnections () {
         type: 'root',
         id: 0,
         identifier: 'root',
+        position : { x: 0, y: 0 },
         children: [],
     }
     
@@ -90,7 +92,7 @@ function initExampleData() {
         type: 'server',
         identifier: 'FirstServer',
         name: 'My First Server',
-        position: {
+        relativePosition: {
             x: 250,
             y: 200
         },
@@ -107,9 +109,9 @@ function initExampleData() {
         identifier: 'API1',
         parentIdentifier: 'FirstServer',
         name: 'First API',
-        position: {
-            x: 270,
-            y: 230
+        relativePosition: {
+            x: 20,
+            y: 20
         },
         size: {
             width: 70,
@@ -123,7 +125,7 @@ function initExampleData() {
         type: 'server',
         identifier: 'SecondServer',
         name: 'My Second Server',
-        position: {
+        relativePosition: {
             x: 550,
             y: 200
         },
@@ -140,9 +142,9 @@ function initExampleData() {
         identifier: 'API2',
         parentIdentifier: 'SecondServer',
         name: 'Second API',
-        position: {
-            x: 580,
-            y: 210
+        relativePosition: {
+            x: 10,
+            y: 10
         },
         size: {
             width: 70,
@@ -244,9 +246,10 @@ function createContainer(containerData) {
         identifier: containerIdentifier,
         name: containerData.name,
         parentContainerId: parentContainerId,
-        position: {
-            x: containerData.position.x,
-            y: containerData.position.y,
+        position: {},
+        relativePosition: {
+            x: containerData.relativePosition.x,
+            y: containerData.relativePosition.y,
         },
         size: { 
             width: containerData.size.width,
@@ -256,6 +259,8 @@ function createContainer(containerData) {
         stroke: stroke,
         children: [],
     }
+    
+    recalculateAbsolutePositions(newContainer)
     
     containersAndConnections.containers[containerId] = newContainer
     
@@ -380,6 +385,7 @@ function handleMouseStateChange () {
             type: 'server',  // TODO: allow adding different kinds of containers
             identifier: 'ExtraServer',
             name: 'My Extra Server',
+// FIXME: relativePosition!            
             position: {
                 x: mouseState.position.x,
                 y: mouseState.position.y
@@ -458,8 +464,9 @@ function handleMouseStateChange () {
     // Hande mouse movement
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
-        interaction.currentlySelectedContainer.position.x += mouseState.position.x - mouseState.previousPosition.x 
-        interaction.currentlySelectedContainer.position.y += mouseState.position.y - mouseState.previousPosition.y
+        interaction.currentlySelectedContainer.relativePosition.x += mouseState.position.x - mouseState.previousPosition.x 
+        interaction.currentlySelectedContainer.relativePosition.y += mouseState.position.y - mouseState.previousPosition.y
+        recalculateAbsolutePositions(interaction.currentlySelectedContainer)
     }
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingResized) {
@@ -470,12 +477,14 @@ function handleMouseStateChange () {
             interaction.currentlySelectedContainer.size.height += mouseState.position.y - mouseState.previousPosition.y
         }
         if (interaction.selectedContainerResizeSide.x < 0) { // left side
-            interaction.currentlySelectedContainer.position.x += mouseState.position.x - mouseState.previousPosition.x 
+            interaction.currentlySelectedContainer.relativePosition.x += mouseState.position.x - mouseState.previousPosition.x 
             interaction.currentlySelectedContainer.size.width -= mouseState.position.x - mouseState.previousPosition.x 
+            recalculateAbsolutePositions(interaction.currentlySelectedContainer)
         }
         if (interaction.selectedContainerResizeSide.y < 0) { // top side
-            interaction.currentlySelectedContainer.position.y += mouseState.position.y - mouseState.previousPosition.y
+            interaction.currentlySelectedContainer.relativePosition.y += mouseState.position.y - mouseState.previousPosition.y
             interaction.currentlySelectedContainer.size.height -= mouseState.position.y - mouseState.previousPosition.y
+            recalculateAbsolutePositions(interaction.currentlySelectedContainer)
         }
     }
     
