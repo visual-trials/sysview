@@ -21,19 +21,18 @@ function drawCanvas() {
     clearCanvas()
     resizeCanvasToWindowSize()
     
-    /* Trying orthographic projection
-    ctx.save()
-    ctx.scale(1, 0.5)
-    ctx.rotate(30 * Math.PI / 180);
-    */
-    
     drawContainers()
     drawConnections()
+    drawNewConnection()
     
-    /* Trying orthographic projection
-    ctx.restore()
-    */
+    drawMenu()
     
+    // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
+    canvasElement.style.cursor = interaction.mousePointerStyle
+    
+}
+
+function drawNewConnection () {
     if (interaction.newConnectionBeingAdded != null) {
         let fromContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.from)
         let toContainer = null
@@ -49,13 +48,6 @@ function drawCanvas() {
         }
         drawConnection(interaction.newConnectionBeingAdded, fromContainer, toContainer)
     }
-    
-    
-    drawMenu()
-    
-    // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
-    canvasElement.style.cursor = interaction.mousePointerStyle
-    
 }
 
 function drawMenu() {
