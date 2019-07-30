@@ -345,7 +345,6 @@ function recalculateAbsolutePositions(container = null) {
     }
     else {
         parentContainer = containersAndConnections.containers[container.parentContainerId]
-        
         container.position.x = parentContainer.position.x + container.relativePosition.x
         container.position.y = parentContainer.position.y + container.relativePosition.y
     }

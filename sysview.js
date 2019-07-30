@@ -30,7 +30,7 @@ function initContainersAndConnections () {
     let rootContainer = {
         type: 'root',
         id: 0,
-        identifier: 'root',
+        identifier: null,
         position : { x: 0, y: 0 },
         children: [],
     }
@@ -271,8 +271,12 @@ function createContainer(containerData) {
     return containerId
 }
 
-function getContainerByIdentifier(identifier) {
+function getContainerByIdentifier(containerIdentifier) {
     
+    // TODO: maybe there is a nicer way to say: we need the root container (but this is kinda easy)
+    if (containerIdentifier == null) {
+        return containersAndConnections.containers[0]
+    }
     containerId = containersAndConnections.containerIdentifierToId[containerIdentifier]
     
     if (containerId != null) {
@@ -308,11 +312,12 @@ function handleMouseStateChange () {
     let containerAtMousePosition = findContainerAtScreenPosition(mouseState.position)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
     
-    interaction.currentlyHoveredContainer = containerAtMousePosition
     if (menuButtonAtMousePosition != null) {
+        interaction.currentlyHoveredContainer = null
         interaction.currentlyHoveredMode = menuButtonAtMousePosition.mode
     }
     else {
+        interaction.currentlyHoveredContainer = containerAtMousePosition
         interaction.currentlyHoveredMode = null
     }
     
@@ -380,23 +385,33 @@ function handleMouseStateChange () {
     // Handle mouse clicking
 
     if (mouseState.rightButtonHasGoneDown && interaction.currentlyHoveredMode == null) {
+        
+        let parentIdentifier = null
+        if (interaction.currentlyHoveredContainer != null) {
+            parentIdentifier = interaction.currentlyHoveredContainer.identifier
+        }
+        let parentContainer = getContainerByIdentifier(parentIdentifier)
+        
         // TODO: we need some kind of (incremental) id here!
         let extraServer = {
             type: 'server',  // TODO: allow adding different kinds of containers
+            parentIdentifier: parentIdentifier,
+// FIXME: what should we use as identifier here??
+// FIXME: what should we use as identifier here??
+// FIXME: what should we use as identifier here??
             identifier: 'ExtraServer',
             name: 'My Extra Server',
-// FIXME: relativePosition!            
-            position: {
-                x: mouseState.position.x,
-                y: mouseState.position.y
+            relativePosition: {
+                x: mouseState.position.x - interaction.viewOffset.x - parentContainer.position.x,
+                y: mouseState.position.y - interaction.viewOffset.y - parentContainer.position.y
             },
             size: {
                 width: 200,
                 height: 250
             }
         }
-        
-        let extraServerIdentifier = addContainer(extraServer, "", containersAndConnections.containers)
+// FIXME: console.log(extraServer)
+        let extraServerIdentifier = createContainer(extraServer)
     }
 
     if (mouseState.leftButtonHasGoneDown) {
