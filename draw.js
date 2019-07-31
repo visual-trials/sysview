@@ -1,6 +1,6 @@
 let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
-let viewAsIsometric = false
+let viewAsIsometric = true
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
@@ -24,8 +24,9 @@ function drawCanvas() {
 
     if (viewAsIsometric) {
         ctx.save()
+        ctx.translate(0, canvasElement.height / 2)
         ctx.scale(1, 0.5)
-        ctx.rotate(45 * Math.PI / 180)
+        ctx.rotate(- 45 * Math.PI / 180)
         drawGrid()
     }
  
