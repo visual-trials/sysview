@@ -1,6 +1,6 @@
 let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
-let viewAsIsometric = false
+let viewAsIsometric = true
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
@@ -24,8 +24,8 @@ function drawCanvas() {
 
     if (viewAsIsometric) {
         ctx.save()
-        ctx.translate(0, canvasElement.height / 2)
-        ctx.scale(1, 0.5)
+//        ctx.translate(0, canvasElement.height / 2)
+//        ctx.scale(1, 0.5)
         ctx.rotate(- 45 * Math.PI / 180)
         drawGrid()
     }
@@ -285,7 +285,24 @@ function drawContainer(container) {
 
 function fromScreenPositionToWorldPosition(screenPosition) {
     // TODO: check if we are in viewAsIsometric
-    let worldPosition = substractOffsetFromPosition(interaction.viewOffset, mouseState.position)
+    let worldPosition = {}
+    
+    if (!viewAsIsometric) {
+        worldPosition = substractOffsetFromPosition(interaction.viewOffset, screenPosition)
+    }
+    else {
+        worldPosition.x = screenPosition.x
+        worldPosition.y = screenPosition.y
+        
+        let lengthFromOrigin = Math.sqrt(worldPosition.x * worldPosition.x + worldPosition.y * worldPosition.y)
+        let angleFromOrigin = Math.atan2(worldPosition.x, - worldPosition.y)
+        let newAngleFromOrigin = angleFromOrigin - 45 * Math.PI / 180
+        
+        worldPosition.x = Math.cos(newAngleFromOrigin) * lengthFromOrigin
+        worldPosition.y = Math.sin(newAngleFromOrigin) * lengthFromOrigin
+        
+        worldPosition = substractOffsetFromPosition(interaction.viewOffset, worldPosition)
+    }
     
     return worldPosition
 }

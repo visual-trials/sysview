@@ -403,8 +403,8 @@ function handleMouseStateChange () {
             identifier: 'ExtraServer',
             name: 'My Extra Server',
             relativePosition: {
-                x: mouseState.position.x - interaction.viewOffset.x - parentContainer.position.x,
-                y: mouseState.position.y - interaction.viewOffset.y - parentContainer.position.y
+                x: mouseState.worldPosition.x - parentContainer.position.x,
+                y: mouseState.worldPosition.y - parentContainer.position.y
             },
             size: {
                 width: 200,
@@ -480,33 +480,33 @@ function handleMouseStateChange () {
     // Hande mouse movement
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
-        interaction.currentlySelectedContainer.relativePosition.x += mouseState.position.x - mouseState.previousPosition.x 
-        interaction.currentlySelectedContainer.relativePosition.y += mouseState.position.y - mouseState.previousPosition.y
+        interaction.currentlySelectedContainer.relativePosition.x += mouseState.worldPosition.x - mouseState.previousWorldPosition.x 
+        interaction.currentlySelectedContainer.relativePosition.y += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
         recalculateAbsolutePositions(interaction.currentlySelectedContainer)
     }
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingResized) {
         if (interaction.selectedContainerResizeSide.x > 0) { // right side
-            interaction.currentlySelectedContainer.size.width += mouseState.position.x - mouseState.previousPosition.x 
+            interaction.currentlySelectedContainer.size.width += mouseState.worldPosition.x - mouseState.previousWorldPosition.x 
         }
         if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
-            interaction.currentlySelectedContainer.size.height += mouseState.position.y - mouseState.previousPosition.y
+            interaction.currentlySelectedContainer.size.height += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
         }
         if (interaction.selectedContainerResizeSide.x < 0) { // left side
-            interaction.currentlySelectedContainer.relativePosition.x += mouseState.position.x - mouseState.previousPosition.x 
-            interaction.currentlySelectedContainer.size.width -= mouseState.position.x - mouseState.previousPosition.x 
+            interaction.currentlySelectedContainer.relativePosition.x += mouseState.worldPosition.x - mouseState.previousWorldPosition.x
+            interaction.currentlySelectedContainer.size.width -= mouseState.worldPosition.x - mouseState.previousWorldPosition.x
             recalculateAbsolutePositions(interaction.currentlySelectedContainer)
         }
         if (interaction.selectedContainerResizeSide.y < 0) { // top side
-            interaction.currentlySelectedContainer.relativePosition.y += mouseState.position.y - mouseState.previousPosition.y
-            interaction.currentlySelectedContainer.size.height -= mouseState.position.y - mouseState.previousPosition.y
+            interaction.currentlySelectedContainer.relativePosition.y += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
+            interaction.currentlySelectedContainer.size.height -= mouseState.worldPosition.y - mouseState.previousWorldPosition.y
             recalculateAbsolutePositions(interaction.currentlySelectedContainer)
         }
     }
     
     if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
-        interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x 
-        interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+        interaction.viewOffset.x += mouseState.worldPosition.x - mouseState.previousWorldPosition.x
+        interaction.viewOffset.y += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
     }
 
     drawCanvas()
