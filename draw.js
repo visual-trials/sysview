@@ -1,6 +1,6 @@
 let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
-let viewAsIsometric = true
+let viewAsIsometric = false
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
