@@ -310,7 +310,8 @@ let interaction = {
 
 function handleMouseStateChange () {
     
-    let containerAtMousePosition = findContainerAtScreenPosition(mouseState.position)
+    let mouseWorldPosition = substractOffsetFromPosition(interaction.viewOffset, mouseState.position)
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseWorldPosition)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
     
     if (menuButtonAtMousePosition != null) {
@@ -326,7 +327,7 @@ function handleMouseStateChange () {
     
     // Check mouse position
     
-    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.position, interaction.currentlySelectedContainer)
+    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseWorldPosition, interaction.currentlySelectedContainer)
     
     let mouseIsNearSelectedContainerBorder = false
     

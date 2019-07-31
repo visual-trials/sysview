@@ -1,6 +1,6 @@
 let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
-let viewAsIsometric = true
+let viewAsIsometric = false
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
@@ -284,10 +284,17 @@ function drawContainer(container) {
 }
 
 function addOffsetToPosition(offset, position) {
-    let offsetPosition = { x: 0, y: 0}
-    offsetPosition.x = offset.x + position.x
-    offsetPosition.y = offset.y + position.y
-    return offsetPosition
+    let addedPosition = { x: 0, y: 0}
+    addedPosition.x = position.x + offset.x
+    addedPosition.y = position.y + offset.y
+    return addedPosition
+}
+
+function substractOffsetFromPosition(offset, position) {
+    let substractedPosition = { x: 0, y: 0}
+    substractedPosition.x = position.x - offset.x
+    substractedPosition.y = position.y - offset.y
+    return substractedPosition
 }
 
 function getCenterPositonOfContainer(container) {
@@ -398,7 +405,7 @@ function recalculateAbsolutePositions(container = null) {
     }
 }
 
-function findContainerAtScreenPosition(screenPosition, container = null) {
+function findContainerAtWorldPosition(worldPosition, container = null) {
     
     if (container == null) {
         container = containersAndConnections.containers[0] // = root container
@@ -412,21 +419,21 @@ function findContainerAtScreenPosition(screenPosition, container = null) {
         let childContainerId = container.children[containerIndex]
         let childContainer = containersAndConnections.containers[childContainerId]
         
-        let containerAtScreenPosition = findContainerAtScreenPosition(screenPosition, childContainer)
-        if (containerAtScreenPosition != null) {
-            return containerAtScreenPosition
+        let containerAtWorldPosition = findContainerAtWorldPosition(worldPosition, childContainer)
+        if (containerAtWorldPosition != null) {
+            return containerAtWorldPosition
         }
     }
     
     // Then check the parent itself (but not if it's the root container)
-    if (container.id !== 0 && screenPositionIsInsideContainer(screenPosition, container)) {
+    if (container.id !== 0 && worldPositionIsInsideContainer(worldPosition, container)) {
         return container
     }
     
     return null
 }
 
-function whichSideIsPositionFromContainer(screenPosition, container) {
+function whichSideIsPositionFromContainer(worldPosition, container) {
     
     // FIXME: maybe if container is (very) small, we should make the margin smaller?
     let margin = 10
@@ -437,42 +444,38 @@ function whichSideIsPositionFromContainer(screenPosition, container) {
         return side
     }
     
-    let containerScreenPosition = addOffsetToPosition(interaction.viewOffset, container.position)
-    
-    if (screenPosition.x < containerScreenPosition.x + margin) {
+    if (worldPosition.x < container.position.x + margin) {
         side.x = -1
-        if (screenPosition.x < containerScreenPosition.x - margin) {
+        if (worldPosition.x < container.position.x - margin) {
             side.isNearContainer = false
         }
     }
-    if (screenPosition.y < containerScreenPosition.y + margin) {
+    if (worldPosition.y < container.position.y + margin) {
         side.y = -1
-        if (screenPosition.y < containerScreenPosition.y - margin) {
+        if (worldPosition.y < container.position.y - margin) {
             side.isNearContainer = false
         }
     }
-    if (screenPosition.x > containerScreenPosition.x + container.size.width - margin) {
+    if (worldPosition.x > container.position.x + container.size.width - margin) {
         side.x = 1
-        if (screenPosition.x > containerScreenPosition.x + container.size.width + margin) {
+        if (worldPosition.x > container.position.x + container.size.width + margin) {
             side.isNearContainer = false
         }
     }
-    if (screenPosition.y > containerScreenPosition.y + container.size.height - margin) {
+    if (worldPosition.y > container.position.y + container.size.height - margin) {
         side.y = 1
-        if (screenPosition.y > containerScreenPosition.y + container.size.height + margin) {
+        if (worldPosition.y > container.position.y + container.size.height + margin) {
             side.isNearContainer = false
         }
     }
     return side
 }
 
-function screenPositionIsInsideContainer(screenPosition, container) {
-    let containerScreenPosition = addOffsetToPosition(interaction.viewOffset, container.position)
-    
-    if (screenPosition.x < containerScreenPosition.x ||
-        screenPosition.y < containerScreenPosition.y ||
-        screenPosition.x > containerScreenPosition.x + container.size.width ||
-        screenPosition.y > containerScreenPosition.y + container.size.height) {
+function worldPositionIsInsideContainer(worldPosition, container) {
+    if (worldPosition.x < container.position.x ||
+        worldPosition.y < container.position.y ||
+        worldPosition.x > container.position.x + container.size.width ||
+        worldPosition.y > container.position.y + container.size.height) {
             
         return false
     }
