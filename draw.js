@@ -1,6 +1,6 @@
 let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
-let viewAsIsometric = false
+let viewAsIsometric = true
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
@@ -26,6 +26,7 @@ function drawCanvas() {
         ctx.save()
         ctx.scale(1, 0.5)
         ctx.rotate(45 * Math.PI / 180)
+        drawGrid()
     }
  
     let rootContainer = containersAndConnections.containers[0]
@@ -45,6 +46,33 @@ function drawCanvas() {
     // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
     canvasElement.style.cursor = interaction.mousePointerStyle
     
+}
+
+function drawGrid () {
+
+    // TODO: draw these lines diagonally, so we wont draw too much or too little
+    let minX = 0
+    let maxX = canvasElement.width
+    let stepX = 20
+    
+    let minY = 0
+    let maxY = canvasElement.height
+    let stepY = 20
+    
+    ctx.lineWidth = 1
+    ctx.strokeStyle = '#666666'
+    for (let x = minX; x < maxX; x += stepX) {
+        ctx.beginPath()
+        ctx.moveTo(x, minY)
+        ctx.lineTo(x, maxY)
+        ctx.stroke()
+    }
+    for (let y = minY; y < maxY; y += stepY) {
+        ctx.beginPath()
+        ctx.moveTo(minX, y)
+        ctx.lineTo(maxX, y)
+        ctx.stroke()
+    }
 }
 
 function drawNewConnection () {
