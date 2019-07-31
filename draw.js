@@ -1,5 +1,6 @@
 let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
+let viewAsIsometric = false
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
@@ -20,7 +21,13 @@ function drawCanvas() {
     
     clearCanvas()
     resizeCanvasToWindowSize()
-    
+
+    if (viewAsIsometric) {
+        ctx.save()
+        ctx.scale(1, 0.5)
+        ctx.rotate(45 * Math.PI / 180)
+    }
+ 
     let rootContainer = containersAndConnections.containers[0]
     // FIXME: this is overkill. it should already be up-to-date
     // recalculateAbsolutePositions(rootContainer)
@@ -28,6 +35,10 @@ function drawCanvas() {
     
     drawConnections()
     drawNewConnection()
+    
+    if (viewAsIsometric) {
+        ctx.restore()
+    }
     
     drawMenu()
     
