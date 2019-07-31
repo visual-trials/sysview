@@ -461,7 +461,7 @@ function handleMouseStateChange () {
             if (interaction.newConnectionBeingAdded != null && interaction.newConnectionBeingAdded.to != null) {
                 // FIXME: we should give this connection the correct properties (like type, color etc)
                 interaction.newConnectionBeingAdded.type = 'API2API'
-                addConnection(interaction.newConnectionBeingAdded, containersAndConnections.connections)
+                createConnection(interaction.newConnectionBeingAdded)
             }
             
             interaction.newConnectionBeingAdded = null
