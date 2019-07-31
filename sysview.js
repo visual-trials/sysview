@@ -310,8 +310,7 @@ let interaction = {
 
 function handleMouseStateChange () {
     
-    let mouseWorldPosition = substractOffsetFromPosition(interaction.viewOffset, mouseState.position)
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseWorldPosition)
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
     
     if (menuButtonAtMousePosition != null) {
@@ -327,7 +326,7 @@ function handleMouseStateChange () {
     
     // Check mouse position
     
-    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseWorldPosition, interaction.currentlySelectedContainer)
+    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, interaction.currentlySelectedContainer)
     
     let mouseIsNearSelectedContainerBorder = false
     
@@ -515,6 +514,8 @@ function handleMouseStateChange () {
     // Reset mouse(event) data
     mouseState.previousPosition.x = mouseState.position.x
     mouseState.previousPosition.y = mouseState.position.y
+    mouseState.previousWorldPosition = fromScreenPositionToWorldPosition(mouseState.previousPosition)
+    
     mouseState.hasMoved = false
     mouseState.leftButtonHasGoneDown = false
     mouseState.leftButtonHasGoneUp = false
@@ -525,6 +526,8 @@ function handleMouseStateChange () {
 let mouseState = {
     position : { x: 0, y: 0 },
     previousPosition : { x: 0, y: 0 },
+    worldPosition : { x: 0, y: 0 },
+    previousWorldPosition : { x: 0, y: 0 },
     hasMoved : false,
     leftButtonHasGoneDown : false,
     leftButtonIsDown : false,
@@ -539,6 +542,8 @@ function updateMousePosition(x, y) {
     mouseState.position.y = y
     mouseState.hasMoved = mouseState.previousPosition.x != mouseState.position.x || 
                           mouseState.previousPosition.y != mouseState.position.y
+               
+    mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
 }
 
 function mouseButtonDown (e) {

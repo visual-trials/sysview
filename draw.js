@@ -283,6 +283,13 @@ function drawContainer(container) {
     
 }
 
+function fromScreenPositionToWorldPosition(screenPosition) {
+    // TODO: check if we are in viewAsIsometric
+    let worldPosition = substractOffsetFromPosition(interaction.viewOffset, mouseState.position)
+    
+    return worldPosition
+}
+
 function addOffsetToPosition(offset, position) {
     let addedPosition = { x: 0, y: 0}
     addedPosition.x = position.x + offset.x
