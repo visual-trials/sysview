@@ -26,6 +26,9 @@ function drawCanvas() {
     
     clearCanvas()
     resizeCanvasToWindowSize()
+    
+    // TODO: we want to re-position the button (because the screensize might have just changed), not re-inialize the menu
+    initMenu()
 
     if (interaction.viewAsIsometric) {
         ctx.save()

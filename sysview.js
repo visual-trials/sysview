@@ -81,6 +81,11 @@ function initMenu() {
     for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
         let buttonData = menuButtons[buttonIndex]
         buttonData.position = {}
+        // FIXME: ugly HACK!
+        if (buttonIndex == 3) {
+            buttonPosition.x = canvasElement.width - buttonSize.width - 20
+            buttonPosition.y = canvasElement.height - buttonSize.height * 2 - 20
+        }
         buttonData.position.x = buttonPosition.x
         buttonData.position.y = buttonPosition.y
         buttonData.size = {}
