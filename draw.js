@@ -120,6 +120,12 @@ function drawButton(buttonData, drawOnlySelected) {
 function drawGrid () {
 
     // TODO: draw the grid on a fixed point in WORLD-space (and only draw what is on the screen)
+    if (interaction.viewAsIsometric) {
+        ctx.save()
+        ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
+        ctx.scale(1, isoMetricSettings.scale)
+        ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
+    }
     
     let minX = 0
     let maxX = canvasElement.width
@@ -144,6 +150,11 @@ function drawGrid () {
         ctx.lineTo(maxX + 0.5, y + 0.5)
         ctx.stroke()
     }
+    
+    if (interaction.viewAsIsometric) {
+        ctx.restore()
+    }
+    
 }
 
 function drawNewConnection () {
