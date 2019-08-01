@@ -67,6 +67,9 @@ function initMenu() {
         },
         {
             mode: "connect",
+        },
+        {
+            toggle: "isoMetric",
         }
     ]
     
@@ -426,12 +429,8 @@ function handleMouseStateChange () {
                 interaction.currentlySelectedMode = interaction.currentlyHoveredMenuButton.mode
             }
             
-            // FIXME: do this differently
-            if (interaction.currentlyHoveredMenuButton.mode === 'view') {
-                interaction.viewAsIsometric = true
-            }
-            else {
-                interaction.viewAsIsometric = false
+            if (interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
+                interaction.viewAsIsometric = !interaction.viewAsIsometric
             }
         }
         else if (interaction.currentlySelectedMode === 'connect') {
