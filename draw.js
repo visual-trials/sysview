@@ -92,8 +92,8 @@ function drawNewConnection () {
         else {
             toContainer = {
                 size: { width: 0, height: 0},
-                position: { x: mouseState.position.x - interaction.viewOffset.x, 
-                            y: mouseState.position.y - interaction.viewOffset.y }
+                position: { x: mouseState.worldPosition.x, 
+                            y: mouseState.worldPosition.y }
             }
         }
         drawConnection(interaction.newConnectionBeingAdded, fromContainer, toContainer)
