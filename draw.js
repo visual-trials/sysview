@@ -177,8 +177,9 @@ function drawConnection(connection, fromContainer, toContainer) {
     let fromContainerBorderPoint = getContainerBorderPointFromAngle(angleBetweenPoints, fromContainer, false)
     let toContainerBorderPoint = getContainerBorderPointFromAngle(angleBetweenPoints, toContainer, true)
     
-    let screenFromContainerPosition = addOffsetToPosition(interaction.viewOffset, fromContainerBorderPoint)
-    let screenToContainerPosition = addOffsetToPosition(interaction.viewOffset, toContainerBorderPoint)
+    // NOTE: these aren't real screen positions (see fromWorldPositionToScreenPosition)
+    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint)
+    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint)
     
     {
         // Draw line 
@@ -224,7 +225,8 @@ function drawConnection(connection, fromContainer, toContainer) {
         // FIXME: textPosition.x = connection.position.x + (connection.size.width / 2) - (connection.width / 2)
         // FIXME: textPosition.y = connection.position.y + (connection.size.height / 2) + (connection.height / 2) 
         
-        // FIXME: let screenTextPosition = addOffsetToPosition(interaction.viewOffset, textPosition)
+        // NOTE: these isn't a real screen position (see fromWorldPositionToScreenPosition)
+        // FIXME: let screenTextPosition = fromWorldPositionToScreenPosition(textPosition)
         
         // Draw the text at the text positions
         ctx.fillStyle = textColor
@@ -249,7 +251,8 @@ function drawContainer(container) {
         ctx.lineWidth = 2
         ctx.strokeStyle = container.stroke
         ctx.fillStyle = container.fill
-        let screenContainerPosition = addOffsetToPosition(interaction.viewOffset, container.position)
+        // NOTE: these isn't a real screen position (see fromWorldPositionToScreenPosition)
+        let screenContainerPosition = fromWorldPositionToScreenPosition(container.position)
         ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
         
         if (interaction.currentlySelectedContainer != null && 
@@ -280,7 +283,8 @@ function drawContainer(container) {
         textPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
         textPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
         
-        let screenTextPosition = addOffsetToPosition(interaction.viewOffset, textPosition)
+        // NOTE: this isn't a real screen position (see fromWorldPositionToScreenPosition)
+        let screenTextPosition = fromWorldPositionToScreenPosition(textPosition)
         
         // Draw the text at the text positions
         ctx.fillStyle = textColor
@@ -289,8 +293,32 @@ function drawContainer(container) {
     
 }
 
+function fromWorldPositionToScreenPosition(worldPosition) {
+    
+    let screenPosition = {}
+    
+    if (!viewAsIsometric) {
+        screenPosition = addOffsetToPosition(interaction.viewOffset, worldPosition)
+    }
+    else {
+        // TODO: currently we let the canvas itself do the translation, scaling and rotating
+        //       so we ONLY do the translate in world-space here!
+        //       so screenPosition isn't realy filled with a screen-coordinate here
+        screenPosition = addOffsetToPosition(interaction.viewOffset, worldPosition)
+    }
+    
+    return screenPosition
+}
+
+function addOffsetToPosition(offset, position) {
+    let addedPosition = { x: 0, y: 0}
+    addedPosition.x = position.x + offset.x
+    addedPosition.y = position.y + offset.y
+    return addedPosition
+}
+
 function fromScreenPositionToWorldPosition(screenPosition) {
-    // TODO: check if we are in viewAsIsometric
+    
     let worldPosition = {}
     
     if (!viewAsIsometric) {
@@ -314,18 +342,11 @@ function fromScreenPositionToWorldPosition(screenPosition) {
         worldPosition.x = Math.cos(newAngleFromOrigin) * lengthFromOrigin
         worldPosition.y = Math.sin(newAngleFromOrigin) * lengthFromOrigin
         
-        // substract viewOffset (also a translate, but in world-space)
+        // substract viewOffset (this is also a translate, but in world-space)
         worldPosition = substractOffsetFromPosition(interaction.viewOffset, worldPosition)
     }
     
     return worldPosition
-}
-
-function addOffsetToPosition(offset, position) {
-    let addedPosition = { x: 0, y: 0}
-    addedPosition.x = position.x + offset.x
-    addedPosition.y = position.y + offset.y
-    return addedPosition
 }
 
 function substractOffsetFromPosition(offset, position) {
