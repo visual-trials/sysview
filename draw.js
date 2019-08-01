@@ -24,8 +24,8 @@ function drawCanvas() {
 
     if (viewAsIsometric) {
         ctx.save()
-//        ctx.translate(0, canvasElement.height / 2)
-//        ctx.scale(1, 0.5)
+        ctx.translate(0, canvasElement.height / 2)
+        ctx.scale(1, 0.5)
         ctx.rotate(- 45 * Math.PI / 180)
         drawGrid()
     }
@@ -294,6 +294,14 @@ function fromScreenPositionToWorldPosition(screenPosition) {
         worldPosition.x = screenPosition.x
         worldPosition.y = screenPosition.y
         
+        // Translate (in screen-space)
+        worldPosition.y = worldPosition.y - canvasElement.height / 2
+        
+        // Scale
+        worldPosition.x = worldPosition.x * 1.0
+        worldPosition.y = worldPosition.y * 2.0
+        
+        // Rotate
         let lengthFromOrigin = Math.sqrt(worldPosition.x * worldPosition.x + worldPosition.y * worldPosition.y)
         let angleFromOrigin = Math.atan2(worldPosition.x, - worldPosition.y)
         let newAngleFromOrigin = angleFromOrigin - 45 * Math.PI / 180
@@ -301,6 +309,7 @@ function fromScreenPositionToWorldPosition(screenPosition) {
         worldPosition.x = Math.cos(newAngleFromOrigin) * lengthFromOrigin
         worldPosition.y = Math.sin(newAngleFromOrigin) * lengthFromOrigin
         
+        // substract viewOffset (also a translate, but in world-space)
         worldPosition = substractOffsetFromPosition(interaction.viewOffset, worldPosition)
     }
     
