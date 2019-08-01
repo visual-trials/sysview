@@ -300,7 +300,7 @@ let interaction = {
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
     viewAsIsometric : false,
-    showGrid : false,
+    showGrid : true,
    
     currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',
