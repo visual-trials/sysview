@@ -331,12 +331,23 @@ function drawContainer(container) {
         textPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
         textPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
         
-        // NOTE: this isn't a real screen position (see fromWorldPositionToScreenPosition)
-        let screenTextPosition = fromWorldPositionToScreenPosition(textPosition)
+        // TODO: we probably want to use this instead: let screenTextPosition = fromWorldPositionToScreenPosition(textPosition)
+        let screenTextPosition = addOffsetToPosition(interaction.viewOffset, textPosition) // TODO: This is a bit of a HACK
+        
+        if (interaction.viewAsIsometric) {
+            ctx.save()
+            ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
+            ctx.scale(1, isoMetricSettings.scale)
+            ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
+        }
         
         // Draw the text at the text positions
         ctx.fillStyle = textColor
         ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
+        
+        if (interaction.viewAsIsometric) {
+            ctx.restore()
+        }
     }
     
 }
