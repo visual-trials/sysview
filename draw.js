@@ -2,6 +2,12 @@ let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
 let viewAsIsometric = true
 
+let isoMetricSettings = {
+    translate: 0.5, // move half the height of the screen down
+    scale: 0.5,     // shrink vertically (by a factor of 2)
+    rotate: -45,   // rotated 45 degrees counter-clock-wise
+}
+
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
     ctx.beginPath() // See: http://codetheory.in/why-clearrect-might-not-be-clearing-canvas-pixels/
@@ -24,9 +30,9 @@ function drawCanvas() {
 
     if (viewAsIsometric) {
         ctx.save()
-        ctx.translate(0, canvasElement.height / 2)
-        ctx.scale(1, 0.5)
-        ctx.rotate(- 45 * Math.PI / 180)
+        ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
+        ctx.scale(1, isoMetricSettings.scale)
+        ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
         drawGrid()
     }
  
@@ -295,16 +301,15 @@ function fromScreenPositionToWorldPosition(screenPosition) {
         worldPosition.y = screenPosition.y
         
         // Translate (in screen-space)
-        worldPosition.y = worldPosition.y - canvasElement.height / 2
+        worldPosition.y = worldPosition.y - isoMetricSettings.translate * canvasElement.height
         
-        // Scale
-        worldPosition.x = worldPosition.x * 1.0
-        worldPosition.y = worldPosition.y * 2.0
+        // Scale vertically
+        worldPosition.y = worldPosition.y / isoMetricSettings.scale
         
         // Rotate
         let lengthFromOrigin = Math.sqrt(worldPosition.x * worldPosition.x + worldPosition.y * worldPosition.y)
         let angleFromOrigin = Math.atan2(worldPosition.x, - worldPosition.y)
-        let newAngleFromOrigin = angleFromOrigin - 45 * Math.PI / 180
+        let newAngleFromOrigin = angleFromOrigin + isoMetricSettings.rotate * Math.PI / 180
         
         worldPosition.x = Math.cos(newAngleFromOrigin) * lengthFromOrigin
         worldPosition.y = Math.sin(newAngleFromOrigin) * lengthFromOrigin
