@@ -57,7 +57,8 @@ function drawCanvas() {
 
 function drawGrid () {
 
-    // TODO: draw these lines diagonally, so we wont draw too much or too little
+    // TODO: draw the grid on a fixed point in WORLD-space (and only draw what is on the screen)
+    
     let minX = 0
     let maxX = canvasElement.width
     let stepX = 20
