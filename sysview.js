@@ -232,16 +232,16 @@ function createContainer(containerData) {
     }
     parentContainer = containersAndConnections.containers[parentContainerId]
     
-    let fill = 'rgba(0, 0, 0, 1)'
-    let stroke = 'rgba(0, 0, 0, 1)'
+    let fill = { r:0, g:0, b:0, a:1 }
+    let stroke = { r:0, g:0, b:0, a:1 }
     
     if (containerData.type === 'server') {
-        fill = 'rgba(200, 180, 0, 1)'
-        stroke = 'rgba(200, 80, 0, 1)'
+        fill = { r:200, g:180, b:0, a:1 }
+        stroke = { r:200, g:180, b:0, a:1 }
     }
     else if (containerData.type === 'API') {
-        fill = 'rgba(0, 180, 200, 1)'
-        stroke = 'rgba(0, 80, 200, 1)'
+        fill = { r:0, g:180, b:200, a:1 }
+        stroke = { r:0, g:180, b:200, a:1 }
     }
     else {
         console.log("ERROR: Unknown container type: " + containerData.type)

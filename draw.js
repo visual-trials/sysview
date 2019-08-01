@@ -202,7 +202,7 @@ function drawConnection(connection, fromContainer, toContainer) {
     {
         // Draw line 
         ctx.lineWidth = 2
-        ctx.strokeStyle = connection.stroke
+        ctx.strokeStyle = rgba(connection.stroke)
         
         ctx.beginPath()
         // FIXME: don't draw from left-upper corner to left-upper corner!
@@ -224,7 +224,7 @@ function drawConnection(connection, fromContainer, toContainer) {
         }
     }
     
-    let textColor = "#000000"
+    let textColor = { r:0, g:0, b:0, a:1 }
     {
         // Draw text
         let textToDraw = connection.identifier
@@ -247,7 +247,7 @@ function drawConnection(connection, fromContainer, toContainer) {
         // FIXME: let screenTextPosition = fromWorldPositionToScreenPosition(textPosition)
         
         // Draw the text at the text positions
-        ctx.fillStyle = textColor
+        ctx.fillStyle = rgba(textColor)
         // FIXME: ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
     }
     
@@ -262,13 +262,17 @@ function drawContainers(containerIds) {
     }
 }
 
+function rgba(color) {
+    return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + color.a + ')'
+}
+
 function drawContainer(container) {
     
     {
         // Draw rectangle 
         ctx.lineWidth = 2
-        ctx.strokeStyle = container.stroke
-        ctx.fillStyle = container.fill
+        ctx.strokeStyle = rgba(container.stroke)
+        ctx.fillStyle = rgba(container.fill)
         
         if (interaction.viewAsIsometric) {
         
@@ -284,6 +288,15 @@ function drawContainer(container) {
             position.y -= container.size.height
             let rightTopContainerPosition = fromWorldPositionToScreenPosition(position)
             
+            ctx.beginPath()
+            ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
+            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
+            ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
+            ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
+            ctx.closePath()
+            ctx.fill()
+            
+            ctx.fillStyle = rgba(container.fill)
             ctx.beginPath()
             ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
             ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
@@ -323,7 +336,7 @@ function drawContainer(container) {
         }
     }
     
-    let textColor = "#000000"
+    let textColor = { r:0, g:0, b:0, a:1 }
     {
         // Draw text
         let textToDraw = container.identifier
@@ -353,7 +366,7 @@ function drawContainer(container) {
         }
         
         // Draw the text at the text positions
-        ctx.fillStyle = textColor
+        ctx.fillStyle = rgba(textColor)
         ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
         
         if (interaction.viewAsIsometric) {
