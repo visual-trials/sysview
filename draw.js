@@ -258,16 +258,45 @@ function drawContainer(container) {
         ctx.lineWidth = 2
         ctx.strokeStyle = container.stroke
         ctx.fillStyle = container.fill
-        // NOTE: these isn't a real screen position (see fromWorldPositionToScreenPosition)
-        let screenContainerPosition = fromWorldPositionToScreenPosition(container.position)
-        ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
+        
+        let position = { x : 0, y : 0}
+        position.x = container.position.x
+        position.y = container.position.y
+        
+        let leftTopContainerPosition = fromWorldPositionToScreenPosition(position)
+        position.y += container.size.height
+        let leftBottomContainerPosition = fromWorldPositionToScreenPosition(position)
+        position.x += container.size.width
+        let rightBottomContainerPosition = fromWorldPositionToScreenPosition(position)
+        position.y -= container.size.height
+        let rightTopContainerPosition = fromWorldPositionToScreenPosition(position)
+        
+        ctx.beginPath()
+        ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
+        ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
+        ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
+        ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
+        ctx.closePath()
+        ctx.fill()
+        
+        // ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
         
         if (interaction.currentlySelectedContainer != null && 
             container.identifier === interaction.currentlySelectedContainer.identifier) {
                 
             ctx.lineWidth = 2
             ctx.strokeStyle = "#FF0000"
-            ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
+            
+            // TODO: this is the same as above!
+            ctx.beginPath()
+            ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
+            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
+            ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
+            ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
+            ctx.closePath()
+            ctx.stroke()
+            
+            //ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
         }
     }
     
