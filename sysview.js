@@ -295,7 +295,7 @@ let interaction = {
     viewIsBeingDragged : false,
     viewAsIsometric : false,
    
-    currentlyHoveredMode : null,
+    currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',
     
     currentlyHoveredContainer : null,
@@ -316,11 +316,11 @@ function handleMouseStateChange () {
     
     if (menuButtonAtMousePosition != null) {
         interaction.currentlyHoveredContainer = null
-        interaction.currentlyHoveredMode = menuButtonAtMousePosition.mode
+        interaction.currentlyHoveredMenuButton = menuButtonAtMousePosition
     }
     else {
         interaction.currentlyHoveredContainer = containerAtMousePosition
-        interaction.currentlyHoveredMode = null
+        interaction.currentlyHoveredMenuButton = null
     }
     
 // FIXME: we should use .id instead of .identifier everywhere now!
@@ -331,7 +331,7 @@ function handleMouseStateChange () {
     
     let mouseIsNearSelectedContainerBorder = false
     
-    if (interaction.currentlyHoveredMode != null) {
+    if (interaction.currentlyHoveredMenuButton != null) {
         // If we hover a menu button, we want to see a default mouse pointer
         interaction.mousePointerStyle = 'default'
     }
@@ -386,7 +386,7 @@ function handleMouseStateChange () {
     
     // Handle mouse clicking
 
-    if (mouseState.rightButtonHasGoneDown && interaction.currentlyHoveredMode == null) {
+    if (mouseState.rightButtonHasGoneDown && interaction.currentlyHoveredMenuButton == null) {
         
         let parentIdentifier = null
         if (interaction.currentlyHoveredContainer != null) {
@@ -418,9 +418,21 @@ function handleMouseStateChange () {
 
     if (mouseState.leftButtonHasGoneDown) {
         
-        if (interaction.currentlyHoveredMode != null) {
+        if (interaction.currentlyHoveredMenuButton != null) {
             // Menu-click has higher priority than container-click, we check it first
-            interaction.currentlySelectedMode = interaction.currentlyHoveredMode
+            
+            if (interaction.currentlyHoveredMenuButton.mode) {
+                // If its a menu button with a 'mode', then we select that mode
+                interaction.currentlySelectedMode = interaction.currentlyHoveredMenuButton.mode
+            }
+            
+            // FIXME: do this differently
+            if (interaction.currentlyHoveredMenuButton.mode === 'view') {
+                interaction.viewAsIsometric = true
+            }
+            else {
+                interaction.viewAsIsometric = false
+            }
         }
         else if (interaction.currentlySelectedMode === 'connect') {
             if (containerAtMousePosition != null) {
@@ -456,9 +468,10 @@ function handleMouseStateChange () {
             interaction.selectedContainerIsBeingResized = false
         }
     }
+    
     if (mouseState.leftButtonHasGoneUp) {
         
-        if (interaction.currentlyHoveredMode == null && interaction.currentlySelectedMode === 'connect') {
+        if (interaction.currentlyHoveredMenuButton == null && interaction.currentlySelectedMode === 'connect') {
             // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.to is not null)
             if (interaction.newConnectionBeingAdded != null && interaction.newConnectionBeingAdded.to != null) {
                 // FIXME: we should give this connection the correct properties (like type, color etc)
