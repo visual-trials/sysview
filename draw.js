@@ -29,9 +29,9 @@ function drawCanvas() {
 
     if (interaction.viewAsIsometric) {
         ctx.save()
-        ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
-        ctx.scale(1, isoMetricSettings.scale)
-        ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
+//        ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
+//        ctx.scale(1, isoMetricSettings.scale)
+//        ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
     }
     
     if (interaction.showGrid) {
@@ -311,7 +311,25 @@ function fromWorldPositionToScreenPosition(worldPosition) {
         // TODO: currently we let the canvas itself do the translation, scaling and rotating
         //       so we ONLY do the translate in world-space here!
         //       so screenPosition isn't realy filled with a screen-coordinate here
+        
         screenPosition = addOffsetToPosition(interaction.viewOffset, worldPosition)
+        
+        // Rotate
+        let lengthFromOrigin = Math.sqrt(screenPosition.x * screenPosition.x + screenPosition.y * screenPosition.y)
+        let angleFromOrigin = Math.atan2(screenPosition.x, screenPosition.y)
+        let newAngleFromOrigin = angleFromOrigin + isoMetricSettings.rotate * Math.PI / 180
+        
+        if (newAngleFromOrigin < 0) {
+            newAngleFromOrigin += Math.PI * 2
+        }
+        screenPosition.x = Math.cos(newAngleFromOrigin) * lengthFromOrigin
+        screenPosition.y = - Math.sin(newAngleFromOrigin) * lengthFromOrigin
+        
+        // Scale vertically
+        screenPosition.y = screenPosition.y * isoMetricSettings.scale
+        
+        // Translate (in screen-space)
+        screenPosition.y = screenPosition.y + isoMetricSettings.translate * canvasElement.height
     }
     
     return screenPosition
