@@ -57,53 +57,6 @@ function drawCanvas() {
     
 }
 
-function drawGrid () {
-
-    // TODO: draw the grid on a fixed point in WORLD-space (and only draw what is on the screen)
-    
-    let minX = 0
-    let maxX = canvasElement.width
-    let stepX = 20
-    
-    let minY = 0
-    let maxY = canvasElement.height
-    let stepY = 20
-    
-    // TODO: we are adding 0.5, because we are drawing line (of witdh = 1). Maybe do this differently
-    ctx.lineWidth = 1
-    ctx.strokeStyle = '#CCCCCC'
-    for (let x = minX; x < maxX; x += stepX) {
-        ctx.beginPath()
-        ctx.moveTo(x + 0.5, minY + 0.5)
-        ctx.lineTo(x + 0.5, maxY + 0.5)
-        ctx.stroke()
-    }
-    for (let y = minY; y < maxY; y += stepY) {
-        ctx.beginPath()
-        ctx.moveTo(minX + 0.5, y + 0.5)
-        ctx.lineTo(maxX + 0.5, y + 0.5)
-        ctx.stroke()
-    }
-}
-
-function drawNewConnection () {
-    if (interaction.newConnectionBeingAdded != null) {
-        let fromContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.from)
-        let toContainer = null
-        if (interaction.newConnectionBeingAdded.to != null) {
-            toContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.to)
-        }
-        else {
-            toContainer = {
-                size: { width: 0, height: 0},
-                position: { x: mouseState.worldPosition.x, 
-                            y: mouseState.worldPosition.y }
-            }
-        }
-        drawConnection(interaction.newConnectionBeingAdded, fromContainer, toContainer)
-    }
-}
-
 function drawMenu() {
     drawButtonList(menuButtons)
 }
@@ -162,6 +115,53 @@ function drawButton(buttonData, drawOnlySelected) {
         }
     }
     
+}
+
+function drawGrid () {
+
+    // TODO: draw the grid on a fixed point in WORLD-space (and only draw what is on the screen)
+    
+    let minX = 0
+    let maxX = canvasElement.width
+    let stepX = 20
+    
+    let minY = 0
+    let maxY = canvasElement.height
+    let stepY = 20
+    
+    // TODO: we are adding 0.5, because we are drawing line (of witdh = 1). Maybe do this differently
+    ctx.lineWidth = 1
+    ctx.strokeStyle = '#CCCCCC'
+    for (let x = minX; x < maxX; x += stepX) {
+        ctx.beginPath()
+        ctx.moveTo(x + 0.5, minY + 0.5)
+        ctx.lineTo(x + 0.5, maxY + 0.5)
+        ctx.stroke()
+    }
+    for (let y = minY; y < maxY; y += stepY) {
+        ctx.beginPath()
+        ctx.moveTo(minX + 0.5, y + 0.5)
+        ctx.lineTo(maxX + 0.5, y + 0.5)
+        ctx.stroke()
+    }
+}
+
+function drawNewConnection () {
+    if (interaction.newConnectionBeingAdded != null) {
+        let fromContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.from)
+        let toContainer = null
+        if (interaction.newConnectionBeingAdded.to != null) {
+            toContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.to)
+        }
+        else {
+            toContainer = {
+                size: { width: 0, height: 0},
+                position: { x: mouseState.worldPosition.x, 
+                            y: mouseState.worldPosition.y }
+            }
+        }
+        drawConnection(interaction.newConnectionBeingAdded, fromContainer, toContainer)
+    }
 }
 
 function drawConnections() {
