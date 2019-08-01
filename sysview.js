@@ -293,7 +293,8 @@ function getContainerByIdentifier(containerIdentifier) {
 let interaction = {
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
-    
+    viewAsIsometric : false,
+   
     currentlyHoveredMode : null,
     currentlySelectedMode : 'view',
     

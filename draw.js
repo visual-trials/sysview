@@ -1,6 +1,5 @@
 let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
-let viewAsIsometric = true
 
 let isoMetricSettings = {
     translate: 0.5, // move half the height of the screen down
@@ -28,7 +27,7 @@ function drawCanvas() {
     clearCanvas()
     resizeCanvasToWindowSize()
 
-    if (viewAsIsometric) {
+    if (interaction.viewAsIsometric) {
         ctx.save()
         ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
         ctx.scale(1, isoMetricSettings.scale)
@@ -44,7 +43,7 @@ function drawCanvas() {
     drawConnections()
     drawNewConnection()
     
-    if (viewAsIsometric) {
+    if (interaction.viewAsIsometric) {
         ctx.restore()
     }
     
@@ -301,7 +300,7 @@ function fromWorldPositionToScreenPosition(worldPosition) {
     
     let screenPosition = {}
     
-    if (!viewAsIsometric) {
+    if (!interaction.viewAsIsometric) {
         screenPosition = addOffsetToPosition(interaction.viewOffset, worldPosition)
     }
     else {
@@ -325,7 +324,7 @@ function fromScreenPositionToWorldPosition(screenPosition) {
     
     let worldPosition = {}
     
-    if (!viewAsIsometric) {
+    if (!interaction.viewAsIsometric) {
         worldPosition = substractOffsetFromPosition(interaction.viewOffset, screenPosition)
     }
     else {
