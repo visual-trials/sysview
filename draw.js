@@ -102,14 +102,17 @@ function drawNewConnection () {
 }
 
 function drawMenu() {
-    
-    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
-        let buttonData = menuButtons[buttonIndex]
+    drawButtonList(menuButtons)
+}
+
+function drawButtonList(buttonList) {
+    for (let buttonIndex = 0; buttonIndex < buttonList.length; buttonIndex++) {
+        let buttonData = buttonList[buttonIndex]
         let drawOnlySelected = false
         drawButton(buttonData, drawOnlySelected)
     }
-    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
-        let buttonData = menuButtons[buttonIndex]
+    for (let buttonIndex = 0; buttonIndex < buttonList.length; buttonIndex++) {
+        let buttonData = buttonList[buttonIndex]
         let drawOnlySelected = true
         drawButton(buttonData, drawOnlySelected)
     }
@@ -428,8 +431,16 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
 
 
 function findMenuButtonAtScreenPosition(screenPosition) {
-    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
-        let buttonData = menuButtons[buttonIndex]
+    let buttonFound = findButtonInButtonListAtScreenPosition(screenPosition, menuButtons)
+    if (buttonFound != null) {
+        return buttonFound
+    }
+    return null
+}
+
+function findButtonInButtonListAtScreenPosition(screenPosition, buttonList) {
+    for (let buttonIndex = 0; buttonIndex < buttonList.length; buttonIndex++) {
+        let buttonData = buttonList[buttonIndex]
         
         let buttonPosition = buttonData.position
         let buttonSize = buttonData.size
