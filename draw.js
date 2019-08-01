@@ -97,6 +97,7 @@ function drawButton(buttonData, drawOnlySelected) {
             ctx.strokeStyle = buttonStroke
             ctx.fillStyle = buttonFill
             ctx.fillRect(buttonPosition.x, buttonPosition.y, buttonSize.width, buttonSize.height)
+            
             // TODO: how to deal with stoking and offset: 0.5 ?
             ctx.strokeRect(buttonPosition.x + 0.5, buttonPosition.y + 0.5, buttonSize.width, buttonSize.height)
         }
@@ -116,6 +117,20 @@ function drawButton(buttonData, drawOnlySelected) {
         if (menuIcons.hasOwnProperty(buttonData.mode)) {
             ctx.drawImage(menuIcons[buttonData.mode], buttonPosition.x, buttonPosition.y)
         }
+        else {
+            if (buttonData.toggle === 'isoMetric') {
+                if (interaction.viewAsIsometric) {
+                    ctx.drawImage(menuIcons['isoMetric'], buttonPosition.x, buttonPosition.y)
+                }
+                else {
+                    ctx.drawImage(menuIcons['square'], buttonPosition.x, buttonPosition.y)
+                }
+            }
+            else if (buttonData.toggle === 'grid') {
+                ctx.drawImage(menuIcons['grid'], buttonPosition.x, buttonPosition.y)
+            }
+        }
+        
     }
     
 }
