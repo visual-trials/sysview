@@ -262,6 +262,28 @@ function drawContainers(containerIds) {
     }
 }
 
+function lighten(color, percentage) {
+    let lightColor = { r:0, g:0, b:0, a:0 }
+    
+    lightColor.a = color.a
+    lightColor.r = color.r + (255 - color.r) * percentage
+    lightColor.g = color.g + (255 - color.g) * percentage
+    lightColor.b = color.b + (255 - color.b) * percentage
+    
+    return lightColor
+}
+
+function darken(color, percentage) {
+    let darkColor = { r:0, g:0, b:0, a:0 }
+    
+    darkColor.a = color.a
+    darkColor.r = color.r - color.r * percentage
+    darkColor.g = color.g - color.g * percentage
+    darkColor.b = color.b - color.b * percentage
+    
+    return darkColor
+}
+
 function rgba(color) {
     return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + color.a + ')'
 }
@@ -296,12 +318,21 @@ function drawContainer(container) {
             ctx.closePath()
             ctx.fill()
             
-            ctx.fillStyle = rgba(container.fill)
+            ctx.fillStyle = rgba(darken(container.fill, 0.3))
             ctx.beginPath()
             ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
             ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
+            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y + 3)
+            ctx.lineTo(leftTopContainerPosition.x, leftTopContainerPosition.y + 3)
+            ctx.closePath()
+            ctx.fill()
+            
+            ctx.fillStyle = rgba(lighten(container.fill, 0.3))
+            ctx.beginPath()
+            ctx.moveTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
             ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
-            ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
+            ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y + 3)
+            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y + 3)
             ctx.closePath()
             ctx.fill()
             
