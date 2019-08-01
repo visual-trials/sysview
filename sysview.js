@@ -70,6 +70,9 @@ function initMenu() {
         },
         {
             toggle: "isoMetric",
+        },
+        {
+            toggle: "grid",
         }
     ]
     
@@ -297,6 +300,7 @@ let interaction = {
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
     viewAsIsometric : false,
+    showGrid : false,
    
     currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',
@@ -432,6 +436,11 @@ function handleMouseStateChange () {
             if (interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
                 interaction.viewAsIsometric = !interaction.viewAsIsometric
             }
+            
+            if (interaction.currentlyHoveredMenuButton.toggle === 'grid') {
+                interaction.showGrid = !interaction.showGrid
+            }
+            
         }
         else if (interaction.currentlySelectedMode === 'connect') {
             if (containerAtMousePosition != null) {

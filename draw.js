@@ -32,6 +32,9 @@ function drawCanvas() {
         ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
         ctx.scale(1, isoMetricSettings.scale)
         ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
+    }
+    
+    if (interaction.showGrid) {
         drawGrid()
     }
  
@@ -66,18 +69,19 @@ function drawGrid () {
     let maxY = canvasElement.height
     let stepY = 20
     
+    // TODO: we are adding 0.5, because we are drawing line (of witdh = 1). Maybe do this differently
     ctx.lineWidth = 1
-    ctx.strokeStyle = '#666666'
+    ctx.strokeStyle = '#CCCCCC'
     for (let x = minX; x < maxX; x += stepX) {
         ctx.beginPath()
-        ctx.moveTo(x, minY)
-        ctx.lineTo(x, maxY)
+        ctx.moveTo(x + 0.5, minY + 0.5)
+        ctx.lineTo(x + 0.5, maxY + 0.5)
         ctx.stroke()
     }
     for (let y = minY; y < maxY; y += stepY) {
         ctx.beginPath()
-        ctx.moveTo(minX, y)
-        ctx.lineTo(maxX, y)
+        ctx.moveTo(minX + 0.5, y + 0.5)
+        ctx.lineTo(maxX + 0.5, y + 0.5)
         ctx.stroke()
     }
 }
