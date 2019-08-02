@@ -197,10 +197,10 @@ function createConnection(connectionData) {
     let fromContainerId = containersAndConnections.containerIdentifierToId[connectionData.from]
     let toContainerId = containersAndConnections.containerIdentifierToId[connectionData.to]
     
-    let stroke = 'rgba(0, 0, 0, 1)'
+    let stroke = { r:0, g:0, b:0, a:1 }
 
     if (connectionData.type === 'API2API') {
-        stroke = 'rgba(0, 80, 200, 1)'
+        stroke = { r:0, g:180, b:200, a:1 }
     }
     else {
         console.log("ERROR: Unknown connection type: " + connectionData.type)

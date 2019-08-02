@@ -205,7 +205,6 @@ function drawConnection(connection, fromContainer, toContainer) {
     let fromContainerBorderPoint = getContainerBorderPointFromAngle(angleBetweenPoints, fromContainer, false)
     let toContainerBorderPoint = getContainerBorderPointFromAngle(angleBetweenPoints, toContainer, true)
     
-    // NOTE: these aren't real screen positions (see fromWorldPositionToScreenPosition)
     let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint)
     let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint)
     
@@ -215,7 +214,6 @@ function drawConnection(connection, fromContainer, toContainer) {
         ctx.strokeStyle = rgba(connection.stroke)
         
         ctx.beginPath()
-        // FIXME: don't draw from left-upper corner to left-upper corner!
         ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
         ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
         ctx.stroke()
@@ -226,7 +224,6 @@ function drawConnection(connection, fromContainer, toContainer) {
             ctx.lineWidth = 2
             ctx.strokeStyle = "#FF0000"
             
-            // FIXME: don't draw from left-upper corner to left-upper corner!
             ctx.beginPath()
             ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
             ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
@@ -234,6 +231,7 @@ function drawConnection(connection, fromContainer, toContainer) {
         }
     }
     
+    /*
     let textColor = { r:0, g:0, b:0, a:1 }
     {
         // Draw text
@@ -260,7 +258,7 @@ function drawConnection(connection, fromContainer, toContainer) {
         ctx.fillStyle = rgba(textColor)
         // FIXME: ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
     }
-    
+    */
 }
 
 function drawContainers(containerIds) {
