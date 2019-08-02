@@ -270,17 +270,32 @@ function handleInputStateChange () {
 
     if (keyboardState.sequenceKeysUpDown.length) {
         
-        let textTyped = ''
-        for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
-            let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
-            let keyName = keyCodeMap[keyUpDown.keyCode]
-            if (keyUpDown.isDown) {
-                textTyped = textTyped + keyName.toLowerCase()
-            }
-        }
-
+        
         if (interaction.currentlyEditingContainerText != null) {
-            interaction.currentlyEditingContainerText.identifier += textTyped
+        
+            // TODO: create function: let resultingText = applyKeyboardEventToString(interaction.currentlyEditingContainerText.identifier)
+            let textToEdit = interaction.currentlyEditingContainerText.identifier
+            for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
+                let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
+                let keyName = keyCodeMap[keyUpDown.keyCode]
+                if (keyUpDown.isDown) {
+                    // TODO: check if shift (or CAPS-LOCK) is down/active
+                    if (keyUpDown.keyCode >= 65 && keyUpDown.keyCode <= 90) {  // A through Z
+                        textToEdit += keyName.toLowerCase()
+                    }
+                    else {
+                        // TODO: keep a record of the CURSOR!!
+                        if (keyName === 'BACK_SPACE') {
+                            textToEdit = textToEdit.substring(0, textToEdit.length - 1);
+                        }
+                        else {
+                            console.log(keyName)
+                        }
+                    }
+                }
+            }
+
+            interaction.currentlyEditingContainerText.identifier = textToEdit
         }
         
     }
