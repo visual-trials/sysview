@@ -279,9 +279,20 @@ function handleInputStateChange () {
                 let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
                 let keyName = keyCodeMap[keyUpDown.keyCode]
                 if (keyUpDown.isDown) {
-                    // TODO: check if shift (or CAPS-LOCK) is down/active
+                    
+                    // Checking if shift (or CAPS-LOCK) is down/active
+                    let shiftIsDown = keyboardState.keysThatAreDown[16] // FIXME: hardcoded code for SHIFT!
+                    if (keyboardState.capsLockIsActive) {
+                        shiftIsDown = !shiftIsDown // TODO: now putting the effective shift-ness in shiftIsDown.
+                    }
+                    
                     if (keyUpDown.keyCode >= 65 && keyUpDown.keyCode <= 90) {  // A through Z
-                        textToEdit += keyName.toLowerCase()
+                        if (shiftIsDown) {
+                            textToEdit += keyName
+                        }
+                        else {
+                            textToEdit += keyName.toLowerCase()
+                        }
                     }
                     else {
                         // TODO: keep a record of the CURSOR!!

@@ -123,7 +123,8 @@ function mouseWheelMoved (e) {
 
 let keyboardState = {
     keysThatAreDown : {},
-    sequenceKeysUpDown : []    
+    sequenceKeysUpDown : [],
+    capsLockIsActive : false,
 }
 
 function keyDown (e) {
@@ -148,6 +149,14 @@ function keyDown (e) {
         }
         else {
             // FIXME: a key is down, but there was already one down. This could be multiple keys pressed at once. Not supported atm.
+        }
+        
+        // TODO: now we always check CapsLock. Can we only check when it is pressed (or can it be pressed outside of our window, so thats not safe?)
+        if (e.getModifierState("CapsLock")) {
+            keyboardState.capsLockIsActive = true
+        }
+        else {
+            keyboardState.capsLockIsActive = false
         }
         
         handleInputStateChange()
