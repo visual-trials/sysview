@@ -115,19 +115,27 @@ function drawButton(buttonData, drawOnlySelected) {
         
         // Draw Icon
         if (menuIcons.hasOwnProperty(buttonData.mode)) {
-            ctx.drawImage(menuIcons[buttonData.mode], buttonPosition.x, buttonPosition.y)
+            if (menuIcons[buttonData.mode]) {
+                ctx.drawImage(menuIcons[buttonData.mode], buttonPosition.x, buttonPosition.y)
+            }
         }
         else {
             if (buttonData.toggle === 'isoMetric') {
                 if (interaction.viewAsIsometric) {
-                    ctx.drawImage(menuIcons['isoMetric'], buttonPosition.x, buttonPosition.y)
+                    if (menuIcons['isoMetric']) {
+                        ctx.drawImage(menuIcons['isoMetric'], buttonPosition.x, buttonPosition.y)
+                    }
                 }
                 else {
-                    ctx.drawImage(menuIcons['square'], buttonPosition.x, buttonPosition.y)
+                    if (menuIcons['square']) {
+                        ctx.drawImage(menuIcons['square'], buttonPosition.x, buttonPosition.y)
+                    }
                 }
             }
             else if (buttonData.toggle === 'grid') {
-                ctx.drawImage(menuIcons['grid'], buttonPosition.x, buttonPosition.y)
+                if (menuIcons['grid']) {
+                    ctx.drawImage(menuIcons['grid'], buttonPosition.x, buttonPosition.y)
+                }
             }
         }
         
