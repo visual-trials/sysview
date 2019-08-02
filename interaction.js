@@ -32,6 +32,11 @@ let interaction = {
     selectedContainerResizeSide : null,
     
     newConnectionBeingAdded : null,
+
+    // TODO: should we only edit a model? And then change the container/connection text accordingly (and save to the backend)?
+    currentlyEditingContainerText : null, // TODO: maybe edit container attribute? Using some kind of Id?
+    currentlyEditingConnectionText : null, // TODO: maybe edit connection attribute? Using some kind of Id?
+    currentlyEditingDataText : null, // TODO: how do we refer to a point in the data structure? Using some kind of Id?
     
     mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
@@ -260,7 +265,9 @@ function handleMouseStateChange () {
     
     mouseState.hasMoved = false
     mouseState.leftButtonHasGoneDown = false
+    mouseState.leftButtonHasGoneDownTwice = false
     mouseState.leftButtonHasGoneUp = false
     mouseState.rightButtonHasGoneDown = false
+    mouseState.rightButtonHasGoneDownTwice = false
     mouseState.rightButtonHasGoneUp = false
 }

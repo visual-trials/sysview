@@ -22,10 +22,16 @@ let mouseState = {
     worldPosition : { x: 0, y: 0 },
     previousWorldPosition : { x: 0, y: 0 },
     hasMoved : false,
+    
     leftButtonHasGoneDown : false,
+    leftButtonHasGoneDownAt : null,
+    leftButtonHasGoneDownTwice : false,
     leftButtonIsDown : false,
     leftButtonHasGoneUp : false,
+    
     rightButtonHasGoneDown : false,
+    rightButtonHasGoneDownAt : null,
+    rightButtonHasGoneDownTwice : false,
     rightButtonIsDown : false,
     rightButtonHasGoneUp : false,
 }
@@ -41,16 +47,28 @@ function updateMousePosition(x, y) {
 
 function mouseButtonDown (e) {
         
+    let now = Date.now()
+    
     if (e.button == 0) {
         // left mouse button down
         mouseState.leftButtonHasGoneDown = true
         mouseState.leftButtonIsDown = true
+        if (mouseState.leftButtonHasGoneDownAt != null && now - mouseState.leftButtonHasGoneDownAt < 500) {
+            mouseState.leftButtonHasGoneDownTwice = true
+        }
+        mouseState.leftButtonHasGoneDownAt = now        
+        
         handleMouseStateChange()
     }
     else if (e.button == 2) {
         // right mouse button down
         mouseState.rightButtonHasGoneDown = true
         mouseState.rightButtonIsDown = true
+        if (mouseState.rightButtonHasGoneDownAt != null && now - mouseState.rightButtonHasGoneDownAt < 500) {
+            mouseState.rightButtonHasGoneDownTwice = true
+        }
+        mouseState.rightButtonHasGoneDownAt = now        
+        
         handleMouseStateChange()
     }
 
