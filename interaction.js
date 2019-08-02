@@ -41,7 +41,7 @@ let interaction = {
     mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
 
-function handleMouseStateChange () {
+function handleInputStateChange () {
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
@@ -148,7 +148,19 @@ function handleMouseStateChange () {
         let extraServerIdentifier = createContainer(extraServer)
     }
 
-    if (mouseState.leftButtonHasGoneDown) {
+    
+    if (mouseState.leftButtonHasGoneDownTwice) {
+        
+        if (interaction.currentlyHoveredMenuButton == null) {
+            // TODO: we might want to check if the container is selected and/or hovered
+            if (containerAtMousePosition != null) {
+                interaction.currentlyEditingContainerText = containerAtMousePosition
+                console.log(containerAtMousePosition)
+            }
+        }
+    }
+    // TODO: we regard double-clicking as overruling single clicking, which might not be desired
+    else if (mouseState.leftButtonHasGoneDown) {
         
         if (interaction.currentlyHoveredMenuButton != null) {
             // Menu-click has higher priority than container-click, we check it first
@@ -256,6 +268,23 @@ function handleMouseStateChange () {
         interaction.viewOffset.y += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
     }
 
+    if (keyboardState.sequenceKeysUpDown.length) {
+        
+        let textTyped = ''
+        for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
+            let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
+            let keyName = keyCodeMap[keyUpDown.keyCode]
+            if (keyUpDown.isDown) {
+                textTyped = textTyped + keyName.toLowerCase()
+            }
+        }
+
+        if (interaction.currentlyEditingContainerText != null) {
+            interaction.currentlyEditingContainerText.identifier += textTyped
+        }
+        
+    }
+    
     drawCanvas()
     
     // Reset mouse(event) data
@@ -270,4 +299,7 @@ function handleMouseStateChange () {
     mouseState.rightButtonHasGoneDown = false
     mouseState.rightButtonHasGoneDownTwice = false
     mouseState.rightButtonHasGoneUp = false
+    
+    // Reset keyboard(event) data
+    keyboardState.sequenceKeysUpDown = []
 }
