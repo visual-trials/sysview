@@ -137,40 +137,32 @@ function drawButton(buttonData, drawOnlySelected) {
 
 function drawGrid () {
 
-    // TODO: draw the grid on a fixed point in WORLD-space (and only draw what is on the screen)
-    if (interaction.viewAsIsometric) {
-        ctx.save()
-        ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
-        ctx.scale(1, isoMetricSettings.scale)
-        ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
-    }
-    
     let minX = 0
     let maxX = canvasElement.width
-    let stepX = 20
+    let stepX = 30
     
     let minY = 0
     let maxY = canvasElement.height
-    let stepY = 20
+    let stepY = 30
     
     // TODO: we are adding 0.5, because we are drawing line (of witdh = 1). Maybe do this differently
     ctx.lineWidth = 1
     ctx.strokeStyle = '#CCCCCC'
     for (let x = minX; x < maxX; x += stepX) {
         ctx.beginPath()
-        ctx.moveTo(x + 0.5, minY + 0.5)
-        ctx.lineTo(x + 0.5, maxY + 0.5)
+        let screenPosMin = fromWorldPositionToScreenPosition({x: x, y: minY})
+        let screenPosMax = fromWorldPositionToScreenPosition({x: x, y: maxY})
+        ctx.moveTo(screenPosMin.x + 0.5, screenPosMin.y + 0.5)
+        ctx.lineTo(screenPosMax.x + 0.5, screenPosMax.y + 0.5)
         ctx.stroke()
     }
     for (let y = minY; y < maxY; y += stepY) {
         ctx.beginPath()
-        ctx.moveTo(minX + 0.5, y + 0.5)
-        ctx.lineTo(maxX + 0.5, y + 0.5)
+        let screenPosMin = fromWorldPositionToScreenPosition({x: minX, y: y})
+        let screenPosMax = fromWorldPositionToScreenPosition({x: maxX, y: y})
+        ctx.moveTo(screenPosMin.x + 0.5, screenPosMin.y + 0.5)
+        ctx.lineTo(screenPosMax.x + 0.5, screenPosMax.y + 0.5)
         ctx.stroke()
-    }
-    
-    if (interaction.viewAsIsometric) {
-        ctx.restore()
     }
     
 }
