@@ -199,9 +199,15 @@ function recalculateAbsolutePositions(container = null) {
         container = containersAndConnections.containers[0] // = root container
     }
     else {
+// FIXME HACK
+// FIXME HACK
+// FIXME HACK
+if (container.parentContainerId != null) {        
         parentContainer = containersAndConnections.containers[container.parentContainerId]
         container.position.x = parentContainer.position.x + container.relativePosition.x
         container.position.y = parentContainer.position.y + container.relativePosition.y
+        
+}
     }
     
     // First check the children (since they are 'on-top' of the parent)

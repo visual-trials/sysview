@@ -26,8 +26,9 @@ function init() {
     initContainersAndConnections()
     
     // TODO: replace this eventually
-    initExampleData()
+//    initExampleData()
     
+    // NOTE: this is loaded async!!
     loadContainerData()
     
     recalculateAbsolutePositions()
@@ -48,17 +49,22 @@ function initFirebase () {
     }
 
     firebase.initializeApp(firebaseConfig)
-    console.log('firebase initialized')
 }
 
 function loadContainerData() {
-    // TODO: loop through firebase containers/
-    
-        // TODO: createContainer for each container in firebase
+    console.log('starting to load data' + Date())
+    firebase.database().ref('visual/containers/').once('value').then(function(snapshot) {
+        console.log('data was loaded' + Date())
+        let containers = snapshot.val()
+        
+        for (containerIdentifier in containers) {
+            createContainer(containers[containerIdentifier])
+        }
+        drawCanvas()
+    })
 }
 
 function storeContainerData(containerData) {
-    console.log(containerData)
     firebase.database().ref('visual/containers/' + containerData.identifier).set({
         // TODO: couldn't we simply use the whole of containerData here?
         identifier: containerData.identifier,
