@@ -23,6 +23,7 @@ function initExampleData() {
     let firstServer = {
         type: 'server',
         identifier: 'FirstServer',
+        parentIdentifier: null,
         name: 'My First Server',
         relativePosition: {
             x: 250,
@@ -34,7 +35,8 @@ function initExampleData() {
         }
     }
     
-    let firstServerId = createContainer(firstServer, "")
+    // FIXME: remove this: let firstServerId = createContainer(firstServer)
+    storeContainerData(firstServer)
     
     let firstAPI = {
         type: 'API',
@@ -51,11 +53,13 @@ function initExampleData() {
         }
     }
     
-    let firstAPIId = createContainer(firstAPI)
+    // FIXME: remove this: let firstAPIId = createContainer(firstAPI)
+    storeContainerData(firstAPI)
     
     let secondServer = {
         type: 'server',
         identifier: 'SecondServer',
+        parentIdentifier: null,
         name: 'My Second Server',
         relativePosition: {
             x: 550,
@@ -67,7 +71,8 @@ function initExampleData() {
         }
     }
     
-    let secondServerId = createContainer(secondServer)
+    // FIXME: remove this: let secondServerId = createContainer(secondServer)
+    storeContainerData(secondServer)
     
     let secondAPI = {
         type: 'API',
@@ -84,7 +89,8 @@ function initExampleData() {
         }
     }
     
-    let secondAPIId = createContainer(secondAPI)
+    // FIXME: remove this: let secondAPIId = createContainer(secondAPI)
+    storeContainerData(secondAPI)
     
     
     // Connections
@@ -97,5 +103,6 @@ function initExampleData() {
         to: 'API2',
     }
     
-    createConnection(firstAPIToSecondAPI)
+    // FIXME: remove this: createConnection(firstAPIToSecondAPI)
+    storeConnectionData(firstAPIToSecondAPI)
 }

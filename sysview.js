@@ -18,12 +18,18 @@
  
 function init() {
     
+    initFirebase()
+    
     initIcons()
     initMenu()
     
     initContainersAndConnections()
+    
     // TODO: replace this eventually
     initExampleData()
+    
+    loadContainerData()
+    
     recalculateAbsolutePositions()
 
     addInputListeners()
@@ -41,5 +47,29 @@ function initFirebase () {
         appId: "1:741358324352:web:e249d5539c781a94"
     }
 
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig)
+    console.log('firebase initialized')
+}
+
+function loadContainerData() {
+    // TODO: loop through firebase containers/
+    
+        // TODO: createContainer for each container in firebase
+}
+
+function storeContainerData(containerData) {
+    console.log(containerData)
+    firebase.database().ref('visual/containers/' + containerData.identifier).set({
+        // TODO: couldn't we simply use the whole of containerData here?
+        identifier: containerData.identifier,
+        type: containerData.type,
+        name: containerData.name,
+        parentIdentifier: containerData.parentIdentifier,
+        relativePosition: containerData.relativePosition,
+        size: containerData.size
+    })
+}
+
+function storeConnectionData(connectionData) {
+    // TODO: implement this!
 }
