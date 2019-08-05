@@ -29,3 +29,17 @@ function init() {
     addInputListeners()
     drawCanvas()
 }
+
+function initFirebase () {
+    let firebaseConfig = {
+        apiKey: "AIzaSyD3aPCuIf856k1-_yzsK-YH1gD8USe-6RU",
+        authDomain: "sysview-8c913.firebaseapp.com",
+        databaseURL: "https://sysview-8c913.firebaseio.com",
+        projectId: "sysview-8c913",
+        storageBucket: "",
+        messagingSenderId: "741358324352",
+        appId: "1:741358324352:web:e249d5539c781a94"
+    }
+
+    firebase.initializeApp(firebaseConfig);
+}
