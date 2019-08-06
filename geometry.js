@@ -196,24 +196,18 @@ function findButtonInButtonListAtScreenPosition(screenPosition, buttonList) {
 function recalculateAbsolutePositions(container = null) {
     
     if (container == null) {
-        container = containersAndConnections.containers[0] // = root container
+        container = containersAndConnections.containers['root'] // = root container
     }
     else {
-// FIXME HACK
-// FIXME HACK
-// FIXME HACK
-if (container.parentContainerId != null) {        
-        parentContainer = containersAndConnections.containers[container.parentContainerId]
+        parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
         container.position.x = parentContainer.position.x + container.relativePosition.x
         container.position.y = parentContainer.position.y + container.relativePosition.y
-        
-}
     }
     
     // First check the children (since they are 'on-top' of the parent)
     for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
-        let childContainerId = container.children[containerIndex]
-        let childContainer = containersAndConnections.containers[childContainerId]
+        let childContainerIdentifier = container.children[containerIndex]
+        let childContainer = containersAndConnections.containers[childContainerIdentifier]
         
         recalculateAbsolutePositions(childContainer)
     }
@@ -222,7 +216,7 @@ if (container.parentContainerId != null) {
 function findContainerAtWorldPosition(worldPosition, container = null) {
     
     if (container == null) {
-        container = containersAndConnections.containers[0] // = root container
+        container = containersAndConnections.containers['root'] // = root container
     }
     
     // TODO: for performance, we probably want to check if the mousepointer is above the parent, and only
@@ -230,8 +224,8 @@ function findContainerAtWorldPosition(worldPosition, container = null) {
     
     // First check the children (since they are 'on-top' of the parent)
     for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
-        let childContainerId = container.children[containerIndex]
-        let childContainer = containersAndConnections.containers[childContainerId]
+        let childContainerIdentifier = container.children[containerIndex]
+        let childContainer = containersAndConnections.containers[childContainerIdentifier]
         
         let containerAtWorldPosition = findContainerAtWorldPosition(worldPosition, childContainer)
         if (containerAtWorldPosition != null) {

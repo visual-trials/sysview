@@ -81,7 +81,7 @@ function drawCanvas() {
         drawGrid()
     }
  
-    let rootContainer = containersAndConnections.containers[0]
+    let rootContainer = containersAndConnections.containers['root']
     // FIXME: this is overkill. it should already be up-to-date
     // recalculateAbsolutePositions(rootContainer)
     drawContainers(rootContainer.children)
@@ -234,11 +234,11 @@ function drawNewConnection () {
 }
 
 function drawConnections() {
-    for (let connectionId in containersAndConnections.connections) {
-        let connection = containersAndConnections.connections[connectionId]
+    for (let connectionIdentifier in containersAndConnections.connections) {
+        let connection = containersAndConnections.connections[connectionIdentifier]
         
-        let fromContainer = containersAndConnections.containers[connection.fromId]
-        let toContainer = containersAndConnections.containers[connection.toId]
+        let fromContainer = containersAndConnections.containers[connection.fromIdentifier]
+        let toContainer = containersAndConnections.containers[connection.toIdentifier]
         drawConnection(connection, fromContainer, toContainer)
     }
 }
@@ -309,10 +309,10 @@ function drawConnection(connection, fromContainer, toContainer) {
     */
 }
 
-function drawContainers(containerIds) {
-    for (let containerIndex = 0; containerIndex < containerIds.length; containerIndex++) {
-        let containerId = containerIds[containerIndex]
-        let container = containersAndConnections.containers[containerId]
+function drawContainers(containerIdentifiers) {
+    for (let containerIndex = 0; containerIndex < containerIdentifiers.length; containerIndex++) {
+        let containerIdentifier = containerIdentifiers[containerIndex]
+        let container = containersAndConnections.containers[containerIdentifier]
         drawContainer(container)
         drawContainers(container.children)
     }

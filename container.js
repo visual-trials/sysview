@@ -21,12 +21,7 @@ let containersAndConnections = null
 function initContainersAndConnections () {
     containersAndConnections = { 
         containers: {}, 
-        lastContainerId: 0, 
-        containerIdentifierToId: {},
-        
         connections: {}, 
-        lastConnectionId: 0,
-        connectionIdentifierToId: {},
     }
     
     let rootContainer = {
@@ -37,29 +32,17 @@ function initContainersAndConnections () {
         children: [],
     }
     
-    containersAndConnections.containers[0] = rootContainer
-}
-
-function getNewContainerId () {
-    return ++containersAndConnections.lastContainerId
+    containersAndConnections.containers['root'] = rootContainer
 }
 
 function createContainer(containerData) {
     
-    let containerId = getNewContainerId()
+    // FIXME: check if this identifier is unique!!
     let containerIdentifier = containerData.identifier
-    containersAndConnections.containerIdentifierToId[containerIdentifier] = containerId
     
     let parentContainerIdentifier = containerData.parentIdentifier
-    let parentContainerId = null
-    let parentContainer = null
-    if (parentContainerIdentifier != null) {
-        parentContainerId = containersAndConnections.containerIdentifierToId[parentContainerIdentifier]
-    }
-    else {
-        parentContainerId = 0 // = root container
-    }
-    parentContainer = containersAndConnections.containers[parentContainerId]
+    // TODO: we now assume the parent always exist. What if it doesn't? Will it be put into a special container?
+    let parentContainer = containersAndConnections.containers[parentContainerIdentifier]
     
     let fill = { r:0, g:0, b:0, a:1 }
     let stroke = { r:0, g:0, b:0, a:1 }
@@ -78,10 +61,9 @@ function createContainer(containerData) {
     
     // TODO: determine absolute postiion based on absolute position of parent (we need a hashmap of containers (of the parent itself) for that)
     let newContainer = {
-        id: containerId,
         identifier: containerIdentifier,
         name: containerData.name,
-        parentContainerId: parentContainerId,
+        parentContainerIdentifier: parentContainerIdentifier,
         position: {},
         relativePosition: {
             x: containerData.relativePosition.x,
@@ -95,28 +77,27 @@ function createContainer(containerData) {
         stroke: stroke,
         children: [],
     }
-    
+console.log(newContainer)
     recalculateAbsolutePositions(newContainer)
     
-    containersAndConnections.containers[containerId] = newContainer
+    containersAndConnections.containers[containerIdentifier] = newContainer
     
     if (parentContainer != null) {
-        parentContainer.children.push(containerId)
+        parentContainer.children.push(containerIdentifier)
     }
     
-    return containerId
+    return newContainer
 }
 
 function getContainerByIdentifier(containerIdentifier) {
     
     // TODO: maybe there is a nicer way to say: we need the root container (but this is kinda easy)
     if (containerIdentifier == null) {
-        return containersAndConnections.containers[0]
+        return containersAndConnections.containers['root']
     }
-    containerId = containersAndConnections.containerIdentifierToId[containerIdentifier]
     
-    if (containerId != null) {
-        return containersAndConnections.containers[containerId]
+    if (containersAndConnections.containers.hasOwnProperty(containerIdentifier)) {
+        return containersAndConnections.containers[containerIdentifier]
     }
     else {
         console.log('ERROR: unknown containerIdentifier: ' + containerIdentifier)
@@ -124,18 +105,7 @@ function getContainerByIdentifier(containerIdentifier) {
     }
 }
 
-function getNewConnectionId () {
-    return ++containersAndConnections.lastConnectionId
-}
-
 function createConnection(connectionData) {
-    
-    let connectionId = getNewConnectionId()
-    let connectionIdentifier = connectionData.identifier
-    containersAndConnections.connectionIdentifierToId[connectionIdentifier] = connectionId
-    
-    let fromContainerId = containersAndConnections.containerIdentifierToId[connectionData.from]
-    let toContainerId = containersAndConnections.containerIdentifierToId[connectionData.to]
     
     let stroke = { r:0, g:0, b:0, a:1 }
 
@@ -147,16 +117,15 @@ function createConnection(connectionData) {
     }
     
     let newConnection = {
-        id: connectionId,
-        identifier: connectionIdentifier,
+        identifier: connectionData.identifier,
         name: connectionData.name,
-        fromId: fromContainerId,
-        toId: toContainerId,
+        fromIdentifier: connectionData.from,
+        toIdentifier: connectionData.to,
         stroke: stroke,
     }
     
-    containersAndConnections.connections[connectionId] = newConnection
+    containersAndConnections.connections[connectionData.identifier] = newConnection
     
-    return connectionId
+    return newConnection
 }
 
