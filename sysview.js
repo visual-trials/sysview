@@ -61,6 +61,9 @@ function loadContainerAndConnectionData() {
         //       when they do, then always run ALL commands below! 
         //      So you REMOVE all resulting connections and containers! And then start from "scratch"!
         
+        //      If a position of a container changes (or something else does), then this should be set in
+        //      the 'visual' data. This again should trigger all of the below!
+        
         for (let containerIdentifier in containers) {
             createContainer(containers[containerIdentifier])
         }
