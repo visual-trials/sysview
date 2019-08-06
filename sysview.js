@@ -70,6 +70,9 @@ function loadContainerAndConnectionData() {
 
 function integrateContainerAndConnectionData () {
     
+    // TODO: should we also reset the interaction-info? Or at least check if its still valid?
+    //       note that we should use identifiers in there INSTEAD of actual containers/connections!!
+    
     // Removing all connections and containers
     initContainersAndConnections()
     
