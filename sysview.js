@@ -26,15 +26,11 @@ function init() {
     initContainersAndConnections()
     
     // TODO: replace this eventually
-    initExampleData()
+    // initExampleData()
     
     // NOTE: this is loaded async!!
-    // loadContainerData()
+    loadContainerData()
     
-    setContainerChildren()
-    
-    recalculateAbsolutePositions()
-
     addInputListeners()
     drawCanvas()
 }
@@ -62,6 +58,8 @@ function loadContainerData() {
         for (containerIdentifier in containers) {
             createContainer(containers[containerIdentifier])
         }
+        setContainerChildren()
+        recalculateAbsolutePositions()
         drawCanvas()
     })
 }

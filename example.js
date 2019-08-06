@@ -47,9 +47,8 @@ function initExampleData() {
         }
     }
     
-    // FIXME: remove this: 
-    createContainer(firstServer)
-    // storeContainerData(firstServer)
+    // FIXME: remove this: createContainer(firstServer)
+    storeContainerData(firstServer)
     
     let firstAPI = {
         type: 'API',
@@ -66,9 +65,8 @@ function initExampleData() {
         }
     }
     
-    // FIXME: remove this: 
-    createContainer(firstAPI)
-    // storeContainerData(firstAPI)
+    // FIXME: remove this: createContainer(firstAPI)
+    storeContainerData(firstAPI)
     
     let secondServer = {
         type: 'server',
@@ -85,9 +83,8 @@ function initExampleData() {
         }
     }
     
-    // FIXME: remove this: 
-    createContainer(secondServer)
-    // storeContainerData(secondServer)
+    // FIXME: remove this: createContainer(secondServer)
+    storeContainerData(secondServer)
     
     let secondAPI = {
         type: 'API',
@@ -104,9 +101,8 @@ function initExampleData() {
         }
     }
     
-    // FIXME: remove this: 
-    createContainer(secondAPI)
-    // storeContainerData(secondAPI)
+    // FIXME: remove this: createContainer(secondAPI)
+    storeContainerData(secondAPI)
     
     
     // Connections
@@ -119,7 +115,9 @@ function initExampleData() {
         to: 'API2',
     }
     
-    // FIXME: remove this: 
-    createConnection(firstAPIToSecondAPI)
-    // storeConnectionData(firstAPIToSecondAPI)
+    // FIXME: remove this: createConnection(firstAPIToSecondAPI)
+    storeConnectionData(firstAPIToSecondAPI)
+    
+    // FIXME: remove this: setContainerChildren()
+    // FIXME: remove this: recalculateAbsolutePositions()
 }
