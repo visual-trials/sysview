@@ -56,6 +56,11 @@ function loadContainerAndConnectionData() {
         let containers = snapshot.val().containers
         let connections = snapshot.val().connections
         
+        // TODO: store the source and visual data as globals. Update them when they change
+        
+        //       when they do, then always run ALL commands below! 
+        //      So you REMOVE all resulting connections and containers! And then start from "scratch"!
+        
         for (let containerIdentifier in containers) {
             createContainer(containers[containerIdentifier])
         }
