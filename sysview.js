@@ -16,6 +16,10 @@
 
  */
  
+ 
+let databaseData = { visual: null, source: null }
+
+ 
 function init() {
     
     initFirebase()
@@ -28,11 +32,11 @@ function init() {
     // TODO: replace this eventually
     // initExampleData()
     
-    // NOTE: this is loaded async!!
-    loadContainerAndConnectionData()
-    
     addInputListeners()
     drawCanvas()
+    
+    // NOTE: this is loaded async!!
+    loadContainerAndConnectionData()
 }
 
 function initFirebase () {
@@ -51,31 +55,38 @@ function initFirebase () {
 
 function loadContainerAndConnectionData() {
     console.log('starting to load data' + Date())
+    
+    // TODO: also load and store the source data (probably together?)
+        
     firebase.database().ref('visual/').once('value').then(function(snapshot) {
-        console.log('data was loaded' + Date())
-        let containers = snapshot.val().containers
-        let connections = snapshot.val().connections
+        console.log('data was changed (or loaded)' + Date())
         
-        // TODO: store the source and visual data as globals. Update them when they change
+        // Store visual data in the databaseData
+        databaseData.visual = snapshot.val()
         
-        //       when they do, then always run ALL commands below! 
-        //      So you REMOVE all resulting connections and containers! And then start from "scratch"!
-        
-        //      If a position of a container changes (or something else does), then this should be set in
-        //      the 'visual' data. This again should trigger all of the below!
-        
-        for (let containerIdentifier in containers) {
-            createContainer(containers[containerIdentifier])
-        }
-        setContainerChildren()
-        recalculateAbsolutePositions()
-        
-        for (let connectionIdentifier in connections) {
-            createConnection(connections[connectionIdentifier])
-        }
-        
-        drawCanvas()
+        integrateContainerAndConnectionData()
     })
+}
+
+function integrateContainerAndConnectionData () {
+    
+    // Removing all connections and containers
+    initContainersAndConnections()
+    
+    // We then recreate all containers and connections using the databaseData
+    let containers = databaseData.visual.containers
+    for (let containerIdentifier in containers) {
+        createContainer(containers[containerIdentifier])
+    }
+    setContainerChildren()
+    recalculateAbsolutePositions()
+    
+    let connections = databaseData.visual.connections
+    for (let connectionIdentifier in connections) {
+        createConnection(connections[connectionIdentifier])
+    }
+    
+    drawCanvas()
 }
 
 function storeContainerData(containerData) {
