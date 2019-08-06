@@ -366,8 +366,8 @@ function drawContainer(container) {
             ctx.closePath()
             ctx.fill()
             
-            if (interaction.currentlySelectedContainer != null && 
-                container.identifier === interaction.currentlySelectedContainer.identifier) {
+            if (interaction.currentlySelectedContainerIdentifier != null && 
+                container.identifier === interaction.currentlySelectedContainerIdentifier) {
                     
                 ctx.lineWidth = 2
                 ctx.strokeStyle = "#FF0000"
@@ -387,8 +387,8 @@ function drawContainer(container) {
             
             ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
             
-            if (interaction.currentlySelectedContainer != null && 
-                container.identifier === interaction.currentlySelectedContainer.identifier) {
+            if (interaction.currentlySelectedContainerIdentifier != null && 
+                container.identifier === interaction.currentlySelectedContainerIdentifier) {
                     
                 ctx.lineWidth = 2
                 ctx.strokeStyle = "#FF0000"

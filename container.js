@@ -96,11 +96,26 @@ function setContainerChildren() {
     }
 }
 
+function changeContainerRelativePosition(container, relativePosition) {
+    
+    // TODO: save the new relativePosition in the database (instead??)!!
+    container.relativePosition.x = relativePosition.x
+    container.relativePosition.y = relativePosition.y
+    
+    // TODO: maybe call recalculateAbsolutePositions from here? (instead of the caller of this function)
+}
+
+function changeContainerSize(container, size) {
+    
+    // TODO: save the new size in the database (instead??)!!
+    container.size.width = size.width
+    container.size.height = size.height
+}
+
 function getContainerByIdentifier(containerIdentifier) {
     
-    // TODO: maybe there is a nicer way to say: we need the root container (but this is kinda easy)
     if (containerIdentifier == null) {
-        return containersAndConnections.containers['root']
+        return null
     }
     
     if (containersAndConnections.containers.hasOwnProperty(containerIdentifier)) {

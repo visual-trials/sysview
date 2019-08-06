@@ -26,7 +26,7 @@ let interaction = {
     currentlySelectedMode : 'view',
     
     currentlyHoveredContainerIdentifier : null,
-    currentlySelectedContainer : null,
+    currentlySelectedContainerIdentifier : null,
     selectedContainerIsBeingDragged : false,
     selectedContainerIsBeingResized : false,
     selectedContainerResizeSide : null,
@@ -64,7 +64,8 @@ function handleInputStateChange () {
     
     // Check mouse position
     
-    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, interaction.currentlySelectedContainer)
+    let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
+    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, currentlySelectedContainer)
     
     let mouseIsNearSelectedContainerBorder = false
     
@@ -87,7 +88,7 @@ function handleInputStateChange () {
             }
         }
     }
-    else if (interaction.currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
+    else if (currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
         
         if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
             interaction.mousePointerStyle = 'move'
@@ -203,7 +204,7 @@ function handleInputStateChange () {
             interaction.viewIsBeingDragged = false
         }
         else if (containerAtMousePosition != null) {
-            interaction.currentlySelectedContainer = containerAtMousePosition
+            interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
             interaction.selectedContainerIsBeingDragged = true
             
             interaction.selectedContainerIsBeingResized = false
@@ -213,7 +214,7 @@ function handleInputStateChange () {
             // we did not click on a container, so we clicked on the background
             interaction.viewIsBeingDragged = true
             
-            interaction.currentlySelectedContainer = null
+            interaction.currentlySelectedContainerIdentifier = null
             interaction.selectedContainerIsBeingDragged = false
             interaction.selectedContainerIsBeingResized = false
         }
@@ -244,33 +245,56 @@ function handleInputStateChange () {
     // Hande mouse movement
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
-        interaction.currentlySelectedContainer.relativePosition.x += mouseState.worldPosition.x - mouseState.previousWorldPosition.x 
-        interaction.currentlySelectedContainer.relativePosition.y += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
-        recalculateAbsolutePositions(interaction.currentlySelectedContainer)
+        let relativePosition = {}
+        relativePosition.x = currentlySelectedContainer.relativePosition.x + mouseState.worldPosition.x - mouseState.previousWorldPosition.x 
+        relativePosition.y = currentlySelectedContainer.relativePosition.y + mouseState.worldPosition.y - mouseState.previousWorldPosition.y
+        changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
+        recalculateAbsolutePositions(currentlySelectedContainer)
     }
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingResized) {
+        
         if (interaction.selectedContainerResizeSide.x > 0) { // right side
-            interaction.currentlySelectedContainer.size.width += mouseState.worldPosition.x - mouseState.previousWorldPosition.x 
+            let size = {}
+            size.width = currentlySelectedContainer.size.width + (mouseState.worldPosition.x - mouseState.previousWorldPosition.x)
+            size.height = currentlySelectedContainer.size.height
+            changeContainerSize(currentlySelectedContainer, size)
         }
         if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
-            interaction.currentlySelectedContainer.size.height += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
+            let size = {}
+            size.width = currentlySelectedContainer.size.width
+            size.height = currentlySelectedContainer.size.height + (mouseState.worldPosition.y - mouseState.previousWorldPosition.y)
+            changeContainerSize(currentlySelectedContainer, size)
         }
         if (interaction.selectedContainerResizeSide.x < 0) { // left side
-            interaction.currentlySelectedContainer.relativePosition.x += mouseState.worldPosition.x - mouseState.previousWorldPosition.x
-            interaction.currentlySelectedContainer.size.width -= mouseState.worldPosition.x - mouseState.previousWorldPosition.x
-            recalculateAbsolutePositions(interaction.currentlySelectedContainer)
+            let size = {}
+            size.width = currentlySelectedContainer.size.width - (mouseState.worldPosition.x - mouseState.previousWorldPosition.x)
+            size.height = currentlySelectedContainer.size.height
+            changeContainerSize(currentlySelectedContainer, size)
+            
+            let relativePosition = {}
+            relativePosition.x = currentlySelectedContainer.relativePosition.x + (mouseState.worldPosition.x - mouseState.previousWorldPosition.x)
+            relativePosition.y = currentlySelectedContainer.relativePosition.y
+            changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
+            recalculateAbsolutePositions(currentlySelectedContainer)
         }
         if (interaction.selectedContainerResizeSide.y < 0) { // top side
-            interaction.currentlySelectedContainer.relativePosition.y += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
-            interaction.currentlySelectedContainer.size.height -= mouseState.worldPosition.y - mouseState.previousWorldPosition.y
-            recalculateAbsolutePositions(interaction.currentlySelectedContainer)
+            let size = {}
+            size.width = currentlySelectedContainer.size.width
+            size.height = currentlySelectedContainer.size.height - (mouseState.worldPosition.y - mouseState.previousWorldPosition.y)
+            changeContainerSize(currentlySelectedContainer, size)
+            
+            let relativePosition = {}
+            relativePosition.x = currentlySelectedContainer.relativePosition.x
+            relativePosition.y = currentlySelectedContainer.relativePosition.y + (mouseState.worldPosition.y - mouseState.previousWorldPosition.y)
+            changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
+            recalculateAbsolutePositions(currentlySelectedContainer)
         }
     }
     
     if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
-        interaction.viewOffset.x += mouseState.worldPosition.x - mouseState.previousWorldPosition.x
-        interaction.viewOffset.y += mouseState.worldPosition.y - mouseState.previousWorldPosition.y
+        interaction.viewOffset.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x)
+        interaction.viewOffset.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y)
     }
 
     if (keyboardState.sequenceKeysUpDown.length) {
