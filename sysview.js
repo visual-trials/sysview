@@ -58,7 +58,7 @@ function loadContainerAndConnectionData() {
     
     // TODO: also load and store the source data (probably together?)
         
-    firebase.database().ref('visual/').once('value').then(function(snapshot) {
+    firebase.database().ref('visual/').on('value', function(snapshot) {
         console.log('data was changed (or loaded)' + Date())
         
         // Store visual data in the databaseData
