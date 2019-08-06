@@ -29,7 +29,7 @@ function init() {
     // initExampleData()
     
     // NOTE: this is loaded async!!
-    loadContainerData()
+    loadContainerAndConnectionData()
     
     addInputListeners()
     drawCanvas()
@@ -49,17 +49,23 @@ function initFirebase () {
     firebase.initializeApp(firebaseConfig)
 }
 
-function loadContainerData() {
+function loadContainerAndConnectionData() {
     console.log('starting to load data' + Date())
-    firebase.database().ref('visual/containers/').once('value').then(function(snapshot) {
+    firebase.database().ref('visual/').once('value').then(function(snapshot) {
         console.log('data was loaded' + Date())
-        let containers = snapshot.val()
+        let containers = snapshot.val().containers
+        let connections = snapshot.val().connections
         
-        for (containerIdentifier in containers) {
+        for (let containerIdentifier in containers) {
             createContainer(containers[containerIdentifier])
         }
         setContainerChildren()
         recalculateAbsolutePositions()
+        
+        for (let connectionIdentifier in connections) {
+            createConnection(connections[connectionIdentifier])
+        }
+        
         drawCanvas()
     })
 }
@@ -77,5 +83,12 @@ function storeContainerData(containerData) {
 }
 
 function storeConnectionData(connectionData) {
-    // TODO: implement this!
+    firebase.database().ref('visual/connections/' + connectionData.identifier).set({
+        // TODO: couldn't we simply use the whole of connectionData here?
+        identifier: connectionData.identifier,
+        type: connectionData.type,
+        name: connectionData.name,
+        from: connectionData.from,
+        to: connectionData.to,
+    })
 }
