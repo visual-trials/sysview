@@ -26,10 +26,10 @@ function init() {
     initContainersAndConnections()
     
     // TODO: replace this eventually
-//    initExampleData()
+    initExampleData()
     
     // NOTE: this is loaded async!!
-    loadContainerData()
+    // loadContainerData()
     
     recalculateAbsolutePositions()
 
