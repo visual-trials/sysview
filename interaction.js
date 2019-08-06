@@ -25,7 +25,7 @@ let interaction = {
     currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',
     
-    currentlyHoveredContainer : null,
+    currentlyHoveredContainerIdentifier : null,
     currentlySelectedContainer : null,
     selectedContainerIsBeingDragged : false,
     selectedContainerIsBeingResized : false,
@@ -47,11 +47,16 @@ function handleInputStateChange () {
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
     
     if (menuButtonAtMousePosition != null) {
-        interaction.currentlyHoveredContainer = null
+        interaction.currentlyHoveredContainerIdentifier = null
         interaction.currentlyHoveredMenuButton = menuButtonAtMousePosition
     }
     else {
-        interaction.currentlyHoveredContainer = containerAtMousePosition
+        if (containerAtMousePosition != null) {
+            interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
+        }
+        else {
+            interaction.currentlyHoveredContainerIdentifier = null
+        }
         interaction.currentlyHoveredMenuButton = null
     }
     
@@ -72,10 +77,10 @@ function handleInputStateChange () {
         interaction.mousePointerStyle = 'default'
         
         if (interaction.newConnectionBeingAdded != null) {
-            if (interaction.currentlyHoveredContainer != null &&
-                interaction.currentlyHoveredContainer.identifier !== interaction.newConnectionBeingAdded.from) {
+            if (interaction.currentlyHoveredContainerIdentifier != null &&
+                interaction.currentlyHoveredContainerIdentifier !== interaction.newConnectionBeingAdded.from) {
                 // We are hovering over a different container than we started the connection from, so we should connect with it
-                interaction.newConnectionBeingAdded.to = interaction.currentlyHoveredContainer.identifier
+                interaction.newConnectionBeingAdded.to = interaction.currentlyHoveredContainerIdentifier
             }
             else {
                 interaction.newConnectionBeingAdded.to = null
@@ -109,7 +114,7 @@ function handleInputStateChange () {
         }
         
     }
-    else if (interaction.currentlyHoveredContainer != null) {
+    else if (interaction.currentlyHoveredContainerIdentifier != null) {
         interaction.mousePointerStyle = 'move'
     }
     else {
@@ -121,8 +126,8 @@ function handleInputStateChange () {
     if (mouseState.rightButtonHasGoneDown && interaction.currentlyHoveredMenuButton == null) {
         
         let parentContainerIdentifier = null
-        if (interaction.currentlyHoveredContainer != null) {
-            parentContainerIdentifier = interaction.currentlyHoveredContainer.identifier
+        if (interaction.currentlyHoveredContainerIdentifier != null) {
+            parentContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
         }
         let parentContainer = getContainerByIdentifier(parentContainerIdentifier)
         
