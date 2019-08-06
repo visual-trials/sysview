@@ -77,7 +77,7 @@ function createContainer(containerData) {
         stroke: stroke,
         children: [],
     }
-console.log(newContainer)
+    
     recalculateAbsolutePositions(newContainer)
     
     containersAndConnections.containers[containerIdentifier] = newContainer
