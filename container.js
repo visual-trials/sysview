@@ -101,7 +101,12 @@ function changeContainerRelativePosition(container, relativePosition) {
     // TODO: save the new relativePosition in the database (instead??)!!
     container.relativePosition.x = relativePosition.x
     container.relativePosition.y = relativePosition.y
-    
+
+    // FIXME: shouldn't we do this somewhere else? And maybe store more than just the relative postision? 
+    //        E.g. when the size had also changed, you end up call the database twice!
+    firebase.database().ref('visual/containers/' + container.identifier + '/relativePosition').set(
+        container.relativePosition
+    )
     // TODO: maybe call recalculateAbsolutePositions from here? (instead of the caller of this function)
 }
 
@@ -110,6 +115,11 @@ function changeContainerSize(container, size) {
     // TODO: save the new size in the database (instead??)!!
     container.size.width = size.width
     container.size.height = size.height
+    // FIXME: shouldn't we do this somewhere else? And maybe store more than just the relative postision? 
+    //        E.g. when the size had also changed, you end up call the database twice!
+    firebase.database().ref('visual/containers/' + container.identifier + '/size').set(
+        container.size
+    )
 }
 
 function getContainerByIdentifier(containerIdentifier) {
