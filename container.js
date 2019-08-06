@@ -40,9 +40,7 @@ function createContainer(containerData) {
     // FIXME: check if this identifier is unique!!
     let containerIdentifier = containerData.identifier
     
-    let parentContainerIdentifier = containerData.parentIdentifier
-    // TODO: we now assume the parent always exist. What if it doesn't? Will it be put into a special container?
-    let parentContainer = containersAndConnections.containers[parentContainerIdentifier]
+    let parentContainerIdentifier = containerData.parentContainerIdentifier
     
     let fill = { r:0, g:0, b:0, a:1 }
     let stroke = { r:0, g:0, b:0, a:1 }
@@ -78,15 +76,24 @@ function createContainer(containerData) {
         children: [],
     }
     
-    recalculateAbsolutePositions(newContainer)
-    
     containersAndConnections.containers[containerIdentifier] = newContainer
     
-    if (parentContainer != null) {
-        parentContainer.children.push(containerIdentifier)
-    }
-    
     return newContainer
+}
+
+function setContainerChildren() {
+
+    for (let containerIdentifier in containersAndConnections.containers) {
+        let container = containersAndConnections.containers[containerIdentifier]
+        
+        let parentContainerIdentifier = container.parentContainerIdentifier
+        // TODO: we now assume the parent always exist. What if it doesn't? Will it be put into a special container?
+        let parentContainer = containersAndConnections.containers[parentContainerIdentifier]
+        if (parentContainer != null) {
+            parentContainer.children.push(containerIdentifier)
+        }
+        
+    }
 }
 
 function getContainerByIdentifier(containerIdentifier) {

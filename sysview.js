@@ -31,6 +31,8 @@ function init() {
     // NOTE: this is loaded async!!
     // loadContainerData()
     
+    setContainerChildren()
+    
     recalculateAbsolutePositions()
 
     addInputListeners()
@@ -70,7 +72,7 @@ function storeContainerData(containerData) {
         identifier: containerData.identifier,
         type: containerData.type,
         name: containerData.name,
-        parentIdentifier: containerData.parentIdentifier,
+        parentContainerIdentifier: containerData.parentContainerIdentifier,
         relativePosition: containerData.relativePosition,
         size: containerData.size
     })

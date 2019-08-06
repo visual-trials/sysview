@@ -120,16 +120,16 @@ function handleInputStateChange () {
 
     if (mouseState.rightButtonHasGoneDown && interaction.currentlyHoveredMenuButton == null) {
         
-        let parentIdentifier = null
+        let parentContainerIdentifier = null
         if (interaction.currentlyHoveredContainer != null) {
-            parentIdentifier = interaction.currentlyHoveredContainer.identifier
+            parentContainerIdentifier = interaction.currentlyHoveredContainer.identifier
         }
-        let parentContainer = getContainerByIdentifier(parentIdentifier)
+        let parentContainer = getContainerByIdentifier(parentContainerIdentifier)
         
         // TODO: we need some kind of (incremental) id here!
         let extraServer = {
             type: 'server',  // TODO: allow adding different kinds of containers
-            parentIdentifier: parentIdentifier,
+            parentContainerIdentifier: parentContainerIdentifier,
 // FIXME: what should we use as identifier here??
 // FIXME: what should we use as identifier here??
 // FIXME: what should we use as identifier here??

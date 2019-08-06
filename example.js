@@ -35,7 +35,7 @@ function initExampleData() {
     let firstServer = {
         type: 'server',
         identifier: 'FirstServer',
-        parentIdentifier: 'root',
+        parentContainerIdentifier: 'root',
         name: 'My First Server',
         relativePosition: {
             x: 250,
@@ -54,7 +54,7 @@ function initExampleData() {
     let firstAPI = {
         type: 'API',
         identifier: 'API1',
-        parentIdentifier: 'FirstServer',
+        parentContainerIdentifier: 'FirstServer',
         name: 'First API',
         relativePosition: {
             x: 20,
@@ -73,7 +73,7 @@ function initExampleData() {
     let secondServer = {
         type: 'server',
         identifier: 'SecondServer',
-        parentIdentifier: 'root',
+        parentContainerIdentifier: 'root',
         name: 'My Second Server',
         relativePosition: {
             x: 550,
@@ -92,7 +92,7 @@ function initExampleData() {
     let secondAPI = {
         type: 'API',
         identifier: 'API2',
-        parentIdentifier: 'SecondServer',
+        parentContainerIdentifier: 'SecondServer',
         name: 'Second API',
         relativePosition: {
             x: 10,
