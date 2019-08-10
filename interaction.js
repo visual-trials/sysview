@@ -383,7 +383,7 @@ function handleInputStateChange () {
     
     if (interaction.viewAsIsoMetric) {
         if (interaction.percentageIsoMetric < 1) {
-            interaction.percentageIsoMetric += 0.05
+            interaction.percentageIsoMetric += 0.03
         }
         else {
             interaction.percentageIsoMetric = 1
@@ -391,7 +391,7 @@ function handleInputStateChange () {
     }
     else {
         if (interaction.percentageIsoMetric > 0) {
-            interaction.percentageIsoMetric -= 0.05
+            interaction.percentageIsoMetric -= 0.03
         }
         else {
             interaction.percentageIsoMetric = 0
