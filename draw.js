@@ -258,7 +258,7 @@ function drawConnection(connection, fromContainer, toContainer) {
     
     {
         // Draw line 
-        ctx.lineWidth = 2
+        ctx.lineWidth = 2 * interaction.viewScale
         ctx.strokeStyle = rgba(connection.stroke)
         
         ctx.beginPath()
@@ -269,7 +269,7 @@ function drawConnection(connection, fromContainer, toContainer) {
         if (interaction.currentlySelectedConnection != null && 
             connection.identifier === interaction.currentlySelectedConnection.identifier) {
                 
-            ctx.lineWidth = 2
+            ctx.lineWidth = 2 // TODO: do we want to scale this too?
             ctx.strokeStyle = "#FF0000"
             
             ctx.beginPath()
@@ -320,11 +320,9 @@ function drawContainers(containerIdentifiers) {
 
 function drawContainer(container) {
     
-    // TODO: scale lineWidth too!
-    
     {
         // Draw rectangle 
-        ctx.lineWidth = 2
+        ctx.lineWidth = 2 * interaction.viewScale
         ctx.strokeStyle = rgba(container.stroke)
         ctx.fillStyle = rgba(container.fill)
         
@@ -373,7 +371,7 @@ function drawContainer(container) {
             if (interaction.currentlySelectedContainerIdentifier != null && 
                 container.identifier === interaction.currentlySelectedContainerIdentifier) {
                     
-                ctx.lineWidth = 2
+                ctx.lineWidth = 2 // TODO: do we want to scale this too?
                 ctx.strokeStyle = "#FF0000"
                 
                 ctx.beginPath()
@@ -394,7 +392,7 @@ function drawContainer(container) {
             if (interaction.currentlySelectedContainerIdentifier != null && 
                 container.identifier === interaction.currentlySelectedContainerIdentifier) {
                     
-                ctx.lineWidth = 2
+                ctx.lineWidth = 2 // TODO: do we want to scale this too?
                 ctx.strokeStyle = "#FF0000"
                 ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             }
