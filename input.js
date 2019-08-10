@@ -34,6 +34,27 @@ let mouseState = {
     rightButtonHasGoneDownTwice : false,
     rightButtonIsDown : false,
     rightButtonHasGoneUp : false,
+    
+    mouseWheelHasMoved :  false,
+    mouseWheelDelta : null,
+}
+
+function resetMouseEventData() {
+    mouseState.previousPosition.x = mouseState.position.x
+    mouseState.previousPosition.y = mouseState.position.y
+    mouseState.previousWorldPosition = fromScreenPositionToWorldPosition(mouseState.previousPosition)
+    
+    mouseState.hasMoved = false
+    
+    mouseState.leftButtonHasGoneDown = false
+    mouseState.leftButtonHasGoneDownTwice = false
+    mouseState.leftButtonHasGoneUp = false
+    
+    mouseState.rightButtonHasGoneDown = false
+    mouseState.rightButtonHasGoneDownTwice = false
+    mouseState.rightButtonHasGoneUp = false
+    
+    mouseState.mouseWheelHasMoved = false
 }
 
 function updateMousePosition(x, y) {
@@ -114,9 +135,14 @@ function mouseExited (e) {
 }
 
 function mouseWheelMoved (e) {
-    // TODO
-}
+    mouseWheelHasMoved = true
 
+    // Cross-browser wheel delta (Mac is much more sensitive)
+    // A number between -1 and 1
+    mouseWheelDelta = Math.max(-1, Math.min(1, (e.wheelDelta / 120 || -e.detail)))
+
+    e.preventDefault()
+}
 
 
 // Keyboard
@@ -125,6 +151,10 @@ let keyboardState = {
     keysThatAreDown : {},
     sequenceKeysUpDown : [],
     capsLockIsActive : false,
+}
+
+function resetKeyboardEventData() {
+    keyboardState.sequenceKeysUpDown = []
 }
 
 function keyDown (e) {

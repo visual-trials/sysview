@@ -346,19 +346,7 @@ function handleInputStateChange () {
     
     drawCanvas()
     
-    // Reset mouse(event) data
-    mouseState.previousPosition.x = mouseState.position.x
-    mouseState.previousPosition.y = mouseState.position.y
-    mouseState.previousWorldPosition = fromScreenPositionToWorldPosition(mouseState.previousPosition)
-    
-    mouseState.hasMoved = false
-    mouseState.leftButtonHasGoneDown = false
-    mouseState.leftButtonHasGoneDownTwice = false
-    mouseState.leftButtonHasGoneUp = false
-    mouseState.rightButtonHasGoneDown = false
-    mouseState.rightButtonHasGoneDownTwice = false
-    mouseState.rightButtonHasGoneUp = false
-    
-    // Reset keyboard(event) data
-    keyboardState.sequenceKeysUpDown = []
+    resetMouseEventData()
+    resetKeyboardEventData()
 }
+
