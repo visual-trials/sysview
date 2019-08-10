@@ -382,10 +382,20 @@ function handleInputStateChange () {
     // Update world
     
     if (interaction.viewAsIsoMetric) {
-        interaction.percentageIsoMetric = 0.5
+        if (interaction.percentageIsoMetric < 1) {
+            interaction.percentageIsoMetric += 0.05
+        }
+        else {
+            interaction.percentageIsoMetric = 1
+        }
     }
     else {
-        interaction.percentageIsoMetric = 0
+        if (interaction.percentageIsoMetric > 0) {
+            interaction.percentageIsoMetric -= 0.05
+        }
+        else {
+            interaction.percentageIsoMetric = 0
+        }
     }
 
     currentIsoMetricSettings.translate = lerp(nonIsoMetricSettings.translate, isoMetricSettings.translate, interaction.percentageIsoMetric)
