@@ -35,7 +35,7 @@ function fromWorldPositionToScreenPosition(worldPosition) {
         // Rotate
         let lengthFromOrigin = Math.sqrt(screenPosition.x * screenPosition.x + screenPosition.y * screenPosition.y)
         let angleFromOrigin = Math.atan2(screenPosition.x, screenPosition.y)
-        let newAngleFromOrigin = angleFromOrigin + isoMetricSettings.rotate * Math.PI / 180
+        let newAngleFromOrigin = angleFromOrigin + currentIsoMetricSettings.rotate * Math.PI / 180
         
         if (newAngleFromOrigin < 0) {
             newAngleFromOrigin += Math.PI * 2
@@ -44,10 +44,10 @@ function fromWorldPositionToScreenPosition(worldPosition) {
         screenPosition.y = - Math.sin(newAngleFromOrigin) * lengthFromOrigin
         
         // Scale vertically
-        screenPosition.y = screenPosition.y * isoMetricSettings.scale
+        screenPosition.y = screenPosition.y * currentIsoMetricSettings.scale
         
         // Translate (in screen-space)
-        screenPosition.y = screenPosition.y + isoMetricSettings.translate * canvasElement.height
+        screenPosition.y = screenPosition.y + currentIsoMetricSettings.translate * canvasElement.height
         
         let scaledWorldPosition = scalePosition(interaction.viewScale, screenPosition)
         screenPosition = addOffsetToPosition(interaction.viewOffset, scaledWorldPosition)
@@ -91,15 +91,15 @@ function fromScreenPositionToWorldPosition(screenPosition) {
         worldPosition = unscalePosition(interaction.viewScale, scaledWorldPosition)
         
         // Translate (in screen-space)
-        worldPosition.y = worldPosition.y - isoMetricSettings.translate * canvasElement.height
+        worldPosition.y = worldPosition.y - currentIsoMetricSettings.translate * canvasElement.height
         
         // Scale vertically
-        worldPosition.y = worldPosition.y / isoMetricSettings.scale
+        worldPosition.y = worldPosition.y / currentIsoMetricSettings.scale
         
         // Rotate
         let lengthFromOrigin = Math.sqrt(worldPosition.x * worldPosition.x + worldPosition.y * worldPosition.y)
         let angleFromOrigin = Math.atan2(worldPosition.x, - worldPosition.y)
-        let newAngleFromOrigin = angleFromOrigin + isoMetricSettings.rotate * Math.PI / 180
+        let newAngleFromOrigin = angleFromOrigin + currentIsoMetricSettings.rotate * Math.PI / 180
         
         worldPosition.x = Math.cos(newAngleFromOrigin) * lengthFromOrigin
         worldPosition.y = Math.sin(newAngleFromOrigin) * lengthFromOrigin
@@ -322,4 +322,8 @@ function worldPositionIsInsideContainer(worldPosition, container) {
     else {
         return true
     }
+}
+
+function lerp (start, end, percentage) {
+    return start + (end - start) * percentage
 }

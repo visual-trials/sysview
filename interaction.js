@@ -20,6 +20,7 @@ let interaction = {
     viewScale : 1,
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
+    viewAsIsoMetric : false,
     percentageIsoMetric : 0,
     showGrid : true,
    
@@ -194,7 +195,7 @@ function handleInputStateChange () {
             }
         }
     }
-    // TODO: we regard double-clicking as overruling single clicking, which might not be desired
+    // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
     else if (mouseState.leftButtonHasGoneDown) {
         
         if (interaction.currentlyHoveredMenuButton != null) {
@@ -206,11 +207,11 @@ function handleInputStateChange () {
             }
             
             if (interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
-                if (interaction.percentageIsoMetric > 0) {
-                    interaction.percentageIsoMetric = 0
+                if (interaction.viewAsIsoMetric) {
+                    interaction.viewAsIsoMetric = false
                 }
                 else {
-                    interaction.percentageIsoMetric = 1
+                    interaction.viewAsIsoMetric = true
                 }
             }
             
@@ -378,6 +379,20 @@ function handleInputStateChange () {
         
     }
     
+    // Update world
+    
+    if (interaction.viewAsIsoMetric) {
+        interaction.percentageIsoMetric = 0.5
+    }
+    else {
+        interaction.percentageIsoMetric = 0
+    }
+
+    currentIsoMetricSettings.translate = lerp(nonIsoMetricSettings.translate, isoMetricSettings.translate, interaction.percentageIsoMetric)
+    currentIsoMetricSettings.scale     = lerp(nonIsoMetricSettings.scale, isoMetricSettings.scale, interaction.percentageIsoMetric)
+    currentIsoMetricSettings.rotate    = lerp(nonIsoMetricSettings.rotate, isoMetricSettings.rotate, interaction.percentageIsoMetric)
+    
+    // Draw world
     drawCanvas()
     
     resetMouseEventData()

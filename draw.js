@@ -31,7 +31,7 @@ let nonIsoMetricSettings = {
     rotate: 0,
 }
 
-let currentTransScaleRotateSettings = {
+let currentIsoMetricSettings = {
     translate: 0, 
     scale: 1,     
     rotate: 0,   
@@ -426,8 +426,8 @@ function drawContainer(container) {
         ctx.scale(interaction.viewScale, interaction.viewScale) // make the text smaller/bigger according to zoom (viewScale)
         
         if (interaction.percentageIsoMetric > 0) {
-            ctx.scale(1, isoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
-            ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)    // rotate the text due to isometric view
+            ctx.scale(1, currentIsoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
+            ctx.rotate(currentIsoMetricSettings.rotate * Math.PI / 180)    // rotate the text due to isometric view
         }
         
         // Draw the text at the text positions
