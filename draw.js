@@ -25,6 +25,18 @@ let isoMetricSettings = {
     rotate: -45,   // rotated 45 degrees counter-clock-wise
 }
 
+let nonIsoMetricSettings = {
+    translate: 0,
+    scale: 1,
+    rotate: 0,
+}
+
+let currentTransScaleRotateSettings = {
+    translate: 0, 
+    scale: 1,     
+    rotate: 0,   
+}
+
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
     ctx.beginPath() // See: http://codetheory.in/why-clearrect-might-not-be-clearing-canvas-pixels/
@@ -70,13 +82,6 @@ function drawCanvas() {
     // TODO: we want to re-position the button (because the screensize might have just changed), not re-inialize the menu
     initMenu()
 
-    if (interaction.viewAsIsometric) {
-        ctx.save()
-//        ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
-//        ctx.scale(1, isoMetricSettings.scale)
-//        ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
-    }
-    
     if (interaction.showGrid) {
         drawGrid()
     }
@@ -88,10 +93,6 @@ function drawCanvas() {
     
     drawConnections()
     drawNewConnection()
-    
-    if (interaction.viewAsIsometric) {
-        ctx.restore()
-    }
     
     drawMenu()
     
@@ -161,7 +162,7 @@ function drawButton(buttonData, drawOnlySelected) {
         }
         else {
             if (buttonData.toggle === 'isoMetric') {
-                if (interaction.viewAsIsometric) {
+                if (interaction.percentageIsoMetric > 0) {
                     if (menuIcons['isoMetric']) {
                         ctx.drawImage(menuIcons['isoMetric'], buttonPosition.x, buttonPosition.y)
                     }
@@ -326,7 +327,7 @@ function drawContainer(container) {
         ctx.strokeStyle = rgba(container.stroke)
         ctx.fillStyle = rgba(container.fill)
         
-        if (interaction.viewAsIsometric) {
+        if (interaction.percentageIsoMetric > 0) {
         
             let position = { x : 0, y : 0}
             position.x = container.position.x
@@ -424,7 +425,7 @@ function drawContainer(container) {
         ctx.translate(screenTextPosition.x, screenTextPosition.y) // move the text to the screen position (since we draw the text at 0,0)
         ctx.scale(interaction.viewScale, interaction.viewScale) // make the text smaller/bigger according to zoom (viewScale)
         
-        if (interaction.viewAsIsometric) {
+        if (interaction.percentageIsoMetric > 0) {
             ctx.scale(1, isoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
             ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)    // rotate the text due to isometric view
         }

@@ -20,7 +20,7 @@ let interaction = {
     viewScale : 1,
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
-    viewAsIsometric : false,
+    percentageIsoMetric : 0,
     showGrid : true,
    
     currentlyHoveredMenuButton : null,
@@ -206,7 +206,12 @@ function handleInputStateChange () {
             }
             
             if (interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
-                interaction.viewAsIsometric = !interaction.viewAsIsometric
+                if (interaction.percentageIsoMetric > 0) {
+                    interaction.percentageIsoMetric = 0
+                }
+                else {
+                    interaction.percentageIsoMetric = 1
+                }
             }
             
             if (interaction.currentlyHoveredMenuButton.toggle === 'grid') {

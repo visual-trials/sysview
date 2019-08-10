@@ -20,7 +20,7 @@ function fromWorldPositionToScreenPosition(worldPosition) {
     
     let screenPosition = {}
     
-    if (!interaction.viewAsIsometric) {
+    if (interaction.percentageIsoMetric === 0) {
         let scaledWorldPosition = scalePosition(interaction.viewScale, worldPosition)
         screenPosition = addOffsetToPosition(interaction.viewOffset, scaledWorldPosition)
     }
@@ -82,7 +82,7 @@ function fromScreenPositionToWorldPosition(screenPosition) {
     
     let worldPosition = {}
     
-    if (!interaction.viewAsIsometric) {
+    if (interaction.percentageIsoMetric === 0) {
         let scaledWorldPosition = substractOffsetFromPosition(interaction.viewOffset, screenPosition)
         worldPosition = unscalePosition(interaction.viewScale, scaledWorldPosition)
     }
