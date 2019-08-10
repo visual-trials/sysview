@@ -135,12 +135,14 @@ function mouseExited (e) {
 }
 
 function mouseWheelMoved (e) {
-    mouseWheelHasMoved = true
+    mouseState.mouseWheelHasMoved = true
 
     // Cross-browser wheel delta (Mac is much more sensitive)
     // A number between -1 and 1
-    mouseWheelDelta = Math.max(-1, Math.min(1, (e.wheelDelta / 120 || -e.detail)))
+    mouseState.mouseWheelDelta = Math.max(-1, Math.min(1, (e.wheelDelta / 120 || -e.detail)))
 
+    handleInputStateChange()
+    
     e.preventDefault()
 }
 

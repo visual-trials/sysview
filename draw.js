@@ -384,15 +384,15 @@ function drawContainer(container) {
         else {
             
             let screenContainerPosition = fromWorldPositionToScreenPosition(container.position)
-            
-            ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
+            let screenContainerSize = scaleSize(interaction.viewScale, container.size)
+            ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             
             if (interaction.currentlySelectedContainerIdentifier != null && 
                 container.identifier === interaction.currentlySelectedContainerIdentifier) {
                     
                 ctx.lineWidth = 2
                 ctx.strokeStyle = "#FF0000"
-                ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, container.size.width, container.size.height)
+                ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             }
         }
     }
@@ -425,12 +425,19 @@ function drawContainer(container) {
             ctx.scale(1, isoMetricSettings.scale)
             ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
         }
+        else {
+            ctx.save()
+            ctx.scale(interaction.viewScale, interaction.viewScale)
+        }
         
         // Draw the text at the text positions
         ctx.fillStyle = rgba(textColor)
         ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
         
         if (interaction.viewAsIsometric) {
+            ctx.restore()
+        }
+        else {
             ctx.restore()
         }
     }

@@ -21,7 +21,8 @@ function fromWorldPositionToScreenPosition(worldPosition) {
     let screenPosition = {}
     
     if (!interaction.viewAsIsometric) {
-        screenPosition = addOffsetToPosition(interaction.viewOffset, worldPosition)
+        let scaledScreenPosition = addOffsetToPosition(interaction.viewOffset, worldPosition)
+        screenPosition = scalePosition(interaction.viewScale, scaledScreenPosition)
     }
     else {
         // TODO: currently we let the canvas itself do the translation, scaling and rotating
@@ -58,12 +59,27 @@ function addOffsetToPosition(offset, position) {
     return addedPosition
 }
 
+function scalePosition (scale, position) {
+    let scaledPosition = { x: 0, y: 0}
+    scaledPosition.x = position.x * scale
+    scaledPosition.y = position.y * scale
+    return scaledPosition
+}
+
+function scaleSize(scale, size) {
+    let scaledSize = { width: 0, height: 0}
+    scaledSize.width = size.width * scale
+    scaledSize.height = size.height * scale
+    return scaledSize
+}
+
 function fromScreenPositionToWorldPosition(screenPosition) {
     
     let worldPosition = {}
     
     if (!interaction.viewAsIsometric) {
-        worldPosition = substractOffsetFromPosition(interaction.viewOffset, screenPosition)
+        let scaledScreenPosition = unscalePosition(interaction.viewScale, screenPosition)
+        worldPosition = substractOffsetFromPosition(interaction.viewOffset, scaledScreenPosition)
     }
     else {
         worldPosition.x = screenPosition.x
@@ -95,6 +111,20 @@ function substractOffsetFromPosition(offset, position) {
     substractedPosition.x = position.x - offset.x
     substractedPosition.y = position.y - offset.y
     return substractedPosition
+}
+
+function unscalePosition (scale, position) {
+    let unscaledPosition = { x: 0, y: 0}
+    unscaledPosition.x = position.x / scale
+    unscaledPosition.y = position.y / scale
+    return unscaledPosition
+}
+
+function unscaleSize(scale, size) {
+    let unscaledSize = { width: 0, height: 0}
+    unscaledSize.width = size.width / scale
+    unscaledSize.height = size.height / scale
+    return unscaledSize
 }
 
 function getCenterPositonOfContainer(container) {

@@ -17,6 +17,7 @@
  */
  
 let interaction = {
+    viewScale : 1,
     viewOffset : { x: 0, y: 0},
     viewIsBeingDragged : false,
     viewAsIsometric : false,
@@ -42,6 +43,31 @@ let interaction = {
 }
 
 function handleInputStateChange () {
+    
+    if (mouseState.mouseWheelHasMoved) {
+        let scrollSensitivity = 0.1
+        let relativeZoomChange = 1 + Math.abs(mouseState.mouseWheelDelta) * scrollSensitivity
+        if (mouseState.mouseWheelDelta < 0) {
+            relativeZoomChange = 1 / relativeZoomChange
+        }
+        interaction.viewScale = interaction.viewScale * relativeZoomChange
+        
+        // We want the position below the mouse pointer to stay still.
+        // This means the mouse-point in world position has to stay on the same mouse screen position.
+        // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
+        
+        // We first determine the screen position of the mouse pointer if we don't change the viewOffset
+        let mouseScreenPositionAfterScale = fromWorldPositionToScreenPosition(mouseState.worldPosition)
+        
+        // Take the difference between the mouse position (after just the scale) and the real mouse position and 
+        // adjust the viewOffset accordingly
+        interaction.viewOffset.x += mouseState.position.x - mouseScreenPositionAfterScale.x
+        interaction.viewOffset.y += mouseState.position.y - mouseScreenPositionAfterScale.y
+        
+        mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
+        
+        // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
+    }
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
