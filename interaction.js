@@ -66,6 +66,9 @@ function handleInputStateChange () {
         
         mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
         
+        // FIXME: it seems that when you keep zooming in with the mouse pointer fixed on a point
+        //        the point is not really the point of zoom.
+        
         // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
     }
     
