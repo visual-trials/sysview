@@ -333,7 +333,8 @@ function drawContainer(container) {
             position.x = container.position.x
             position.y = container.position.y
             
-            let containerThickness = 3 * interaction.viewScale
+            // TODO: using percentageIsoMetric directly (without sin/cos/tan) is probably not quite right
+            let containerThickness = 3 * interaction.viewScale * interaction.percentageIsoMetric 
             
             let leftTopContainerPosition = fromWorldPositionToScreenPosition(position)
             position.y += container.size.height
