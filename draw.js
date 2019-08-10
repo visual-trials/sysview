@@ -320,6 +320,8 @@ function drawContainers(containerIdentifiers) {
 
 function drawContainer(container) {
     
+    // TODO: scale lineWidth too!
+    
     {
         // Draw rectangle 
         ctx.lineWidth = 2
@@ -418,34 +420,22 @@ function drawContainer(container) {
         textWorldPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
         textWorldPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
         
-        // TODO: we probably want to use this instead: let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
-        let scaledTextWorldPosition = scalePosition(interaction.viewScale, textWorldPosition)
-        let screenTextPosition = addOffsetToPosition(interaction.viewOffset, scaledTextWorldPosition) // TODO: This is a bit of a HACK
+        let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
+        
+        ctx.save()
+        ctx.translate(screenTextPosition.x, screenTextPosition.y) // move the text to the screen position (since we draw the text at 0,0)
+        ctx.scale(interaction.viewScale, interaction.viewScale) // make the text smaller/bigger according to zoom (viewScale)
         
         if (interaction.viewAsIsometric) {
-            ctx.save()
-            ctx.translate(screenTextPosition.x, screenTextPosition.y)
-            ctx.scale(interaction.viewScale, interaction.viewScale)
-            ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
-            ctx.scale(1, isoMetricSettings.scale)
-            ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)
-        }
-        else {
-            ctx.save()
-            ctx.translate(screenTextPosition.x, screenTextPosition.y)
-            ctx.scale(interaction.viewScale, interaction.viewScale)
+            ctx.scale(1, isoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
+            ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)    // rotate the text due to isometric view
         }
         
         // Draw the text at the text positions
         ctx.fillStyle = rgba(textColor)
         ctx.fillText(textToDraw, 0, 0)
         
-        if (interaction.viewAsIsometric) {
-            ctx.restore()
-        }
-        else {
-            ctx.restore()
-        }
+        ctx.restore()
     }
     
 }
