@@ -332,6 +332,8 @@ function drawContainer(container) {
             position.x = container.position.x
             position.y = container.position.y
             
+            let containerThickness = 3 * interaction.viewScale
+            
             let leftTopContainerPosition = fromWorldPositionToScreenPosition(position)
             position.y += container.size.height
             let leftBottomContainerPosition = fromWorldPositionToScreenPosition(position)
@@ -352,8 +354,8 @@ function drawContainer(container) {
             ctx.beginPath()
             ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
             ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
-            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y + 3)
-            ctx.lineTo(leftTopContainerPosition.x, leftTopContainerPosition.y + 3)
+            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y + containerThickness)
+            ctx.lineTo(leftTopContainerPosition.x, leftTopContainerPosition.y + containerThickness)
             ctx.closePath()
             ctx.fill()
             
@@ -361,8 +363,8 @@ function drawContainer(container) {
             ctx.beginPath()
             ctx.moveTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
             ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
-            ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y + 3)
-            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y + 3)
+            ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y + containerThickness)
+            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y + containerThickness)
             ctx.closePath()
             ctx.fill()
             
@@ -421,6 +423,7 @@ function drawContainer(container) {
         
         if (interaction.viewAsIsometric) {
             ctx.save()
+            ctx.scale(interaction.viewScale, interaction.viewScale)
             ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
             ctx.scale(1, isoMetricSettings.scale)
             ctx.rotate(isoMetricSettings.rotate * Math.PI / 180)

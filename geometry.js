@@ -47,6 +47,9 @@ function fromWorldPositionToScreenPosition(worldPosition) {
         
         // Translate (in screen-space)
         screenPosition.y = screenPosition.y + isoMetricSettings.translate * canvasElement.height
+        
+        screenPosition = scalePosition(interaction.viewScale, screenPosition)
+        
     }
     
     return screenPosition
@@ -82,8 +85,10 @@ function fromScreenPositionToWorldPosition(screenPosition) {
         worldPosition = substractOffsetFromPosition(interaction.viewOffset, scaledScreenPosition)
     }
     else {
-        worldPosition.x = screenPosition.x
-        worldPosition.y = screenPosition.y
+        let scaledScreenPosition = unscalePosition(interaction.viewScale, screenPosition)
+        
+        worldPosition.x = scaledScreenPosition.x
+        worldPosition.y = scaledScreenPosition.y
         
         // Translate (in screen-space)
         worldPosition.y = worldPosition.y - isoMetricSettings.translate * canvasElement.height
