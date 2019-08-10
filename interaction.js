@@ -326,8 +326,8 @@ function handleInputStateChange () {
     }
     
     if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
-        interaction.viewOffset.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x)
-        interaction.viewOffset.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y)
+        interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
+        interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
     }
 
     if (keyboardState.sequenceKeysUpDown.length) {
