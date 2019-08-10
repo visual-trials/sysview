@@ -29,19 +29,10 @@ function fromWorldPositionToScreenPosition(worldPosition) {
         //       so we ONLY do the translate in world-space here!
         //       so screenPosition isn't realy filled with a screen-coordinate here
         
-        screenPosition.x = worldPosition.x
-        screenPosition.y = worldPosition.y
-        
         // Rotate
-        let lengthFromOrigin = Math.sqrt(screenPosition.x * screenPosition.x + screenPosition.y * screenPosition.y)
-        let angleFromOrigin = Math.atan2(screenPosition.x, screenPosition.y)
-        let newAngleFromOrigin = angleFromOrigin + currentIsoMetricSettings.rotate * Math.PI / 180
-        
-        if (newAngleFromOrigin < 0) {
-            newAngleFromOrigin += Math.PI * 2
-        }
-        screenPosition.x = Math.cos(newAngleFromOrigin) * lengthFromOrigin
-        screenPosition.y = - Math.sin(newAngleFromOrigin) * lengthFromOrigin
+        let angleToRotate = currentIsoMetricSettings.rotate * Math.PI / 180
+        screenPosition.x = worldPosition.x * Math.cos(angleToRotate) - worldPosition.y * Math.sin(angleToRotate);
+        screenPosition.y = worldPosition.y * Math.cos(angleToRotate) + worldPosition.x * Math.sin(angleToRotate);
         
         // Scale vertically
         screenPosition.y = screenPosition.y * currentIsoMetricSettings.scale
@@ -97,12 +88,10 @@ function fromScreenPositionToWorldPosition(screenPosition) {
         worldPosition.y = worldPosition.y / currentIsoMetricSettings.scale
         
         // Rotate
-        let lengthFromOrigin = Math.sqrt(worldPosition.x * worldPosition.x + worldPosition.y * worldPosition.y)
-        let angleFromOrigin = Math.atan2(worldPosition.x, - worldPosition.y)
-        let newAngleFromOrigin = angleFromOrigin + currentIsoMetricSettings.rotate * Math.PI / 180
-        
-        worldPosition.x = Math.cos(newAngleFromOrigin) * lengthFromOrigin
-        worldPosition.y = Math.sin(newAngleFromOrigin) * lengthFromOrigin
+        let angleToRotate = - currentIsoMetricSettings.rotate * Math.PI / 180
+        let oldPosition = { x: worldPosition.x, y: worldPosition.y}
+        worldPosition.x = oldPosition.x * Math.cos(angleToRotate) - oldPosition.y * Math.sin(angleToRotate);
+        worldPosition.y = oldPosition.y * Math.cos(angleToRotate) + oldPosition.x * Math.sin(angleToRotate);
     }
     
     return worldPosition
