@@ -414,15 +414,17 @@ function drawContainer(container) {
         textSize.height = textHeightToFontSizeRatioArial * fontSize
 
         // Determine text position
-        let textPosition = {}
-        textPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
-        textPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
+        let textWorldPosition = {}
+        textWorldPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
+        textWorldPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
         
-        // TODO: we probably want to use this instead: let screenTextPosition = fromWorldPositionToScreenPosition(textPosition)
-        let screenTextPosition = addOffsetToPosition(interaction.viewOffset, textPosition) // TODO: This is a bit of a HACK
+        // TODO: we probably want to use this instead: let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
+        let scaledTextWorldPosition = scalePosition(interaction.viewScale, textWorldPosition)
+        let screenTextPosition = addOffsetToPosition(interaction.viewOffset, scaledTextWorldPosition) // TODO: This is a bit of a HACK
         
         if (interaction.viewAsIsometric) {
             ctx.save()
+            ctx.translate(screenTextPosition.x, screenTextPosition.y)
             ctx.scale(interaction.viewScale, interaction.viewScale)
             ctx.translate(0, canvasElement.height * isoMetricSettings.translate)
             ctx.scale(1, isoMetricSettings.scale)
@@ -430,12 +432,13 @@ function drawContainer(container) {
         }
         else {
             ctx.save()
+            ctx.translate(screenTextPosition.x, screenTextPosition.y)
             ctx.scale(interaction.viewScale, interaction.viewScale)
         }
         
         // Draw the text at the text positions
         ctx.fillStyle = rgba(textColor)
-        ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
+        ctx.fillText(textToDraw, 0, 0)
         
         if (interaction.viewAsIsometric) {
             ctx.restore()
