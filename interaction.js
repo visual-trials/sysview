@@ -165,12 +165,10 @@ function handleInputStateChange () {
         let currentDateTime = new Date()
         
         // TODO: we need some kind of (incremental) id here!
+        // TODO: what should we use as identifier here??
         let extraServer = {
             type: 'server',  // TODO: allow adding different kinds of containers
             parentContainerIdentifier: parentContainerIdentifier,
-// FIXME: what should we use as identifier here??
-// FIXME: what should we use as identifier here??
-// FIXME: what should we use as identifier here??
             identifier: 'ExtraServer_' + currentDateTime.getTime(),
             name: 'My Extra Server',
             relativePosition: {
