@@ -19,6 +19,20 @@
 let canvasElement = document.getElementById('canvas')
 let ctx = canvasElement.getContext("2d")
 
+// TODO: what we really should be doing is:
+// - use target and current translate/scale/rotate settings
+// - make sure that screen coordinate 0,0 is at middle of the screen/view
+// - make sure that when transitioning from nonIso- to isoMetric view, the middle of the screen keeps pointing at the same world position
+// - make viewOffset an viewWorldOffset: we are essentially pointing screen position 0,0 (middle of the screen/view) at a certain worldPosition (this is the viewWorldOffset)
+// 
+// This means: (for world to screen conversion)
+// 1) translate using viewWorldOffset (always)
+// 2) scale for zooming (always)
+// 3) rotate using (isoMetric.rotate)
+// 4) scale vertically for isoMetric view (isoMetric.scale)
+// 5) translate towards middle of the screen (always)
+
+
 let isoMetricSettings = {
     translate: 0.5, // move half the height of the screen down
     scale: 0.5,     // shrink vertically (by a factor of 2)
