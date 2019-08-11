@@ -162,6 +162,8 @@ function handleInputStateChange () {
         }
         let parentContainer = getContainerByIdentifier(parentContainerIdentifier)
         
+        let currentDateTime = new Date()
+        
         // TODO: we need some kind of (incremental) id here!
         let extraServer = {
             type: 'server',  // TODO: allow adding different kinds of containers
@@ -169,7 +171,7 @@ function handleInputStateChange () {
 // FIXME: what should we use as identifier here??
 // FIXME: what should we use as identifier here??
 // FIXME: what should we use as identifier here??
-            identifier: 'ExtraServer',
+            identifier: 'ExtraServer_' + currentDateTime.getTime(),
             name: 'My Extra Server',
             relativePosition: {
                 x: mouseState.worldPosition.x - parentContainer.position.x,
