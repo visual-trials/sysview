@@ -156,7 +156,7 @@ function handleInputStateChange () {
 
     if (mouseState.rightButtonHasGoneDown && interaction.currentlyHoveredMenuButton == null) {
         
-        let parentContainerIdentifier = null
+        let parentContainerIdentifier = 'root'
         if (interaction.currentlyHoveredContainerIdentifier != null) {
             parentContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
         }
@@ -181,7 +181,8 @@ function handleInputStateChange () {
             }
         }
 // FIXME: console.log(extraServer)
-        let extraServerIdentifier = createContainer(extraServer)
+        storeContainerData(extraServer)
+        // let extraServerIdentifier = createContainer(extraServer)
     }
 
     
