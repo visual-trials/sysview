@@ -41,6 +41,7 @@ function initExampleData() {
             x: 250,
             y: 200
         },
+        relativeScale: 1,
         size: {
             width: 200,
             height: 250
@@ -59,6 +60,7 @@ function initExampleData() {
             x: 20,
             y: 20
         },
+        relativeScale: 1,
         size: {
             width: 70,
             height: 50
@@ -77,6 +79,7 @@ function initExampleData() {
             x: 550,
             y: 200
         },
+        relativeScale: 0.5,
         size: {
             width: 150,
             height: 150
@@ -95,6 +98,7 @@ function initExampleData() {
             x: 10,
             y: 10
         },
+        relativeScale: 1,
         size: {
             width: 70,
             height: 50

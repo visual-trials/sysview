@@ -30,7 +30,7 @@ function init() {
     initContainersAndConnections()
     
     // TODO: replace this eventually
-    // initExampleData()
+    initExampleData()
     
     addInputListeners()
     drawCanvas()
@@ -100,6 +100,7 @@ function storeContainerData(containerData) {
         name: containerData.name,
         parentContainerIdentifier: containerData.parentContainerIdentifier,
         relativePosition: containerData.relativePosition,
+        relativeScale: containerData.relativeScale,
         size: containerData.size
     })
 }

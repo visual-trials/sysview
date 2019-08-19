@@ -57,7 +57,6 @@ function createContainer(containerData) {
         console.log("ERROR: Unknown container type: " + containerData.type)
     }
     
-    // TODO: determine absolute postiion based on absolute position of parent (we need a hashmap of containers (of the parent itself) for that)
     let newContainer = {
         identifier: containerIdentifier,
         name: containerData.name,
@@ -67,6 +66,8 @@ function createContainer(containerData) {
             x: containerData.relativePosition.x,
             y: containerData.relativePosition.y,
         },
+        relativeScale: containerData.relativeScale,
+        scale: null,
         size: { 
             width: containerData.size.width,
             height: containerData.size.height,
