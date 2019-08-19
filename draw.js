@@ -329,7 +329,9 @@ function drawContainers(containerIdentifiers) {
         let containerIdentifier = containerIdentifiers[containerIndex]
         let container = containersAndConnections.containers[containerIdentifier]
         drawContainer(container)
-        drawContainers(container.children)
+        if (interaction.viewScale * container.scale > 0.6) {
+            drawContainers(container.children)
+        }
     }
 }
 
