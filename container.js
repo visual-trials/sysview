@@ -29,6 +29,7 @@ function initContainersAndConnections () {
         id: 0,
         identifier: null,
         position : { x: 0, y: 0 },
+        relativeScale: 1,
         children: [],
     }
     

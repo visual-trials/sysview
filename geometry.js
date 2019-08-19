@@ -215,14 +215,17 @@ function findButtonInButtonListAtScreenPosition(screenPosition, buttonList) {
 }
 
 function recalculateAbsolutePositions(container = null) {
-    
+
     if (container == null) {
         container = containersAndConnections.containers['root'] // = root container
+        container.scale = container.relativeScale
     }
     else {
         parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
-        container.position.x = parentContainer.position.x + container.relativePosition.x
-        container.position.y = parentContainer.position.y + container.relativePosition.y
+
+        container.scale = parentContainer.scale * container.relativeScale
+        let scaledRelativePosition = scalePosition(parentContainer.scale, container.relativePosition)
+        container.position = addOffsetToPosition(scaledRelativePosition, parentContainer.position)
     }
     
     // First check the children (since they are 'on-top' of the parent)
