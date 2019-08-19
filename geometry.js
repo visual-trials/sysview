@@ -120,8 +120,8 @@ function unscaleSize(scale, size) {
 
 function getCenterPositonOfContainer(container) {
     let centerPosition = { x: 0, y: 0 }
-    centerPosition.x = container.position.x + container.size.width / 2
-    centerPosition.y = container.position.y + container.size.height / 2
+    centerPosition.x = container.position.x + container.size.width / 2 * container.scale 
+    centerPosition.y = container.position.y + container.size.height / 2 * container.scale 
     return centerPosition
 }
 
@@ -288,15 +288,15 @@ function whichSideIsPositionFromContainer(worldPosition, container) {
             side.isNearContainer = false
         }
     }
-    if (worldPosition.x > container.position.x + container.size.width - margin) {
+    if (worldPosition.x > container.position.x + container.size.width * container.scale - margin) {
         side.x = 1
-        if (worldPosition.x > container.position.x + container.size.width + margin) {
+        if (worldPosition.x > container.position.x + container.size.width * container.scale + margin) {
             side.isNearContainer = false
         }
     }
-    if (worldPosition.y > container.position.y + container.size.height - margin) {
+    if (worldPosition.y > container.position.y + container.size.height * container.scale - margin) {
         side.y = 1
-        if (worldPosition.y > container.position.y + container.size.height + margin) {
+        if (worldPosition.y > container.position.y + container.size.height * container.scale + margin) {
             side.isNearContainer = false
         }
     }
@@ -306,8 +306,8 @@ function whichSideIsPositionFromContainer(worldPosition, container) {
 function worldPositionIsInsideContainer(worldPosition, container) {
     if (worldPosition.x < container.position.x ||
         worldPosition.y < container.position.y ||
-        worldPosition.x > container.position.x + container.size.width ||
-        worldPosition.y > container.position.y + container.size.height) {
+        worldPosition.x > container.position.x + container.size.width * container.scale ||
+        worldPosition.y > container.position.y + container.size.height * container.scale) {
             
         return false
     }
