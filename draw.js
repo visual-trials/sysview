@@ -337,7 +337,7 @@ function drawContainer(container) {
     
     {
         // Draw rectangle 
-        ctx.lineWidth = 2 * interaction.viewScale
+        ctx.lineWidth = 2 * interaction.viewScale * container.scale
         ctx.strokeStyle = rgba(container.stroke)
         ctx.fillStyle = rgba(container.fill)
         
@@ -351,11 +351,11 @@ function drawContainer(container) {
             let containerThickness = 6 * interaction.viewScale * interaction.percentageIsoMetric 
             
             let leftTopContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.y += container.size.height
+            position.y += container.size.height * container.scale
             let leftBottomContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.x += container.size.width
+            position.x += container.size.width * container.scale
             let rightBottomContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.y -= container.size.height
+            position.y -= container.size.height * container.scale
             let rightTopContainerPosition = fromWorldPositionToScreenPosition(position)
             
             ctx.beginPath()
@@ -402,7 +402,7 @@ function drawContainer(container) {
         else {
             
             let screenContainerPosition = fromWorldPositionToScreenPosition(container.position)
-            let screenContainerSize = scaleSize(interaction.viewScale, container.size)
+            let screenContainerSize = scaleSize(interaction.viewScale * container.scale, container.size)
             ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             
             if (interaction.currentlySelectedContainerIdentifier != null && 
@@ -431,14 +431,14 @@ function drawContainer(container) {
 
         // Determine text position
         let textWorldPosition = {}
-        textWorldPosition.x = container.position.x + (container.size.width / 2) - (textSize.width / 2)
-        textWorldPosition.y = container.position.y + (container.size.height / 2) + (textSize.height / 2) 
+        textWorldPosition.x = container.position.x + (container.size.width * container.scale / 2) - (textSize.width * container.scale / 2)
+        textWorldPosition.y = container.position.y + (container.size.height * container.scale / 2) + (textSize.height * container.scale / 2) 
         
         let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
         
         ctx.save()
         ctx.translate(screenTextPosition.x, screenTextPosition.y) // move the text to the screen position (since we draw the text at 0,0)
-        ctx.scale(interaction.viewScale, interaction.viewScale) // make the text smaller/bigger according to zoom (viewScale)
+        ctx.scale(interaction.viewScale * container.scale, interaction.viewScale * container.scale) // make the text smaller/bigger according to zoom (viewScale)
         
         if (interaction.percentageIsoMetric > 0) {
             ctx.scale(1, currentIsoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
