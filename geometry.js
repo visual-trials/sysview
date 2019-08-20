@@ -160,6 +160,9 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
     }
     
     let centerPoint = {x: container.size.width * container.scale / 2, y: container.size.height * container.scale / 2}
+    centerPoint.x += container.position.x
+    centerPoint.y += container.position.y
+    
     let edgePoint = {x: centerPoint.x, y: centerPoint.y}
   
     let tanAngleBetweenPoints = Math.tan(angleBetweenPoints)
@@ -181,8 +184,6 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
         edgePoint.y = centerPoint.y - (container.size.height * container.scale / 2)
     }
   
-    edgePoint.x += container.position.x
-    edgePoint.y += container.position.y
     return edgePoint
 }
 
