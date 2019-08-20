@@ -129,15 +129,7 @@ function getAngleBetweenPoints(fromPosition, toPosition) {
     return Math.atan2(toPosition.y - fromPosition.y, toPosition.x - fromPosition.x);
 }
 
-function getAngleOfContainerRect(container) {
-    return Math.atan2(container.size.height, container.size.width);
-}
-
-function getContainerIntersectionPointWithStraightLine (container, line) {
-    // TODO
-}
-
-function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverseAngle) {
+function getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, container, reverseAngle, centerPoint = null) {
     
     if (reverseAngle) {
         angleBetweenPoints += Math.PI
@@ -146,11 +138,11 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
         }
     }
     
-    let centerPoint = {x: container.size.width * container.scale / 2, y: container.size.height * container.scale / 10}
-    centerPoint.x += container.position.x
-    centerPoint.y += container.position.y
-    
-    let angleContainerRect = getAngleOfContainerRect(container)
+    if (centerPoint == null) {
+        centerPoint = {x: container.size.width * container.scale / 2, y: container.size.height * container.scale / 10}
+        centerPoint.x += container.position.x
+        centerPoint.y += container.position.y
+    }
     
     let leftTop =     {x: container.position.x,                                          y: container.position.y }
     let rightTop =    {x: container.position.x + container.size.width * container.scale, y: container.position.y }

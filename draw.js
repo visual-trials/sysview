@@ -258,6 +258,18 @@ function drawConnections() {
     }
 }
 
+
+function getFirstVisibleContainer(container) {
+    if (showContainerChildren(container)) {
+        return container
+    }
+    if (container.parentContainerIdentifier === 'root') {
+        return container
+    }
+    let parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
+    return getFirstVisibleContainer(parentContainer)
+}
+
 function drawConnection(connection, fromContainer, toContainer) {
     
     let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
@@ -265,8 +277,10 @@ function drawConnection(connection, fromContainer, toContainer) {
     
     let angleBetweenPoints = getAngleBetweenPoints(fromContainerCenterPosition, toContainerCenterPosition)
     
-    let fromContainerBorderPoint = getContainerBorderPointFromAngle(angleBetweenPoints, fromContainer, false)
-    let toContainerBorderPoint = getContainerBorderPointFromAngle(angleBetweenPoints, toContainer, true)
+    let fromFirstVisibleContainer = getFirstVisibleContainer(fromContainer)
+    let toFirstVisibleContainer = getFirstVisibleContainer(toContainer)
+    let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
+    let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
     
     let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint)
     let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint)
@@ -324,12 +338,17 @@ function drawConnection(connection, fromContainer, toContainer) {
     */
 }
 
+// TODO: maybe call this: showCover instead?
+function showContainerChildren(container) {
+    return container.identifier === 'root' || interaction.viewScale * container.scale > 0.6
+}
+
 function drawContainers(containerIdentifiers) {
     for (let containerIndex = 0; containerIndex < containerIdentifiers.length; containerIndex++) {
         let containerIdentifier = containerIdentifiers[containerIndex]
         let container = containersAndConnections.containers[containerIdentifier]
         drawContainer(container)
-        if (interaction.viewScale * container.scale > 0.6) {
+        if (showContainerChildren(container)) {
             drawContainers(container.children)
         }
     }
@@ -424,8 +443,10 @@ function drawContainer(container) {
         
         // Get text size
         let textSize = {}
-        let fontSize = 12
+        let fontSize = 14
+        let heightBottomWhiteArea = fontSize / 6
         ctx.font = fontSize + "px Arial"
+        ctx.textBaseline = "top"
         let textHeightToFontSizeRatioArial = 1.1499023
         
         textSize.width = ctx.measureText(textToDraw).width
@@ -434,9 +455,18 @@ function drawContainer(container) {
         // Determine text position
         let textWorldPosition = {}
         textWorldPosition.x = container.position.x + (container.size.width * container.scale / 2) - (textSize.width * container.scale / 2)
-        textWorldPosition.y = container.position.y + (container.size.height * container.scale / 2) + (textSize.height * container.scale / 2) 
+        textWorldPosition.y = container.position.y + (container.size.height * container.scale / 2) - (textSize.height * container.scale / 2) + heightBottomWhiteArea * container.scale
         
         let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
+        
+        let debugText = false
+        if (debugText) {
+            let screenTextSize = scaleSize(interaction.viewScale * container.scale, textSize)
+            
+            ctx.lineWidth = 1
+            ctx.strokeStyle = "#FF0000"
+            ctx.strokeRect(screenTextPosition.x, screenTextPosition.y, screenTextSize.width, screenTextSize.height)
+        }
         
         ctx.save()
         ctx.translate(screenTextPosition.x, screenTextPosition.y) // move the text to the screen position (since we draw the text at 0,0)
