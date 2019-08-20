@@ -92,6 +92,13 @@ function handleInputStateChange () {
     let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
     let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, currentlySelectedContainer)
     
+    // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
+    let parentOfSelectedContainerContainerIdentifier = 'root'
+    if (currentlySelectedContainer != null) {
+        parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
+    }
+    let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
+    
     let mouseIsNearSelectedContainerBorder = false
     
     if (interaction.currentlyHoveredMenuButton != null) {
@@ -277,8 +284,9 @@ function handleInputStateChange () {
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
         let relativePosition = {}
-        relativePosition.x = currentlySelectedContainer.relativePosition.x + (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / currentlySelectedContainer.scale
-        relativePosition.y = currentlySelectedContainer.relativePosition.y + (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / currentlySelectedContainer.scale
+        // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+        relativePosition.x = currentlySelectedContainer.relativePosition.x + (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
+        relativePosition.y = currentlySelectedContainer.relativePosition.y + (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
         changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
         recalculateAbsolutePositions(currentlySelectedContainer)
     }
@@ -308,7 +316,8 @@ function handleInputStateChange () {
             changeContainerSize(currentlySelectedContainer, size)
             
             let relativePosition = {}
-            relativePosition.x = currentlySelectedContainer.relativePosition.x + mouseWorldMovement.x / currentlySelectedContainer.scale
+            // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+            relativePosition.x = currentlySelectedContainer.relativePosition.x + mouseWorldMovement.x / parentOfSelectedContainer.scale
             relativePosition.y = currentlySelectedContainer.relativePosition.y
             changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
             recalculateAbsolutePositions(currentlySelectedContainer)
@@ -321,7 +330,8 @@ function handleInputStateChange () {
             
             let relativePosition = {}
             relativePosition.x = currentlySelectedContainer.relativePosition.x
-            relativePosition.y = currentlySelectedContainer.relativePosition.y + mouseWorldMovement.y / currentlySelectedContainer.scale
+            // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+            relativePosition.y = currentlySelectedContainer.relativePosition.y + mouseWorldMovement.y / parentOfSelectedContainer.scale
             changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
             recalculateAbsolutePositions(currentlySelectedContainer)
         }
