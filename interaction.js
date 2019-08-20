@@ -231,6 +231,7 @@ function handleInputStateChange () {
                     name: 'New connection',
                     from: containerAtMousePosition.identifier,
                     to: null,
+                    stroke: { r:0, g:180, b:200, a:1 }, // FIXME: HACK!
                 }
             }
         }

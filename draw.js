@@ -239,6 +239,7 @@ function drawNewConnection () {
         }
         else {
             toContainer = {
+                identifier: '__new__', // FIXME: this is a HACK to prevent crashing at getFirstVisibleContainer
                 size: { width: 0, height: 0},
                 position: { x: mouseState.worldPosition.x, 
                             y: mouseState.worldPosition.y }
@@ -260,6 +261,9 @@ function drawConnections() {
 
 
 function getFirstVisibleContainer(container) {
+    if (container.identifier === '__new__') { // FIXME: this is a HACK
+        return container
+    }
     if (container.parentContainerIdentifier === 'root') {
         return container
     }
