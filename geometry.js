@@ -146,7 +146,7 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
         }
     }
     
-    let centerPoint = {x: container.size.width * container.scale / 2, y: container.size.height * container.scale / 2}
+    let centerPoint = {x: container.size.width * container.scale / 2, y: container.size.height * container.scale / 10}
     centerPoint.x += container.position.x
     centerPoint.y += container.position.y
     
@@ -173,26 +173,25 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
         side = 'left'
     }
     
-    
     let edgePoint = {x: centerPoint.x, y: centerPoint.y}
   
     let tanAngleBetweenPoints = Math.tan(angleBetweenPoints)
     
     if (side === 'right') {
-        edgePoint.x = centerPoint.x + (container.size.width * container.scale / 2)
-        edgePoint.y = centerPoint.y + (container.size.width * container.scale / 2) * tanAngleBetweenPoints
+        edgePoint.x = rightTop.x
+        edgePoint.y = centerPoint.y + (rightTop.x - centerPoint.x) * tanAngleBetweenPoints
     }
     else if (side === 'top') {
-        edgePoint.x = centerPoint.x + (container.size.height * container.scale / 2) / tanAngleBetweenPoints
-        edgePoint.y = centerPoint.y + (container.size.height * container.scale / 2)
+        edgePoint.x = centerPoint.x + (rightTop.y - centerPoint.y) / tanAngleBetweenPoints
+        edgePoint.y = leftTop.y
     }
     else if (side === 'left') {
-        edgePoint.x = centerPoint.x - (container.size.width * container.scale / 2)
-        edgePoint.y = centerPoint.y - (container.size.width * container.scale / 2) * tanAngleBetweenPoints
+        edgePoint.x = leftTop.x
+        edgePoint.y = centerPoint.y + (leftBottom.x - centerPoint.x) * tanAngleBetweenPoints
     }
     else if (side === 'bottom') {
-        edgePoint.x = centerPoint.x - (container.size.height * container.scale / 2) / tanAngleBetweenPoints
-        edgePoint.y = centerPoint.y - (container.size.height * container.scale / 2)
+        edgePoint.x = centerPoint.x + (leftBottom.y - centerPoint.y) / tanAngleBetweenPoints
+        edgePoint.y = leftBottom.y
     }
   
     return edgePoint
