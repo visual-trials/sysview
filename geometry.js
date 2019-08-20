@@ -133,6 +133,10 @@ function getAngleOfContainerRect(container) {
     return Math.atan2(container.size.height, container.size.width);
 }
 
+function getContainerIntersectionPointWithStraightLine (container, line) {
+    // TODO
+}
+
 function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverseAngle) {
     
     if (reverseAngle) {
@@ -146,35 +150,35 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
     
     let side = null
     if ((angleBetweenPoints > -angleContainerRect) && (angleBetweenPoints <= angleContainerRect)) {
-        side = 1
+        side = 'right'
     } else if ((angleBetweenPoints > angleContainerRect) && (angleBetweenPoints <= (Math.PI - angleContainerRect))) {
-        side = 2
+        side = 'top'
     } else if ((angleBetweenPoints > (Math.PI - angleContainerRect)) || (angleBetweenPoints <= -(Math.PI - angleContainerRect))) {
-        side = 3
+        side = 'left'
     } else {
-        side = 4
+        side = 'bottom'
     }
     
     let edgePoint = {x: container.size.width * container.scale / 2, y: container.size.height * container.scale / 2}
     let xFactor = 1
     let yFactor = 1
   
-    if (side === 1) {
+    if (side === 'right') {
         yFactor = -1
     }
-    else if (side === 2) {
+    else if (side === 'top') {
         yFactor = -1
     }
-    else if (side === 3) {
+    else if (side === 'left') {
         xFactor = -1
     }
-    else if (side === 4) {
+    else if (side === 'bottom') {
         xFactor = -1
     }
   
     let tanAngleBetweenPoints = Math.tan(angleBetweenPoints)
     
-    if ((side === 1) || (side === 3)) {
+    if ((side === 'right') || (side === 'left')) {
         edgePoint.x += xFactor * (container.size.width * container.scale / 2.)
         edgePoint.y += -yFactor * (container.size.width * container.scale / 2.) * tanAngleBetweenPoints
     } else {
