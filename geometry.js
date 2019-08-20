@@ -146,22 +146,33 @@ function getContainerBorderPointFromAngle(angleBetweenPoints, container, reverse
         }
     }
     
-    let angleContainerRect = getAngleOfContainerRect(container)
-    
-    let side = null
-    if ((angleBetweenPoints > -angleContainerRect) && (angleBetweenPoints <= angleContainerRect)) {
-        side = 'right'
-    } else if ((angleBetweenPoints > angleContainerRect) && (angleBetweenPoints <= (Math.PI - angleContainerRect))) {
-        side = 'top'
-    } else if ((angleBetweenPoints > (Math.PI - angleContainerRect)) || (angleBetweenPoints <= -(Math.PI - angleContainerRect))) {
-        side = 'left'
-    } else {
-        side = 'bottom'
-    }
-    
     let centerPoint = {x: container.size.width * container.scale / 2, y: container.size.height * container.scale / 2}
     centerPoint.x += container.position.x
     centerPoint.y += container.position.y
+    
+    let angleContainerRect = getAngleOfContainerRect(container)
+    
+    let leftTop =     {x: container.position.x,                                          y: container.position.y }
+    let rightTop =    {x: container.position.x + container.size.width * container.scale, y: container.position.y }
+    let leftBottom =  {x: container.position.x,                                          y: container.position.y + container.size.height * container.scale }
+    let rightBottom = {x: container.position.x + container.size.width * container.scale, y: container.position.y + container.size.height * container.scale }
+    
+    let angleWidthLeftTop  = Math.atan2(leftTop.y - centerPoint.y, leftTop.x - centerPoint.x);
+    let angleWidthRightTop = Math.atan2(rightTop.y - centerPoint.y, rightTop.x - centerPoint.x);
+    let angleWidthLeftBottom  = Math.atan2(leftBottom.y - centerPoint.y, leftBottom.x - centerPoint.x);
+    let angleWidthRightBottom = Math.atan2(rightBottom.y - centerPoint.y, rightBottom.x - centerPoint.x);
+    
+    let side = null
+    if ((angleBetweenPoints > angleWidthRightTop) && (angleBetweenPoints <= angleWidthRightBottom)) {
+        side = 'right'
+    } else if ((angleBetweenPoints > angleWidthLeftTop) && (angleBetweenPoints <= angleWidthRightTop)) {
+        side = 'top'
+    } else if ((angleBetweenPoints > angleWidthRightBottom) && (angleBetweenPoints <= angleWidthLeftBottom)) {
+        side = 'bottom'
+    } else {
+        side = 'left'
+    }
+    
     
     let edgePoint = {x: centerPoint.x, y: centerPoint.y}
   
