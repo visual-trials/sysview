@@ -30,7 +30,7 @@ function init() {
     initContainersAndConnections()
     
     // TODO: replace this eventually
-    initExampleData()
+    // initExampleData()
     
     addInputListeners()
     drawCanvas()

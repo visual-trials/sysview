@@ -260,13 +260,13 @@ function drawConnections() {
 
 
 function getFirstVisibleContainer(container) {
-    if (showContainerChildren(container)) {
-        return container
-    }
     if (container.parentContainerIdentifier === 'root') {
         return container
     }
     let parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
+    if (showContainerChildren(parentContainer)) {
+        return container
+    }
     return getFirstVisibleContainer(parentContainer)
 }
 
@@ -340,7 +340,24 @@ function drawConnection(connection, fromContainer, toContainer) {
 
 // TODO: maybe call this: showCover instead?
 function showContainerChildren(container) {
-    return container.identifier === 'root' || interaction.viewScale * container.scale > 0.6
+    if (container.identifier === 'root') return true
+    
+    // TODO: should we really iterate all children to see whether we should show them all? And should we take the highest scale or the average?
+    let highestChildScale = 0
+    for (let childContainerIndex = 0; childContainerIndex < container.children.length; childContainerIndex++) {
+        let childContainerIdentifier = container.children[childContainerIndex]
+        let childContainer = containersAndConnections.containers[childContainerIdentifier]
+        
+        if (interaction.viewScale * childContainer.scale > highestChildScale) {
+            highestChildScale = interaction.viewScale * childContainer.scale
+        }
+    }
+    if (highestChildScale > 0.6) {
+        return true
+    }
+    else {
+        return false
+    }
 }
 
 function drawContainers(containerIdentifiers) {
