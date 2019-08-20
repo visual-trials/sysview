@@ -266,7 +266,7 @@ function handleInputStateChange () {
             if (interaction.newConnectionBeingAdded != null && interaction.newConnectionBeingAdded.to != null) {
                 // FIXME: we should give this connection the correct properties (like type, color etc)
                 interaction.newConnectionBeingAdded.type = 'API2API'
-                createConnection(interaction.newConnectionBeingAdded)
+                storeConnectionData(interaction.newConnectionBeingAdded)
             }
             
             interaction.newConnectionBeingAdded = null
