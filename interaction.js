@@ -277,8 +277,8 @@ function handleInputStateChange () {
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
         let relativePosition = {}
-        relativePosition.x = currentlySelectedContainer.relativePosition.x + mouseState.worldPosition.x - mouseState.previousWorldPosition.x 
-        relativePosition.y = currentlySelectedContainer.relativePosition.y + mouseState.worldPosition.y - mouseState.previousWorldPosition.y
+        relativePosition.x = currentlySelectedContainer.relativePosition.x + (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / currentlySelectedContainer.scale
+        relativePosition.y = currentlySelectedContainer.relativePosition.y + (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / currentlySelectedContainer.scale
         changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
         recalculateAbsolutePositions(currentlySelectedContainer)
     }
@@ -291,24 +291,24 @@ function handleInputStateChange () {
         
         if (interaction.selectedContainerResizeSide.x > 0) { // right side
             let size = {}
-            size.width = currentlySelectedContainer.size.width + mouseWorldMovement.x
+            size.width = currentlySelectedContainer.size.width + mouseWorldMovement.x / currentlySelectedContainer.scale
             size.height = currentlySelectedContainer.size.height
             changeContainerSize(currentlySelectedContainer, size)
         }
         if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
             let size = {}
             size.width = currentlySelectedContainer.size.width
-            size.height = currentlySelectedContainer.size.height + mouseWorldMovement.y
+            size.height = currentlySelectedContainer.size.height + mouseWorldMovement.y / currentlySelectedContainer.scale
             changeContainerSize(currentlySelectedContainer, size)
         }
         if (interaction.selectedContainerResizeSide.x < 0) { // left side
             let size = {}
-            size.width = currentlySelectedContainer.size.width - mouseWorldMovement.x
+            size.width = currentlySelectedContainer.size.width - mouseWorldMovement.x / currentlySelectedContainer.scale
             size.height = currentlySelectedContainer.size.height
             changeContainerSize(currentlySelectedContainer, size)
             
             let relativePosition = {}
-            relativePosition.x = currentlySelectedContainer.relativePosition.x + mouseWorldMovement.x
+            relativePosition.x = currentlySelectedContainer.relativePosition.x + mouseWorldMovement.x / currentlySelectedContainer.scale
             relativePosition.y = currentlySelectedContainer.relativePosition.y
             changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
             recalculateAbsolutePositions(currentlySelectedContainer)
@@ -316,12 +316,12 @@ function handleInputStateChange () {
         if (interaction.selectedContainerResizeSide.y < 0) { // top side
             let size = {}
             size.width = currentlySelectedContainer.size.width
-            size.height = currentlySelectedContainer.size.height - mouseWorldMovement.y
+            size.height = currentlySelectedContainer.size.height - mouseWorldMovement.y / currentlySelectedContainer.scale
             changeContainerSize(currentlySelectedContainer, size)
             
             let relativePosition = {}
             relativePosition.x = currentlySelectedContainer.relativePosition.x
-            relativePosition.y = currentlySelectedContainer.relativePosition.y + mouseWorldMovement.y
+            relativePosition.y = currentlySelectedContainer.relativePosition.y + mouseWorldMovement.y / currentlySelectedContainer.scale
             changeContainerRelativePosition(currentlySelectedContainer, relativePosition)
             recalculateAbsolutePositions(currentlySelectedContainer)
         }

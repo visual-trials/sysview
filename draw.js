@@ -352,7 +352,7 @@ function showContainerChildren(container) {
             highestChildScale = interaction.viewScale * childContainer.scale
         }
     }
-    if (highestChildScale > 0.6) {
+    if (highestChildScale > 0.8) {
         return true
     }
     else {
