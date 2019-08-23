@@ -198,6 +198,8 @@ function touchStarted (e) {
         
         touchesState[changedTouch.identifier] = newTouch
     }
+    
+    handleInputStateChange()
 
     e.preventDefault()
 }
@@ -233,6 +235,8 @@ function touchEnded (e) {
         }
     }
 
+    handleInputStateChange()
+    
     e.preventDefault()
 }
 
@@ -251,6 +255,8 @@ function touchCanceled (e) {
             console.log("ERROR: touch canceled that did not start!")
         }
     }
+    
+    handleInputStateChange()
 
     e.preventDefault()
 }
@@ -272,6 +278,8 @@ function touchMoved (e) {
             console.log("ERROR: touch moved that did not start!")
         }
     }
+    
+    handleInputStateChange()
 
     e.preventDefault()
 }

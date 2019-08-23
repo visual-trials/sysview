@@ -413,6 +413,7 @@ function handleInputStateChange () {
     drawCanvas()
     
     resetMouseEventData()
+    resetTouchEventData()
     resetKeyboardEventData()
 }
 
