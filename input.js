@@ -181,9 +181,16 @@ function resetTouchEventData () {
     }
 }
 
-function updateTouchPosition (touch, x, y) {
+function updateTouchPosition (touch, x, y, previousX = null, previousY = null) {
     touch.position.x = x
     touch.position.y = y
+    
+    if (previousX != null) {
+        touch.previousPosition.x = previousX
+    }
+    if (previousY != null) {
+        touch.previousPosition.y = previousY
+    }
     
     touch.hasMoved = touch.previousPosition.x != touch.position.x || 
                      touch.previousPosition.y != touch.position.y
@@ -218,7 +225,7 @@ function touchStarted (e) {
         
         touchesState[changedTouch.identifier] = newTouch
         
-        updateTouchPosition(newTouch, changedTouch.pageX, changedTouch.pageY)
+        updateTouchPosition(newTouch, changedTouch.pageX, changedTouch.pageY, changedTouch.pageX, changedTouch.pageY)
     }
     
     handleInputStateChange()

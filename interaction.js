@@ -45,6 +45,21 @@ let interaction = {
 
 function handleInputStateChange () {
     
+    
+    let singleTouch = null
+    let firstOfDoubleTouch = null
+    let secondOfDoubleTouch = null
+    
+    // TODO: when a touch has just ended, this number is not the nrOfActiveTouches (should we count those instead?)
+    let nrOfTouches = Object.keys(touchesState).length
+    if (nrOfTouches === 1) {
+        singleTouch = touchesState[Object.keys(touchesState)[0]]
+    }
+    else if (nrOfTouches === 2) {
+        firstOfDoubleTouch = touchesState[Object.keys(touchesState)[0]]
+        secondOfDoubleTouch = touchesState[Object.keys(touchesState)[1]]
+    }
+    
     if (mouseState.mouseWheelHasMoved) {
         let scrollSensitivity = 0.1
         let relativeZoomChange = 1 + Math.abs(mouseState.mouseWheelDelta) * scrollSensitivity
@@ -281,6 +296,26 @@ function handleInputStateChange () {
         interaction.viewIsBeingDragged = false
     }
     
+    
+    // TODO: we should probably keep record of where things (like the view or a container) is being selected/dragged BY
+    //       sometimes its the mouse, sometimes its a touch. We might want to keep a record of that.
+    
+    if (singleTouch != null) {
+        if (singleTouch.hasEnded) { // somewheat equivalent with leftButtonHasGoneUp
+            // The touch has ended
+            interaction.selectedContainerIsBeingDragged = false
+            interaction.selectedContainerIsBeingResized = false
+            interaction.selectedContainerResizeSide = null
+            interaction.viewIsBeingDragged = false
+        }
+        else {
+            if (singleTouch.hasStarted) {
+                // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
+                interaction.viewIsBeingDragged = true
+            }
+        }
+    }
+    
     // Hande mouse movement
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
@@ -338,9 +373,16 @@ function handleInputStateChange () {
         }
     }
     
-    if (mouseState.hasMoved && interaction.viewIsBeingDragged) {
-        interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
-        interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+    if (interaction.viewIsBeingDragged) {
+        if (mouseState.hasMoved) {
+            interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
+            interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+        }
+        
+        if (singleTouch != null && singleTouch.hasMoved) {
+            interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
+            interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
+        }
     }
 
     if (keyboardState.sequenceKeysUpDown.length) {
