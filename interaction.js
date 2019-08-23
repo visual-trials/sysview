@@ -85,6 +85,43 @@ function handleInputStateChange () {
         // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
     }
     
+    if (firstOfDoubleTouch != null && secondOfDoubleTouch != null &&
+        firstOfDoubleTouch.isActive && secondOfDoubleTouch.isActive) {
+            
+        if (firstOfDoubleTouch.hasMoved || secondOfDoubleTouch.hasMoved) {
+
+            // TODO: the code below doesn't work as well as we want. What we really should do is first 'move' our
+            //       coordinates to the middle of the two touches, then scale it (from there), then move out coordinates back.
+         
+            let previousDistanceBetweenTouches = distanceBetweenTwoPoints(firstOfDoubleTouch.previousPosition, secondOfDoubleTouch.previousPosition)
+            let currentDistanceBetweenTouches = distanceBetweenTwoPoints(firstOfDoubleTouch.position, secondOfDoubleTouch.position)
+            
+            let relativeZoomChange = currentDistanceBetweenTouches / previousDistanceBetweenTouches
+            interaction.viewScale = interaction.viewScale * relativeZoomChange
+         
+            // We want the position below the two touches to stay still.
+            // This means the touch-middle-point in world position has to stay on the same touch-middle-point screen position.
+            // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
+            
+            let touchMiddlePointScreenPosition = middleOfTwoPoints(firstOfDoubleTouch.position, secondOfDoubleTouch.position)
+            let touchMiddlePointWorldPosition = middleOfTwoPoints(firstOfDoubleTouch.worldPosition, secondOfDoubleTouch.worldPosition)
+            
+            // We first determine the screen position of the touch-middle-point if we don't change the viewOffset
+            let middleTouchPointScreenPositionAfterScale = fromWorldPositionToScreenPosition(touchMiddlePointWorldPosition)
+            
+            // Take the difference between the middle-point position (after just the scale) and the real middle-point position and 
+            // adjust the viewOffset accordingly
+            interaction.viewOffset.x += touchMiddlePointScreenPosition.x - middleTouchPointScreenPositionAfterScale.x
+            interaction.viewOffset.y += touchMiddlePointScreenPosition.y - middleTouchPointScreenPositionAfterScale.y
+            
+            firstOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(firstOfDoubleTouch.position)
+            secondOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(secondOfDoubleTouch.position)
+            
+            // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
+            
+        }
+    }
+    
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
     

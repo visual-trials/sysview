@@ -48,6 +48,22 @@ function fromWorldPositionToScreenPosition(worldPosition) {
     return screenPosition
 }
 
+function distanceBetweenTwoPoints (firstPosition, secondPosition) {
+    let xDistance = firstPosition.x - secondPosition.x
+    let yDistance = firstPosition.y - secondPosition.y
+    let distance = Math.sqrt( xDistance * xDistance + yDistance * yDistance )
+    return distance
+}
+
+function middleOfTwoPoints (firstPosition, secondPosition) {
+    let middlePoint = {x : 0, y : 0}
+    
+    middlePoint.x = (firstPosition.x - secondPosition.x) / 2 + firstPosition.x
+    middlePoint.y = (firstPosition.y - secondPosition.y) / 2 + firstPosition.y
+    
+    return middlePoint
+}
+
 function addOffsetToPosition(offset, position) {
     let addedPosition = { x: 0, y: 0}
     addedPosition.x = position.x + offset.x
