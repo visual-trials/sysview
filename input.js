@@ -147,6 +147,136 @@ function mouseWheelMoved (e) {
 }
 
 
+// Touch
+
+// Note that IE, Opera, Safari do not support touch!  ( https://developer.mozilla.org/en-US/docs/Web/API/Touch )
+    
+let touchesState = {}
+
+function resetTouchEventData () {
+
+    let touchesToDelete = {}
+    for (let touch_identifier in touchesState) {
+        
+        let touch =  touchesState[touch_identifier]
+        
+        if (touch.hasEnded || touch.wasCanceled) {
+            touchesToDelete[touch_identifier] = true
+        }
+        touch.hasMoved = false
+        touch.hasStarted = false
+        // touch.hasEnded = false // this is irrelevant, since we are going to delete it anyway
+        // touch.hasEndedQuickly = false // this is irrelevant, since we are going to delete it anyway
+        // touch.wasCanceled = false // this is irrelevant, since we are going to delete it anyway
+    }
+    
+    for (let touch_identifier in touchesToDelete) {
+        delete touchesState[touch_identifier]
+    }
+}
+    
+function touchStarted (e) {
+        
+    let changedTouches = e.changedTouches;
+    
+    let now = Date.now()
+        
+    for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
+        let changedTouch = changedTouches[touchIndex]
+        
+        let newTouch = {}
+        newTouch.isActive = true
+        newTouch.identifier = changedTouch.identifier
+        newTouch.hasMoved = false
+        newTouch.hasStarted = true
+        newTouch.startedAt = now
+        newTouch.hasEnded = false
+        newTouch.hasEndedQuickly = false
+        newTouch.wasCanceled = false
+        newTouch.positionLeft = changedTouch.pageX
+        newTouch.positionTop = changedTouch.pageY
+        
+        touchesState[changedTouch.identifier] = newTouch
+    }
+
+    e.preventDefault()
+}
+
+function touchEnded (e) {
+        
+    let now = Date.now()
+    
+    let changedTouches = e.changedTouches;
+    
+    for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
+        let changedTouch = changedTouches[touchIndex]
+
+        if (touchesState.hasOwnProperty(changedTouch.identifier)) {
+            let endedTouch = touchesState[changedTouch.identifier]
+            
+            endedTouch.hasEnded = true
+            if (endedTouch.startedAt != null && now - endedTouch.startedAt < 500) {
+                endedTouch.hasEndedQuickly = true
+            }
+            // TODO: should we do this?: endedTouch.touchHasStarted = false
+            
+            if (endedTouch.positionLeft !== changedTouch.pageX || 
+                endedTouch.positionTop !== changedTouch.pageY) {
+                    
+                endedTouch.hasMoved = true
+                endedTouch.positionLeft = changedTouch.pageX
+                endedTouch.positionTop = changedTouch.pageY
+            }
+        }
+        else {
+            console.log("ERROR: touch ended that did not start!")
+        }
+    }
+
+    e.preventDefault()
+}
+
+function touchCanceled (e) {
+    let changedTouches = e.changedTouches;
+    
+    for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
+        let changedTouch = changedTouches[touchIndex]
+
+        if (touchesState.hasOwnProperty(changedTouch.identifier)) {
+            let canceledTouch = touchesState[changedTouch.identifier]
+            canceled.wasCanceled = true
+            // TODO: should we do this?: canceled.touchHasStarted = false
+        }
+        else {
+            console.log("ERROR: touch canceled that did not start!")
+        }
+    }
+
+    e.preventDefault()
+}
+
+function touchMoved (e) {
+
+    let changedTouches = e.changedTouches;
+    
+    for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
+        let changedTouch = changedTouches[touchIndex]
+        
+        if (touchesState.hasOwnProperty(changedTouch.identifier)) {
+            let movedTouch = touchesState[changedTouch.identifier]
+            movedTouch.hasMoved = true
+            movedTouch.positionLeft = changedTouch.pageX
+            movedTouch.positionTop = changedTouch.pageY
+        }
+        else {
+            console.log("ERROR: touch moved that did not start!")
+        }
+    }
+
+    e.preventDefault()
+}
+
+
 // Keyboard
 
 let keyboardState = {
@@ -242,6 +372,11 @@ function addInputListeners () {
     // Firefox
     canvasElement.addEventListener("DOMMouseScroll", mouseWheelMoved, false)
     
+    canvasElement.addEventListener("touchstart", touchStarted, false)
+    canvasElement.addEventListener("touchend", touchEnded, false)
+    canvasElement.addEventListener("touchcancel", touchCanceled, false)
+    canvasElement.addEventListener("touchmove", touchMoved, false)
+        
     document.addEventListener("keydown", keyDown, false)
     document.addEventListener("keyup", keyUp, false)
         
