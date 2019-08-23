@@ -158,21 +158,37 @@ function resetTouchEventData () {
     let touchesToDelete = {}
     for (let touch_identifier in touchesState) {
         
-        let touch =  touchesState[touch_identifier]
+        let touch = touchesState[touch_identifier]
         
         if (touch.hasEnded || touch.wasCanceled) {
             touchesToDelete[touch_identifier] = true
         }
-        touch.hasMoved = false
-        touch.hasStarted = false
-        // touch.hasEnded = false // this is irrelevant, since we are going to delete it anyway
-        // touch.hasEndedQuickly = false // this is irrelevant, since we are going to delete it anyway
-        // touch.wasCanceled = false // this is irrelevant, since we are going to delete it anyway
+        else {
+            touch.previousPosition.x = touch.position.x
+            touch.previousPosition.y = touch.position.y
+            touch.previousWorldPosition = fromScreenPositionToWorldPosition(touch.previousPosition)
+            touch.hasMoved = false
+            
+            touch.hasStarted = false
+            // touch.hasEnded = false // this is irrelevant, since we are going to delete it anyway
+            // touch.hasEndedQuickly = false // this is irrelevant, since we are going to delete it anyway
+            // touch.wasCanceled = false // this is irrelevant, since we are going to delete it anyway
+        }
     }
     
     for (let touch_identifier in touchesToDelete) {
         delete touchesState[touch_identifier]
     }
+}
+
+function updateTouchPosition (touch, x, y) {
+    touch.position.x = x
+    touch.position.y = y
+    
+    touch.hasMoved = touch.previousPosition.x != touch.position.x || 
+                     touch.previousPosition.y != touch.position.y
+               
+    touch.worldPosition = fromScreenPositionToWorldPosition(touch.position)
 }
     
 function touchStarted (e) {
@@ -187,16 +203,22 @@ function touchStarted (e) {
         let newTouch = {}
         newTouch.isActive = true
         newTouch.identifier = changedTouch.identifier
+        
+        newTouch.position = { x: 0, y: 0 }
+        newTouch.previousPosition = { x: 0, y: 0 }
+        newTouch.worldPosition = { x: 0, y: 0 }
+        newTouch.previousWorldPosition = { x: 0, y: 0 }
         newTouch.hasMoved = false
+        
         newTouch.hasStarted = true
         newTouch.startedAt = now
         newTouch.hasEnded = false
         newTouch.hasEndedQuickly = false
         newTouch.wasCanceled = false
-        newTouch.positionLeft = changedTouch.pageX
-        newTouch.positionTop = changedTouch.pageY
         
         touchesState[changedTouch.identifier] = newTouch
+        
+        updateTouchPosition(newTouch, changedTouch.pageX, changedTouch.pageY)
     }
     
     handleInputStateChange()
@@ -222,13 +244,7 @@ function touchEnded (e) {
             }
             // TODO: should we do this?: endedTouch.touchHasStarted = false
             
-            if (endedTouch.positionLeft !== changedTouch.pageX || 
-                endedTouch.positionTop !== changedTouch.pageY) {
-                    
-                endedTouch.hasMoved = true
-                endedTouch.positionLeft = changedTouch.pageX
-                endedTouch.positionTop = changedTouch.pageY
-            }
+            updateTouchPosition(endedTouch, changedTouch.pageX, changedTouch.pageY)
         }
         else {
             console.log("ERROR: touch ended that did not start!")
@@ -270,9 +286,8 @@ function touchMoved (e) {
         
         if (touchesState.hasOwnProperty(changedTouch.identifier)) {
             let movedTouch = touchesState[changedTouch.identifier]
-            movedTouch.hasMoved = true
-            movedTouch.positionLeft = changedTouch.pageX
-            movedTouch.positionTop = changedTouch.pageY
+            
+            updateTouchPosition(movedTouch, changedTouch.pageX, changedTouch.pageY)
         }
         else {
             console.log("ERROR: touch moved that did not start!")
