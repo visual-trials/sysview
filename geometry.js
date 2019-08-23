@@ -64,6 +64,15 @@ function middleOfTwoPoints (firstPosition, secondPosition) {
     return middlePoint
 }
 
+function lerpPositionBetweenTwoPoints (firstPosition, secondPosition, fraction) {
+    let middlePoint = {x : 0, y : 0}
+    
+    middlePoint.x = (secondPosition.x - firstPosition.x) * fraction + firstPosition.x
+    middlePoint.y = (secondPosition.y - firstPosition.y) * fraction + firstPosition.y
+    
+    return middlePoint
+}
+
 function addOffsetToPosition(offset, position) {
     let addedPosition = { x: 0, y: 0}
     addedPosition.x = position.x + offset.x
@@ -334,6 +343,6 @@ function worldPositionIsInsideContainer(worldPosition, container) {
     }
 }
 
-function lerp (start, end, percentage) {
-    return start + (end - start) * percentage
+function lerp (start, end, fraction) {
+    return start + (end - start) * fraction
 }
