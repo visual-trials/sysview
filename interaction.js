@@ -340,7 +340,7 @@ function handleInputStateChange () {
             let containerData = databaseData.visual.containers[currentlySelectedContainer.identifier]
             containerData.relativePosition = currentlySelectedContainer.relativePosition
             containerData.size = currentlySelectedContainer.size
-            storeContainerData(containerData)
+            storeContainerData(containerData) // async call!
         }
         
         interaction.selectedContainerIsBeingDragged = false

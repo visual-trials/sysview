@@ -37,27 +37,6 @@ function init() {
     loadContainerAndConnectionData()
 }
 
-function loadContainerAndConnectionData() {
-    
-    // FIXME: hardcoded!
-    let project = 'ExampleProject'
-    
-    let url = 'index.php?action=get_project_data&project=' + project
-    let xmlhttp = new XMLHttpRequest()
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            let projectData = JSON.parse(xmlhttp.responseText)
-
-            // FIXME: also load the other data! (apart from visual)
-            
-            databaseData.visual = projectData.visual
-            integrateContainerAndConnectionData()
-        }
-    }
-    xmlhttp.open("GET", url, true)
-    xmlhttp.send()
-}
-
 function integrateContainerAndConnectionData () {
     
     // TODO: should we also reset the interaction-info? Or at least check if its still valid?
@@ -80,6 +59,27 @@ function integrateContainerAndConnectionData () {
     }
     
     drawCanvas()
+}
+
+function loadContainerAndConnectionData() {
+    
+    // FIXME: hardcoded!
+    let project = 'ExampleProject'
+    
+    let url = 'index.php?action=get_project_data&project=' + project
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            let projectData = JSON.parse(xmlhttp.responseText)
+
+            // FIXME: also load the other data! (apart from visual)
+            
+            databaseData.visual = projectData.visual
+            integrateContainerAndConnectionData()
+        }
+    }
+    xmlhttp.open("GET", url, true)
+    xmlhttp.send()
 }
 
 function storeContainerData(containerData) {
