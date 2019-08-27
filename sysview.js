@@ -22,8 +22,6 @@ let databaseData = { visual: null, source: null }
  
 function init() {
     
-    initFirebase()
-    
     initIcons()
     initMenu()
     
@@ -39,33 +37,25 @@ function init() {
     loadContainerAndConnectionData()
 }
 
-function initFirebase () {
-    let firebaseConfig = {
-        apiKey: "AIzaSyD3aPCuIf856k1-_yzsK-YH1gD8USe-6RU",
-        authDomain: "sysview-8c913.firebaseapp.com",
-        databaseURL: "https://sysview-8c913.firebaseio.com",
-        projectId: "sysview-8c913",
-        storageBucket: "",
-        messagingSenderId: "741358324352",
-        appId: "1:741358324352:web:e249d5539c781a94"
-    }
-
-    firebase.initializeApp(firebaseConfig)
-}
-
 function loadContainerAndConnectionData() {
-    console.log('starting to load data' + Date())
     
-    // TODO: also load and store the source data (probably together?)
-        
-    firebase.database().ref('visual/').on('value', function(snapshot) {
-        console.log('data was changed (or loaded)' + Date())
-        
-        // Store visual data in the databaseData
-        databaseData.visual = snapshot.val()
-        
-        integrateContainerAndConnectionData()
-    })
+    // FIXME: hardcoded!
+    let project = 'ExampleProject'
+    
+    let url = 'index.php?action=get_project_data&project=' + project
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            let projectData = JSON.parse(xmlhttp.responseText)
+
+            // FIXME: also load the other data! (apart from visual)
+            
+            databaseData.visual = projectData.visual
+            integrateContainerAndConnectionData()
+        }
+    }
+    xmlhttp.open("GET", url, true)
+    xmlhttp.send()
 }
 
 function integrateContainerAndConnectionData () {
@@ -93,19 +83,49 @@ function integrateContainerAndConnectionData () {
 }
 
 function storeContainerData(containerData) {
-    firebase.database().ref('visual/containers/' + containerData.identifier).set({
-        // TODO: couldn't we simply use the whole of containerData here?
-        identifier: containerData.identifier,
-        type: containerData.type,
-        name: containerData.name,
-        parentContainerIdentifier: containerData.parentContainerIdentifier,
-        relativePosition: containerData.relativePosition,
-        relativeScale: containerData.relativeScale,
-        size: containerData.size
-    })
+    
+    // FIXME: hardcoded!
+    let project = 'ExampleProject'
+    
+    let url = 'index.php?action=set_visual_data&project=' + project
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            // TODO: if we (un)succesfully stored the data, we should probably notify the user
+        }
+    }
+    xmlhttp.open("PUT", url, true)
+    xmlhttp.setRequestHeader("Content-Type", "application/json")
+    let visualData = { 'containers' : {} }
+    visualData['containers'][containerData.identifier] = containerData
+    xmlhttp.send(JSON.stringify(visualData))
+    
+    databaseData.visual.containers[containerData.identifier] = containerData
+    integrateContainerAndConnectionData()
 }
 
 function storeConnectionData(connectionData) {
+    
+    // FIXME: hardcoded!
+    let project = 'ExampleProject'
+    
+    let url = 'index.php?action=set_visual_data&project=' + project
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            // TODO: if we (un)succesfully stored the data, we should probably notify the user
+        }
+    }
+    xmlhttp.open("PUT", url, true)
+    xmlhttp.setRequestHeader("Content-Type", "application/json")
+    let visualData = { 'connections' : {} }
+    visualData['connections'][connectionData.identifier] = connectionData
+    xmlhttp.send(JSON.stringify(visualData))
+    
+    databaseData.visual.connections[connectionData.identifier] = connectionData
+    integrateContainerAndConnectionData()
+    
+    /*
     firebase.database().ref('visual/connections/' + connectionData.identifier).set({
         // TODO: couldn't we simply use the whole of connectionData here?
         identifier: connectionData.identifier,
@@ -114,4 +134,5 @@ function storeConnectionData(connectionData) {
         from: connectionData.from,
         to: connectionData.to,
     })
+    */
 }
