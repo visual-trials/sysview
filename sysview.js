@@ -124,15 +124,4 @@ function storeConnectionData(connectionData) {
     
     databaseData.visual.connections[connectionData.identifier] = connectionData
     integrateContainerAndConnectionData()
-    
-    /*
-    firebase.database().ref('visual/connections/' + connectionData.identifier).set({
-        // TODO: couldn't we simply use the whole of connectionData here?
-        identifier: connectionData.identifier,
-        type: connectionData.type,
-        name: connectionData.name,
-        from: connectionData.from,
-        to: connectionData.to,
-    })
-    */
 }
