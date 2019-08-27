@@ -21,7 +21,7 @@ else if ($action === 'set_visual_data') {
     $visualDataToChange = json_decode(file_get_contents('php://input'), true);
     $visualData = json_decode(file_get_contents($filenameVisual), true);
     
-    $visualDataToStore = array_merge_recursive($visualData, $visualDataToChange);
+    $visualDataToStore = array_replace_recursive($visualData, $visualDataToChange);
     
     file_put_contents($filenameVisual, json_encode($visualDataToStore, JSON_PRETTY_PRINT));
 }
