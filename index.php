@@ -2,7 +2,25 @@
 
 $action = $_GET['action'] ?? 'get_project_data';
 
-if ($action === 'get_project_data') {
+if ($action === 'get_projects') {
+    $projects = [];
+    $dataDir = 'data';
+    $dataDirContents = scandir($dataDir);
+    if ($dataDirContents !== false) {
+        foreach ($dataDirContents as $dataDirContent) {
+            if (($dataDirContent == '..') || ($dataDirContent == '.')) {
+                continue;
+            }
+            $fullPathDataDirContent = $dataDir . '/' . $dataDirContent;
+
+            if (is_dir($fullPathDataDirContent)) {
+                $projects[] = $dataDirContent;
+            }
+        }
+    }
+    echo json_encode($projects);
+}
+else if ($action === 'get_project_data') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
 
     $filenameVisual = "data/$projectDir/visual.json";
