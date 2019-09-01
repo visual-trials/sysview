@@ -28,17 +28,21 @@ function load() {
 }
 
 function run() {
-    // FIXME: implement this!
-    let sourceDataElement = document.getElementById('sourceData');
-    let destinationDataElement = document.getElementById('destinationData');
-    destinationDataElement.value = sourceDataElement.value
+    let sourceDataElement = document.getElementById('sourceData')
+    let destinationDataElement = document.getElementById('destinationData')
+    
+    let conversionCode = 'return firstSource.machines'
+    // TODO: allow for multiple parameters/source into the conversion function!
+    let conversionFunction = new Function('firstSource', conversionCode)
+    
+    destinationDataElement.value = JSON.stringify(conversionFunction(JSON.parse(sourceDataElement.value)), null, 4)
 }
 
 function save() {
     // FIXME: hardcoded!
     let projectIdentifier = 'ClientLive'
     let destinationIdentifier = 'sources/sysadmin_converted.json'
-    let destinationDataElement = document.getElementById('destinationData');
+    let destinationDataElement = document.getElementById('destinationData')
     // TODO: maybe minify/un-prettify the JSON first
     storeDestinationData(destinationDataElement.value, projectIdentifier, destinationIdentifier)
 }
@@ -49,7 +53,7 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             let sourceData = JSON.parse(xmlhttp.responseText)
-            let sourceDataElement = document.getElementById('sourceData');
+            let sourceDataElement = document.getElementById('sourceData')
             
             sourceDataElement.value = JSON.stringify(sourceData.sourceData, null, 4)
         }
