@@ -65,3 +65,13 @@ else if ($action === 'set_source_data') {
     
     file_put_contents($filenameSource, json_encode([ 'sourceData' => $sourceDataToStore ], JSON_PRETTY_PRINT));
 }
+else if ($action === 'get_conversion_code') {
+    $projectDir = $_GET['project'] ?? 'ExampleProject';
+    $conversionFile = $_GET['conversion'] ?? 'conversions/example_conversion.js';
+
+    $filenameConversion = "data/$projectDir/$conversionFile";
+
+    $conversionCode = file_get_contents($filenameConversion);
+
+    echo $conversionCode;
+}

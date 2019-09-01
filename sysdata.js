@@ -24,14 +24,17 @@ function load() {
     // FIXME: hardcoded!
     let projectIdentifier = 'ClientLive'
     let sourceIdentifier = 'sources/client_live_sysadmin.json'
+    let conversionIdentifier = 'conversions/get_machines.js'
     loadSourceData(projectIdentifier, sourceIdentifier)  // ASYNC!
+    loadConversionCode(projectIdentifier, conversionIdentifier)  // ASYNC!
 }
 
 function run() {
     let sourceDataElement = document.getElementById('sourceData')
     let destinationDataElement = document.getElementById('destinationData')
+    let conversionCodeElement = document.getElementById('conversionCode')
     
-    let conversionCode = 'return firstSource.machines'
+    let conversionCode = conversionCodeElement.value
     // TODO: allow for multiple parameters/source into the conversion function!
     let conversionFunction = new Function('firstSource', conversionCode)
     
@@ -56,6 +59,21 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
             let sourceDataElement = document.getElementById('sourceData')
             
             sourceDataElement.value = JSON.stringify(sourceData.sourceData, null, 4)
+        }
+    }
+    xmlhttp.open("GET", url, true)
+    xmlhttp.send()
+}
+
+function loadConversionCode(projectIdentifier, conversionIdentifier) {
+    let url = 'index.php?action=get_conversion_code&project=' + projectIdentifier + '&conversion=' + conversionIdentifier
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            let conversionCode = xmlhttp.responseText
+            let conversionCodeElement = document.getElementById('conversionCode')
+            
+            conversionCodeElement.value = conversionCode
         }
     }
     xmlhttp.open("GET", url, true)
