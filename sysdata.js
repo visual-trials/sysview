@@ -19,3 +19,15 @@
 function init() {
     
 }
+
+function load() {
+    console.log('load')
+}
+
+function run() {
+    console.log('run')
+}
+
+function save() {
+    console.log('save')
+}
