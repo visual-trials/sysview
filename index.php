@@ -63,7 +63,7 @@ else if ($action === 'set_source_data') {
     
     $sourceDataToStore = json_decode(file_get_contents('php://input'), true);
     
-    file_put_contents($filenameSource, json_encode([ 'sourceData' => $sourceDataToStore ], JSON_PRETTY_PRINT));
+    file_put_contents($filenameSource, json_encode($sourceDataToStore, JSON_PRETTY_PRINT));
 }
 else if ($action === 'get_conversion_code') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
@@ -73,5 +73,17 @@ else if ($action === 'get_conversion_code') {
 
     $conversionCode = file_get_contents($filenameConversion);
 
-    echo $conversionCode;
+    echo json_encode([ 
+        'conversionCode' => $conversionCode,
+    ]);
+}
+else if ($action === 'set_conversion_code') {
+    $projectDir = $_GET['project'] ?? 'ExampleProject';
+    $conversionFile = $_GET['conversion'] ?? 'conversions/example_conversion.js';
+    
+    $filenameConversion = "data/$projectDir/$conversionFile";
+    
+    $conversionCodeToStore = json_decode(file_get_contents('php://input'), true);
+    
+    file_put_contents($filenameConversion, $conversionCodeToStore['conversionCode']);
 }

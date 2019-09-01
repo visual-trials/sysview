@@ -20,11 +20,13 @@ function init() {
     
 }
 
+// FIXME: hardcoded!
+let projectIdentifier = 'ClientLive'
+let sourceIdentifier = 'sources/client_live_sysadmin.json'
+let conversionIdentifier = 'conversions/get_machines.js'
+let destinationIdentifier = 'sources/sysadmin_converted.json'
+
 function load() {
-    // FIXME: hardcoded!
-    let projectIdentifier = 'ClientLive'
-    let sourceIdentifier = 'sources/client_live_sysadmin.json'
-    let conversionIdentifier = 'conversions/get_machines.js'
     loadSourceData(projectIdentifier, sourceIdentifier)  // ASYNC!
     loadConversionCode(projectIdentifier, conversionIdentifier)  // ASYNC!
 }
@@ -41,13 +43,16 @@ function run() {
     destinationDataElement.value = JSON.stringify(conversionFunction(JSON.parse(sourceDataElement.value)), null, 4)
 }
 
-function save() {
-    // FIXME: hardcoded!
-    let projectIdentifier = 'ClientLive'
-    let destinationIdentifier = 'sources/sysadmin_converted.json'
+function saveData() {
     let destinationDataElement = document.getElementById('destinationData')
     // TODO: maybe minify/un-prettify the JSON first
     storeDestinationData(destinationDataElement.value, projectIdentifier, destinationIdentifier)
+}
+
+function saveCode() {
+    let conversionCodeElement = document.getElementById('conversionCode')
+    // TODO: maybe minify/un-prettify the JSON first
+    storeConversionCode(conversionCodeElement.value, projectIdentifier, conversionIdentifier)
 }
 
 function loadSourceData(projectIdentifier, sourceIdentifier) {
@@ -59,21 +64,6 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
             let sourceDataElement = document.getElementById('sourceData')
             
             sourceDataElement.value = JSON.stringify(sourceData.sourceData, null, 4)
-        }
-    }
-    xmlhttp.open("GET", url, true)
-    xmlhttp.send()
-}
-
-function loadConversionCode(projectIdentifier, conversionIdentifier) {
-    let url = 'index.php?action=get_conversion_code&project=' + projectIdentifier + '&conversion=' + conversionIdentifier
-    let xmlhttp = new XMLHttpRequest()
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            let conversionCode = xmlhttp.responseText
-            let conversionCodeElement = document.getElementById('conversionCode')
-            
-            conversionCodeElement.value = conversionCode
         }
     }
     xmlhttp.open("GET", url, true)
@@ -92,3 +82,32 @@ function storeDestinationData(destinationData, projectIdentifier, sourceIdentifi
     xmlhttp.setRequestHeader("Content-Type", "application/json")
     xmlhttp.send(destinationData)
 }
+
+function loadConversionCode(projectIdentifier, conversionIdentifier) {
+    let url = 'index.php?action=get_conversion_code&project=' + projectIdentifier + '&conversion=' + conversionIdentifier
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            let conversionCode = JSON.parse(xmlhttp.responseText)
+            let conversionCodeElement = document.getElementById('conversionCode')
+            
+            conversionCodeElement.value = conversionCode.conversionCode
+        }
+    }
+    xmlhttp.open("GET", url, true)
+    xmlhttp.send()
+}
+
+function storeConversionCode(conversionCode, projectIdentifier, conversionIdentifier) {
+    let url = 'index.php?action=set_conversion_code&project=' + projectIdentifier + '&conversion=' + conversionIdentifier
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            // TODO: if we (un)succesfully stored the data, we should probably notify the user
+        }
+    }
+    xmlhttp.open("PUT", url, true)
+    xmlhttp.setRequestHeader("Content-Type", "application/json")
+    xmlhttp.send(JSON.stringify({ 'conversionCode' : conversionCode }))
+}
+
