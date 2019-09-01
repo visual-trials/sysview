@@ -21,13 +21,52 @@ function init() {
 }
 
 function load() {
-    console.log('load')
+    // FIXME: hardcoded!
+    let projectIdentifier = 'ClientLive'
+    let sourceIdentifier = 'sources/client_live_sysadmin.json'
+    loadSourceData(projectIdentifier, sourceIdentifier)  // ASYNC!
 }
 
 function run() {
-    console.log('run')
+    // FIXME: implement this!
+    let sourceDataElement = document.getElementById('sourceData');
+    let destinationDataElement = document.getElementById('destinationData');
+    destinationDataElement.value = sourceDataElement.value
 }
 
 function save() {
-    console.log('save')
+    // FIXME: hardcoded!
+    let projectIdentifier = 'ClientLive'
+    let destinationIdentifier = 'sources/sysadmin_converted.json'
+    let destinationDataElement = document.getElementById('destinationData');
+    // TODO: maybe minify/un-prettify the JSON first
+    storeDestinationData(destinationDataElement.value, projectIdentifier, destinationIdentifier)
+}
+
+function loadSourceData(projectIdentifier, sourceIdentifier) {
+    let url = 'index.php?action=get_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            let sourceData = JSON.parse(xmlhttp.responseText)
+            let sourceDataElement = document.getElementById('sourceData');
+            
+            sourceDataElement.value = JSON.stringify(sourceData, null, 4)
+        }
+    }
+    xmlhttp.open("GET", url, true)
+    xmlhttp.send()
+}
+
+function storeDestinationData(destinationData, projectIdentifier, sourceIdentifier) {
+    let url = 'index.php?action=set_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            // TODO: if we (un)succesfully stored the data, we should probably notify the user
+        }
+    }
+    xmlhttp.open("PUT", url, true)
+    xmlhttp.setRequestHeader("Content-Type", "application/json")
+    xmlhttp.send(destinationData)
 }

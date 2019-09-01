@@ -43,3 +43,25 @@ else if ($action === 'set_visual_data') {
     
     file_put_contents($filenameVisual, json_encode($visualDataToStore, JSON_PRETTY_PRINT));
 }
+else if ($action === 'get_source_data') {
+    $projectDir = $_GET['project'] ?? 'ExampleProject';
+    $sourceFile = $_GET['source'] ?? 'sources/example_source.json';
+
+    $filenameSource = "data/$projectDir/$sourceFile";
+
+    $sourceData = json_decode(file_get_contents($filenameSource), true);
+
+    echo json_encode([ 
+        'sourceData' => $sourceData,
+    ]);
+}
+else if ($action === 'set_source_data') {
+    $projectDir = $_GET['project'] ?? 'ExampleProject';
+    $sourceFile = $_GET['source'] ?? 'sources/example_source.json';
+    
+    $filenameSource = "data/$projectDir/$sourceFile";
+    
+    $sourceDataToStore = json_decode(file_get_contents('php://input'), true);
+    
+    file_put_contents($filenameSource, json_encode($sourceDataToStore, JSON_PRETTY_PRINT));
+}
