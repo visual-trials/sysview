@@ -63,5 +63,5 @@ else if ($action === 'set_source_data') {
     
     $sourceDataToStore = json_decode(file_get_contents('php://input'), true);
     
-    file_put_contents($filenameSource, json_encode($sourceDataToStore, JSON_PRETTY_PRINT));
+    file_put_contents($filenameSource, json_encode([ 'sourceData' => $sourceDataToStore ], JSON_PRETTY_PRINT));
 }

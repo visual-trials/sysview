@@ -51,7 +51,7 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
             let sourceData = JSON.parse(xmlhttp.responseText)
             let sourceDataElement = document.getElementById('sourceData');
             
-            sourceDataElement.value = JSON.stringify(sourceData, null, 4)
+            sourceDataElement.value = JSON.stringify(sourceData.sourceData, null, 4)
         }
     }
     xmlhttp.open("GET", url, true)
