@@ -59,7 +59,6 @@ function createContainer(containerData) {
         stroke = { r:180, g:0, b:200, a:1 }
     }
     else {
-console.log(containerData)
         console.log("ERROR: Unknown container type: " + containerData.type)
     }
     
@@ -193,5 +192,19 @@ function createConnection(connectionData) {
     containersAndConnections.connections[connectionData.identifier] = newConnection
     
     return newConnection
+}
+
+function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnectionData) {
+    
+    let connectionData = {
+        identifier : getExistingField('identifier', visualConnectionData, sourceConnectionData),
+        name : getExistingField('name', visualConnectionData, sourceConnectionData),
+        type : getExistingField('type', visualConnectionData, sourceConnectionData),
+        // FIXME: we call it 'from' and 'fromIdentifier', which is inconsistent
+        from : getExistingField('from', visualConnectionData, sourceConnectionData),
+        to : getExistingField('to', visualConnectionData, sourceConnectionData),
+    }
+    
+    return connectionData
 }
 

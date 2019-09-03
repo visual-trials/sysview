@@ -73,11 +73,26 @@ function integrateContainerAndConnectionData () {
     setContainerChildren()
     recalculateAbsolutePositions()
     
-    // FIXME: do the same with connections as with container (visual/source merging!)
+    // First all visual connections in the visual data set
+    for (let connectionIdentifier in databaseData.visual.connections) {
+        let visualConnectionData = databaseData.visual.connections[connectionIdentifier]
+        let sourceConnectionData = null
+        if (databaseData.source.connections.hasOwnProperty(connectionIdentifier)) {
+            sourceConnectionData = databaseData.source.connections[connectionIdentifier]
+        }
+        let connectionData = mergeSourceAndVisualConnectionData(sourceConnectionData, visualConnectionData)
+        
+        createConnection(connectionData)
+    }
     
-    let connections = databaseData.visual.connections
-    for (let connectionIdentifier in connections) {
-        createConnection(connections[connectionIdentifier])
+    // Then source connections that are *not* in the visual data set
+    for (let connectionIdentifier in databaseData.source.connections) {
+        let visualConnectionData = null
+        if (!databaseData.visual.connections.hasOwnProperty(connectionIdentifier)) {
+            let sourceConnectionData = databaseData.source.connections[connectionIdentifier]
+            let connectionData = mergeSourceAndVisualConnectionData(sourceConnectionData, visualConnectionData)
+            createConnection(connectionData)
+        }
     }
     
     drawCanvas()
@@ -132,7 +147,7 @@ function storeVisualContainerData(visualContainerData) {
     integrateContainerAndConnectionData()
 }
 
-function storeConnectionData(connectionData) {
+function storeConnectionData(visualConnectionData) {
     
     let url = 'index.php?action=set_visual_data&project=' + project
     let xmlhttp = new XMLHttpRequest()
@@ -144,9 +159,9 @@ function storeConnectionData(connectionData) {
     xmlhttp.open("PUT", url, true)
     xmlhttp.setRequestHeader("Content-Type", "application/json")
     let visualData = { 'connections' : {} }
-    visualData['connections'][connectionData.identifier] = connectionData
+    visualData['connections'][visualConnectionData.identifier] = visualConnectionData
     xmlhttp.send(JSON.stringify(visualData))
     
-    databaseData.visual.connections[connectionData.identifier] = connectionData
+    databaseData.visual.connections[visualConnectionData.identifier] = visualConnectionData
     integrateContainerAndConnectionData()
 }
