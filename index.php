@@ -24,11 +24,14 @@ else if ($action === 'get_project_data') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
 
     $filenameVisual = "data/$projectDir/visual.json";
+    $filenameSource = "data/$projectDir/source.json";
 
     $visualData = json_decode(file_get_contents($filenameVisual), true);
+    $sourceData = json_decode(file_get_contents($filenameSource), true);
 
     echo json_encode([ 
         'visual' => $visualData,
+        'source' => $sourceData,
     ]);
 }
 else if ($action === 'set_visual_data') {

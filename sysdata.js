@@ -23,8 +23,8 @@ function init() {
 // FIXME: hardcoded!
 let projectIdentifier = 'ClientLive'
 let sourceIdentifier = 'sources/client_live_sysadmin.json'
-let conversionIdentifier = 'conversions/get_machines.js'
-let destinationIdentifier = 'sources/sysadmin_converted.json'
+let conversionIdentifier = 'conversions/convert_sysadmin.js'
+let destinationIdentifier = 'source.json'
 
 function load() {
     loadSourceData(projectIdentifier, sourceIdentifier)  // ASYNC!

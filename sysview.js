@@ -19,6 +19,9 @@
  
 let databaseData = { visual: null, source: null }
 
+// FIXME: hardcoded!
+// let project = 'ClientLive'
+let project = 'ExampleProject'
  
 function init() {
     
@@ -63,9 +66,6 @@ function integrateContainerAndConnectionData () {
 
 function loadContainerAndConnectionData() {
     
-    // FIXME: hardcoded!
-    let project = 'ExampleProject'
-    
     let url = 'index.php?action=get_project_data&project=' + project
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
@@ -83,9 +83,6 @@ function loadContainerAndConnectionData() {
 }
 
 function storeContainerData(containerData) {
-    
-    // FIXME: hardcoded!
-    let project = 'ExampleProject'
     
     let url = 'index.php?action=set_visual_data&project=' + project
     let xmlhttp = new XMLHttpRequest()
@@ -105,9 +102,6 @@ function storeContainerData(containerData) {
 }
 
 function storeConnectionData(connectionData) {
-    
-    // FIXME: hardcoded!
-    let project = 'ExampleProject'
     
     let url = 'index.php?action=set_visual_data&project=' + project
     let xmlhttp = new XMLHttpRequest()
