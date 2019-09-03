@@ -58,6 +58,14 @@ function createContainer(containerData) {
         fill = { r:180, g:0, b:200, a:1 }
         stroke = { r:180, g:0, b:200, a:1 }
     }
+    else if (containerData.type === 'localDir') {
+        fill = { r:200, g:200, b:200, a:1 }
+        stroke = { r:100, g:100, b:100, a:1 }
+    }
+    else if (containerData.type === 'visualContainer') {
+        fill = { r:240, g:240, b:240, a:0.5 }
+        stroke = { r:100, g:100, b:100, a:1 }
+    }
     else {
         console.log("ERROR: Unknown container type: " + containerData.type)
     }
@@ -65,7 +73,7 @@ function createContainer(containerData) {
     let newContainer = {
         identifier: containerIdentifier,
         name: containerData.name,
-        parentContainerIdentifier: parentContainerIdentifier,
+        parentContainerIdentifier: parentContainerIdentifier != null ? parentContainerIdentifier : 'root',
         position: {},
         relativePosition: {
             x: containerData.relativePosition.x,
@@ -150,6 +158,9 @@ function setContainerChildren() {
         let parentContainer = containersAndConnections.containers[parentContainerIdentifier]
         if (parentContainer != null) {
             parentContainer.children.push(containerIdentifier)
+        }
+        else {
+            console.log('WARNING: parentContainerIdentifier ' + parentContainerIdentifier + ' not found')
         }
         
     }

@@ -60,6 +60,7 @@ function integrateContainerAndConnectionData () {
         let containerData = mergeSourceAndVisualContainerData(sourceContainerData, visualContainerData)
         createContainer(containerData)
     }
+    
     // Then source containers that are *not* in the visual data set
     for (let containerIdentifier in databaseData.source.containers) {
         let visualContainerData = null
