@@ -22,6 +22,7 @@ function init() {
 
 // FIXME: hardcoded!
 let projectIdentifier = 'ClientLive'
+let sourceNamedAs = 'sysadmin'
 let sourceIdentifier = 'sources/client_live_sysadmin.json'
 let conversionIdentifier = 'conversions/convert_sysadmin.js'
 let destinationIdentifier = 'source.json'
@@ -32,15 +33,17 @@ function load() {
 }
 
 function run() {
+    // TODO: allow for multiple parameters/source into the conversion function!
     let sourceDataElement = document.getElementById('sourceData')
     let destinationDataElement = document.getElementById('destinationData')
     let conversionCodeElement = document.getElementById('conversionCode')
     
     let conversionCode = conversionCodeElement.value
-    // TODO: allow for multiple parameters/source into the conversion function!
-    let conversionFunction = new Function('firstSource', conversionCode)
+    let sources = {}
+    sources[sourceNamedAs] = JSON.parse(sourceDataElement.value)
+    let conversionFunction = new Function('sources', conversionCode)
     
-    destinationDataElement.value = JSON.stringify(conversionFunction(JSON.parse(sourceDataElement.value)), null, 4)
+    destinationDataElement.value = JSON.stringify(conversionFunction(sources), null, 4)
 }
 
 function saveData() {
