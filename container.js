@@ -54,6 +54,10 @@ function createContainer(containerData) {
         fill = { r:0, g:180, b:200, a:1 }
         stroke = { r:0, g:180, b:200, a:1 }
     }
+    else if (containerData.type === 'transferFiles') {
+        fill = { r:180, g:0, b:200, a:1 }
+        stroke = { r:180, g:0, b:200, a:1 }
+    }
     else {
         console.log("ERROR: Unknown container type: " + containerData.type)
     }

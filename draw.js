@@ -460,7 +460,7 @@ function drawContainer(container) {
     let textColor = { r:0, g:0, b:0, a:1 }
     {
         // Draw text
-        let textToDraw = container.identifier
+        let textToDraw = container.name ? container.name : ''
         
         // Get text size
         let textSize = {}

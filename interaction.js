@@ -243,7 +243,7 @@ function handleInputStateChange () {
                 height: 250
             }
         }
-        storeContainerData(extraServer)
+        storeContainerData(extraServer) // async call!
         // let extraServerIdentifier = createContainer(extraServer)
     }
 
@@ -337,10 +337,7 @@ function handleInputStateChange () {
     if (mouseState.leftButtonHasGoneUp) {
         if (interaction.selectedContainerIsBeingDragged || interaction.selectedContainerIsBeingResized) {
             // We stopped dragging or resizing the selected container, so we store its (visual) data
-            let containerData = databaseData.visual.containers[currentlySelectedContainer.identifier]
-            containerData.relativePosition = currentlySelectedContainer.relativePosition
-            containerData.size = currentlySelectedContainer.size
-            storeContainerData(containerData) // async call!
+            storeContainerPositionAndSize(currentlySelectedContainer) // async call!
         }
         
         interaction.selectedContainerIsBeingDragged = false

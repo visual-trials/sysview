@@ -20,8 +20,8 @@
 let databaseData = { visual: null, source: null }
 
 // FIXME: hardcoded!
-let project = 'ClientLive'
-//let project = 'ExampleProject'
+//let project = 'ClientLive'
+let project = 'ExampleProject'
  
 function init() {
     
@@ -74,13 +74,20 @@ function loadContainerAndConnectionData() {
 
             // FIXME: also load the other data! (apart from visual)
             
-// FIXME            databaseData.visual = projectData.visual
-            databaseData.visual = projectData.source
+            databaseData.visual = projectData.visual
+            databaseData.source = projectData.source
             integrateContainerAndConnectionData()
         }
     }
     xmlhttp.open("GET", url, true)
     xmlhttp.send()
+}
+
+function storeContainerPositionAndSize(container) {
+    let containerData = databaseData.visual.containers[container.identifier]
+    containerData.relativePosition = container.relativePosition
+    containerData.size = container.size
+    storeContainerData(containerData) // async call!
 }
 
 function storeContainerData(containerData) {
