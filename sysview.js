@@ -20,8 +20,8 @@
 let databaseData = { visual: null, source: null }
 
 // FIXME: hardcoded!
-// let project = 'ClientLive'
-let project = 'ExampleProject'
+let project = 'ClientLive'
+//let project = 'ExampleProject'
  
 function init() {
     
@@ -74,7 +74,8 @@ function loadContainerAndConnectionData() {
 
             // FIXME: also load the other data! (apart from visual)
             
-            databaseData.visual = projectData.visual
+// FIXME            databaseData.visual = projectData.visual
+            databaseData.visual = projectData.source
             integrateContainerAndConnectionData()
         }
     }
