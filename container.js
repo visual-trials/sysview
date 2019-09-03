@@ -59,6 +59,7 @@ function createContainer(containerData) {
         stroke = { r:180, g:0, b:200, a:1 }
     }
     else {
+console.log(containerData)
         console.log("ERROR: Unknown container type: " + containerData.type)
     }
     
@@ -85,6 +86,59 @@ function createContainer(containerData) {
     containersAndConnections.containers[containerIdentifier] = newContainer
     
     return newContainer
+}
+
+function getExistingField(fieldName, firstObject, secondObject, defaultValue = null) {
+    if (firstObject != null && firstObject.hasOwnProperty(fieldName)) {
+        return firstObject[fieldName]
+    }
+    else if (secondObject != null && secondObject.hasOwnProperty(fieldName)) {
+        return secondObject[fieldName]
+    }
+    else {
+        return defaultValue
+    }
+}
+
+function mergeSourceAndVisualContainerData (sourceContainerData, visualContainerData) {
+    
+    let containerData = {
+        identifier : getExistingField('identifier', visualContainerData, sourceContainerData),
+        name : getExistingField('name', visualContainerData, sourceContainerData),
+        type : getExistingField('type', visualContainerData, sourceContainerData),
+        parentContainerIdentifier : getExistingField('parentContainerIdentifier', visualContainerData, sourceContainerData),
+        relativePosition : { 
+            x: parseFloat(getExistingField(
+                'x', 
+                visualContainerData == null ? null : visualContainerData.relativePosition, 
+                sourceContainerData == null ? null : sourceContainerData.relativePosition, 
+                0)
+            ),
+            y: parseFloat(getExistingField(
+                'y', 
+                visualContainerData == null ? null : visualContainerData.relativePosition, 
+                sourceContainerData == null ? null : sourceContainerData.relativePosition, 
+                0)
+            )
+        },
+        size : { 
+            width: parseFloat(getExistingField(
+                'width', 
+                visualContainerData == null ? null : visualContainerData.size, 
+                sourceContainerData == null ? null : sourceContainerData.size, 
+                0)
+            ),
+            height: parseFloat(getExistingField(
+                'height', 
+                visualContainerData == null ? null : visualContainerData.size, 
+                sourceContainerData == null ? null : sourceContainerData.size, 
+                0)
+            )
+        },
+        relativeScale : getExistingField('relativeScale', visualContainerData, sourceContainerData),
+    }
+    
+    return containerData
 }
 
 function setContainerChildren() {

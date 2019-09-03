@@ -243,7 +243,7 @@ function handleInputStateChange () {
                 height: 250
             }
         }
-        storeContainerData(extraServer) // async call!
+        storeVisualContainerData(extraServer) // async call!
         // let extraServerIdentifier = createContainer(extraServer)
     }
 

@@ -20,8 +20,8 @@
 let databaseData = { visual: null, source: null }
 
 // FIXME: hardcoded!
-//let project = 'ClientLive'
-let project = 'ExampleProject'
+let project = 'ClientLive'
+//let project = 'ExampleProject'
  
 function init() {
     
@@ -49,12 +49,31 @@ function integrateContainerAndConnectionData () {
     initContainersAndConnections()
     
     // We then recreate all containers and connections using the databaseData
-    let containers = databaseData.visual.containers
-    for (let containerIdentifier in containers) {
-        createContainer(containers[containerIdentifier])
+    
+    // First all visual containers in the visual data set
+    for (let containerIdentifier in databaseData.visual.containers) {
+        let visualContainerData = databaseData.visual.containers[containerIdentifier]
+        let sourceContainerData = null
+        if (databaseData.source.containers.hasOwnProperty(containerIdentifier)) {
+            sourceContainerData = databaseData.source.containers[containerIdentifier]
+        }
+        let containerData = mergeSourceAndVisualContainerData(sourceContainerData, visualContainerData)
+        createContainer(containerData)
     }
+    // Then source containers that are *not* in the visual data set
+    for (let containerIdentifier in databaseData.source.containers) {
+        let visualContainerData = null
+        if (!databaseData.visual.containers.hasOwnProperty(containerIdentifier)) {
+            let sourceContainerData = databaseData.source.containers[containerIdentifier]
+            let containerData = mergeSourceAndVisualContainerData(sourceContainerData, visualContainerData)
+            createContainer(containerData)
+        }
+    }
+    
     setContainerChildren()
     recalculateAbsolutePositions()
+    
+    // FIXME: do the same with connections as with container (visual/source merging!)
     
     let connections = databaseData.visual.connections
     for (let connectionIdentifier in connections) {
@@ -84,13 +103,17 @@ function loadContainerAndConnectionData() {
 }
 
 function storeContainerPositionAndSize(container) {
-    let containerData = databaseData.visual.containers[container.identifier]
-    containerData.relativePosition = container.relativePosition
-    containerData.size = container.size
-    storeContainerData(containerData) // async call!
+    // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
+    if (!databaseData.visual.containers.hasOwnProperty(container.identifier)) {
+        databaseData.visual.containers[container.identifier] = { 'identifier': container.identifier }
+    }
+    let visualContainerData = databaseData.visual.containers[container.identifier]
+    visualContainerData.relativePosition = container.relativePosition
+    visualContainerData.size = container.size
+    storeVisualContainerData(visualContainerData) // async call!
 }
 
-function storeContainerData(containerData) {
+function storeVisualContainerData(visualContainerData) {
     
     let url = 'index.php?action=set_visual_data&project=' + project
     let xmlhttp = new XMLHttpRequest()
@@ -102,10 +125,10 @@ function storeContainerData(containerData) {
     xmlhttp.open("PUT", url, true)
     xmlhttp.setRequestHeader("Content-Type", "application/json")
     let visualData = { 'containers' : {} }
-    visualData['containers'][containerData.identifier] = containerData
+    visualData['containers'][visualContainerData.identifier] = visualContainerData
     xmlhttp.send(JSON.stringify(visualData))
     
-    databaseData.visual.containers[containerData.identifier] = containerData
+    databaseData.visual.containers[visualContainerData.identifier] = visualContainerData
     integrateContainerAndConnectionData()
 }
 
