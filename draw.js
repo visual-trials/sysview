@@ -283,6 +283,10 @@ function drawConnection(connection, fromContainer, toContainer) {
     
     let fromFirstVisibleContainer = getFirstVisibleContainer(fromContainer)
     let toFirstVisibleContainer = getFirstVisibleContainer(toContainer)
+    if (fromFirstVisibleContainer.identifier === toFirstVisibleContainer.identifier) {
+        // Not drawing a connection if it effectively connects one container with itself
+        return
+    }
     let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
     let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
     
@@ -356,7 +360,7 @@ function showContainerChildren(container) {
             highestChildScale = interaction.viewScale * childContainer.scale
         }
     }
-    if (highestChildScale > 0.0) {
+    if (highestChildScale > 0.2) {
         return true
     }
     else {
