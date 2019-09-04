@@ -47,8 +47,8 @@ function createContainer(containerData) {
     let stroke = { r:0, g:0, b:0, a:1 }
     
     if (containerData.type === 'server') {
-        fill = { r:200, g:180, b:0, a:1 }
-        stroke = { r:200, g:180, b:0, a:1 }
+        fill = { r:200, g:180, b:200, a:1 }
+        stroke = { r:200, g:180, b:200, a:1 }
     }
     else if (containerData.type === 'API') {
         fill = { r:0, g:180, b:200, a:1 }
@@ -63,7 +63,7 @@ function createContainer(containerData) {
         stroke = { r:100, g:100, b:100, a:1 }
     }
     else if (containerData.type === 'visualContainer') {
-        fill = { r:240, g:240, b:240, a:0.5 }
+        fill = { r:240, g:240, b:240, a:1 }
         stroke = { r:100, g:100, b:100, a:1 }
     }
     else {
