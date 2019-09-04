@@ -360,7 +360,7 @@ function showContainerChildren(container) {
             highestChildScale = interaction.viewScale * childContainer.scale
         }
     }
-    if (highestChildScale > 0.2) {
+    if (highestChildScale > 0.1) {
         return true
     }
     else {
@@ -469,6 +469,11 @@ function drawContainer(container) {
         // Get text size
         let textSize = {}
         let fontSize = 14
+// FIXME
+if (container.parentContainerIdentifier === 'root') {
+    fontSize *= 20
+}
+        
         let heightBottomWhiteArea = fontSize / 6
         ctx.font = fontSize + "px Arial"
         ctx.textBaseline = "top"
