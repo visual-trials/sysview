@@ -268,7 +268,7 @@ function getFirstVisibleContainer(container) {
         return container
     }
     let parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
-    if (showContainerChildren(parentContainer)) {
+    if (showContainerChildren(parentContainer) > 0) {
         return container
     }
     return getFirstVisibleContainer(parentContainer)
@@ -348,7 +348,7 @@ function drawConnection(connection, fromContainer, toContainer) {
 
 // TODO: maybe call this: showCover instead?
 function showContainerChildren(container) {
-    if (container.identifier === 'root') return true
+    if (container.identifier === 'root') return 1
     
     // TODO: should we really iterate all children to see whether we should show them all? And should we take the highest scale or the average?
     let highestChildScale = 0
@@ -360,32 +360,48 @@ function showContainerChildren(container) {
             highestChildScale = interaction.viewScale * childContainer.scale
         }
     }
-    if (highestChildScale > 0.1) {
-        return true
+    let beginToShow = 0.1
+    let fullyShow = 0.15
+    if (highestChildScale > fullyShow) {
+        return 1
+    }
+    else if (highestChildScale > beginToShow) {
+        let fractionToShow = (highestChildScale - beginToShow) / (fullyShow - beginToShow)
+        return fractionToShow
     }
     else {
-        return false
+        return 0
     }
 }
 
-function drawContainers(containerIdentifiers) {
+function drawContainers(containerIdentifiers, alpha = null) {
     for (let containerIndex = 0; containerIndex < containerIdentifiers.length; containerIndex++) {
         let containerIdentifier = containerIdentifiers[containerIndex]
         let container = containersAndConnections.containers[containerIdentifier]
-        drawContainer(container)
-        if (showContainerChildren(container)) {
-            drawContainers(container.children)
+        drawContainer(container, alpha)
+        let fractionToShowContainer = showContainerChildren(container)
+        if (fractionToShowContainer > 0) {
+            drawContainers(container.children, fractionToShowContainer)
         }
     }
 }
 
-function drawContainer(container) {
+function drawContainer(container, alpha = null) {
     
     {
         // Draw rectangle 
         ctx.lineWidth = 2 * interaction.viewScale * container.scale
-        ctx.strokeStyle = rgba(container.stroke)
-        ctx.fillStyle = rgba(container.fill)
+        let stroke = container.stroke
+        if (alpha == null) {
+            ctx.strokeStyle = rgba(container.stroke)
+            ctx.fillStyle = rgba(container.fill)
+        }
+        else {
+            let stroke = {r: container.stroke.r, g:container.stroke.g, b:container.stroke.b, a:container.stroke.a * alpha}
+            let fill = {r: container.fill.r, g:container.fill.g, b:container.fill.b, a:container.fill.a * alpha}
+            ctx.strokeStyle = rgba(stroke)
+            ctx.fillStyle = rgba(fill)
+        }
         
         if (interaction.percentageIsoMetric > 0) {
         
