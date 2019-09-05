@@ -18,6 +18,8 @@
  
  
 let databaseData = { visual: null, source: null }
+let databaseDataHasChanged = false
+let viewWasDrawnOnce = false
 
 // FIXME: hardcoded!
 let project = 'ClientLive'
@@ -34,16 +36,51 @@ function init() {
     // initExampleData()
     
     addInputListeners()
-    drawCanvas()
     
     // NOTE: this is loaded async!!
     loadContainerAndConnectionData()
+    
+    mainLoop()
+}
+
+function mainLoop () {
+    
+    if (keyboardState.keyboardStateHasChanged || mouseState.mouseStateHasChanged || touchesStateHasChanged || 
+        interaction.isoMetricAnimationRunning || databaseDataHasChanged || !viewWasDrawnOnce) {
+            
+        // Handle input 
+        if (keyboardState.keyboardStateHasChanged || mouseState.mouseStateHasChanged || touchesStateHasChanged) {
+            handleInputStateChange()
+        }
+
+        // Update world
+        updateWorld()
+        
+        // Render world
+        if (databaseDataHasChanged) {
+            integrateContainerAndConnectionData()
+            databaseDataHasChanged = false
+        }
+        drawCanvas()
+        viewWasDrawnOnce = true
+    }
+    
+    // Reset input
+    resetMouseEventData()
+    resetTouchEventData()
+    resetKeyboardEventData()
+    
+    window.requestAnimationFrame(mainLoop)
 }
 
 function integrateContainerAndConnectionData () {
     
     // TODO: should we also reset the interaction-info? Or at least check if its still valid?
     //       note that we should use identifiers in there INSTEAD of actual containers/connections!!
+    
+    if (databaseData.visual == null && databaseData.source == null) {
+        return
+    }
     
     // Removing all connections and containers
     initContainersAndConnections()
@@ -96,7 +133,6 @@ function integrateContainerAndConnectionData () {
         }
     }
     
-    drawCanvas()
 }
 
 function loadContainerAndConnectionData() {
@@ -111,7 +147,7 @@ function loadContainerAndConnectionData() {
             
             databaseData.visual = projectData.visual
             databaseData.source = projectData.source
-            integrateContainerAndConnectionData()
+            databaseDataHasChanged = true
         }
     }
     xmlhttp.open("GET", url, true)
@@ -145,7 +181,7 @@ function storeVisualContainerData(visualContainerData) {
     xmlhttp.send(JSON.stringify(visualData))
     
     databaseData.visual.containers[visualContainerData.identifier] = visualContainerData
-    integrateContainerAndConnectionData()
+    databaseDataHasChanged = true
 }
 
 function storeConnectionData(visualConnectionData) {
@@ -164,5 +200,5 @@ function storeConnectionData(visualConnectionData) {
     xmlhttp.send(JSON.stringify(visualData))
     
     databaseData.visual.connections[visualConnectionData.identifier] = visualConnectionData
-    integrateContainerAndConnectionData()
+    databaseDataHasChanged = true
 }

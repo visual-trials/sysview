@@ -23,6 +23,7 @@ let interaction = {
     viewAsIsoMetric : false,
     percentageIsoMetric : 0,
     showGrid : true,
+    isoMetricAnimationRunning : false,
    
     currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',
@@ -44,7 +45,6 @@ let interaction = {
 }
 
 function handleInputStateChange () {
-    
     
     let singleTouch = null
     let firstOfDoubleTouch = null
@@ -272,9 +272,11 @@ function handleInputStateChange () {
             if (interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
                 if (interaction.viewAsIsoMetric) {
                     interaction.viewAsIsoMetric = false
+                    interaction.isoMetricAnimationRunning = true
                 }
                 else {
                     interaction.viewAsIsoMetric = true
+                    interaction.isoMetricAnimationRunning = true
                 }
             }
             
@@ -458,14 +460,18 @@ function handleInputStateChange () {
         
     }
     
-    // Update world
-    
+}
+
+function updateWorld() {
     if (interaction.viewAsIsoMetric) {
         if (interaction.percentageIsoMetric < 1) {
             interaction.percentageIsoMetric += 0.03
         }
         else {
             interaction.percentageIsoMetric = 1
+            if (interaction.isoMetricAnimationRunning) {
+                interaction.isoMetricAnimationRunning = false
+            }
         }
     }
     else {
@@ -474,18 +480,14 @@ function handleInputStateChange () {
         }
         else {
             interaction.percentageIsoMetric = 0
+            if (interaction.isoMetricAnimationRunning) {
+                interaction.isoMetricAnimationRunning = false
+            }
         }
     }
 
     currentIsoMetricSettings.translate = lerp(nonIsoMetricSettings.translate, isoMetricSettings.translate, interaction.percentageIsoMetric)
     currentIsoMetricSettings.scale     = lerp(nonIsoMetricSettings.scale, isoMetricSettings.scale, interaction.percentageIsoMetric)
     currentIsoMetricSettings.rotate    = lerp(nonIsoMetricSettings.rotate, isoMetricSettings.rotate, interaction.percentageIsoMetric)
-    
-    // Draw world
-    drawCanvas()
-    
-    resetMouseEventData()
-    resetTouchEventData()
-    resetKeyboardEventData()
 }
 

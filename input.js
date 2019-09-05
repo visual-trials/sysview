@@ -37,6 +37,8 @@ let mouseState = {
     
     mouseWheelHasMoved :  false,
     mouseWheelDelta : null,
+    
+    mouseStateHasChanged : false,
 }
 
 function resetMouseEventData() {
@@ -55,6 +57,8 @@ function resetMouseEventData() {
     mouseState.rightButtonHasGoneUp = false
     
     mouseState.mouseWheelHasMoved = false
+    
+    mouseState.mouseStateHasChanged = false
 }
 
 function updateMousePosition(x, y) {
@@ -79,7 +83,7 @@ function mouseButtonDown (e) {
         }
         mouseState.leftButtonHasGoneDownAt = now        
         
-        handleInputStateChange()
+        mouseState.mouseStateHasChanged = true
     }
     else if (e.button == 2) {
         // right mouse button down
@@ -90,7 +94,7 @@ function mouseButtonDown (e) {
         }
         mouseState.rightButtonHasGoneDownAt = now        
         
-        handleInputStateChange()
+        mouseState.mouseStateHasChanged = true
     }
 
     e.preventDefault()
@@ -101,13 +105,15 @@ function mouseButtonUp (e) {
         // left mouse button up
         mouseState.leftButtonHasGoneUp = true
         mouseState.leftButtonIsDown = false
-        handleInputStateChange()
+        
+        mouseState.mouseStateHasChanged = true
     }
     else if (e.button == 2) {
         // right mouse button up
         mouseState.rightButtonHasGoneUp = true
         mouseState.rightButtonIsDown = false
-        handleInputStateChange()
+        
+        mouseState.mouseStateHasChanged = true
     }
 
     e.preventDefault()
@@ -115,21 +121,21 @@ function mouseButtonUp (e) {
 
 function mouseEntered (e) {
     updateMousePosition(e.offsetX, e.offsetY)
-    handleInputStateChange()
+    mouseState.mouseStateHasChanged = true
 
     e.preventDefault()
 }
 
 function mouseMoved (e) {
     updateMousePosition(e.offsetX, e.offsetY)
-    handleInputStateChange()
+    mouseState.mouseStateHasChanged = true
 
     e.preventDefault()
 }
 
 function mouseExited (e) {
     updateMousePosition(e.offsetX, e.offsetY)
-    handleInputStateChange()
+    mouseState.mouseStateHasChanged = true
 
     e.preventDefault()
 }
@@ -141,7 +147,7 @@ function mouseWheelMoved (e) {
     // A number between -1 and 1
     mouseState.mouseWheelDelta = Math.max(-1, Math.min(1, (e.wheelDelta / 120 || -e.detail)))
 
-    handleInputStateChange()
+    mouseState.mouseStateHasChanged = true
     
     e.preventDefault()
 }
@@ -152,6 +158,7 @@ function mouseWheelMoved (e) {
 // Note that IE, Opera, Safari do not support touch!  ( https://developer.mozilla.org/en-US/docs/Web/API/Touch )
     
 let touchesState = {}
+let touchesStateHasChanged = false
 
 function resetTouchEventData () {
 
@@ -179,6 +186,8 @@ function resetTouchEventData () {
     for (let touch_identifier in touchesToDelete) {
         delete touchesState[touch_identifier]
     }
+    
+    touchesStateHasChanged = false
 }
 
 function updateTouchPosition (touch, x, y, previousX = null, previousY = null) {
@@ -228,7 +237,7 @@ function touchStarted (e) {
         updateTouchPosition(newTouch, changedTouch.pageX, changedTouch.pageY, changedTouch.pageX, changedTouch.pageY)
     }
     
-    handleInputStateChange()
+    touchesStateHasChanged = true
 
     e.preventDefault()
 }
@@ -258,7 +267,7 @@ function touchEnded (e) {
         }
     }
 
-    handleInputStateChange()
+    touchesStateHasChanged = true
     
     e.preventDefault()
 }
@@ -279,7 +288,7 @@ function touchCanceled (e) {
         }
     }
     
-    handleInputStateChange()
+    touchesStateHasChanged = true
 
     e.preventDefault()
 }
@@ -301,7 +310,7 @@ function touchMoved (e) {
         }
     }
     
-    handleInputStateChange()
+    touchesStateHasChanged = true
 
     e.preventDefault()
 }
@@ -313,10 +322,12 @@ let keyboardState = {
     keysThatAreDown : {},
     sequenceKeysUpDown : [],
     capsLockIsActive : false,
+    keyboardStateHasChanged : false,
 }
 
 function resetKeyboardEventData() {
     keyboardState.sequenceKeysUpDown = []
+    keyboardStateHasChanged : false
 }
 
 function keyDown (e) {
@@ -351,7 +362,7 @@ function keyDown (e) {
             keyboardState.capsLockIsActive = false
         }
         
-        handleInputStateChange()
+        keyboardState.keyboardStateHasChanged = true
     }
     else {
         console.log("ERROR: Invalid keyCode (" + keyCode + ") encountered!") 
@@ -380,7 +391,7 @@ function keyUp (e) {
             // FIXME: No key was down, but a key went up. What happened?
         }
         
-        handleInputStateChange()
+        keyboardState.keyboardStateHasChanged = true
     }
     else {
         console.log("ERROR: Invalid keyCode (" + keyCode + ") encountered!") 
