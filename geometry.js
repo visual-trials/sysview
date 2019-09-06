@@ -294,14 +294,15 @@ function findContainerAtWorldPosition(worldPosition, container = null) {
 
 function whichSideIsPositionFromContainer(worldPosition, container) {
     
-    // FIXME: maybe if container is (very) small, we should make the margin smaller?
-    let margin = 10
-    
     let side = { x: 0, y: 0, isNearContainer: true }
     
     if (container == null) {
         return side
     }
+    
+    // FIXME: maybe if container is (very) small, we should make the margin smaller?
+    // TODO: what we really should be doing is measure the margin in *screen* space instead
+    let margin = 10 / interaction.viewScale
     
     if (worldPosition.x < container.position.x + margin) {
         side.x = -1
