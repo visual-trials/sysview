@@ -188,21 +188,41 @@ function handleInputStateChange () {
         else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y > 0) ||
                  (selectedContainerNearness.x < 0 && selectedContainerNearness.y < 0))
         {
-            interaction.mousePointerStyle = 'nw-resize'
+            if (interaction.viewAsIsoMetric) {
+                interaction.mousePointerStyle = 'e-resize'
+            }
+            else {
+                interaction.mousePointerStyle = 'nw-resize'
+            }
             mouseIsNearSelectedContainerBorder = true
         }
         else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
                  (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
         {
-            interaction.mousePointerStyle = 'ne-resize'
+            if (interaction.viewAsIsoMetric) {
+                interaction.mousePointerStyle = 'n-resize'
+            }
+            else {
+                interaction.mousePointerStyle = 'ne-resize'
+            }
             mouseIsNearSelectedContainerBorder = true
         }
         else if (selectedContainerNearness.x !== 0) {
-            interaction.mousePointerStyle = 'e-resize'
+            if (interaction.viewAsIsoMetric) {
+                interaction.mousePointerStyle = 'ne-resize'
+            }
+            else {
+                interaction.mousePointerStyle = 'e-resize'
+            }
             mouseIsNearSelectedContainerBorder = true
         }
         else if (selectedContainerNearness.y !== 0) {
-            interaction.mousePointerStyle = 'n-resize'
+            if (interaction.viewAsIsoMetric) {
+                interaction.mousePointerStyle = 'nw-resize'
+            }
+            else {
+                interaction.mousePointerStyle = 'n-resize'
+            }
             mouseIsNearSelectedContainerBorder = true
         }
         
