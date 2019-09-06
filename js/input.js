@@ -141,6 +141,7 @@ function mouseExited (e) {
 }
 
 function mouseWheelMoved (e) {
+    updateMousePosition(e.offsetX, e.offsetY)
     mouseState.mouseWheelHasMoved = true
 
     // Cross-browser wheel delta (Mac is much more sensitive)

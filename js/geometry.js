@@ -73,6 +73,13 @@ function lerpPositionBetweenTwoPoints (firstPosition, secondPosition, fraction) 
     return middlePoint
 }
 
+function addSizeToPosition(size, position) {
+    let addedPosition = { x: 0, y: 0}
+    addedPosition.x = position.x + size.width
+    addedPosition.y = position.y + size.height
+    return addedPosition
+}
+
 function addOffsetToPosition(offset, position) {
     let addedPosition = { x: 0, y: 0}
     addedPosition.x = position.x + offset.x
@@ -240,6 +247,54 @@ function findButtonInButtonListAtScreenPosition(screenPosition, buttonList) {
     }
     return null
 }
+
+function getCenterPointOfRectangle (rectangle) {
+    let middleX = rectangle.position.x + rectangle.size.width / 2  // FIXME: should we consider container.scale here? ( zie getCenterPositonOfContainer )
+    let middleY = rectangle.position.y + rectangle.size.height / 2  // FIXME: should we consider container.scale here? ( zie getCenterPositonOfContainer )
+    return { x: middleX, y: middleY }
+}
+
+function getRectangleAroundWorld() {
+
+    let rootContainer = containersAndConnections.containers['root']
+        
+    let minX = null
+    let minY = null
+    let maxX = null
+    let maxY = null
+    
+    for (let containerIndex = 0; containerIndex < rootContainer.children.length; containerIndex++) {
+        let childContainerIdentifier = rootContainer.children[containerIndex]
+        let childContainer = containersAndConnections.containers[childContainerIdentifier]
+        
+        if (childContainer.position.x < minX) {
+            minX = childContainer.position.x
+        }
+        if (childContainer.position.x + childContainer.size.width > maxX) {
+            maxX = childContainer.position.x + childContainer.size.width
+        }
+        if (childContainer.position.y < minY) {
+            minY = childContainer.position.y
+        }
+        if (childContainer.position.y + childContainer.size.height > maxY) {
+            maxY = childContainer.position.y + childContainer.size.height
+        }
+    }
+    
+    let rectangleAroundWorld = {
+        position : {
+            x : minX,
+            y : minY
+        },
+        size : {
+            width : maxX - minX,
+            height :  maxY - minY
+        }
+    }
+    
+    return rectangleAroundWorld
+}
+
 
 function recalculateAbsolutePositions(container = null) {
 

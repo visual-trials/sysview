@@ -20,6 +20,7 @@
 let databaseData = { visual: null, source: null }
 let databaseDataHasChanged = false
 let viewWasDrawnOnce = false
+let centerViewOnWorldCenter = false
 
 // FIXME: hardcoded!
 let project = 'ClientLive'
@@ -53,14 +54,15 @@ function mainLoop () {
             handleInputStateChange()
         }
 
-        // Update world
-        updateWorld()
-        
-        // Render world
         if (databaseDataHasChanged) {
             integrateContainerAndConnectionData()
             databaseDataHasChanged = false
         }
+        
+        // Update world
+        updateWorld()
+        
+        // Render world
         drawCanvas()
         viewWasDrawnOnce = true
     }
@@ -148,6 +150,7 @@ function loadContainerAndConnectionData() {
             databaseData.visual = projectData.visual
             databaseData.source = projectData.source
             databaseDataHasChanged = true
+            centerViewOnWorldCenter = true
         }
     }
     xmlhttp.open("GET", url, true)
