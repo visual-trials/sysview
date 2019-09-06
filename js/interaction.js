@@ -486,33 +486,37 @@ function updateWorld() {
     
     if (centerViewOnWorldCenter) {
         
-        // For now we are resetting to the default
-        interaction.viewScale = 1
-        interaction.viewOffset = { x: 0, y: 0 }
-        
         let rectangleAroundWorld = getRectangleAroundWorld()
-        let middlePointOfWorld = getCenterPointOfRectangle(rectangleAroundWorld)
-
-        // We first set the viewScale
-        let leftTopOfWorldOnScreen = fromWorldPositionToScreenPosition(rectangleAroundWorld.position)
-        let rightBottomOfWorldOnScreen = fromWorldPositionToScreenPosition(addSizeToPosition(rectangleAroundWorld.size, rectangleAroundWorld.position))
-        let worldWidthOnScreen = rightBottomOfWorldOnScreen.x - leftTopOfWorldOnScreen.x
-        let worldHeightOnScreen = rightBottomOfWorldOnScreen.y - leftTopOfWorldOnScreen.y
         
-        // We check if the height or the width is the constraint and choose that one
-        let scaleToFitWidth = canvasElement.width * 0.8 / worldWidthOnScreen
-        let scaleToFitHeight = canvasElement.height * 0.8 / worldHeightOnScreen
-        if (scaleToFitWidth < scaleToFitHeight) {
-            interaction.viewScale = scaleToFitWidth
+        // TODO: put this in a function that centers the view on a world-rectangle
+        {
+            let middlePointOfWorld = getCenterPointOfRectangle(rectangleAroundWorld)
+            
+            // For now we are resetting to the default
+            interaction.viewScale = 1
+            interaction.viewOffset = { x: 0, y: 0 }
+            
+            // We first set the viewScale
+            let leftTopOfWorldOnScreen = fromWorldPositionToScreenPosition(rectangleAroundWorld.position)
+            let rightBottomOfWorldOnScreen = fromWorldPositionToScreenPosition(addSizeToPosition(rectangleAroundWorld.size, rectangleAroundWorld.position))
+            let worldWidthOnScreen = rightBottomOfWorldOnScreen.x - leftTopOfWorldOnScreen.x
+            let worldHeightOnScreen = rightBottomOfWorldOnScreen.y - leftTopOfWorldOnScreen.y
+            
+            // We check if the height or the width is the constraint and choose that one
+            let scaleToFitWidth = canvasElement.width * 0.8 / worldWidthOnScreen
+            let scaleToFitHeight = canvasElement.height * 0.8 / worldHeightOnScreen
+            if (scaleToFitWidth < scaleToFitHeight) {
+                interaction.viewScale = scaleToFitWidth
+            }
+            else {
+                interaction.viewScale = scaleToFitHeight
+            }
+            
+            // After setting the scale we can calculate the viewOffset
+            let middleOfWorldOnScreen = fromWorldPositionToScreenPosition(middlePointOfWorld)
+            let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
+            interaction.viewOffset = { x: middleOfScreen.x - middleOfWorldOnScreen.x, y: middleOfScreen.y - middleOfWorldOnScreen.y } 
         }
-        else {
-            interaction.viewScale = scaleToFitHeight
-        }
-        
-        // After setting the scale we can calculate the viewOffset
-        let middleOfWorldOnScreen = fromWorldPositionToScreenPosition(middlePointOfWorld)
-        let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
-        interaction.viewOffset = { x: middleOfScreen.x - middleOfWorldOnScreen.x, y: middleOfScreen.y - middleOfWorldOnScreen.y } 
         
         centerViewOnWorldCenter = false
     }
