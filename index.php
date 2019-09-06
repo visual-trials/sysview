@@ -4,17 +4,17 @@ $action = $_GET['action'] ?? 'get_project_data';
 
 if ($action === 'get_projects') {
     $projects = [];
-    $dataDir = 'data';
-    $dataDirContents = scandir($dataDir);
-    if ($dataDirContents !== false) {
-        foreach ($dataDirContents as $dataDirContent) {
-            if (($dataDirContent == '..') || ($dataDirContent == '.')) {
+    $projectsDir = 'projects';
+    $projects = scandir($projectsDir);
+    if ($projects !== false) {
+        foreach ($projects as $project) {
+            if (($project == '..') || ($project == '.')) {
                 continue;
             }
-            $fullPathDataDirContent = $dataDir . '/' . $dataDirContent;
+            $fullPathProjectDirContent = $projectsDir . '/' . $project;
 
-            if (is_dir($fullPathDataDirContent)) {
-                $projects[] = $dataDirContent;
+            if (is_dir($fullPathProjectDirContent)) {
+                $projects[] = $project;
             }
         }
     }
@@ -23,8 +23,8 @@ if ($action === 'get_projects') {
 else if ($action === 'get_project_data') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
 
-    $filenameVisual = "data/$projectDir/visual.json";
-    $filenameSource = "data/$projectDir/source.json";
+    $filenameVisual = "projects/$projectDir/visual.json";
+    $filenameSource = "projects/$projectDir/source.json";
 
     $visualData = json_decode(file_get_contents($filenameVisual), true);
     $sourceData = json_decode(file_get_contents($filenameSource), true);
@@ -37,7 +37,7 @@ else if ($action === 'get_project_data') {
 else if ($action === 'set_visual_data') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
     
-    $filenameVisual = "data/$projectDir/visual.json";
+    $filenameVisual = "projects/$projectDir/visual.json";
     
     $visualDataToChange = json_decode(file_get_contents('php://input'), true);
     $visualData = json_decode(file_get_contents($filenameVisual), true);
@@ -50,7 +50,7 @@ else if ($action === 'get_source_data') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
     $sourceFile = $_GET['source'] ?? 'sources/example_source.json';
 
-    $filenameSource = "data/$projectDir/$sourceFile";
+    $filenameSource = "projects/$projectDir/$sourceFile";
 
     $sourceData = json_decode(file_get_contents($filenameSource), true);
 
@@ -62,7 +62,7 @@ else if ($action === 'set_source_data') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
     $sourceFile = $_GET['source'] ?? 'sources/example_source.json';
     
-    $filenameSource = "data/$projectDir/$sourceFile";
+    $filenameSource = "projects/$projectDir/$sourceFile";
     
     $sourceDataToStore = json_decode(file_get_contents('php://input'), true);
     
@@ -72,7 +72,7 @@ else if ($action === 'get_conversion_code') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
     $conversionFile = $_GET['conversion'] ?? 'conversions/example_conversion.js';
 
-    $filenameConversion = "data/$projectDir/$conversionFile";
+    $filenameConversion = "projects/$projectDir/$conversionFile";
 
     $conversionCode = file_get_contents($filenameConversion);
 
@@ -84,7 +84,7 @@ else if ($action === 'set_conversion_code') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
     $conversionFile = $_GET['conversion'] ?? 'conversions/example_conversion.js';
     
-    $filenameConversion = "data/$projectDir/$conversionFile";
+    $filenameConversion = "projects/$projectDir/$conversionFile";
     
     $conversionCodeToStore = json_decode(file_get_contents('php://input'), true);
     
