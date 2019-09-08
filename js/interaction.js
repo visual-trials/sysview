@@ -47,7 +47,8 @@ let interaction = {
     mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
 
-function doViewDraggingAndZooming () {
+function doViewDraggingAndZoomingByTouch () {
+    
     let singleTouch = null
     let firstOfDoubleTouch = null
     let secondOfDoubleTouch = null
@@ -134,7 +135,19 @@ function doViewDraggingAndZooming () {
         }
     }
 
-    // Zooming by mouse
+}
+
+function doViewDraggingAndZoomingByMouse () {
+    
+    // View dragging by mouse
+    if (interaction.viewIsBeingDraggedByMouse) {
+        if (mouseState.hasMoved) {
+            interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
+            interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+        }
+    }
+    
+    // View zooming by mouse
     if (mouseState.mouseWheelHasMoved) {
         let scrollSensitivity = 0.1
         let relativeZoomChange = 1 + Math.abs(mouseState.mouseWheelDelta) * scrollSensitivity
@@ -160,21 +173,15 @@ function doViewDraggingAndZooming () {
         // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
     }
 
-    // View dragging by mouse
-    if (interaction.viewIsBeingDraggedByMouse) {
-        if (mouseState.hasMoved) {
-            interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
-            interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
-        }
-    }
-        
-    
 }
 
 function handleInputStateChange () {
     
-    // Always do view dragging and zooming
-    doViewDraggingAndZooming()
+    // Always do view dragging and zooming by touch
+    doViewDraggingAndZoomingByTouch()
+    
+    // Always do view dragging and zooming by mouse
+    doViewDraggingAndZoomingByMouse()
     
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
