@@ -19,7 +19,8 @@
 let interaction = {
     viewScale : 1,
     viewOffset : { x: 0, y: 0},
-    viewIsBeingDragged : false,
+    viewIsBeingDraggedByMouse : false,
+    viewIsBeingDraggedByTouch : false,
     viewAsIsoMetric : false,
     percentageIsoMetric : 0,
     showGrid : true,
@@ -110,12 +111,12 @@ function doViewDraggingAndZooming () {
     if (singleTouch != null) {
         if (singleTouch.hasEnded) { // somewheat equivalent with leftButtonHasGoneUp
             // The touch has ended
-            interaction.viewIsBeingDragged = false
+            interaction.viewIsBeingDraggedByTouch = false
         }
         else {
             if (singleTouch.hasStarted) {
                 // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
-                interaction.viewIsBeingDragged = true
+                interaction.viewIsBeingDraggedByTouch = true
             }
         }
     }
@@ -147,12 +148,14 @@ function doViewDraggingAndZooming () {
     }
 
     // View dragging (by mouse or a single touch)
-    if (interaction.viewIsBeingDragged) {
+    if (interaction.viewIsBeingDraggedByMouse) {
         if (mouseState.hasMoved) {
             interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
             interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
         }
+    }
         
+    if (interaction.viewIsBeingDraggedByTouch) {
         if (singleTouch != null && singleTouch.hasMoved) {
             interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
             interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
@@ -360,18 +363,18 @@ function handleInputStateChange () {
             interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
             
             interaction.selectedContainerIsBeingDragged = false
-            interaction.viewIsBeingDragged = false
+            interaction.viewIsBeingDraggedByMouse = false
         }
         else if (containerAtMousePosition != null) {
             interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
             interaction.selectedContainerIsBeingDragged = true
             
             interaction.selectedContainerIsBeingResized = false
-            interaction.viewIsBeingDragged = false
+            interaction.viewIsBeingDraggedByMouse = false
         }
         else {
             // we did not click on a container, so we clicked on the background
-            interaction.viewIsBeingDragged = true
+            interaction.viewIsBeingDraggedByMouse = true
             
             interaction.currentlySelectedContainerIdentifier = null
             interaction.selectedContainerIsBeingDragged = false
@@ -403,7 +406,7 @@ function handleInputStateChange () {
         interaction.selectedContainerIsBeingDragged = false
         interaction.selectedContainerIsBeingResized = false
         interaction.selectedContainerResizeSide = null
-        interaction.viewIsBeingDragged = false
+        interaction.viewIsBeingDraggedByMouse = false
     }
     
     
