@@ -145,8 +145,25 @@ function doViewDraggingAndZoomingByMouse () {
             interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
             interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
         }
+        if (mouseState.leftButtonHasGoneUp) {
+            interaction.viewIsBeingDraggedByMouse = false
+        }
     }
     
+    if (!mouseState.leftButtonHasGoneDownTwice &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+         mouseState.leftButtonHasGoneDown &&
+        !interaction.selectedContainerIsBeingResized &&   // TODO: isn't this redundant?
+        !interaction.selectedContainerIsBeingDragged) {   // TODO: isn't this redundant?
+            
+            // we did not click on a menu button or on a container, so we clicked on the background
+            interaction.viewIsBeingDraggedByMouse = true
+            
+            // interaction.currentlySelectedContainerIdentifier = null
+            // interaction.selectedContainerIsBeingDragged = false
+            // interaction.selectedContainerIsBeingResized = false
+    }
+    
+            
     // View zooming by mouse
     if (mouseState.mouseWheelHasMoved) {
         let scrollSensitivity = 0.1
@@ -177,12 +194,6 @@ function doViewDraggingAndZoomingByMouse () {
 
 function handleInputStateChange () {
     
-    // Always do view dragging and zooming by touch
-    doViewDraggingAndZoomingByTouch()
-    
-    // Always do view dragging and zooming by mouse
-    doViewDraggingAndZoomingByMouse()
-    
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
@@ -203,18 +214,6 @@ function handleInputStateChange () {
     
     // Check mouse position
     
-    let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
-    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, currentlySelectedContainer)
-    
-    // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
-    let parentOfSelectedContainerContainerIdentifier = 'root'
-    if (currentlySelectedContainer != null) {
-        parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
-    }
-    let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
-    
-    let mouseIsNearSelectedContainerBorder = false
-    
     if (interaction.currentlyHoveredMenuButton != null) {
         // If we hover a menu button, we want to see a default mouse pointer
         interaction.mousePointerStyle = 'default'
@@ -233,53 +232,7 @@ function handleInputStateChange () {
                 interaction.newConnectionBeingAdded.to = null
             }
         }
-    }
-    else if (currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
-        
-        if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
-            interaction.mousePointerStyle = 'move'
-        }
-        else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y > 0) ||
-                 (selectedContainerNearness.x < 0 && selectedContainerNearness.y < 0))
-        {
-            if (interaction.viewAsIsoMetric) {
-                interaction.mousePointerStyle = 'e-resize'
-            }
-            else {
-                interaction.mousePointerStyle = 'nw-resize'
-            }
-            mouseIsNearSelectedContainerBorder = true
-        }
-        else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
-                 (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
-        {
-            if (interaction.viewAsIsoMetric) {
-                interaction.mousePointerStyle = 'n-resize'
-            }
-            else {
-                interaction.mousePointerStyle = 'ne-resize'
-            }
-            mouseIsNearSelectedContainerBorder = true
-        }
-        else if (selectedContainerNearness.x !== 0) {
-            if (interaction.viewAsIsoMetric) {
-                interaction.mousePointerStyle = 'ne-resize'
-            }
-            else {
-                interaction.mousePointerStyle = 'e-resize'
-            }
-            mouseIsNearSelectedContainerBorder = true
-        }
-        else if (selectedContainerNearness.y !== 0) {
-            if (interaction.viewAsIsoMetric) {
-                interaction.mousePointerStyle = 'nw-resize'
-            }
-            else {
-                interaction.mousePointerStyle = 'n-resize'
-            }
-            mouseIsNearSelectedContainerBorder = true
-        }
-        
+
     }
     else if (interaction.currentlyHoveredContainerIdentifier != null) {
         interaction.mousePointerStyle = 'move'
@@ -371,28 +324,6 @@ function handleInputStateChange () {
                 }
             }
         }
-        else if (mouseIsNearSelectedContainerBorder) {
-            interaction.selectedContainerIsBeingResized = true
-            interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
-            
-            interaction.selectedContainerIsBeingDragged = false
-            interaction.viewIsBeingDraggedByMouse = false
-        }
-        else if (containerAtMousePosition != null) {
-            interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
-            interaction.selectedContainerIsBeingDragged = true
-            
-            interaction.selectedContainerIsBeingResized = false
-            interaction.viewIsBeingDraggedByMouse = false
-        }
-        else {
-            // we did not click on a container, so we clicked on the background
-            interaction.viewIsBeingDraggedByMouse = true
-            
-            interaction.currentlySelectedContainerIdentifier = null
-            interaction.selectedContainerIsBeingDragged = false
-            interaction.selectedContainerIsBeingResized = false
-        }
     }
     
     if (mouseState.leftButtonHasGoneUp) {
@@ -410,55 +341,167 @@ function handleInputStateChange () {
         
     }
     
-    if (mouseState.leftButtonHasGoneUp) {
-        if (interaction.selectedContainerIsBeingDragged || interaction.selectedContainerIsBeingResized) {
-            // We stopped dragging or resizing the selected container, so we store its (visual) data
-            storeContainerPositionAndSize(currentlySelectedContainer) // async call!
-        }
+    
+    function doContainerDraggingByMouse() {
+        let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
         
-        interaction.selectedContainerIsBeingDragged = false
-        interaction.selectedContainerIsBeingResized = false
-        interaction.selectedContainerResizeSide = null
-        interaction.viewIsBeingDraggedByMouse = false
-    }
-    
-    
-    // Handle mouse movement
-    
-    if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
-        // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-        currentlySelectedContainer.relativePosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
-        currentlySelectedContainer.relativePosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
-        recalculateAbsolutePositions(currentlySelectedContainer)
-    }
-    
-    if (mouseState.hasMoved && interaction.selectedContainerIsBeingResized) {
-        
-        let mouseWorldMovement = {}
-        mouseWorldMovement.x = mouseState.worldPosition.x - mouseState.previousWorldPosition.x
-        mouseWorldMovement.y = mouseState.worldPosition.y - mouseState.previousWorldPosition.y
-        
-        if (interaction.selectedContainerResizeSide.x > 0) { // right side
-            currentlySelectedContainer.size.width += mouseWorldMovement.x / currentlySelectedContainer.scale
+        // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
+        let parentOfSelectedContainerContainerIdentifier = 'root'
+        if (currentlySelectedContainer != null) {
+            parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
         }
-        if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
-            currentlySelectedContainer.size.height += mouseWorldMovement.y / currentlySelectedContainer.scale
-        }
-        if (interaction.selectedContainerResizeSide.x < 0) { // left side
-            currentlySelectedContainer.size.width -= mouseWorldMovement.x / currentlySelectedContainer.scale
+        let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
+    
+        if (interaction.selectedContainerIsBeingDragged) {
+            if (mouseState.hasMoved) {
+                // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+                currentlySelectedContainer.relativePosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
+                currentlySelectedContainer.relativePosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
+                recalculateAbsolutePositions(currentlySelectedContainer)
+            }
             
-            // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-            currentlySelectedContainer.relativePosition.x += mouseWorldMovement.x / parentOfSelectedContainer.scale
-            recalculateAbsolutePositions(currentlySelectedContainer)
+            if (mouseState.leftButtonHasGoneUp) {
+                // We stopped dragging the selected container, so we store its (visual) data
+                storeContainerPositionAndSize(currentlySelectedContainer) // async call!
+                interaction.selectedContainerIsBeingDragged = false
+            }
         }
-        if (interaction.selectedContainerResizeSide.y < 0) { // top side
-            currentlySelectedContainer.size.height -= mouseWorldMovement.y / currentlySelectedContainer.scale
-            
-            // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-            currentlySelectedContainer.relativePosition.y += mouseWorldMovement.y / parentOfSelectedContainer.scale
-            recalculateAbsolutePositions(currentlySelectedContainer)
+
+        // FIXME: maybe we should do a separate function doContainerSelectionByMouse() and check here is container is selected? But how do we know we should set BeingDragged to true then?
+        //        or is this a special container-selection in the sense that it ALSO set the BeingDragged to true?
+        let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+        if (!mouseState.leftButtonHasGoneDownTwice &&
+             mouseState.leftButtonHasGoneDown && // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+            !interaction.selectedContainerIsBeingResized && // TODO: this is probably redundant
+            containerAtMousePosition != null) {
+                
+            interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
+            interaction.selectedContainerIsBeingDragged = true
         }
+        
     }
+    
+    function doContainerResizingByMouse() {
+        let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
+        
+        // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
+        let parentOfSelectedContainerContainerIdentifier = 'root'
+        if (currentlySelectedContainer != null) {
+            parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
+        }
+        let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
+        
+        if (interaction.selectedContainerIsBeingResized) {
+            if (mouseState.hasMoved) {
+                
+                let mouseWorldMovement = {}
+                mouseWorldMovement.x = mouseState.worldPosition.x - mouseState.previousWorldPosition.x
+                mouseWorldMovement.y = mouseState.worldPosition.y - mouseState.previousWorldPosition.y
+                
+                if (interaction.selectedContainerResizeSide.x > 0) { // right side
+                    currentlySelectedContainer.size.width += mouseWorldMovement.x / currentlySelectedContainer.scale
+                }
+                if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
+                    currentlySelectedContainer.size.height += mouseWorldMovement.y / currentlySelectedContainer.scale
+                }
+                if (interaction.selectedContainerResizeSide.x < 0) { // left side
+                    currentlySelectedContainer.size.width -= mouseWorldMovement.x / currentlySelectedContainer.scale
+                    
+                    // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+                    currentlySelectedContainer.relativePosition.x += mouseWorldMovement.x / parentOfSelectedContainer.scale
+                    recalculateAbsolutePositions(currentlySelectedContainer)
+                }
+                if (interaction.selectedContainerResizeSide.y < 0) { // top side
+                    currentlySelectedContainer.size.height -= mouseWorldMovement.y / currentlySelectedContainer.scale
+                    
+                    // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+                    currentlySelectedContainer.relativePosition.y += mouseWorldMovement.y / parentOfSelectedContainer.scale
+                    recalculateAbsolutePositions(currentlySelectedContainer)
+                }
+            }
+            
+            if (mouseState.leftButtonHasGoneUp) {
+                // We stopped resizing the selected container, so we store its (visual) data
+                storeContainerPositionAndSize(currentlySelectedContainer) // async call!
+                interaction.selectedContainerIsBeingResized = false
+                interaction.selectedContainerResizeSide = null
+            }
+        }
+        
+        
+        // Check if we are near the border of a container (and if it is clicked)
+        
+        let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, currentlySelectedContainer)
+        
+        if (currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
+            
+            let mouseIsNearSelectedContainerBorder = false
+            
+            if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
+                interaction.mousePointerStyle = 'move'
+            }
+            else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y > 0) ||
+                     (selectedContainerNearness.x < 0 && selectedContainerNearness.y < 0))
+            {
+                if (interaction.viewAsIsoMetric) {
+                    interaction.mousePointerStyle = 'e-resize'
+                }
+                else {
+                    interaction.mousePointerStyle = 'nw-resize'
+                }
+                mouseIsNearSelectedContainerBorder = true
+            }
+            else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
+                     (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
+            {
+                if (interaction.viewAsIsoMetric) {
+                    interaction.mousePointerStyle = 'n-resize'
+                }
+                else {
+                    interaction.mousePointerStyle = 'ne-resize'
+                }
+                mouseIsNearSelectedContainerBorder = true
+            }
+            else if (selectedContainerNearness.x !== 0) {
+                if (interaction.viewAsIsoMetric) {
+                    interaction.mousePointerStyle = 'ne-resize'
+                }
+                else {
+                    interaction.mousePointerStyle = 'e-resize'
+                }
+                mouseIsNearSelectedContainerBorder = true
+            }
+            else if (selectedContainerNearness.y !== 0) {
+                if (interaction.viewAsIsoMetric) {
+                    interaction.mousePointerStyle = 'nw-resize'
+                }
+                else {
+                    interaction.mousePointerStyle = 'n-resize'
+                }
+                mouseIsNearSelectedContainerBorder = true
+            }
+            
+            if (!mouseState.leftButtonHasGoneDownTwice &&
+                 mouseState.leftButtonHasGoneDown &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+                mouseIsNearSelectedContainerBorder) {
+                    
+                interaction.selectedContainerIsBeingResized = true
+                interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
+            }
+            
+        }
+        
+    }
+    
+    // We do resizing first, since the dragging check if resizing is active (so it won't do both)
+    doContainerResizingByMouse()
+    doContainerDraggingByMouse()
+    
+    // Always do view dragging and zooming by touch
+    doViewDraggingAndZoomingByTouch()
+    
+    // Always do view dragging and zooming by mouse
+    doViewDraggingAndZoomingByMouse()
     
     if (keyboardState.sequenceKeysUpDown.length) {
         
