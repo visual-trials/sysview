@@ -62,6 +62,32 @@ function doViewDraggingAndZooming () {
         secondOfDoubleTouch = touchesState[Object.keys(touchesState)[1]]
     }
     
+    
+    // Dragging by a single touch
+    if (singleTouch != null && singleTouch.hasStarted) {
+        // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
+        interaction.viewIsBeingDraggedByTouch = true
+    }
+    
+    if (interaction.viewIsBeingDraggedByTouch) {
+        if (singleTouch == null || singleTouch.hasEnded) {
+            // The touch has ended
+            interaction.viewIsBeingDraggedByTouch = false
+        }
+        else {
+            // The touch is active (and hasn't ended)
+            
+            if (singleTouch.hasMoved) {
+                // The touch has moved
+                interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
+                interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
+            }
+            else {
+                // The single (active) touch hasn't moved
+            }
+        }
+    }
+    
     // Zooming by 2 touches
     if (firstOfDoubleTouch != null && secondOfDoubleTouch != null &&
         firstOfDoubleTouch.isActive && secondOfDoubleTouch.isActive) {
@@ -107,20 +133,7 @@ function doViewDraggingAndZooming () {
             
         }
     }
-    
-    if (singleTouch != null) {
-        if (singleTouch.hasEnded) { // somewheat equivalent with leftButtonHasGoneUp
-            // The touch has ended
-            interaction.viewIsBeingDraggedByTouch = false
-        }
-        else {
-            if (singleTouch.hasStarted) {
-                // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
-                interaction.viewIsBeingDraggedByTouch = true
-            }
-        }
-    }
-    
+
     // Zooming by mouse
     if (mouseState.mouseWheelHasMoved) {
         let scrollSensitivity = 0.1
@@ -147,7 +160,7 @@ function doViewDraggingAndZooming () {
         // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
     }
 
-    // View dragging (by mouse or a single touch)
+    // View dragging by mouse
     if (interaction.viewIsBeingDraggedByMouse) {
         if (mouseState.hasMoved) {
             interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
@@ -155,13 +168,6 @@ function doViewDraggingAndZooming () {
         }
     }
         
-    if (interaction.viewIsBeingDraggedByTouch) {
-        if (singleTouch != null && singleTouch.hasMoved) {
-            interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
-            interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
-        }
-    }
-
     
 }
 
