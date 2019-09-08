@@ -372,7 +372,7 @@ function handleInputStateChange () {
         let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
         if (!mouseState.leftButtonHasGoneDownTwice &&
              mouseState.leftButtonHasGoneDown && // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-            !interaction.selectedContainerIsBeingResized && // TODO: this is probably redundant
+            !interaction.selectedContainerIsBeingResized &&
             containerAtMousePosition != null) {
                 
             interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
@@ -493,15 +493,14 @@ function handleInputStateChange () {
         
     }
     
-    // We do resizing first, since the dragging check if resizing is active (so it won't do both)
+    // We do resizing first, since the dragging checks if resizing is active (so it won't do both)
+    // TODO: maybe instead let these functions return true or false, so you know if it is indeed 'happening'/'active', so you wont do both
     doContainerResizingByMouse()
     doContainerDraggingByMouse()
+    doViewDraggingAndZoomingByMouse()
     
     // Always do view dragging and zooming by touch
     doViewDraggingAndZoomingByTouch()
-    
-    // Always do view dragging and zooming by mouse
-    doViewDraggingAndZoomingByMouse()
     
     if (keyboardState.sequenceKeysUpDown.length) {
         
