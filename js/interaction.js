@@ -28,6 +28,8 @@ let interaction = {
     currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',
     
+    // TODO: we should probably keep record of where things (like the view or a container) is being selected/dragged BY
+    //       sometimes its the mouse, sometimes its a touch. We might want to keep a record of that.
     currentlyHoveredContainerIdentifier : null,
     currentlySelectedContainerIdentifier : null,
     selectedContainerIsBeingDragged : false,
@@ -44,8 +46,7 @@ let interaction = {
     mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
 
-function handleInputStateChange () {
-    
+function doViewDraggingAndZooming () {
     let singleTouch = null
     let firstOfDoubleTouch = null
     let secondOfDoubleTouch = null
@@ -60,31 +61,7 @@ function handleInputStateChange () {
         secondOfDoubleTouch = touchesState[Object.keys(touchesState)[1]]
     }
     
-    if (mouseState.mouseWheelHasMoved) {
-        let scrollSensitivity = 0.1
-        let relativeZoomChange = 1 + Math.abs(mouseState.mouseWheelDelta) * scrollSensitivity
-        if (mouseState.mouseWheelDelta < 0) {
-            relativeZoomChange = 1 / relativeZoomChange
-        }
-        interaction.viewScale = interaction.viewScale * relativeZoomChange
-        
-        // We want the position below the mouse pointer to stay still.
-        // This means the mouse-point in world position has to stay on the same mouse screen position.
-        // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
-        
-        // We first determine the screen position of the mouse pointer if we don't change the viewOffset
-        let mouseScreenPositionAfterScale = fromWorldPositionToScreenPosition(mouseState.worldPosition)
-        
-        // Take the difference between the mouse position (after just the scale) and the real mouse position and 
-        // adjust the viewOffset accordingly
-        interaction.viewOffset.x += mouseState.position.x - mouseScreenPositionAfterScale.x
-        interaction.viewOffset.y += mouseState.position.y - mouseScreenPositionAfterScale.y
-        
-        mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
-        
-        // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
-    }
-    
+    // Zooming by 2 touches
     if (firstOfDoubleTouch != null && secondOfDoubleTouch != null &&
         firstOfDoubleTouch.isActive && secondOfDoubleTouch.isActive) {
             
@@ -129,6 +106,67 @@ function handleInputStateChange () {
             
         }
     }
+    
+    if (singleTouch != null) {
+        if (singleTouch.hasEnded) { // somewheat equivalent with leftButtonHasGoneUp
+            // The touch has ended
+            interaction.viewIsBeingDragged = false
+        }
+        else {
+            if (singleTouch.hasStarted) {
+                // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
+                interaction.viewIsBeingDragged = true
+            }
+        }
+    }
+    
+    // Zooming by mouse
+    if (mouseState.mouseWheelHasMoved) {
+        let scrollSensitivity = 0.1
+        let relativeZoomChange = 1 + Math.abs(mouseState.mouseWheelDelta) * scrollSensitivity
+        if (mouseState.mouseWheelDelta < 0) {
+            relativeZoomChange = 1 / relativeZoomChange
+        }
+        interaction.viewScale = interaction.viewScale * relativeZoomChange
+        
+        // We want the position below the mouse pointer to stay still.
+        // This means the mouse-point in world position has to stay on the same mouse screen position.
+        // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
+        
+        // We first determine the screen position of the mouse pointer if we don't change the viewOffset
+        let mouseScreenPositionAfterScale = fromWorldPositionToScreenPosition(mouseState.worldPosition)
+        
+        // Take the difference between the mouse position (after just the scale) and the real mouse position and 
+        // adjust the viewOffset accordingly
+        interaction.viewOffset.x += mouseState.position.x - mouseScreenPositionAfterScale.x
+        interaction.viewOffset.y += mouseState.position.y - mouseScreenPositionAfterScale.y
+        
+        mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
+        
+        // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
+    }
+
+    // View dragging (by mouse or a single touch)
+    if (interaction.viewIsBeingDragged) {
+        if (mouseState.hasMoved) {
+            interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
+            interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+        }
+        
+        if (singleTouch != null && singleTouch.hasMoved) {
+            interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
+            interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
+        }
+    }
+
+    
+}
+
+function handleInputStateChange () {
+    
+    // Always do view dragging and zooming
+    doViewDraggingAndZooming()
+    
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
@@ -369,25 +407,6 @@ function handleInputStateChange () {
     }
     
     
-    // TODO: we should probably keep record of where things (like the view or a container) is being selected/dragged BY
-    //       sometimes its the mouse, sometimes its a touch. We might want to keep a record of that.
-    
-    if (singleTouch != null) {
-        if (singleTouch.hasEnded) { // somewheat equivalent with leftButtonHasGoneUp
-            // The touch has ended
-            interaction.selectedContainerIsBeingDragged = false
-            interaction.selectedContainerIsBeingResized = false
-            interaction.selectedContainerResizeSide = null
-            interaction.viewIsBeingDragged = false
-        }
-        else {
-            if (singleTouch.hasStarted) {
-                // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
-                interaction.viewIsBeingDragged = true
-            }
-        }
-    }
-    
     // Handle mouse movement
     
     if (mouseState.hasMoved && interaction.selectedContainerIsBeingDragged) {
@@ -425,18 +444,6 @@ function handleInputStateChange () {
         }
     }
     
-    if (interaction.viewIsBeingDragged) {
-        if (mouseState.hasMoved) {
-            interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
-            interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
-        }
-        
-        if (singleTouch != null && singleTouch.hasMoved) {
-            interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
-            interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
-        }
-    }
-
     if (keyboardState.sequenceKeysUpDown.length) {
         
         
