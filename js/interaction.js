@@ -47,151 +47,6 @@ let interaction = {
     mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
 
-function doViewDraggingAndZoomingByTouch () {
-    
-    let singleTouch = null
-    let firstOfDoubleTouch = null
-    let secondOfDoubleTouch = null
-    
-    // TODO: when a touch has just ended, this number is not the nrOfActiveTouches (should we count those instead?)
-    let nrOfTouches = Object.keys(touchesState).length
-    if (nrOfTouches === 1) {
-        singleTouch = touchesState[Object.keys(touchesState)[0]]
-    }
-    else if (nrOfTouches === 2) {
-        firstOfDoubleTouch = touchesState[Object.keys(touchesState)[0]]
-        secondOfDoubleTouch = touchesState[Object.keys(touchesState)[1]]
-    }
-    
-    
-    // Dragging by a single touch
-    if (singleTouch != null && singleTouch.hasStarted) {
-        // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
-        interaction.viewIsBeingDraggedByTouch = true
-    }
-    
-    if (interaction.viewIsBeingDraggedByTouch) {
-        if (singleTouch == null || singleTouch.hasEnded) {
-            // The touch has ended
-            interaction.viewIsBeingDraggedByTouch = false
-        }
-        else {
-            // The touch is active (and hasn't ended)
-            
-            if (singleTouch.hasMoved) {
-                // The touch has moved
-                interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
-                interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
-            }
-            else {
-                // The single (active) touch hasn't moved
-            }
-        }
-    }
-    
-    // Zooming by 2 touches
-    if (firstOfDoubleTouch != null && secondOfDoubleTouch != null &&
-        firstOfDoubleTouch.isActive && secondOfDoubleTouch.isActive) {
-            
-        if (firstOfDoubleTouch.hasMoved || secondOfDoubleTouch.hasMoved) {
-
-            let previousDistanceBetweenTouches = distanceBetweenTwoPoints(firstOfDoubleTouch.previousPosition, secondOfDoubleTouch.previousPosition)
-            let currentDistanceBetweenTouches = distanceBetweenTwoPoints(firstOfDoubleTouch.position, secondOfDoubleTouch.position)
-            
-            let relativeZoomChange = currentDistanceBetweenTouches / previousDistanceBetweenTouches
-            interaction.viewScale = interaction.viewScale * relativeZoomChange
-         
-            // We want the position below (one of) the two touches to stay still (or in the middle of them, if they both moved).
-            // This means the touch-zoom-point in world position has to stay on the same touch-zoom-point screen position.
-            // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
-            
-            let fraction = 0.0
-            let firstTouchDistanceMoved = distanceBetweenTwoPoints(firstOfDoubleTouch.position, firstOfDoubleTouch.previousPosition)
-            let secondTouchDistanceMoved = distanceBetweenTwoPoints(secondOfDoubleTouch.position, secondOfDoubleTouch.previousPosition)
-            
-            if (firstTouchDistanceMoved > secondTouchDistanceMoved) {
-                fraction = firstTouchDistanceMoved * 1.0 / (firstTouchDistanceMoved + secondTouchDistanceMoved)
-            }
-            else {
-                fraction = 1 - (secondTouchDistanceMoved * 1.0 / (firstTouchDistanceMoved + secondTouchDistanceMoved))
-            }
-            
-            let touchZoomPointScreenPosition = lerpPositionBetweenTwoPoints(firstOfDoubleTouch.position, secondOfDoubleTouch.position, fraction)
-            let touchZoomPointWorldPosition = lerpPositionBetweenTwoPoints(firstOfDoubleTouch.worldPosition, secondOfDoubleTouch.worldPosition, fraction)
-            
-            // We first determine the screen position of the touch-zoom-point if we don't change the viewOffset
-            let touchZoomPointScreenPositionAfterScale = fromWorldPositionToScreenPosition(touchZoomPointWorldPosition)
-            
-            // Take the difference between the zoom-point position (after just the scale) and the real zoom-point position and 
-            // adjust the viewOffset accordingly
-            interaction.viewOffset.x += touchZoomPointScreenPosition.x - touchZoomPointScreenPositionAfterScale.x
-            interaction.viewOffset.y += touchZoomPointScreenPosition.y - touchZoomPointScreenPositionAfterScale.y
-            
-            firstOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(firstOfDoubleTouch.position)
-            secondOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(secondOfDoubleTouch.position)
-            
-            // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
-            
-        }
-    }
-
-}
-
-function doViewDraggingAndZoomingByMouse () {
-    
-    // View dragging by mouse
-    if (interaction.viewIsBeingDraggedByMouse) {
-        if (mouseState.hasMoved) {
-            interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
-            interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
-        }
-        if (mouseState.leftButtonHasGoneUp) {
-            interaction.viewIsBeingDraggedByMouse = false
-        }
-    }
-    
-    if (!mouseState.leftButtonHasGoneDownTwice &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-         mouseState.leftButtonHasGoneDown &&
-        !interaction.selectedContainerIsBeingResized &&   // TODO: isn't this redundant?
-        !interaction.selectedContainerIsBeingDragged) {   // TODO: isn't this redundant?
-            
-            // we did not click on a menu button or on a container, so we clicked on the background
-            interaction.viewIsBeingDraggedByMouse = true
-            
-            // interaction.currentlySelectedContainerIdentifier = null
-            // interaction.selectedContainerIsBeingDragged = false
-            // interaction.selectedContainerIsBeingResized = false
-    }
-    
-            
-    // View zooming by mouse
-    if (mouseState.mouseWheelHasMoved) {
-        let scrollSensitivity = 0.1
-        let relativeZoomChange = 1 + Math.abs(mouseState.mouseWheelDelta) * scrollSensitivity
-        if (mouseState.mouseWheelDelta < 0) {
-            relativeZoomChange = 1 / relativeZoomChange
-        }
-        interaction.viewScale = interaction.viewScale * relativeZoomChange
-        
-        // We want the position below the mouse pointer to stay still.
-        // This means the mouse-point in world position has to stay on the same mouse screen position.
-        // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
-        
-        // We first determine the screen position of the mouse pointer if we don't change the viewOffset
-        let mouseScreenPositionAfterScale = fromWorldPositionToScreenPosition(mouseState.worldPosition)
-        
-        // Take the difference between the mouse position (after just the scale) and the real mouse position and 
-        // adjust the viewOffset accordingly
-        interaction.viewOffset.x += mouseState.position.x - mouseScreenPositionAfterScale.x
-        interaction.viewOffset.y += mouseState.position.y - mouseScreenPositionAfterScale.y
-        
-        mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
-        
-        // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
-    }
-
-}
-
 function handleInputStateChange () {
     
     
@@ -342,173 +197,41 @@ function handleInputStateChange () {
     }
     
     
-    function doContainerDraggingByMouse() {
-        let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
-        
-        // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
-        let parentOfSelectedContainerContainerIdentifier = 'root'
-        if (currentlySelectedContainer != null) {
-            parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
-        }
-        let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
-    
-        if (interaction.selectedContainerIsBeingDragged) {
-            if (mouseState.hasMoved) {
-                // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                currentlySelectedContainer.relativePosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
-                currentlySelectedContainer.relativePosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
-                recalculateAbsolutePositions(currentlySelectedContainer)
-            }
-            
-            if (mouseState.leftButtonHasGoneUp) {
-                // We stopped dragging the selected container, so we store its (visual) data
-                storeContainerPositionAndSize(currentlySelectedContainer) // async call!
-                interaction.selectedContainerIsBeingDragged = false
+    doEditContainerText()
+    if (interaction.currentlyEditingContainerText == null) {
+        // We do resizing first, since the dragging checks if resizing is active (so it won't do both)
+        doContainerResizingByMouse()
+        if (!interaction.selectedContainerIsBeingResized) {
+            doContainerDraggingByMouse()
+            if (!interaction.selectedContainerIsBeingDragged) {
+                doViewDraggingAndZoomingByMouse()
             }
         }
-
-        // FIXME: maybe we should do a separate function doContainerSelectionByMouse() and check here is container is selected? But how do we know we should set BeingDragged to true then?
-        //        or is this a special container-selection in the sense that it ALSO set the BeingDragged to true?
-        let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
-        if (!mouseState.leftButtonHasGoneDownTwice &&
-             mouseState.leftButtonHasGoneDown && // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-            !interaction.selectedContainerIsBeingResized &&
-            containerAtMousePosition != null) {
-                
-            interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
-            interaction.selectedContainerIsBeingDragged = true
-        }
-        
     }
-    
-    function doContainerResizingByMouse() {
-        let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
-        
-        // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
-        let parentOfSelectedContainerContainerIdentifier = 'root'
-        if (currentlySelectedContainer != null) {
-            parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
-        }
-        let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
-        
-        if (interaction.selectedContainerIsBeingResized) {
-            if (mouseState.hasMoved) {
-                
-                let mouseWorldMovement = {}
-                mouseWorldMovement.x = mouseState.worldPosition.x - mouseState.previousWorldPosition.x
-                mouseWorldMovement.y = mouseState.worldPosition.y - mouseState.previousWorldPosition.y
-                
-                if (interaction.selectedContainerResizeSide.x > 0) { // right side
-                    currentlySelectedContainer.size.width += mouseWorldMovement.x / currentlySelectedContainer.scale
-                }
-                if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
-                    currentlySelectedContainer.size.height += mouseWorldMovement.y / currentlySelectedContainer.scale
-                }
-                if (interaction.selectedContainerResizeSide.x < 0) { // left side
-                    currentlySelectedContainer.size.width -= mouseWorldMovement.x / currentlySelectedContainer.scale
-                    
-                    // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                    currentlySelectedContainer.relativePosition.x += mouseWorldMovement.x / parentOfSelectedContainer.scale
-                    recalculateAbsolutePositions(currentlySelectedContainer)
-                }
-                if (interaction.selectedContainerResizeSide.y < 0) { // top side
-                    currentlySelectedContainer.size.height -= mouseWorldMovement.y / currentlySelectedContainer.scale
-                    
-                    // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                    currentlySelectedContainer.relativePosition.y += mouseWorldMovement.y / parentOfSelectedContainer.scale
-                    recalculateAbsolutePositions(currentlySelectedContainer)
-                }
-            }
-            
-            if (mouseState.leftButtonHasGoneUp) {
-                // We stopped resizing the selected container, so we store its (visual) data
-                storeContainerPositionAndSize(currentlySelectedContainer) // async call!
-                interaction.selectedContainerIsBeingResized = false
-                interaction.selectedContainerResizeSide = null
-            }
-        }
-        
-        
-        // Check if we are near the border of a container (and if it is clicked)
-        
-        let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, currentlySelectedContainer)
-        
-        if (currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
-            
-            let mouseIsNearSelectedContainerBorder = false
-            
-            if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
-                interaction.mousePointerStyle = 'move'
-            }
-            else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y > 0) ||
-                     (selectedContainerNearness.x < 0 && selectedContainerNearness.y < 0))
-            {
-                if (interaction.viewAsIsoMetric) {
-                    interaction.mousePointerStyle = 'e-resize'
-                }
-                else {
-                    interaction.mousePointerStyle = 'nw-resize'
-                }
-                mouseIsNearSelectedContainerBorder = true
-            }
-            else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
-                     (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
-            {
-                if (interaction.viewAsIsoMetric) {
-                    interaction.mousePointerStyle = 'n-resize'
-                }
-                else {
-                    interaction.mousePointerStyle = 'ne-resize'
-                }
-                mouseIsNearSelectedContainerBorder = true
-            }
-            else if (selectedContainerNearness.x !== 0) {
-                if (interaction.viewAsIsoMetric) {
-                    interaction.mousePointerStyle = 'ne-resize'
-                }
-                else {
-                    interaction.mousePointerStyle = 'e-resize'
-                }
-                mouseIsNearSelectedContainerBorder = true
-            }
-            else if (selectedContainerNearness.y !== 0) {
-                if (interaction.viewAsIsoMetric) {
-                    interaction.mousePointerStyle = 'nw-resize'
-                }
-                else {
-                    interaction.mousePointerStyle = 'n-resize'
-                }
-                mouseIsNearSelectedContainerBorder = true
-            }
-            
-            if (!mouseState.leftButtonHasGoneDownTwice &&
-                 mouseState.leftButtonHasGoneDown &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-                mouseIsNearSelectedContainerBorder) {
-                    
-                interaction.selectedContainerIsBeingResized = true
-                interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
-            }
-            
-        }
-        
-    }
-    
-    // We do resizing first, since the dragging checks if resizing is active (so it won't do both)
-    // TODO: maybe instead let these functions return true or false, so you know if it is indeed 'happening'/'active', so you wont do both
-    doContainerResizingByMouse()
-    doContainerDraggingByMouse()
-    doViewDraggingAndZoomingByMouse()
     
     // Always do view dragging and zooming by touch
     doViewDraggingAndZoomingByTouch()
     
-    if (keyboardState.sequenceKeysUpDown.length) {
+    
+}
+
+function doEditContainerText() {
+    
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    
+    if (mouseState.leftButtonHasGoneDownTwice) {
+        // TODO: we might want to check if the container is selected and/or hovered
+        if (containerAtMousePosition != null) {
+            interaction.currentlyEditingContainerText = containerAtMousePosition
+        }
+    }
+    
+    if (interaction.currentlyEditingContainerText != null) {
         
-        
-        if (interaction.currentlyEditingContainerText != null) {
+        if (keyboardState.sequenceKeysUpDown.length) {
         
             // TODO: create function: let resultingText = applyKeyboardEventToString(interaction.currentlyEditingContainerText.identifier)
-            let textToEdit = interaction.currentlyEditingContainerText.identifier
+            let textToEdit = interaction.currentlyEditingContainerText.name
             for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
                 let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
                 let keyName = keyCodeMap[keyUpDown.keyCode]
@@ -540,7 +263,306 @@ function handleInputStateChange () {
                 }
             }
 
-            interaction.currentlyEditingContainerText.identifier = textToEdit
+            interaction.currentlyEditingContainerText.name = textToEdit
+            
+            // FIXME: save text each character?! or when we leave the edit of the text? Or when we press enter?
+        }
+        
+    }
+    
+}
+
+
+function doViewDraggingAndZoomingByTouch () {
+    
+    let singleTouch = null
+    let firstOfDoubleTouch = null
+    let secondOfDoubleTouch = null
+    
+    // TODO: when a touch has just ended, this number is not the nrOfActiveTouches (should we count those instead?)
+    let nrOfTouches = Object.keys(touchesState).length
+    if (nrOfTouches === 1) {
+        singleTouch = touchesState[Object.keys(touchesState)[0]]
+    }
+    else if (nrOfTouches === 2) {
+        firstOfDoubleTouch = touchesState[Object.keys(touchesState)[0]]
+        secondOfDoubleTouch = touchesState[Object.keys(touchesState)[1]]
+    }
+    
+    
+    // Dragging by a single touch
+    if (singleTouch != null && singleTouch.hasStarted) {
+        // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
+        interaction.viewIsBeingDraggedByTouch = true
+    }
+    
+    if (interaction.viewIsBeingDraggedByTouch) {
+        if (singleTouch == null || singleTouch.hasEnded) {
+            // The touch has ended
+            interaction.viewIsBeingDraggedByTouch = false
+        }
+        else {
+            // The touch is active (and hasn't ended)
+            
+            if (singleTouch.hasMoved) {
+                // The touch has moved
+                interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
+                interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
+            }
+            else {
+                // The single (active) touch hasn't moved
+            }
+        }
+    }
+    
+    // Zooming by 2 touches
+    if (firstOfDoubleTouch != null && secondOfDoubleTouch != null &&
+        firstOfDoubleTouch.isActive && secondOfDoubleTouch.isActive) {
+            
+        if (firstOfDoubleTouch.hasMoved || secondOfDoubleTouch.hasMoved) {
+
+            let previousDistanceBetweenTouches = distanceBetweenTwoPoints(firstOfDoubleTouch.previousPosition, secondOfDoubleTouch.previousPosition)
+            let currentDistanceBetweenTouches = distanceBetweenTwoPoints(firstOfDoubleTouch.position, secondOfDoubleTouch.position)
+            
+            let relativeZoomChange = currentDistanceBetweenTouches / previousDistanceBetweenTouches
+            interaction.viewScale = interaction.viewScale * relativeZoomChange
+         
+            // We want the position below (one of) the two touches to stay still (or in the middle of them, if they both moved).
+            // This means the touch-zoom-point in world position has to stay on the same touch-zoom-point screen position.
+            // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
+            
+            let fraction = 0.0
+            let firstTouchDistanceMoved = distanceBetweenTwoPoints(firstOfDoubleTouch.position, firstOfDoubleTouch.previousPosition)
+            let secondTouchDistanceMoved = distanceBetweenTwoPoints(secondOfDoubleTouch.position, secondOfDoubleTouch.previousPosition)
+            
+            if (firstTouchDistanceMoved > secondTouchDistanceMoved) {
+                fraction = firstTouchDistanceMoved * 1.0 / (firstTouchDistanceMoved + secondTouchDistanceMoved)
+            }
+            else {
+                fraction = 1 - (secondTouchDistanceMoved * 1.0 / (firstTouchDistanceMoved + secondTouchDistanceMoved))
+            }
+            
+            let touchZoomPointScreenPosition = lerpPositionBetweenTwoPoints(firstOfDoubleTouch.position, secondOfDoubleTouch.position, fraction)
+            let touchZoomPointWorldPosition = lerpPositionBetweenTwoPoints(firstOfDoubleTouch.worldPosition, secondOfDoubleTouch.worldPosition, fraction)
+            
+            // We first determine the screen position of the touch-zoom-point if we don't change the viewOffset
+            let touchZoomPointScreenPositionAfterScale = fromWorldPositionToScreenPosition(touchZoomPointWorldPosition)
+            
+            // Take the difference between the zoom-point position (after just the scale) and the real zoom-point position and 
+            // adjust the viewOffset accordingly
+            interaction.viewOffset.x += touchZoomPointScreenPosition.x - touchZoomPointScreenPositionAfterScale.x
+            interaction.viewOffset.y += touchZoomPointScreenPosition.y - touchZoomPointScreenPositionAfterScale.y
+            
+            firstOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(firstOfDoubleTouch.position)
+            secondOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(secondOfDoubleTouch.position)
+            
+            // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
+            
+        }
+    }
+
+}
+
+function doViewDraggingAndZoomingByMouse () {
+    
+    // View dragging by mouse
+    if (interaction.viewIsBeingDraggedByMouse) {
+        if (mouseState.hasMoved) {
+            interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
+            interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+        }
+        if (mouseState.leftButtonHasGoneUp) {
+            interaction.viewIsBeingDraggedByMouse = false
+        }
+    }
+    
+    if (!mouseState.leftButtonHasGoneDownTwice &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+         mouseState.leftButtonHasGoneDown &&
+        !interaction.selectedContainerIsBeingResized &&   // TODO: isn't this redundant?
+        !interaction.selectedContainerIsBeingDragged) {   // TODO: isn't this redundant?
+            
+            // we did not click on a menu button or on a container, so we clicked on the background
+            interaction.viewIsBeingDraggedByMouse = true
+            
+            // interaction.currentlySelectedContainerIdentifier = null
+            // interaction.selectedContainerIsBeingDragged = false
+            // interaction.selectedContainerIsBeingResized = false
+    }
+    
+            
+    // View zooming by mouse
+    if (mouseState.mouseWheelHasMoved) {
+        let scrollSensitivity = 0.1
+        let relativeZoomChange = 1 + Math.abs(mouseState.mouseWheelDelta) * scrollSensitivity
+        if (mouseState.mouseWheelDelta < 0) {
+            relativeZoomChange = 1 / relativeZoomChange
+        }
+        interaction.viewScale = interaction.viewScale * relativeZoomChange
+        
+        // We want the position below the mouse pointer to stay still.
+        // This means the mouse-point in world position has to stay on the same mouse screen position.
+        // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
+        
+        // We first determine the screen position of the mouse pointer if we don't change the viewOffset
+        let mouseScreenPositionAfterScale = fromWorldPositionToScreenPosition(mouseState.worldPosition)
+        
+        // Take the difference between the mouse position (after just the scale) and the real mouse position and 
+        // adjust the viewOffset accordingly
+        interaction.viewOffset.x += mouseState.position.x - mouseScreenPositionAfterScale.x
+        interaction.viewOffset.y += mouseState.position.y - mouseScreenPositionAfterScale.y
+        
+        mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
+        
+        // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
+    }
+
+}
+
+function doContainerDraggingByMouse() {
+    let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
+    
+    // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
+    let parentOfSelectedContainerContainerIdentifier = 'root'
+    if (currentlySelectedContainer != null) {
+        parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
+    }
+    let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
+
+    if (interaction.selectedContainerIsBeingDragged) {
+        if (mouseState.hasMoved) {
+            // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+            currentlySelectedContainer.relativePosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
+            currentlySelectedContainer.relativePosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
+            recalculateAbsolutePositions(currentlySelectedContainer)
+        }
+        
+        if (mouseState.leftButtonHasGoneUp) {
+            // We stopped dragging the selected container, so we store its (visual) data
+            storeContainerPositionAndSize(currentlySelectedContainer) // async call!
+            interaction.selectedContainerIsBeingDragged = false
+        }
+    }
+
+    // FIXME: maybe we should do a separate function doContainerSelectionByMouse() and check here is container is selected? But how do we know we should set BeingDragged to true then?
+    //        or is this a special container-selection in the sense that it ALSO set the BeingDragged to true?
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    if (!mouseState.leftButtonHasGoneDownTwice &&
+         mouseState.leftButtonHasGoneDown && // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+        !interaction.selectedContainerIsBeingResized &&
+        containerAtMousePosition != null) {
+            
+        interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
+        interaction.selectedContainerIsBeingDragged = true
+    }
+    
+}
+
+function doContainerResizingByMouse() {
+    let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
+    
+    // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
+    let parentOfSelectedContainerContainerIdentifier = 'root'
+    if (currentlySelectedContainer != null) {
+        parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
+    }
+    let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
+    
+    if (interaction.selectedContainerIsBeingResized) {
+        if (mouseState.hasMoved) {
+            
+            let mouseWorldMovement = {}
+            mouseWorldMovement.x = mouseState.worldPosition.x - mouseState.previousWorldPosition.x
+            mouseWorldMovement.y = mouseState.worldPosition.y - mouseState.previousWorldPosition.y
+            
+            if (interaction.selectedContainerResizeSide.x > 0) { // right side
+                currentlySelectedContainer.size.width += mouseWorldMovement.x / currentlySelectedContainer.scale
+            }
+            if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
+                currentlySelectedContainer.size.height += mouseWorldMovement.y / currentlySelectedContainer.scale
+            }
+            if (interaction.selectedContainerResizeSide.x < 0) { // left side
+                currentlySelectedContainer.size.width -= mouseWorldMovement.x / currentlySelectedContainer.scale
+                
+                // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+                currentlySelectedContainer.relativePosition.x += mouseWorldMovement.x / parentOfSelectedContainer.scale
+                recalculateAbsolutePositions(currentlySelectedContainer)
+            }
+            if (interaction.selectedContainerResizeSide.y < 0) { // top side
+                currentlySelectedContainer.size.height -= mouseWorldMovement.y / currentlySelectedContainer.scale
+                
+                // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+                currentlySelectedContainer.relativePosition.y += mouseWorldMovement.y / parentOfSelectedContainer.scale
+                recalculateAbsolutePositions(currentlySelectedContainer)
+            }
+        }
+        
+        if (mouseState.leftButtonHasGoneUp) {
+            // We stopped resizing the selected container, so we store its (visual) data
+            storeContainerPositionAndSize(currentlySelectedContainer) // async call!
+            interaction.selectedContainerIsBeingResized = false
+            interaction.selectedContainerResizeSide = null
+        }
+    }
+    
+    
+    // Check if we are near the border of a container (and if it is clicked)
+    
+    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, currentlySelectedContainer)
+    
+    if (currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
+        
+        let mouseIsNearSelectedContainerBorder = false
+        
+        if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
+            interaction.mousePointerStyle = 'move'
+        }
+        else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y > 0) ||
+                 (selectedContainerNearness.x < 0 && selectedContainerNearness.y < 0))
+        {
+            if (interaction.viewAsIsoMetric) {
+                interaction.mousePointerStyle = 'e-resize'
+            }
+            else {
+                interaction.mousePointerStyle = 'nw-resize'
+            }
+            mouseIsNearSelectedContainerBorder = true
+        }
+        else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
+                 (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
+        {
+            if (interaction.viewAsIsoMetric) {
+                interaction.mousePointerStyle = 'n-resize'
+            }
+            else {
+                interaction.mousePointerStyle = 'ne-resize'
+            }
+            mouseIsNearSelectedContainerBorder = true
+        }
+        else if (selectedContainerNearness.x !== 0) {
+            if (interaction.viewAsIsoMetric) {
+                interaction.mousePointerStyle = 'ne-resize'
+            }
+            else {
+                interaction.mousePointerStyle = 'e-resize'
+            }
+            mouseIsNearSelectedContainerBorder = true
+        }
+        else if (selectedContainerNearness.y !== 0) {
+            if (interaction.viewAsIsoMetric) {
+                interaction.mousePointerStyle = 'nw-resize'
+            }
+            else {
+                interaction.mousePointerStyle = 'n-resize'
+            }
+            mouseIsNearSelectedContainerBorder = true
+        }
+        
+        if (!mouseState.leftButtonHasGoneDownTwice &&
+             mouseState.leftButtonHasGoneDown &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+            mouseIsNearSelectedContainerBorder) {
+                
+            interaction.selectedContainerIsBeingResized = true
+            interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
         }
         
     }
