@@ -96,49 +96,10 @@ function handleInputStateChange () {
         interaction.mousePointerStyle = 'default'
     }
     
-    // Handle mouse clicking
-
-    if (mouseState.rightButtonHasGoneDown && interaction.currentlyHoveredMenuButton == null) {
-        
-        let parentContainerIdentifier = 'root'
-        if (interaction.currentlyHoveredContainerIdentifier != null) {
-            parentContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
-        }
-        let parentContainer = getContainerByIdentifier(parentContainerIdentifier)
-        
-        let currentDateTime = new Date()
-        
-        // TODO: we need some kind of (incremental) id here!
-        // TODO: what should we use as identifier here??
-        let extraServer = {
-            type: 'server',  // TODO: allow adding different kinds of containers
-            parentContainerIdentifier: parentContainerIdentifier,
-            identifier: 'ExtraServer_' + currentDateTime.getTime(),
-            name: 'My Extra Server',
-            relativePosition: {
-                x: mouseState.worldPosition.x - parentContainer.position.x,
-                y: mouseState.worldPosition.y - parentContainer.position.y
-            },
-            relativeScale: 1,
-            size: {
-                width: 200,
-                height: 250
-            }
-        }
-        storeVisualContainerData(extraServer) // async call!
-        // let extraServerIdentifier = createContainer(extraServer)
-    }
 
     
     if (mouseState.leftButtonHasGoneDownTwice) {
-        
-        if (interaction.currentlyHoveredMenuButton == null) {
-            // TODO: we might want to check if the container is selected and/or hovered
-            if (containerAtMousePosition != null) {
-                interaction.currentlyEditingContainerText = containerAtMousePosition
-                console.log(containerAtMousePosition)
-            }
-        }
+        // FIXME: remove this!
     }
     // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
     else if (mouseState.leftButtonHasGoneDown) {
@@ -196,6 +157,7 @@ function handleInputStateChange () {
         
     }
     
+    doAddNewContainer()  // TODO: this should become a multi-step process, so we should check if its on-going after calling this function
     
     doEditContainerText()
     if (interaction.currentlyEditingContainerText == null) {
@@ -214,6 +176,42 @@ function handleInputStateChange () {
     
     
 }
+
+function doAddNewContainer() {
+    
+    // TODO: we should add new containers in a multi-step way (first choose its type, then draw a rectangle with the mouse (mouse down, move, up)
+    
+    if (mouseState.rightButtonHasGoneDown) {
+        
+        let parentContainerIdentifier = 'root'
+        if (interaction.currentlyHoveredContainerIdentifier != null) {
+            parentContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
+        }
+        let parentContainer = getContainerByIdentifier(parentContainerIdentifier)
+        
+        let currentDateTime = new Date()
+        
+        // TODO: we need some kind of (incremental) id here!
+        // TODO: what should we use as identifier here??
+        let extraServer = {
+            type: 'server',  // TODO: allow adding different kinds of containers
+            parentContainerIdentifier: parentContainerIdentifier,
+            identifier: 'ExtraServer_' + currentDateTime.getTime(),
+            name: 'My Extra Server',
+            relativePosition: {
+                x: mouseState.worldPosition.x - parentContainer.position.x,
+                y: mouseState.worldPosition.y - parentContainer.position.y
+            },
+            relativeScale: 1,
+            size: {
+                width: 200,
+                height: 250
+            }
+        }
+        storeVisualContainerData(extraServer) // async call!
+    }
+}
+
 
 function doEditContainerText() {
     
@@ -377,18 +375,9 @@ function doViewDraggingAndZoomingByMouse () {
     }
     
     if (!mouseState.leftButtonHasGoneDownTwice &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-         mouseState.leftButtonHasGoneDown &&
-        !interaction.selectedContainerIsBeingResized &&   // TODO: isn't this redundant?
-        !interaction.selectedContainerIsBeingDragged) {   // TODO: isn't this redundant?
-            
-            // we did not click on a menu button or on a container, so we clicked on the background
+         mouseState.leftButtonHasGoneDown) {
             interaction.viewIsBeingDraggedByMouse = true
-            
-            // interaction.currentlySelectedContainerIdentifier = null
-            // interaction.selectedContainerIsBeingDragged = false
-            // interaction.selectedContainerIsBeingResized = false
     }
-    
             
     // View zooming by mouse
     if (mouseState.mouseWheelHasMoved) {
@@ -448,7 +437,6 @@ function doContainerDraggingByMouse() {
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown && // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-        !interaction.selectedContainerIsBeingResized &&
         containerAtMousePosition != null) {
             
         interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
