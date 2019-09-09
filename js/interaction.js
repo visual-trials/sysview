@@ -36,6 +36,7 @@ let interaction = {
     selectedContainerIsBeingDragged : false,
     selectedContainerIsBeingResized : false,
     selectedContainerResizeSide : null,
+    mouseIsNearSelectedContainerBorder : false,
     
     newConnectionBeingAdded : null,
 
@@ -48,7 +49,6 @@ let interaction = {
 }
 
 function handleInputStateChange () {
-    
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
@@ -67,113 +67,128 @@ function handleInputStateChange () {
         interaction.currentlyHoveredMenuButton = null
     }
     
-    // Check mouse position
-    
-    if (interaction.currentlyHoveredMenuButton != null) {
-        // If we hover a menu button, we want to see a default mouse pointer
-        interaction.mousePointerStyle = 'default'
-    }
-    else if (interaction.currentlySelectedMode === 'connect') {
-        // TODO: is this always correct?
-        interaction.mousePointerStyle = 'default'
-        
-        if (interaction.newConnectionBeingAdded != null) {
-            if (interaction.currentlyHoveredContainerIdentifier != null &&
-                interaction.currentlyHoveredContainerIdentifier !== interaction.newConnectionBeingAdded.from) {
-                // We are hovering over a different container than we started the connection from, so we should connect with it
-                interaction.newConnectionBeingAdded.to = interaction.currentlyHoveredContainerIdentifier
-            }
-            else {
-                interaction.newConnectionBeingAdded.to = null
-            }
-        }
-
-    }
-    else if (interaction.currentlyHoveredContainerIdentifier != null) {
-        interaction.mousePointerStyle = 'move'
-    }
-    else {
-        interaction.mousePointerStyle = 'default'
-    }
-    
-
-    
-    if (mouseState.leftButtonHasGoneDownTwice) {
-        // FIXME: remove this!
-    }
-    // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-    else if (mouseState.leftButtonHasGoneDown) {
-        
-        if (interaction.currentlyHoveredMenuButton != null) {
-            // Menu-click has higher priority than container-click, we check it first
-            
-            if (interaction.currentlyHoveredMenuButton.mode) {
-                // If its a menu button with a 'mode', then we select that mode
-                interaction.currentlySelectedMode = interaction.currentlyHoveredMenuButton.mode
-            }
-            
-            if (interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
-                if (interaction.viewAsIsoMetric) {
-                    interaction.viewAsIsoMetric = false
-                    interaction.isoMetricAnimationRunning = true
-                }
-                else {
-                    interaction.viewAsIsoMetric = true
-                    interaction.isoMetricAnimationRunning = true
-                }
-            }
-            
-            if (interaction.currentlyHoveredMenuButton.toggle === 'grid') {
-                interaction.showGrid = !interaction.showGrid
-            }
-            
-        }
-        else if (interaction.currentlySelectedMode === 'connect') {
-            if (containerAtMousePosition != null) {
-                interaction.newConnectionBeingAdded = {
-                    type: 'new',
-                    identifier: '???', // FIXME:???
-                    name: 'New connection',
-                    from: containerAtMousePosition.identifier,
-                    to: null,
-                    stroke: { r:0, g:180, b:200, a:1 }, // FIXME: HACK!
-                }
-            }
-        }
-    }
-    
-    if (mouseState.leftButtonHasGoneUp) {
-        
-        if (interaction.currentlyHoveredMenuButton == null && interaction.currentlySelectedMode === 'connect') {
-            // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.to is not null)
-            if (interaction.newConnectionBeingAdded != null && interaction.newConnectionBeingAdded.to != null) {
-                // FIXME: we should give this connection the correct properties (like type, color etc)
-                interaction.newConnectionBeingAdded.type = 'API2API'
-                storeConnectionData(interaction.newConnectionBeingAdded)
-            }
-            
-            interaction.newConnectionBeingAdded = null
-        }
-        
-    }
-    
-    doAddNewContainer()  // TODO: this should become a multi-step process, so we should check if its on-going after calling this function
-    
-    doEditContainerText()
-    if (interaction.currentlyEditingContainerText == null) {
-        // We do resizing first, since the dragging checks if resizing is active (so it won't do both)
-        doContainerResizingByMouse()
-        if (!interaction.selectedContainerIsBeingResized) {
-            doContainerDraggingByMouse()
-            if (!interaction.selectedContainerIsBeingDragged) {
+    // TODO: maybe we do not always want to disable dragging/editing/etc if we happen to move the mouse over a menu item?
+    if (interaction.currentlyHoveredMenuButton == null) { 
+        if (interaction.currentlySelectedMode === 'connect') {
+            doAddNewConnection()
+            if (interaction.newConnectionBeingAdded == null) {
                 doViewDraggingAndZoomingByMouse()
             }
         }
+        else if (interaction.currentlySelectedMode === 'move') {
+            doAddNewContainer()  // TODO: this should become a multi-step process, so we should check if its on-going after calling this function
+            if (true) {  
+                doEditContainerText()
+                if (interaction.currentlyEditingContainerText == null) {
+                    
+                    // FIXME: can we reduce the complexity of the code below?
+                    
+                    if (!interaction.selectedContainerIsBeingDragged) {
+                        doContainerResizingByMouse()
+                        if (interaction.selectedContainerIsBeingResized) {
+                            interaction.selectedContainerIsBeingDragged = false
+                            interaction.viewIsBeingDraggedByMouse = false
+                        }
+                    }
+                    if (!interaction.mouseIsNearSelectedContainerBorder && !interaction.selectedContainerIsBeingResized) {
+                        doContainerDraggingByMouse()
+                        if (interaction.selectedContainerIsBeingDragged) {
+                            interaction.viewIsBeingDraggedByMouse = false
+                        }
+                    }
+                    if (!interaction.selectedContainerIsBeingDragged && !interaction.selectedContainerIsBeingResized) {
+                        doViewDraggingAndZoomingByMouse()
+                    }
+                }
+            }
+        }
+        else if (interaction.currentlySelectedMode === 'view') {
+            doViewDraggingAndZoomingByMouse()
+        }
+    }
+    else {
+        // If we hover a menu button, we want to see a default mouse pointer
+        interaction.mousePointerStyle = 'default'
+        
+        doMenuButtonModeSelect()
+        doMenuButtonIsoMetricToggle()
+        doMenuButtonGridToggle()
     }
     
     // Always do view dragging and zooming by touch
     doViewDraggingAndZoomingByTouch()
     
+}
+
+function doMenuButtonModeSelect() {
+    if (mouseState.leftButtonHasGoneDown && interaction.currentlyHoveredMenuButton.mode) {
+        // If its a menu button with a 'mode', then we select that mode
+        interaction.currentlySelectedMode = interaction.currentlyHoveredMenuButton.mode
+    }
+}
+
+function doMenuButtonIsoMetricToggle() {
+    if (mouseState.leftButtonHasGoneDown && interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
+        if (interaction.viewAsIsoMetric) {
+            interaction.viewAsIsoMetric = false
+            interaction.isoMetricAnimationRunning = true
+        }
+        else {
+            interaction.viewAsIsoMetric = true
+            interaction.isoMetricAnimationRunning = true
+        }
+    }
+}
+
+function doMenuButtonGridToggle() {
+    if (mouseState.leftButtonHasGoneDown && interaction.currentlyHoveredMenuButton.toggle === 'grid') {
+        interaction.showGrid = !interaction.showGrid
+    }
+}
+
+function doAddNewConnection() {
+    
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    
+    // TODO: is this always correct?
+    interaction.mousePointerStyle = 'default'
+        
+    if (!mouseState.leftButtonHasGoneDownTwice &&
+         mouseState.leftButtonHasGoneDown) {  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+        
+        if (containerAtMousePosition != null) {
+            interaction.newConnectionBeingAdded = {
+                type: 'new',
+                identifier: '???', // FIXME:???
+                name: 'New connection',
+                from: containerAtMousePosition.identifier,
+                to: null,
+                stroke: { r:0, g:180, b:200, a:1 }, // FIXME: HACK!
+            }
+        }
+    }
+    
+    // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.to is not null)
+    if (interaction.newConnectionBeingAdded != null) {
+        
+        if (interaction.currentlyHoveredContainerIdentifier != null &&
+            interaction.currentlyHoveredContainerIdentifier !== interaction.newConnectionBeingAdded.from) {
+            // We are hovering over a different container than we started the connection from, so we should connect with it
+            interaction.newConnectionBeingAdded.to = interaction.currentlyHoveredContainerIdentifier
+        }
+        else {
+            interaction.newConnectionBeingAdded.to = null
+        }
+        
+        if (mouseState.leftButtonHasGoneUp && interaction.newConnectionBeingAdded.to != null) {
+        
+            // FIXME: we should give this connection the correct properties (like type, color etc)
+            interaction.newConnectionBeingAdded.type = 'API2API'
+            storeConnectionData(interaction.newConnectionBeingAdded)
+            
+            interaction.newConnectionBeingAdded = null
+        }
+    }
     
 }
 
@@ -410,6 +425,13 @@ function doViewDraggingAndZoomingByMouse () {
 function doContainerDraggingByMouse() {
     let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
     
+    if (interaction.currentlyHoveredContainerIdentifier != null) {
+        interaction.mousePointerStyle = 'move'
+    }
+    else {
+        interaction.mousePointerStyle = 'default'
+    }
+    
     // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
     let parentOfSelectedContainerContainerIdentifier = 'root'
     if (currentlySelectedContainer != null) {
@@ -432,20 +454,29 @@ function doContainerDraggingByMouse() {
         }
     }
 
-    // FIXME: maybe we should do a separate function doContainerSelectionByMouse() and check here is container is selected? But how do we know we should set BeingDragged to true then?
-    //        or is this a special container-selection in the sense that it ALSO set the BeingDragged to true?
+    // TODO: maybe we should do a separate function doContainerSelectionByMouse() and check here is container is selected? But how do we know we should set BeingDragged to true then?
+    //       or is this a special container-selection in the sense that it ALSO set the BeingDragged to true?
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown && // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         containerAtMousePosition != null) {
-            
-        interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
-        interaction.selectedContainerIsBeingDragged = true
+        
+        // FIXME: what should we do here: allow immediate dragging after selecting a container?
+        if (interaction.currentlySelectedContainerIdentifier == null ||
+            interaction.currentlySelectedContainerIdentifier !== containerAtMousePosition.identifier) {
+            // We just selected a different container (than the one already selected) so we
+            // only set the selection (and do not mark it as being dragged)
+            interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
+        }
+        else {
+            interaction.selectedContainerIsBeingDragged = true
+        }
     }
     
 }
 
 function doContainerResizingByMouse() {
+    
     let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
     
     // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
@@ -499,7 +530,7 @@ function doContainerResizingByMouse() {
     
     if (currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
         
-        let mouseIsNearSelectedContainerBorder = false
+        interaction.mouseIsNearSelectedContainerBorder = false
         
         if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
             interaction.mousePointerStyle = 'move'
@@ -513,7 +544,7 @@ function doContainerResizingByMouse() {
             else {
                 interaction.mousePointerStyle = 'nw-resize'
             }
-            mouseIsNearSelectedContainerBorder = true
+            interaction.mouseIsNearSelectedContainerBorder = true
         }
         else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
                  (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
@@ -524,7 +555,7 @@ function doContainerResizingByMouse() {
             else {
                 interaction.mousePointerStyle = 'ne-resize'
             }
-            mouseIsNearSelectedContainerBorder = true
+            interaction.mouseIsNearSelectedContainerBorder = true
         }
         else if (selectedContainerNearness.x !== 0) {
             if (interaction.viewAsIsoMetric) {
@@ -533,7 +564,7 @@ function doContainerResizingByMouse() {
             else {
                 interaction.mousePointerStyle = 'e-resize'
             }
-            mouseIsNearSelectedContainerBorder = true
+            interaction.mouseIsNearSelectedContainerBorder = true
         }
         else if (selectedContainerNearness.y !== 0) {
             if (interaction.viewAsIsoMetric) {
@@ -542,17 +573,22 @@ function doContainerResizingByMouse() {
             else {
                 interaction.mousePointerStyle = 'n-resize'
             }
-            mouseIsNearSelectedContainerBorder = true
+            interaction.mouseIsNearSelectedContainerBorder = true
         }
         
         if (!mouseState.leftButtonHasGoneDownTwice &&
              mouseState.leftButtonHasGoneDown &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-            mouseIsNearSelectedContainerBorder) {
+            interaction.mouseIsNearSelectedContainerBorder) {
                 
             interaction.selectedContainerIsBeingResized = true
             interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
         }
         
+    }
+    else {
+        // If the mouse is outside the selected container (or if there is no selected container), 
+        // we set mouseIsNearSelectedContainerBorder to false
+        interaction.mouseIsNearSelectedContainerBorder = false
     }
     
 }
