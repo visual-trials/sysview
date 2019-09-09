@@ -461,7 +461,11 @@ function doContainerDraggingByMouse() {
          mouseState.leftButtonHasGoneDown && // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         containerAtMousePosition != null) {
         
+        interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
+        interaction.selectedContainerIsBeingDragged = true
+        
         // FIXME: what should we do here: allow immediate dragging after selecting a container?
+        /*
         if (interaction.currentlySelectedContainerIdentifier == null ||
             interaction.currentlySelectedContainerIdentifier !== containerAtMousePosition.identifier) {
             // We just selected a different container (than the one already selected) so we
@@ -471,6 +475,7 @@ function doContainerDraggingByMouse() {
         else {
             interaction.selectedContainerIsBeingDragged = true
         }
+        */
     }
     
 }
