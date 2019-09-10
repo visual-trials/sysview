@@ -72,8 +72,9 @@ function handleInputStateChange () {
         if (interaction.currentlySelectedMode === 'connect') {
             doAddNewConnection()
             if (interaction.newConnectionBeingAdded == null) {
-                doViewDraggingAndZoomingByMouse()
+                doViewDraggingByMouse()
             }
+            doViewZoomingByMouse()
         }
         else if (interaction.currentlySelectedMode === 'move') {
             doAddNewContainer()  // TODO: this should become a multi-step process, so we should check if its on-going after calling this function
@@ -100,13 +101,17 @@ function handleInputStateChange () {
                     }
                     
                     if (interaction.currentlySelectedContainerIdentifier == null) {
-                        doViewDraggingAndZoomingByMouse()
+                        doViewDraggingByMouse()
                     }
+                    
                 }
             }
+            
+            doViewZoomingByMouse()
         }
         else if (interaction.currentlySelectedMode === 'view') {
-            doViewDraggingAndZoomingByMouse()
+            doViewDraggingByMouse()
+            doViewZoomingByMouse()
         }
     }
     else {
@@ -567,7 +572,7 @@ function doViewDraggingAndZoomingByTouch () {
 
 }
 
-function doViewDraggingAndZoomingByMouse () {
+function doViewDraggingByMouse () {
     
     // View dragging by mouse
     if (interaction.viewIsBeingDraggedByMouse) {
@@ -584,7 +589,10 @@ function doViewDraggingAndZoomingByMouse () {
          mouseState.leftButtonHasGoneDown) {
             interaction.viewIsBeingDraggedByMouse = true
     }
-            
+}
+
+function doViewZoomingByMouse () {
+    
     // View zooming by mouse
     if (mouseState.mouseWheelHasMoved) {
         let scrollSensitivity = 0.1
