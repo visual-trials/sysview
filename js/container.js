@@ -38,7 +38,6 @@ function initContainersAndConnections () {
 
 function createContainer(containerData) {
     
-    // FIXME: check if this identifier is unique!!
     let containerIdentifier = containerData.identifier
     
     let parentContainerIdentifier = containerData.parentContainerIdentifier
@@ -90,6 +89,9 @@ function createContainer(containerData) {
         children: [],
     }
     
+    if (containersAndConnections.containers.hasOwnProperty(containerIdentifier)) {
+        console.log('WARNING: container with identifier ' + containerIdentifier + 'already exists!')
+    }
     containersAndConnections.containers[containerIdentifier] = newContainer
     
     return newContainer
