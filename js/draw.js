@@ -303,16 +303,18 @@ function drawConnection(connection, fromContainer, toContainer) {
         ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
         ctx.stroke()
         
-        if (interaction.currentlySelectedConnection != null && 
-            connection.identifier === interaction.currentlySelectedConnection.identifier) {
+        if (interaction.currentlySelectedConnection != null) {
+            if (connection.identifier === interaction.currentlySelectedConnection.identifier) {
                 
-            ctx.lineWidth = 2 // TODO: do we want to scale this too?
-            ctx.strokeStyle = "#FF0000"
-            
-            ctx.beginPath()
-            ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
-            ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
-            ctx.stroke()
+                ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                ctx.strokeStyle = "#FF0000"
+                
+                ctx.beginPath()
+                ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
+                ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
+                ctx.stroke()
+            }
+
         }
     }
     
@@ -446,19 +448,34 @@ function drawContainer(container, alpha = null) {
             ctx.closePath()
             ctx.fill()
             
-            if (interaction.currentlySelectedContainerIdentifier != null && 
-                container.identifier === interaction.currentlySelectedContainerIdentifier) {
+            if (interaction.currentlySelectedContainerIdentifier != null) {
+                if (container.identifier === interaction.currentlySelectedContainerIdentifier) {
+                    ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                    ctx.strokeStyle = "#FF0000"
                     
-                ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                ctx.strokeStyle = "#FF0000"
-                
-                ctx.beginPath()
-                ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
-                ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
-                ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
-                ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
-                ctx.closePath()
-                ctx.stroke()
+                    ctx.beginPath()
+                    ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
+                    ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
+                    ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
+                    ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
+                    ctx.closePath()
+                    ctx.stroke()
+                }
+                else if (interaction.selectedContainerIsBeingDragged && 
+                         interaction.emcompassingContainerIdentifier !== 'root' &&
+                         container.identifier === interaction.emcompassingContainerIdentifier) {
+
+                    ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                    ctx.strokeStyle = "#FFFF00"
+                    
+                    ctx.beginPath()
+                    ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
+                    ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
+                    ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
+                    ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
+                    ctx.closePath()
+                    ctx.stroke()
+                }
             }
         }
         else {
@@ -467,12 +484,22 @@ function drawContainer(container, alpha = null) {
             let screenContainerSize = scaleSize(interaction.viewScale * container.scale, container.size)
             ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             
-            if (interaction.currentlySelectedContainerIdentifier != null && 
-                container.identifier === interaction.currentlySelectedContainerIdentifier) {
+            if (interaction.currentlySelectedContainerIdentifier != null) { 
+                if (container.identifier === interaction.currentlySelectedContainerIdentifier) {
                     
-                ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                ctx.strokeStyle = "#FF0000"
-                ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
+                    ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                    ctx.strokeStyle = "#FF0000"
+                    ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
+                }
+                else if (interaction.selectedContainerIsBeingDragged && 
+                         interaction.emcompassingContainerIdentifier !== 'root' &&
+                         container.identifier === interaction.emcompassingContainerIdentifier) {
+                             
+                    ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                    ctx.strokeStyle = "#FFFF00"
+                    ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
+                             
+                }
             }
         }
     }

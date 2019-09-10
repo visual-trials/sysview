@@ -207,9 +207,10 @@ function doContainerDraggingByMouse() {
         let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
         if (encompassingContainer != null) {
             interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
+console.log(interaction.emcompassingContainerIdentifier)
         }
         else {
-            // We set parent to 'root' if emcompassingContainerIdentifier == null, but shouldnt findContainerEncompassingWorldRectangle already return 'root'?
+            // TODO: We set parent to 'root' if emcompassingContainerIdentifier == null, but shouldnt findContainerEncompassingWorldRectangle already return 'root'?
             interaction.emcompassingContainerIdentifier = 'root'
         }
         
@@ -220,11 +221,9 @@ function doContainerDraggingByMouse() {
             
             // TODO: Check if we are landing on a (different) encompassingContainer, if so make it the parent (we need to re-calculate its relative position AND scale!)
             if (currentlySelectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier) {
-                console.log(currentlySelectedContainer.parentContainerIdentifier)
-                console.log(interaction.emcompassingContainerIdentifier)
-                console.log('We have a different parent!')
                 
                 currentlySelectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
+                
                 // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
                 //       and adds the child to the new parent. Can we do this more explicitly?
                 storeContainerParent(currentlySelectedContainer)
