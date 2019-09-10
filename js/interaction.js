@@ -221,18 +221,28 @@ function doContainerDraggingByMouse() {
             // We are checking if we are landing on a (different) encompassingContainer, if so make it the parent 
             if (currentlySelectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier) {
 
-// FIXME: we also need to re-calculate its relative position AND scale! (and store it!)
-console.log(currentlySelectedContainer.position)
-
-//                currentlySelectedContainer.relativePosition.x = (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
-//                currentlySelectedContainer.relativePosition.y = (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
-//                recalculateAbsolutePositions(currentlySelectedContainer)
+                // Get the worldPosition of the current container
+                let currentContainerWorldPosition = currentlySelectedContainer.position
+                
+                 // Get the worldPosition of the encompassingContainer (the new parent)
+                let newParentContainer = getContainerByIdentifier(interaction.emcompassingContainerIdentifier)
+                let newParentContainerWorldPosition = newParentContainer.position
+                
+                // Substract these two positions: take into account the (world and local)scale of the parent
+                // this is now the new relative/local position of the current container.
+                currentlySelectedContainer.relativePosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.scale
+                currentlySelectedContainer.relativePosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.scale
+                recalculateAbsolutePositions(currentlySelectedContainer)
+                
+                // TODO: the current container is (for 1 frame) still a child of a different container,
+                //       so its new relative position will be relative to the old parent (for 1 frame)
                 
                 currentlySelectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
                 
                 // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
                 //       and adds the child to the new parent. Can we do this more explicitly?
                 storeContainerParent(currentlySelectedContainer)
+                storeContainerPositionAndSize(currentlySelectedContainer) // async call!
             }
             // FIXME: we probably want to combine BOTH stores by adding an 'else' here!
         
