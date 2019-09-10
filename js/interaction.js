@@ -207,7 +207,6 @@ function doContainerDraggingByMouse() {
         let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
         if (encompassingContainer != null) {
             interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
-console.log(interaction.emcompassingContainerIdentifier)
         }
         else {
             // TODO: We set parent to 'root' if emcompassingContainerIdentifier == null, but shouldnt findContainerEncompassingWorldRectangle already return 'root'?
@@ -219,8 +218,15 @@ console.log(interaction.emcompassingContainerIdentifier)
         
         if (mouseState.leftButtonHasGoneUp) {
             
-            // TODO: Check if we are landing on a (different) encompassingContainer, if so make it the parent (we need to re-calculate its relative position AND scale!)
+            // We are checking if we are landing on a (different) encompassingContainer, if so make it the parent 
             if (currentlySelectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier) {
+
+// FIXME: we also need to re-calculate its relative position AND scale! (and store it!)
+console.log(currentlySelectedContainer.position)
+
+//                currentlySelectedContainer.relativePosition.x = (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
+//                currentlySelectedContainer.relativePosition.y = (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
+//                recalculateAbsolutePositions(currentlySelectedContainer)
                 
                 currentlySelectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
                 

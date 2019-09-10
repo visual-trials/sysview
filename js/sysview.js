@@ -157,6 +157,11 @@ function loadContainerAndConnectionData() {
     xmlhttp.send()
 }
 
+// TODO: instead of actually storing the data, it is probably better to mark a container as to-be-stored (in a list of toBeStoredcontainersIdentifiers)
+//       and set databaseDataHasChanged to true. In the main loop, when databaseDataHasChanged is checked,
+//       all changed containers can then be stored. This prevents multiple store-calls per frame (and can bundle multiple containers in 1 call).
+
+// TODO: dont pass the whole container, only the containerIdentifier and the parentContainerIdentifier
 function storeContainerParent(container) {
     // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
     if (!databaseData.visual.containers.hasOwnProperty(container.identifier)) {
@@ -168,6 +173,7 @@ function storeContainerParent(container) {
     databaseDataHasChanged = true
 }
 
+// TODO: dont pass the whole container, only the containerIdentifier and the position and size
 function storeContainerPositionAndSize(container) {
     // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
     if (!databaseData.visual.containers.hasOwnProperty(container.identifier)) {
