@@ -181,7 +181,7 @@ function storeContainerPositionAndSize(container) {
     }
     let visualContainerData = databaseData.visual.containers[container.identifier]
     visualContainerData.localPosition = container.localPosition
-    visualContainerData.size = container.size
+    visualContainerData.localSize = container.localSize
     storeVisualContainerData(visualContainerData) // async call!
 }
 

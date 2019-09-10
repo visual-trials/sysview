@@ -31,7 +31,7 @@
                 "y": 38
             },
             "localScale": 1,
-            "size": {
+            "localSize": {
                 "height": 50,
                 "width": 70
             },
@@ -46,7 +46,7 @@
                 "y": 170.37713840392
             },
             "localScale": 0.5,
-            "size": {
+            "localSize": {
                 "height": 72.42670875645,
                 "width": 112.54871576581
             },
@@ -61,7 +61,7 @@
                 "y": 56.020946272807
             },
             "localScale": 0.5,
-            "size": {
+            "localSize": {
                 "height": 82.563072341285,
                 "width": 514.28686226441
             },
@@ -76,7 +76,7 @@
                 "y": 184.52066115702
             },
             "localScale": 1,
-            "size": {
+            "localSize": {
                 "height": 226,
                 "width": 303
             },
@@ -91,7 +91,7 @@
                 "y": 196.03611
             },
             "localScale": 1,
-            "size": {
+            "localSize": {
                 "height": 292.78648380165,
                 "width": 521.25870049587
             },

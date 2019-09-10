@@ -81,9 +81,9 @@ function createContainer(containerData) {
         },
         localScale: containerData.localScale,
         scale: null,
-        size: { 
-            width: containerData.size.width,
-            height: containerData.size.height,
+        localSize: { 
+            width: containerData.localSize.width,
+            height: containerData.localSize.height,
         },
         fill: fill,
         stroke: stroke,
@@ -128,17 +128,17 @@ function mergeSourceAndVisualContainerData (sourceContainerData, visualContainer
                 0)
             )
         },
-        size : { 
+        localSize : { 
             width: parseFloat(getExistingField(
                 'width', 
-                visualContainerData == null ? null : visualContainerData.size, 
-                sourceContainerData == null ? null : sourceContainerData.size, 
+                visualContainerData == null ? null : visualContainerData.localSize, 
+                sourceContainerData == null ? null : sourceContainerData.localSize, 
                 0)
             ),
             height: parseFloat(getExistingField(
                 'height', 
-                visualContainerData == null ? null : visualContainerData.size, 
-                sourceContainerData == null ? null : sourceContainerData.size, 
+                visualContainerData == null ? null : visualContainerData.localSize, 
+                sourceContainerData == null ? null : sourceContainerData.localSize, 
                 0)
             )
         },

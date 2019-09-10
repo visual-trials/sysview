@@ -152,8 +152,8 @@ function unscaleSize(scale, size) {
 
 function getCenterPositonOfContainer(container) {
     let centerPosition = { x: 0, y: 0 }
-    centerPosition.x = container.position.x + container.size.width / 2 * container.scale 
-    centerPosition.y = container.position.y + container.size.height / 2 * container.scale 
+    centerPosition.x = container.position.x + container.localSize.width / 2 * container.scale 
+    centerPosition.y = container.position.y + container.localSize.height / 2 * container.scale 
     return centerPosition
 }
 
@@ -171,15 +171,15 @@ function getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, container,
     }
     
     if (centerPoint == null) {
-        centerPoint = {x: container.size.width * container.scale / 2, y: container.size.height * container.scale / 10}
+        centerPoint = {x: container.localSize.width * container.scale / 2, y: container.localSize.height * container.scale / 10}
         centerPoint.x += container.position.x
         centerPoint.y += container.position.y
     }
     
     let leftTop =     {x: container.position.x,                                          y: container.position.y }
-    let rightTop =    {x: container.position.x + container.size.width * container.scale, y: container.position.y }
-    let leftBottom =  {x: container.position.x,                                          y: container.position.y + container.size.height * container.scale }
-    let rightBottom = {x: container.position.x + container.size.width * container.scale, y: container.position.y + container.size.height * container.scale }
+    let rightTop =    {x: container.position.x + container.localSize.width * container.scale, y: container.position.y }
+    let leftBottom =  {x: container.position.x,                                          y: container.position.y + container.localSize.height * container.scale }
+    let rightBottom = {x: container.position.x + container.localSize.width * container.scale, y: container.position.y + container.localSize.height * container.scale }
     
     let angleWidthLeftTop  = Math.atan2(leftTop.y - centerPoint.y, leftTop.x - centerPoint.x);
     let angleWidthRightTop = Math.atan2(rightTop.y - centerPoint.y, rightTop.x - centerPoint.x);
@@ -270,14 +270,14 @@ function getRectangleAroundWorld() {
         if (childContainer.position.x < minX) {
             minX = childContainer.position.x
         }
-        if (childContainer.position.x + childContainer.size.width > maxX) {
-            maxX = childContainer.position.x + childContainer.size.width
+        if (childContainer.position.x + childContainer.localSize.width > maxX) {
+            maxX = childContainer.position.x + childContainer.localSize.width // TODO: shouldnt this be multiplied by scale?
         }
         if (childContainer.position.y < minY) {
             minY = childContainer.position.y
         }
-        if (childContainer.position.y + childContainer.size.height > maxY) {
-            maxY = childContainer.position.y + childContainer.size.height
+        if (childContainer.position.y + childContainer.localSize.height > maxY) {
+            maxY = childContainer.position.y + childContainer.localSize.height // TODO: shouldnt this be multiplied by scale?
         }
     }
     
@@ -396,15 +396,15 @@ function whichSideIsPositionFromContainer(worldPosition, container) {
             side.isNearContainer = false
         }
     }
-    if (worldPosition.x > container.position.x + container.size.width * container.scale - margin) {
+    if (worldPosition.x > container.position.x + container.localSize.width * container.scale - margin) {
         side.x = 1
-        if (worldPosition.x > container.position.x + container.size.width * container.scale + margin) {
+        if (worldPosition.x > container.position.x + container.localSize.width * container.scale + margin) {
             side.isNearContainer = false
         }
     }
-    if (worldPosition.y > container.position.y + container.size.height * container.scale - margin) {
+    if (worldPosition.y > container.position.y + container.localSize.height * container.scale - margin) {
         side.y = 1
-        if (worldPosition.y > container.position.y + container.size.height * container.scale + margin) {
+        if (worldPosition.y > container.position.y + container.localSize.height * container.scale + margin) {
             side.isNearContainer = false
         }
     }
@@ -414,8 +414,8 @@ function whichSideIsPositionFromContainer(worldPosition, container) {
 function worldRectangleIsInsideContainer(worldRectangle, container) {
     if (worldRectangle.position.x <= container.position.x ||
         worldRectangle.position.y <= container.position.y ||
-        worldRectangle.position.x + worldRectangle.size.width >= container.position.x + container.size.width * container.scale ||
-        worldRectangle.position.y + worldRectangle.size.height >= container.position.y + container.size.height * container.scale) {
+        worldRectangle.position.x + worldRectangle.size.width >= container.position.x + container.localSize.width * container.scale ||
+        worldRectangle.position.y + worldRectangle.size.height >= container.position.y + container.localSize.height * container.scale) {
             
         return false
     }
@@ -427,8 +427,8 @@ function worldRectangleIsInsideContainer(worldRectangle, container) {
 function worldPositionIsInsideContainer(worldPosition, container) {
     if (worldPosition.x <= container.position.x ||
         worldPosition.y <= container.position.y ||
-        worldPosition.x >= container.position.x + container.size.width * container.scale ||
-        worldPosition.y >= container.position.y + container.size.height * container.scale) {
+        worldPosition.x >= container.position.x + container.localSize.width * container.scale ||
+        worldPosition.y >= container.position.y + container.localSize.height * container.scale) {
             
         return false
     }

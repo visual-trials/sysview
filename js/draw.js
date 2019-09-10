@@ -240,7 +240,7 @@ function drawNewConnection () {
         else {
             toContainer = {
                 identifier: '__new__', // FIXME: this is a HACK to prevent crashing at getFirstVisibleContainer
-                size: { width: 0, height: 0},
+                localSize: { width: 0, height: 0},
                 position: { x: mouseState.worldPosition.x, 
                             y: mouseState.worldPosition.y }
             }
@@ -415,11 +415,11 @@ function drawContainer(container, alpha = null) {
             let containerThickness = 6 * interaction.viewScale * container.scale * interaction.percentageIsoMetric
             
             let leftTopContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.y += container.size.height * container.scale
+            position.y += container.localSize.height * container.scale
             let leftBottomContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.x += container.size.width * container.scale
+            position.x += container.localSize.width * container.scale
             let rightBottomContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.y -= container.size.height * container.scale
+            position.y -= container.localSize.height * container.scale
             let rightTopContainerPosition = fromWorldPositionToScreenPosition(position)
             
             ctx.beginPath()
@@ -481,7 +481,7 @@ function drawContainer(container, alpha = null) {
         else {
             
             let screenContainerPosition = fromWorldPositionToScreenPosition(container.position)
-            let screenContainerSize = scaleSize(interaction.viewScale * container.scale, container.size)
+            let screenContainerSize = scaleSize(interaction.viewScale * container.scale, container.localSize)
             ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             
             if (interaction.currentlySelectedContainerIdentifier != null) { 
@@ -527,8 +527,8 @@ if (container.parentContainerIdentifier === 'root') {
 
         // Determine text position
         let textWorldPosition = {}
-        textWorldPosition.x = container.position.x + (container.size.width * container.scale / 2) - (textSize.width * container.scale / 2)
-        textWorldPosition.y = container.position.y + (container.size.height * container.scale / 2) - (textSize.height * container.scale / 2) + heightBottomWhiteArea * container.scale
+        textWorldPosition.x = container.position.x + (container.localSize.width * container.scale / 2) - (textSize.width * container.scale / 2)
+        textWorldPosition.y = container.position.y + (container.localSize.height * container.scale / 2) - (textSize.height * container.scale / 2) + heightBottomWhiteArea * container.scale
         
         let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
         

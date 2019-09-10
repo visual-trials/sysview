@@ -42,7 +42,7 @@ function initExampleData() {
             y: 200
         },
         localScale: 1,
-        size: {
+        localSize: {
             width: 200,
             height: 250
         }
@@ -61,7 +61,7 @@ function initExampleData() {
             y: 20
         },
         localScale: 1,
-        size: {
+        localSize: {
             width: 70,
             height: 50
         }
@@ -80,7 +80,7 @@ function initExampleData() {
             y: 200
         },
         localScale: 0.5,
-        size: {
+        localSize: {
             width: 150,
             height: 150
         }
@@ -99,7 +99,7 @@ function initExampleData() {
             y: 10
         },
         localScale: 1,
-        size: {
+        localSize: {
             width: 70,
             height: 50
         }
