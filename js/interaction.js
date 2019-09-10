@@ -201,7 +201,7 @@ function doContainerDraggingByMouse() {
         
         let worldRectangle = {}
         // TODO: you want the size of the container to include the scale, so we dont have to multiply it each time
-        worldRectangle.position = { x: currentlySelectedContainer.position.x, y: currentlySelectedContainer.position.y }
+        worldRectangle.position = { x: currentlySelectedContainer.worldPosition.x, y: currentlySelectedContainer.worldPosition.y }
         worldRectangle.size = { width: currentlySelectedContainer.localSize.width * currentlySelectedContainer.scale , height: currentlySelectedContainer.localSize.height  * currentlySelectedContainer.scale }
         
         let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
@@ -222,14 +222,14 @@ function doContainerDraggingByMouse() {
             if (currentlySelectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier) {
 
                 // Get the worldPosition of the current container
-                let currentContainerWorldPosition = currentlySelectedContainer.position
+                let currentContainerWorldPosition = currentlySelectedContainer.worldPosition
                 
                  // Get the worldPosition of the encompassingContainer (the new parent)
                 let newParentContainer = getContainerByIdentifier(interaction.emcompassingContainerIdentifier)
-                let newParentContainerWorldPosition = newParentContainer.position
+                let newParentContainerWorldPosition = newParentContainer.worldPosition
                 
-                // Substract these two positions: take into account the (world and local)scale of the parent
-                // this is now the new relative/local position of the current container.
+                // Substract these two worldPositions: take into account the (world and local)scale of the parent
+                // this is now the new local position of the current container.
                 currentlySelectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.scale
                 currentlySelectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.scale
                 recalculateAbsolutePositions(currentlySelectedContainer)
@@ -452,8 +452,8 @@ function doAddNewContainer() {
             identifier: 'ExtraServer_' + currentDateTime.getTime(),
             name: 'My Extra Server',
             localPosition: {
-                x: mouseState.worldPosition.x - parentContainer.position.x,
-                y: mouseState.worldPosition.y - parentContainer.position.y
+                x: mouseState.worldPosition.x - parentContainer.worldPosition.x,
+                y: mouseState.worldPosition.y - parentContainer.worldPosition.y
             },
             localScale: 1,
             localSize: {

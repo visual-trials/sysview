@@ -241,7 +241,7 @@ function drawNewConnection () {
             toContainer = {
                 identifier: '__new__', // FIXME: this is a HACK to prevent crashing at getFirstVisibleContainer
                 localSize: { width: 0, height: 0},
-                position: { x: mouseState.worldPosition.x, 
+                worldPosition: { x: mouseState.worldPosition.x, 
                             y: mouseState.worldPosition.y }
             }
         }
@@ -318,34 +318,6 @@ function drawConnection(connection, fromContainer, toContainer) {
         }
     }
     
-    /*
-    let textColor = { r:0, g:0, b:0, a:1 }
-    {
-        // Draw text
-        let textToDraw = connection.identifier
-        
-        // Get text size
-        let textSize = {}
-        let fontSize = 12
-        ctx.font = fontSize + "px Arial"
-        let textHeightToFontSizeRatioArial = 1.1499023
-        
-        textSize.width = ctx.measureText(textToDraw).width
-        textSize.height = textHeightToFontSizeRatioArial * fontSize
-
-        // Determine text position
-        let textPosition = {}
-        // FIXME: textPosition.x = connection.position.x + (connection.size.width / 2) - (connection.width / 2)
-        // FIXME: textPosition.y = connection.position.y + (connection.size.height / 2) + (connection.height / 2) 
-        
-        // NOTE: these isn't a real screen position (see fromWorldPositionToScreenPosition)
-        // FIXME: let screenTextPosition = fromWorldPositionToScreenPosition(textPosition)
-        
-        // Draw the text at the text positions
-        ctx.fillStyle = rgba(textColor)
-        // FIXME: ctx.fillText(textToDraw, screenTextPosition.x, screenTextPosition.y)
-    }
-    */
 }
 
 // TODO: maybe call this: showCover instead?
@@ -407,20 +379,20 @@ function drawContainer(container, alpha = null) {
         
         if (interaction.percentageIsoMetric > 0) {
         
-            let position = { x : 0, y : 0}
-            position.x = container.position.x
-            position.y = container.position.y
+            let worldPosition = { x : 0, y : 0}
+            worldPosition.x = container.worldPosition.x
+            worldPosition.y = container.worldPosition.y
             
             // TODO: using percentageIsoMetric directly (without sin/cos/tan) is probably not quite right
             let containerThickness = 6 * interaction.viewScale * container.scale * interaction.percentageIsoMetric
             
-            let leftTopContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.y += container.localSize.height * container.scale
-            let leftBottomContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.x += container.localSize.width * container.scale
-            let rightBottomContainerPosition = fromWorldPositionToScreenPosition(position)
-            position.y -= container.localSize.height * container.scale
-            let rightTopContainerPosition = fromWorldPositionToScreenPosition(position)
+            let leftTopContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
+            worldPosition.y += container.localSize.height * container.scale
+            let leftBottomContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
+            worldPosition.x += container.localSize.width * container.scale
+            let rightBottomContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
+            worldPosition.y -= container.localSize.height * container.scale
+            let rightTopContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
             
             ctx.beginPath()
             ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
@@ -480,7 +452,7 @@ function drawContainer(container, alpha = null) {
         }
         else {
             
-            let screenContainerPosition = fromWorldPositionToScreenPosition(container.position)
+            let screenContainerPosition = fromWorldPositionToScreenPosition(container.worldPosition)
             let screenContainerSize = scaleSize(interaction.viewScale * container.scale, container.localSize)
             ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             
@@ -527,8 +499,8 @@ if (container.parentContainerIdentifier === 'root') {
 
         // Determine text position
         let textWorldPosition = {}
-        textWorldPosition.x = container.position.x + (container.localSize.width * container.scale / 2) - (textSize.width * container.scale / 2)
-        textWorldPosition.y = container.position.y + (container.localSize.height * container.scale / 2) - (textSize.height * container.scale / 2) + heightBottomWhiteArea * container.scale
+        textWorldPosition.x = container.worldPosition.x + (container.localSize.width * container.scale / 2) - (textSize.width * container.scale / 2)
+        textWorldPosition.y = container.worldPosition.y + (container.localSize.height * container.scale / 2) - (textSize.height * container.scale / 2) + heightBottomWhiteArea * container.scale
         
         let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
         

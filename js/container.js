@@ -28,7 +28,7 @@ function initContainersAndConnections () {
         type: 'root',
         id: 0,
         identifier: null,
-        position : { x: 0, y: 0 },
+        worldPosition : { x: 0, y: 0 },
         localScale: 1,
         children: [],
     }
@@ -74,7 +74,7 @@ function createContainer(containerData) {
         identifier: containerIdentifier,
         name: containerData.name,
         parentContainerIdentifier: parentContainerIdentifier != null ? parentContainerIdentifier : 'root',
-        position: {},
+        worldPosition: {},
         localPosition: {
             x: containerData.localPosition.x,
             y: containerData.localPosition.y,
