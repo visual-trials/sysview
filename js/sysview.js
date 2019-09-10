@@ -145,8 +145,6 @@ function loadContainerAndConnectionData() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             let projectData = JSON.parse(xmlhttp.responseText)
 
-            // FIXME: also load the other data! (apart from visual)
-            
             databaseData.visual = projectData.visual
             databaseData.source = projectData.source
             databaseDataHasChanged = true
