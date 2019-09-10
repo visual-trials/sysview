@@ -455,7 +455,7 @@ function doAddNewContainer() {
                 x: mouseState.worldPosition.x - parentContainer.position.x,
                 y: mouseState.worldPosition.y - parentContainer.position.y
             },
-            relativeScale: 1,
+            localScale: 1,
             size: {
                 width: 200,
                 height: 250
