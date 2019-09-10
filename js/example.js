@@ -18,20 +18,6 @@
  
 function initExampleData() {
     
-    // let exampleContainersAndConnections = { containers: [], connections: [] }
-    
-    /* FIXME
-        We should use identifiers everywhere. Not Ids. I think.
-        In createContainer we try to lookup the parent. But if that parent is not yet created, we have a problem of getting
-        its Id! So its probably better to use identifier (and store that only)
-        
-        Either way, we should store children, not parent. We can genrate parent(id/identifier) when we have all the children
-        
-        If we store parents instead, we can loop through all containers and set the children (by looking at parentId/identifier)
-        BUT we will lose the sorting order!
-    
-    */
-    
     let firstServer = {
         type: 'server',
         identifier: 'FirstServer',
@@ -48,7 +34,6 @@ function initExampleData() {
         }
     }
     
-    // FIXME: remove this: createContainer(firstServer)
     storeContainerData(firstServer)
     
     let firstAPI = {
@@ -67,7 +52,6 @@ function initExampleData() {
         }
     }
     
-    // FIXME: remove this: createContainer(firstAPI)
     storeContainerData(firstAPI)
     
     let secondServer = {
@@ -86,7 +70,6 @@ function initExampleData() {
         }
     }
     
-    // FIXME: remove this: createContainer(secondServer)
     storeContainerData(secondServer)
     
     let secondAPI = {
@@ -105,7 +88,6 @@ function initExampleData() {
         }
     }
     
-    // FIXME: remove this: createContainer(secondAPI)
     storeContainerData(secondAPI)
     
     
@@ -119,9 +101,5 @@ function initExampleData() {
         to: 'API2',
     }
     
-    // FIXME: remove this: createConnection(firstAPIToSecondAPI)
     storeConnectionData(firstAPIToSecondAPI)
-    
-    // FIXME: remove this: setContainerChildren()
-    // FIXME: remove this: recalculateAbsolutePositions()
 }
