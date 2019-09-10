@@ -451,6 +451,14 @@ function doEditContainerText() {
                         if (keyName === 'BACK_SPACE') {
                             textToEdit = textToEdit.substring(0, textToEdit.length - 1);
                         }
+                        else if (keyName === 'ENTER') {
+                            // FIXME: store the text!
+                            interaction.currentlyEditingContainerText = null
+                        }
+                        else if (keyName === 'ESCAPE') {
+                            // FIXME: undo the editing and dont store
+                            interaction.currentlyEditingContainerText = null
+                        }
                         else {
                             console.log(keyName)
                         }
@@ -458,7 +466,9 @@ function doEditContainerText() {
                 }
             }
 
-            interaction.currentlyEditingContainerText.name = textToEdit
+            if (interaction.currentlyEditingContainerText != null) {
+                interaction.currentlyEditingContainerText.name = textToEdit
+            }
             
             // FIXME: save text each character?! or when we leave the edit of the text? Or when we press enter?
         }
