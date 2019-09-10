@@ -80,7 +80,7 @@ function createContainer(containerData) {
             y: containerData.localPosition.y,
         },
         localScale: containerData.localScale,
-        scale: null,
+        worldScale: null,
         localSize: { 
             width: containerData.localSize.width,
             height: containerData.localSize.height,

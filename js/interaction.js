@@ -193,8 +193,8 @@ function doContainerDraggingByMouse() {
     if (interaction.selectedContainerIsBeingDragged) {
         if (mouseState.hasMoved) {
             // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-            currentlySelectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
-            currentlySelectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
+            currentlySelectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.worldScale
+            currentlySelectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.worldScale
             recalculateAbsolutePositions(currentlySelectedContainer)
             
         }
@@ -202,7 +202,7 @@ function doContainerDraggingByMouse() {
         let worldRectangle = {}
         // TODO: you want the size of the container to include the scale, so we dont have to multiply it each time
         worldRectangle.position = { x: currentlySelectedContainer.worldPosition.x, y: currentlySelectedContainer.worldPosition.y }
-        worldRectangle.size = { width: currentlySelectedContainer.localSize.width * currentlySelectedContainer.scale , height: currentlySelectedContainer.localSize.height  * currentlySelectedContainer.scale }
+        worldRectangle.size = { width: currentlySelectedContainer.localSize.width * currentlySelectedContainer.worldScale , height: currentlySelectedContainer.localSize.height  * currentlySelectedContainer.worldScale }
         
         let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
         if (encompassingContainer != null) {
@@ -230,8 +230,8 @@ function doContainerDraggingByMouse() {
                 
                 // Substract these two worldPositions: take into account the (world and local)scale of the parent
                 // this is now the new local position of the current container.
-                currentlySelectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.scale
-                currentlySelectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.scale
+                currentlySelectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.worldScale
+                currentlySelectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.worldScale
                 recalculateAbsolutePositions(currentlySelectedContainer)
                 
                 // TODO: the current container is (for 1 frame) still a child of a different container,
@@ -285,23 +285,23 @@ function doContainerResizingByMouse() {
             mouseWorldMovement.y = mouseState.worldPosition.y - mouseState.previousWorldPosition.y
             
             if (interaction.selectedContainerResizeSide.x > 0) { // right side
-                currentlySelectedContainer.localSize.width += mouseWorldMovement.x / currentlySelectedContainer.scale
+                currentlySelectedContainer.localSize.width += mouseWorldMovement.x / currentlySelectedContainer.worldScale
             }
             if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
-                currentlySelectedContainer.localSize.height += mouseWorldMovement.y / currentlySelectedContainer.scale
+                currentlySelectedContainer.localSize.height += mouseWorldMovement.y / currentlySelectedContainer.worldScale
             }
             if (interaction.selectedContainerResizeSide.x < 0) { // left side
-                currentlySelectedContainer.localSize.width -= mouseWorldMovement.x / currentlySelectedContainer.scale
+                currentlySelectedContainer.localSize.width -= mouseWorldMovement.x / currentlySelectedContainer.worldScale
                 
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / parentOfSelectedContainer.scale
+                currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / parentOfSelectedContainer.worldScale
                 recalculateAbsolutePositions(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.y < 0) { // top side
-                currentlySelectedContainer.localSize.height -= mouseWorldMovement.y / currentlySelectedContainer.scale
+                currentlySelectedContainer.localSize.height -= mouseWorldMovement.y / currentlySelectedContainer.worldScale
                 
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / parentOfSelectedContainer.scale
+                currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / parentOfSelectedContainer.worldScale
                 recalculateAbsolutePositions(currentlySelectedContainer)
             }
         }
