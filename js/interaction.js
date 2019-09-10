@@ -163,7 +163,7 @@ function doContainerSelectionByMouse() {
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     
     if (!mouseState.leftButtonHasGoneDownTwice &&
-         mouseState.leftButtonHasGoneDown) { // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+         mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         if (containerAtMousePosition != null) {
             interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
         }
@@ -254,7 +254,7 @@ function doContainerDraggingByMouse() {
 
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     if (!mouseState.leftButtonHasGoneDownTwice &&
-         mouseState.leftButtonHasGoneDown) { // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+         mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         if (containerAtMousePosition != null && interaction.currentlySelectedContainerIdentifier != null &&
             containerAtMousePosition.identifier === interaction.currentlySelectedContainerIdentifier) {
             interaction.selectedContainerIsBeingDragged = true
@@ -368,7 +368,7 @@ function doContainerResizingByMouse() {
         }
         
         if (!mouseState.leftButtonHasGoneDownTwice &&
-             mouseState.leftButtonHasGoneDown &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+             mouseState.leftButtonHasGoneDown &&  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
             interaction.mouseIsNearSelectedContainerBorder) {
                 
             interaction.selectedContainerIsBeingResized = true
@@ -392,7 +392,7 @@ function doAddNewConnection() {
     interaction.mousePointerStyle = 'default'
         
     if (!mouseState.leftButtonHasGoneDownTwice &&
-         mouseState.leftButtonHasGoneDown) {  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+         mouseState.leftButtonHasGoneDown) {  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         
         if (containerAtMousePosition != null) {
             interaction.newConnectionBeingAdded = {
@@ -635,7 +635,7 @@ function doViewDraggingByMouse () {
         }
     }
     
-    if (!mouseState.leftButtonHasGoneDownTwice &&  // FIXME: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+    if (!mouseState.leftButtonHasGoneDownTwice &&  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
          mouseState.leftButtonHasGoneDown) {
             interaction.viewIsBeingDraggedByMouse = true
     }
