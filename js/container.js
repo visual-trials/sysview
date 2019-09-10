@@ -160,7 +160,9 @@ function setContainerChildren() {
             parentContainer.children.push(containerIdentifier)
         }
         else {
-            console.log('WARNING: parentContainerIdentifier ' + parentContainerIdentifier + ' not found')
+            if (containerIdentifier != null && containerIdentifier !== 'root') {
+                console.log('WARNING: parentContainerIdentifier ' + parentContainerIdentifier + ' not found for container ' + containerIdentifier)
+            }
         }
         
     }
