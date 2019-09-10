@@ -75,9 +75,9 @@ function createContainer(containerData) {
         name: containerData.name,
         parentContainerIdentifier: parentContainerIdentifier != null ? parentContainerIdentifier : 'root',
         position: {},
-        relativePosition: {
-            x: containerData.relativePosition.x,
-            y: containerData.relativePosition.y,
+        localPosition: {
+            x: containerData.localPosition.x,
+            y: containerData.localPosition.y,
         },
         localScale: containerData.localScale,
         scale: null,
@@ -114,17 +114,17 @@ function mergeSourceAndVisualContainerData (sourceContainerData, visualContainer
         name : getExistingField('name', visualContainerData, sourceContainerData),
         type : getExistingField('type', visualContainerData, sourceContainerData),
         parentContainerIdentifier : getExistingField('parentContainerIdentifier', visualContainerData, sourceContainerData),
-        relativePosition : { 
+        localPosition : { 
             x: parseFloat(getExistingField(
                 'x', 
-                visualContainerData == null ? null : visualContainerData.relativePosition, 
-                sourceContainerData == null ? null : sourceContainerData.relativePosition, 
+                visualContainerData == null ? null : visualContainerData.localPosition, 
+                sourceContainerData == null ? null : sourceContainerData.localPosition, 
                 0)
             ),
             y: parseFloat(getExistingField(
                 'y', 
-                visualContainerData == null ? null : visualContainerData.relativePosition, 
-                sourceContainerData == null ? null : sourceContainerData.relativePosition, 
+                visualContainerData == null ? null : visualContainerData.localPosition, 
+                sourceContainerData == null ? null : sourceContainerData.localPosition, 
                 0)
             )
         },

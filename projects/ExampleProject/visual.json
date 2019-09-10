@@ -26,7 +26,7 @@
             "identifier": "API1",
             "name": "First API",
             "parentContainerIdentifier": "FirstServer",
-            "relativePosition": {
+            "localPosition": {
                 "x": 207,
                 "y": 38
             },
@@ -41,7 +41,7 @@
             "identifier": "API2",
             "name": "Second API",
             "parentContainerIdentifier": "SecondServer",
-            "relativePosition": {
+            "localPosition": {
                 "x": 227.04463885662,
                 "y": 170.37713840392
             },
@@ -56,7 +56,7 @@
             "identifier": "ExtraServer_1566322594344",
             "name": "My Extra Server",
             "parentContainerIdentifier": "SecondServer",
-            "relativePosition": {
+            "localPosition": {
                 "x": 153.24250161299,
                 "y": 56.020946272807
             },
@@ -71,7 +71,7 @@
             "identifier": "FirstServer",
             "name": "My First Server",
             "parentContainerIdentifier": "root",
-            "relativePosition": {
+            "localPosition": {
                 "x": 202.06611570248,
                 "y": 184.52066115702
             },
@@ -86,7 +86,7 @@
             "identifier": "SecondServer",
             "name": "My Second Server",
             "parentContainerIdentifier": "root",
-            "relativePosition": {
+            "localPosition": {
                 "x": 678.81031,
                 "y": 196.03611
             },

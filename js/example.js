@@ -37,7 +37,7 @@ function initExampleData() {
         identifier: 'FirstServer',
         parentContainerIdentifier: 'root',
         name: 'My First Server',
-        relativePosition: {
+        localPosition: {
             x: 250,
             y: 200
         },
@@ -56,7 +56,7 @@ function initExampleData() {
         identifier: 'API1',
         parentContainerIdentifier: 'FirstServer',
         name: 'First API',
-        relativePosition: {
+        localPosition: {
             x: 20,
             y: 20
         },
@@ -75,7 +75,7 @@ function initExampleData() {
         identifier: 'SecondServer',
         parentContainerIdentifier: 'root',
         name: 'My Second Server',
-        relativePosition: {
+        localPosition: {
             x: 550,
             y: 200
         },
@@ -94,7 +94,7 @@ function initExampleData() {
         identifier: 'API2',
         parentContainerIdentifier: 'SecondServer',
         name: 'Second API',
-        relativePosition: {
+        localPosition: {
             x: 10,
             y: 10
         },

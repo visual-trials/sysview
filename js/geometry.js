@@ -306,8 +306,8 @@ function recalculateAbsolutePositions(container = null) {
         parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
 
         container.scale = parentContainer.scale * container.localScale
-        let scaledRelativePosition = scalePosition(parentContainer.scale, container.relativePosition)
-        container.position = addOffsetToPosition(scaledRelativePosition, parentContainer.position)
+        let scaledLocalPosition = scalePosition(parentContainer.scale, container.localPosition)
+        container.position = addOffsetToPosition(scaledLocalPosition, parentContainer.position)
     }
     
     // First check the children (since they are 'on-top' of the parent)

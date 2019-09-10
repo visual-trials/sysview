@@ -193,8 +193,8 @@ function doContainerDraggingByMouse() {
     if (interaction.selectedContainerIsBeingDragged) {
         if (mouseState.hasMoved) {
             // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-            currentlySelectedContainer.relativePosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
-            currentlySelectedContainer.relativePosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
+            currentlySelectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
+            currentlySelectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
             recalculateAbsolutePositions(currentlySelectedContainer)
             
         }
@@ -230,8 +230,8 @@ function doContainerDraggingByMouse() {
                 
                 // Substract these two positions: take into account the (world and local)scale of the parent
                 // this is now the new relative/local position of the current container.
-                currentlySelectedContainer.relativePosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.scale
-                currentlySelectedContainer.relativePosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.scale
+                currentlySelectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.scale
+                currentlySelectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.scale
                 recalculateAbsolutePositions(currentlySelectedContainer)
                 
                 // TODO: the current container is (for 1 frame) still a child of a different container,
@@ -294,14 +294,14 @@ function doContainerResizingByMouse() {
                 currentlySelectedContainer.size.width -= mouseWorldMovement.x / currentlySelectedContainer.scale
                 
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                currentlySelectedContainer.relativePosition.x += mouseWorldMovement.x / parentOfSelectedContainer.scale
+                currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / parentOfSelectedContainer.scale
                 recalculateAbsolutePositions(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.y < 0) { // top side
                 currentlySelectedContainer.size.height -= mouseWorldMovement.y / currentlySelectedContainer.scale
                 
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                currentlySelectedContainer.relativePosition.y += mouseWorldMovement.y / parentOfSelectedContainer.scale
+                currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / parentOfSelectedContainer.scale
                 recalculateAbsolutePositions(currentlySelectedContainer)
             }
         }
@@ -451,7 +451,7 @@ function doAddNewContainer() {
             parentContainerIdentifier: parentContainerIdentifier,
             identifier: 'ExtraServer_' + currentDateTime.getTime(),
             name: 'My Extra Server',
-            relativePosition: {
+            localPosition: {
                 x: mouseState.worldPosition.x - parentContainer.position.x,
                 y: mouseState.worldPosition.y - parentContainer.position.y
             },
