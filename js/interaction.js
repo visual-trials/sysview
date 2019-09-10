@@ -33,7 +33,10 @@ let interaction = {
     //       sometimes its the mouse, sometimes its a touch. We might want to keep a record of that.
     currentlyHoveredContainerIdentifier : null,
     currentlySelectedContainerIdentifier : null,
+    
     selectedContainerIsBeingDragged : false,
+    emcompassingContainerIdentifier : null,
+    
     selectedContainerIsBeingResized : false,
     selectedContainerResizeSide : null,
     mouseIsNearSelectedContainerBorder : false,
@@ -193,9 +196,41 @@ function doContainerDraggingByMouse() {
             currentlySelectedContainer.relativePosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.scale
             currentlySelectedContainer.relativePosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.scale
             recalculateAbsolutePositions(currentlySelectedContainer)
+            
         }
         
+        let worldRectangle = {}
+        // TODO: you want the size of the container to include the scale, so we dont have to multiply it each time
+        worldRectangle.position = { x: currentlySelectedContainer.position.x, y: currentlySelectedContainer.position.y }
+        worldRectangle.size = { width: currentlySelectedContainer.size.width * currentlySelectedContainer.scale , height: currentlySelectedContainer.size.height  * currentlySelectedContainer.scale }
+        
+        let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
+        if (encompassingContainer != null) {
+            interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
+        }
+        else {
+            // We set parent to 'root' if emcompassingContainerIdentifier == null, but shouldnt findContainerEncompassingWorldRectangle already return 'root'?
+            interaction.emcompassingContainerIdentifier = 'root'
+        }
+        
+        // FIXME: since we draw depth-first it can occur the when we drag a container over another parent, the parent is draw *over* the container we try to drag on top of it!
+        //        A possible solution would be to draw a dragged container (and its children) in a *second pass* and not draw it in the first pass.
+        
         if (mouseState.leftButtonHasGoneUp) {
+            
+            // TODO: Check if we are landing on a (different) encompassingContainer, if so make it the parent (we need to re-calculate its relative position AND scale!)
+            if (currentlySelectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier) {
+                console.log(currentlySelectedContainer.parentContainerIdentifier)
+                console.log(interaction.emcompassingContainerIdentifier)
+                console.log('We have a different parent!')
+                
+                currentlySelectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
+                // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
+                //       and adds the child to the new parent. Can we do this more explicitly?
+                storeContainerParent(currentlySelectedContainer)
+            }
+            // FIXME: we probably want to combine BOTH stores by adding an 'else' here!
+        
             // We stopped dragging the selected container, so we store its (visual) data
             storeContainerPositionAndSize(currentlySelectedContainer) // async call!
             interaction.selectedContainerIsBeingDragged = false

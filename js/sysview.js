@@ -157,6 +157,17 @@ function loadContainerAndConnectionData() {
     xmlhttp.send()
 }
 
+function storeContainerParent(container) {
+    // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
+    if (!databaseData.visual.containers.hasOwnProperty(container.identifier)) {
+        databaseData.visual.containers[container.identifier] = { 'identifier': container.identifier }
+    }
+    let visualContainerData = databaseData.visual.containers[container.identifier]
+    visualContainerData.parentContainerIdentifier = container.parentContainerIdentifier
+    storeVisualContainerData(visualContainerData) // async call!
+    databaseDataHasChanged = true
+}
+
 function storeContainerPositionAndSize(container) {
     // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
     if (!databaseData.visual.containers.hasOwnProperty(container.identifier)) {

@@ -319,6 +319,31 @@ function recalculateAbsolutePositions(container = null) {
     }
 }
 
+function findContainerEncompassingWorldRectangle(worldRectangle, container = null) {
+    
+    if (container == null) {
+        container = containersAndConnections.containers['root'] // = root container
+    }
+    
+    // First check the children (since they are 'on-top' of the parent)
+    for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
+        let childContainerIdentifier = container.children[containerIndex]
+        let childContainer = containersAndConnections.containers[childContainerIdentifier]
+        
+        let containerEncompassingWorldRectangle = findContainerEncompassingWorldRectangle(worldRectangle, childContainer)
+        if (containerEncompassingWorldRectangle != null) {
+            return containerEncompassingWorldRectangle
+        }
+    }
+    
+    // Then check the parent itself (but not if it's the root container)
+    if (container.id !== 0 && worldRectangleIsInsideContainer(worldRectangle, container)) {
+        return container
+    }
+    
+    return null
+}
+
 function findContainerAtWorldPosition(worldPosition, container = null) {
     
     if (container == null) {
@@ -386,11 +411,24 @@ function whichSideIsPositionFromContainer(worldPosition, container) {
     return side
 }
 
+function worldRectangleIsInsideContainer(worldRectangle, container) {
+    if (worldRectangle.position.x <= container.position.x ||
+        worldRectangle.position.y <= container.position.y ||
+        worldRectangle.position.x + worldRectangle.size.width >= container.position.x + container.size.width * container.scale ||
+        worldRectangle.position.y + worldRectangle.size.height >= container.position.y + container.size.height * container.scale) {
+            
+        return false
+    }
+    else {
+        return true
+    }
+}
+
 function worldPositionIsInsideContainer(worldPosition, container) {
-    if (worldPosition.x < container.position.x ||
-        worldPosition.y < container.position.y ||
-        worldPosition.x > container.position.x + container.size.width * container.scale ||
-        worldPosition.y > container.position.y + container.size.height * container.scale) {
+    if (worldPosition.x <= container.position.x ||
+        worldPosition.y <= container.position.y ||
+        worldPosition.x >= container.position.x + container.size.width * container.scale ||
+        worldPosition.y >= container.position.y + container.size.height * container.scale) {
             
         return false
     }
