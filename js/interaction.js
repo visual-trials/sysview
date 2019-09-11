@@ -393,14 +393,16 @@ function doAddNewConnection() {
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) {  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         
+        let currentDateTime = new Date()
+        
         if (containerAtMousePosition != null) {
             interaction.newConnectionBeingAdded = {
                 type: 'new',
-                identifier: '???', // FIXME:???
+                identifier: 'NewConnection_' + currentDateTime.getTime(),
                 name: 'New connection',
                 from: containerAtMousePosition.identifier,
                 to: null,
-                stroke: { r:0, g:180, b:200, a:1 }, // FIXME: HACK!
+                stroke: { r:0, g:180, b:200, a:1 }, // TODO: we should use connection-types and choose a default one when we add a new one (or choose a type)
             }
         }
     }
@@ -419,7 +421,7 @@ function doAddNewConnection() {
         
         if (mouseState.leftButtonHasGoneUp && interaction.newConnectionBeingAdded.to != null) {
         
-            // FIXME: we should give this connection the correct properties (like type, color etc)
+            // TODO: we should give this connection the correct properties (like type, color etc)
             interaction.newConnectionBeingAdded.type = 'API2API'
             storeConnectionData(interaction.newConnectionBeingAdded)
             
@@ -614,8 +616,6 @@ function doViewDraggingAndZoomingByTouch () {
             firstOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(firstOfDoubleTouch.position)
             secondOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(secondOfDoubleTouch.position)
             
-            // FIXME: shouldnt we update all world positions? Since we changed viewScale and viewOffset!
-            
         }
     }
 
@@ -665,7 +665,6 @@ function doViewZoomingByMouse () {
         
         mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
         
-        // FIXME: shouldnt we update all world positions? Since we changed viewScale and viewOffset!
     }
 
 }
