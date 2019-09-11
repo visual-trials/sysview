@@ -97,8 +97,8 @@ function initExampleData() {
         type: 'API2API',
         identifier: '1to2',
         name: 'My connection',
-        from: 'API1',
-        to: 'API2',
+        fromContainerIdentifier: 'API1',
+        toContainerIdentifier: 'API2',
     }
     
     storeConnectionData(firstAPIToSecondAPI)

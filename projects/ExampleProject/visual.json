@@ -1,18 +1,18 @@
 {
     "connections": {
         "1to2": {
-            "from": "API1",
+            "fromContainerIdentifier": "API1",
             "identifier": "1to2",
             "name": "My connection",
-            "to": "API2",
+            "toContainerIdentifier": "API2",
             "type": "API2API"
         },
         "???": {
             "type": "API2API",
             "identifier": "???",
             "name": "New connection",
-            "from": "API1",
-            "to": "ExtraServer_1566322594344",
+            "fromContainerIdentifier": "API1",
+            "toContainerIdentifier": "ExtraServer_1566322594344",
             "stroke": {
                 "r": 0,
                 "g": 180,

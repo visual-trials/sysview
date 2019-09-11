@@ -400,27 +400,27 @@ function doAddNewConnection() {
                 type: 'new',
                 identifier: 'NewConnection_' + currentDateTime.getTime(),
                 name: 'New connection',
-                from: containerAtMousePosition.identifier,
-                to: null,
+                fromContainerIdentifier: containerAtMousePosition.identifier,
+                toContainerIdentifier: null,
                 stroke: { r:0, g:180, b:200, a:1 }, // TODO: we should use connection-types and choose a default one when we add a new one (or choose a type)
             }
         }
     }
     
-    // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.to is not null)
+    // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.toContainerIdentifier is not null)
     if (interaction.newConnectionBeingAdded != null) {
         
         if (interaction.currentlyHoveredContainerIdentifier != null &&
-            interaction.currentlyHoveredContainerIdentifier !== interaction.newConnectionBeingAdded.from) {
+            interaction.currentlyHoveredContainerIdentifier !== interaction.newConnectionBeingAdded.fromContainerIdentifier) {
             // We are hovering over a different container than we started the connection from, so we should connect with it
-            interaction.newConnectionBeingAdded.to = interaction.currentlyHoveredContainerIdentifier
+            interaction.newConnectionBeingAdded.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
         }
         else {
-            interaction.newConnectionBeingAdded.to = null
+            interaction.newConnectionBeingAdded.toContainerIdentifier = null
         }
         
         if (mouseState.leftButtonHasGoneUp) {
-            if (interaction.newConnectionBeingAdded.to != null) {
+            if (interaction.newConnectionBeingAdded.toContainerIdentifier != null) {
                 // TODO: we should give this connection the correct properties (like type, color etc)
                 interaction.newConnectionBeingAdded.type = 'API2API'
                 storeConnectionData(interaction.newConnectionBeingAdded)

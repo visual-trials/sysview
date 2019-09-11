@@ -200,8 +200,8 @@ function createConnection(connectionData) {
     let newConnection = {
         identifier: connectionData.identifier,
         name: connectionData.name,
-        fromIdentifier: connectionData.from,
-        toIdentifier: connectionData.to,
+        fromContainerIdentifier: connectionData.fromContainerIdentifier,
+        toContainerIdentifier: connectionData.toContainerIdentifier,
         stroke: stroke,
     }
     
@@ -216,9 +216,8 @@ function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnect
         identifier : getExistingField('identifier', visualConnectionData, sourceConnectionData),
         name : getExistingField('name', visualConnectionData, sourceConnectionData),
         type : getExistingField('type', visualConnectionData, sourceConnectionData),
-        // FIXME: we call it 'from' and 'fromIdentifier', which is inconsistent
-        from : getExistingField('from', visualConnectionData, sourceConnectionData),
-        to : getExistingField('to', visualConnectionData, sourceConnectionData),
+        fromContainerIdentifier : getExistingField('fromContainerIdentifier', visualConnectionData, sourceConnectionData),
+        toContainerIdentifier : getExistingField('toContainerIdentifier', visualConnectionData, sourceConnectionData),
     }
     
     return connectionData

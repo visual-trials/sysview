@@ -230,10 +230,10 @@ function drawGrid () {
 
 function drawNewConnection () {
     if (interaction.newConnectionBeingAdded != null) {
-        let fromContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.from)
+        let fromContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.fromContainerIdentifier)
         let toContainer = null
         if (interaction.newConnectionBeingAdded.to != null) {
-            toContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.to)
+            toContainer = getContainerByIdentifier(interaction.newConnectionBeingAdded.toContainerIdentifier)
         }
         else {
             toContainer = {
@@ -251,8 +251,8 @@ function drawConnections() {
     for (let connectionIdentifier in containersAndConnections.connections) {
         let connection = containersAndConnections.connections[connectionIdentifier]
         
-        let fromContainer = containersAndConnections.containers[connection.fromIdentifier]
-        let toContainer = containersAndConnections.containers[connection.toIdentifier]
+        let fromContainer = containersAndConnections.containers[connection.fromContainerIdentifier]
+        let toContainer = containersAndConnections.containers[connection.toContainerIdentifier]
         drawConnection(connection, fromContainer, toContainer)
     }
 }
