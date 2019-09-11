@@ -237,7 +237,7 @@ function drawNewConnection () {
         }
         else {
             toContainer = {
-                identifier: '__new__', // FIXME: this is a HACK to prevent crashing at getFirstVisibleContainer
+                identifier: '__new__', // TODO: this is a to prevent crashing at getFirstVisibleContainer. Is there a better way?
                 worldSize: { width: 0, height: 0},
                 worldPosition: { x: mouseState.worldPosition.x, 
                             y: mouseState.worldPosition.y }
@@ -259,7 +259,7 @@ function drawConnections() {
 
 
 function getFirstVisibleContainer(container) {
-    if (container.identifier === '__new__') { // FIXME: this is a HACK
+    if (container.identifier === '__new__') { // TODO: this is a way to deal with to-be-added containers. Is there a better way?
         return container
     }
     if (container.parentContainerIdentifier === 'root') {
