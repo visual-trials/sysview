@@ -387,11 +387,11 @@ function drawContainer(container, alpha = null) {
             let containerThickness = 6 * interaction.viewScale * container.worldScale * interaction.percentageIsoMetric
             
             let leftTopContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
-            worldPosition.y += container.localSize.height * container.worldScale
+            worldPosition.y += container.worldSize.height
             let leftBottomContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
-            worldPosition.x += container.localSize.width * container.worldScale
+            worldPosition.x += container.worldSize.width
             let rightBottomContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
-            worldPosition.y -= container.localSize.height * container.worldScale
+            worldPosition.y -= container.worldSize.height
             let rightTopContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
             
             ctx.beginPath()
@@ -453,7 +453,7 @@ function drawContainer(container, alpha = null) {
         else {
             
             let screenContainerPosition = fromWorldPositionToScreenPosition(container.worldPosition)
-            let screenContainerSize = scaleSize(interaction.viewScale * container.worldScale, container.localSize)
+            let screenContainerSize = scaleSize(interaction.viewScale, container.worldSize)
             ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             
             if (interaction.currentlySelectedContainerIdentifier != null) { 
@@ -499,8 +499,8 @@ if (container.parentContainerIdentifier === 'root') {
 
         // Determine text position
         let textWorldPosition = {}
-        textWorldPosition.x = container.worldPosition.x + (container.localSize.width * container.worldScale / 2) - (textSize.width * container.worldScale / 2)
-        textWorldPosition.y = container.worldPosition.y + (container.localSize.height * container.worldScale / 2) - (textSize.height * container.worldScale / 2) + heightBottomWhiteArea * container.worldScale
+        textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
+        textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * container.worldScale / 2) + heightBottomWhiteArea * container.worldScale
         
         let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
         

@@ -83,6 +83,7 @@ function createContainer(containerData) {
         },
         localScale: containerData.localScale,
         worldPosition: {},
+        worldSize: {},
         worldScale: null,
         fill: fill,
         stroke: stroke,

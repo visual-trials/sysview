@@ -200,9 +200,8 @@ function doContainerDraggingByMouse() {
         }
         
         let worldRectangle = {}
-        // TODO: you want the size of the container to include the scale, so we dont have to multiply it each time
         worldRectangle.position = { x: currentlySelectedContainer.worldPosition.x, y: currentlySelectedContainer.worldPosition.y }
-        worldRectangle.size = { width: currentlySelectedContainer.localSize.width * currentlySelectedContainer.worldScale , height: currentlySelectedContainer.localSize.height  * currentlySelectedContainer.worldScale }
+        worldRectangle.size = { width: currentlySelectedContainer.worldSize.width, height: currentlySelectedContainer.worldSize.height }
         
         let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
         if (encompassingContainer != null) {

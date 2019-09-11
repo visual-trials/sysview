@@ -152,8 +152,8 @@ function unscaleSize(scale, size) {
 
 function getCenterPositonOfContainer(container) {
     let centerPosition = { x: 0, y: 0 }
-    centerPosition.x = container.worldPosition.x + container.localSize.width / 2 * container.worldScale 
-    centerPosition.y = container.worldPosition.y + container.localSize.height / 2 * container.worldScale 
+    centerPosition.x = container.worldPosition.x + container.worldSize.width / 2
+    centerPosition.y = container.worldPosition.y + container.worldSize.height / 2
     return centerPosition
 }
 
@@ -171,15 +171,15 @@ function getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, container,
     }
     
     if (centerPoint == null) {
-        centerPoint = {x: container.localSize.width * container.worldScale / 2, y: container.localSize.height * container.worldScale / 10}
+        centerPoint = {x: container.worldSize.width / 2, y: container.worldSize.height / 2}
         centerPoint.x += container.worldPosition.x
         centerPoint.y += container.worldPosition.y
     }
     
     let leftTop =     {x: container.worldPosition.x,                                          y: container.worldPosition.y }
-    let rightTop =    {x: container.worldPosition.x + container.localSize.width * container.worldScale, y: container.worldPosition.y }
-    let leftBottom =  {x: container.worldPosition.x,                                          y: container.worldPosition.y + container.localSize.height * container.worldScale }
-    let rightBottom = {x: container.worldPosition.x + container.localSize.width * container.worldScale, y: container.worldPosition.y + container.localSize.height * container.worldScale }
+    let rightTop =    {x: container.worldPosition.x + container.worldSize.width, y: container.worldPosition.y }
+    let leftBottom =  {x: container.worldPosition.x,                                          y: container.worldPosition.y + container.worldSize.height }
+    let rightBottom = {x: container.worldPosition.x + container.worldSize.width, y: container.worldPosition.y + container.worldSize.height }
     
     let angleWidthLeftTop  = Math.atan2(leftTop.y - centerPoint.y, leftTop.x - centerPoint.x);
     let angleWidthRightTop = Math.atan2(rightTop.y - centerPoint.y, rightTop.x - centerPoint.x);
@@ -270,14 +270,14 @@ function getRectangleAroundWorld() {
         if (childContainer.worldPosition.x < minX) {
             minX = childContainer.worldPosition.x
         }
-        if (childContainer.worldPosition.x + childContainer.localSize.width > maxX) {
-            maxX = childContainer.worldPosition.x + childContainer.localSize.width // TODO: shouldnt this be multiplied by worldScale?
+        if (childContainer.worldPosition.x + childContainer.worldSize.width > maxX) {
+            maxX = childContainer.worldPosition.x + childContainer.worldSize.width
         }
         if (childContainer.worldPosition.y < minY) {
             minY = childContainer.worldPosition.y
         }
-        if (childContainer.worldPosition.y + childContainer.localSize.height > maxY) {
-            maxY = childContainer.worldPosition.y + childContainer.localSize.height // TODO: shouldnt this be multiplied by worldScale?
+        if (childContainer.worldPosition.y + childContainer.worldSize.height > maxY) {
+            maxY = childContainer.worldPosition.y + childContainer.worldSize.height
         }
     }
     
@@ -306,8 +306,9 @@ function recalculateAbsolutePositions(container = null) {
         parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
 
         container.worldScale = parentContainer.worldScale * container.localScale
-        let scaledLocalPosition = scalePosition(parentContainer.worldScale, container.localPosition)
+        let scaledLocalPosition = scalePosition(container.worldScale, container.localPosition)
         container.worldPosition = addOffsetToPosition(scaledLocalPosition, parentContainer.worldPosition)
+        container.worldSize = scaleSize(container.worldScale, container.localSize)
     }
     
     // First check the children (since they are 'on-top' of the parent)
@@ -396,15 +397,15 @@ function whichSideIsPositionFromContainer(worldPosition, container) {
             side.isNearContainer = false
         }
     }
-    if (worldPosition.x > container.worldPosition.x + container.localSize.width * container.worldScale - margin) {
+    if (worldPosition.x > container.worldPosition.x + container.worldSize.width - margin) {
         side.x = 1
-        if (worldPosition.x > container.worldPosition.x + container.localSize.width * container.worldScale + margin) {
+        if (worldPosition.x > container.worldPosition.x + container.worldSize.width + margin) {
             side.isNearContainer = false
         }
     }
-    if (worldPosition.y > container.worldPosition.y + container.localSize.height * container.worldScale - margin) {
+    if (worldPosition.y > container.worldPosition.y + container.worldSize.height - margin) {
         side.y = 1
-        if (worldPosition.y > container.worldPosition.y + container.localSize.height * container.worldScale + margin) {
+        if (worldPosition.y > container.worldPosition.y + container.worldSize.height + margin) {
             side.isNearContainer = false
         }
     }
@@ -414,8 +415,8 @@ function whichSideIsPositionFromContainer(worldPosition, container) {
 function worldRectangleIsInsideContainer(worldRectangle, container) {
     if (worldRectangle.position.x <= container.worldPosition.x ||
         worldRectangle.position.y <= container.worldPosition.y ||
-        worldRectangle.position.x + worldRectangle.size.width >= container.worldPosition.x + container.localSize.width * container.worldScale ||
-        worldRectangle.position.y + worldRectangle.size.height >= container.worldPosition.y + container.localSize.height * container.worldScale) {
+        worldRectangle.position.x + worldRectangle.size.width >= container.worldPosition.x + container.worldSize.width ||
+        worldRectangle.position.y + worldRectangle.size.height >= container.worldPosition.y + container.worldSize.height) {
             
         return false
     }
@@ -427,8 +428,8 @@ function worldRectangleIsInsideContainer(worldRectangle, container) {
 function worldPositionIsInsideContainer(worldPosition, container) {
     if (worldPosition.x <= container.worldPosition.x ||
         worldPosition.y <= container.worldPosition.y ||
-        worldPosition.x >= container.worldPosition.x + container.localSize.width * container.worldScale ||
-        worldPosition.y >= container.worldPosition.y + container.localSize.height * container.worldScale) {
+        worldPosition.x >= container.worldPosition.x + container.worldSize.width ||
+        worldPosition.y >= container.worldPosition.y + container.worldSize.height) {
             
         return false
     }
