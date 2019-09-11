@@ -111,7 +111,7 @@ function integrateContainerAndConnectionData () {
     }
     
     setContainerChildren()
-    recalculateAbsolutePositions()
+    recalculateWorldPositions()
     
     // First all visual connections in the visual data set
     for (let connectionIdentifier in databaseData.visual.connections) {

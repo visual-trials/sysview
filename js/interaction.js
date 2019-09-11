@@ -195,7 +195,7 @@ function doContainerDraggingByMouse() {
             // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
             currentlySelectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.worldScale
             currentlySelectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.worldScale
-            recalculateAbsolutePositions(currentlySelectedContainer)
+            recalculateWorldPositions(currentlySelectedContainer)
             
         }
         
@@ -231,7 +231,7 @@ function doContainerDraggingByMouse() {
                 // this is now the new local position of the current container.
                 currentlySelectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.worldScale
                 currentlySelectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.worldScale
-                recalculateAbsolutePositions(currentlySelectedContainer)
+                recalculateWorldPositions(currentlySelectedContainer)
                 
                 // TODO: the current container is (for 1 frame) still a child of a different container,
                 //       so its new relative position will be relative to the old parent (for 1 frame)
@@ -294,14 +294,14 @@ function doContainerResizingByMouse() {
                 
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
                 currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / parentOfSelectedContainer.worldScale
-                recalculateAbsolutePositions(currentlySelectedContainer)
+                recalculateWorldPositions(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.y < 0) { // top side
                 currentlySelectedContainer.localSize.height -= mouseWorldMovement.y / currentlySelectedContainer.worldScale
                 
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
                 currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / parentOfSelectedContainer.worldScale
-                recalculateAbsolutePositions(currentlySelectedContainer)
+                recalculateWorldPositions(currentlySelectedContainer)
             }
         }
         
@@ -614,7 +614,7 @@ function doViewDraggingAndZoomingByTouch () {
             firstOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(firstOfDoubleTouch.position)
             secondOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(secondOfDoubleTouch.position)
             
-            // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
+            // FIXME: shouldnt we update all world positions? Since we changed viewScale and viewOffset!
             
         }
     }
@@ -665,7 +665,7 @@ function doViewZoomingByMouse () {
         
         mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
         
-        // FIXME: shouldnt we update all absolute positions? Since we changed viewScale and viewOffset!
+        // FIXME: shouldnt we update all world positions? Since we changed viewScale and viewOffset!
     }
 
 }

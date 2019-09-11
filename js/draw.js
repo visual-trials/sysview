@@ -101,8 +101,6 @@ function drawCanvas() {
     }
  
     let rootContainer = containersAndConnections.containers['root']
-    // FIXME: this is overkill. it should already be up-to-date
-    // recalculateAbsolutePositions(rootContainer)
     drawContainers(rootContainer.children)
     
     drawConnections()
@@ -110,7 +108,7 @@ function drawCanvas() {
     
     drawMenu()
     
-    // FIXME: when the mouse (with button pressed) is moving its style doesn't get changed?
+    // TODO: when the mouse (with button pressed) is moving its style doesn't get changed?
     canvasElement.style.cursor = interaction.mousePointerStyle
     
 }
