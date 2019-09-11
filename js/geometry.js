@@ -249,8 +249,8 @@ function findButtonInButtonListAtScreenPosition(screenPosition, buttonList) {
 }
 
 function getCenterPointOfRectangle (rectangle) {
-    let middleX = rectangle.position.x + rectangle.size.width / 2  // FIXME: should we consider container.worldScale here? ( zie getCenterPositonOfContainer )
-    let middleY = rectangle.position.y + rectangle.size.height / 2  // FIXME: should we consider container.worldScale here? ( zie getCenterPositonOfContainer )
+    let middleX = rectangle.position.x + rectangle.size.width / 2
+    let middleY = rectangle.position.y + rectangle.size.height / 2
     return { x: middleX, y: middleY }
 }
 
