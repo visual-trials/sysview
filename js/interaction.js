@@ -419,12 +419,12 @@ function doAddNewConnection() {
             interaction.newConnectionBeingAdded.to = null
         }
         
-        if (mouseState.leftButtonHasGoneUp && interaction.newConnectionBeingAdded.to != null) {
-        
-            // TODO: we should give this connection the correct properties (like type, color etc)
-            interaction.newConnectionBeingAdded.type = 'API2API'
-            storeConnectionData(interaction.newConnectionBeingAdded)
-            
+        if (mouseState.leftButtonHasGoneUp) {
+            if (interaction.newConnectionBeingAdded.to != null) {
+                // TODO: we should give this connection the correct properties (like type, color etc)
+                interaction.newConnectionBeingAdded.type = 'API2API'
+                storeConnectionData(interaction.newConnectionBeingAdded)
+            }
             interaction.newConnectionBeingAdded = null
         }
     }
