@@ -238,7 +238,7 @@ function drawNewConnection () {
         else {
             toContainer = {
                 identifier: '__new__', // FIXME: this is a HACK to prevent crashing at getFirstVisibleContainer
-                localSize: { width: 0, height: 0},
+                worldSize: { width: 0, height: 0},
                 worldPosition: { x: mouseState.worldPosition.x, 
                             y: mouseState.worldPosition.y }
             }
