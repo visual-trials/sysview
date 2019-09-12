@@ -338,7 +338,7 @@ function findContainerEncompassingWorldRectangle(worldRectangle, container = nul
     }
     
     // Then check the parent itself (but not if it's the root container)
-    if (container.id !== 0 && worldRectangleIsInsideContainer(worldRectangle, container)) {
+    if (container.identifier !== 'root' && worldRectangleIsInsideContainer(worldRectangle, container)) {
         return container
     }
     
@@ -366,7 +366,7 @@ function findContainerAtWorldPosition(worldPosition, container = null) {
     }
     
     // Then check the parent itself (but not if it's the root container)
-    if (container.id !== 0 && worldPositionIsInsideContainer(worldPosition, container)) {
+    if (container.identifier !== 'root' && worldPositionIsInsideContainer(worldPosition, container)) {
         return container
     }
     

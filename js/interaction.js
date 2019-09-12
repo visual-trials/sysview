@@ -163,6 +163,21 @@ function doContainerSelectionByMouse() {
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     
+    // If ESCAPE is pressed, de-select all containers    
+    if (keyboardState.sequenceKeysUpDown.length) {
+    
+        // TODO: create function: let resultingText = applyKeyboardEventToString(interaction.currentlyEditingContainerText.identifier)
+        for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
+            let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
+            let keyName = keyCodeMap[keyUpDown.keyCode]
+            if (keyUpDown.isDown) {
+                if (keyName === 'ESCAPE') {
+                    interaction.currentlySelectedContainerIdentifiers = {}
+                }
+            }
+        }
+    }
+    
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
          
@@ -219,7 +234,8 @@ function doContainerSelectionByMouse() {
 
 function doContainerDraggingByMouse() {
   
-// FIXME: allow multi-select dragging! 
+    // Note: we can assume then all selected containers have the *same* parent
+    
     let currentlySelectedContainer = null
     let currentlySelectedContainerIdentifier = null // FIXME: temp var!
     if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length === 1) {
@@ -238,15 +254,16 @@ function doContainerDraggingByMouse() {
         interaction.mousePointerStyle = 'default'
     }
     
-    // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
-    let parentOfSelectedContainerContainerIdentifier = 'root'
-    if (currentlySelectedContainer != null) {
-        parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
-    }
-    let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
-
     if (interaction.selectedContainersAreBeingDragged) {
         if (mouseState.hasMoved) {
+            
+            // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
+            let parentOfSelectedContainerContainerIdentifier = 'root'
+            if (currentlySelectedContainer != null) {
+                parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
+            }
+            let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
+            
             // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
             currentlySelectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.worldScale
             currentlySelectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.worldScale
@@ -258,6 +275,7 @@ function doContainerDraggingByMouse() {
         worldRectangle.position = { x: currentlySelectedContainer.worldPosition.x, y: currentlySelectedContainer.worldPosition.y }
         worldRectangle.size = { width: currentlySelectedContainer.worldSize.width, height: currentlySelectedContainer.worldSize.height }
         
+        // TODO: rename emcompassingContainer to hoveringParentContainer?
         let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
         if (encompassingContainer != null) {
             interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
