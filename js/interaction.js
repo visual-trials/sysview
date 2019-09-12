@@ -165,8 +165,6 @@ function doContainerSelectionByMouse() {
     
     // If ESCAPE is pressed, de-select all containers    
     if (keyboardState.sequenceKeysUpDown.length) {
-    
-        // TODO: create function: let resultingText = applyKeyboardEventToString(interaction.currentlyEditingContainerText.identifier)
         for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
             let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
             let keyName = keyCodeMap[keyUpDown.keyCode]
@@ -236,17 +234,6 @@ function doContainerDraggingByMouse() {
   
     // Note: we can assume then all selected containers have the *same* parent
     
-    let currentlySelectedContainer = null
-    let currentlySelectedContainerIdentifier = null // FIXME: temp var!
-    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length === 1) {
-        // For now, we only allow resizing when a single container has been selected
-        // if not, we assume no containers are selected (for resizing)
-        currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
-        currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
-    }
-    
-//    let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
-    
     if (interaction.currentlyHoveredContainerIdentifier != null) {
         interaction.mousePointerStyle = 'move'
     }
@@ -256,24 +243,38 @@ function doContainerDraggingByMouse() {
     
     if (interaction.selectedContainersAreBeingDragged) {
         if (mouseState.hasMoved) {
-            
-            // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
-            let parentOfSelectedContainerContainerIdentifier = 'root'
-            if (currentlySelectedContainer != null) {
-                parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
+
+            for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+                
+                let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
+                
+                // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
+                let parentOfSelectedContainerContainerIdentifier = 'root'
+                if (selectedContainer != null) {
+                    parentOfSelectedContainerContainerIdentifier = selectedContainer.parentContainerIdentifier
+                }
+                let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
+                
+                // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
+                selectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.worldScale
+                selectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.worldScale
+                recalculateWorldPositions(selectedContainer)
             }
-            let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
-            
-            // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-            currentlySelectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.worldScale
-            currentlySelectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.worldScale
-            recalculateWorldPositions(currentlySelectedContainer)
             
         }
         
+        let currentlyHoveringContainer = null
         let worldRectangle = {}
-        worldRectangle.position = { x: currentlySelectedContainer.worldPosition.x, y: currentlySelectedContainer.worldPosition.y }
-        worldRectangle.size = { width: currentlySelectedContainer.worldSize.width, height: currentlySelectedContainer.worldSize.height }
+        if (interaction.currentlyHoveredContainerIdentifier != null) {
+            currentlyHoveringContainer = getContainerByIdentifier(interaction.currentlyHoveredContainerIdentifier)
+        }
+        else {
+            console.log('ERROR: we are not hovering a container, even though we are dragging container(s)!')
+            return
+        }
+        
+        worldRectangle.position = { x: currentlyHoveringContainer.worldPosition.x, y: currentlyHoveringContainer.worldPosition.y }
+        worldRectangle.size = { width: currentlyHoveringContainer.worldSize.width, height: currentlyHoveringContainer.worldSize.height }
         
         // TODO: rename emcompassingContainer to hoveringParentContainer?
         let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
@@ -290,36 +291,41 @@ function doContainerDraggingByMouse() {
         
         if (mouseState.leftButtonHasGoneUp) {
             
-            // We are checking if we are landing on a (different) encompassingContainer, if so make it the parent 
-            if (currentlySelectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier) {
+            for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+                
+                let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
+                
+                // We are checking if we are landing on a (different) encompassingContainer, if so make it the parent 
+                if (selectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier) {
 
-                // Get the worldPosition of the current container
-                let currentContainerWorldPosition = currentlySelectedContainer.worldPosition
-                
-                 // Get the worldPosition of the encompassingContainer (the new parent)
-                let newParentContainer = getContainerByIdentifier(interaction.emcompassingContainerIdentifier)
-                let newParentContainerWorldPosition = newParentContainer.worldPosition
-                
-                // Substract these two worldPositions: take into account the (world and local)scale of the parent
-                // this is now the new local position of the current container.
-                currentlySelectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.worldScale
-                currentlySelectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.worldScale
-                recalculateWorldPositions(currentlySelectedContainer)
-                
-                // TODO: the current container is (for 1 frame) still a child of a different container,
-                //       so its new relative position will be relative to the old parent (for 1 frame)
-                
-                currentlySelectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
-                
-                // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
-                //       and adds the child to the new parent. Can we do this more explicitly?
-                storeContainerParent(currentlySelectedContainer)
-                storeContainerPositionAndSize(currentlySelectedContainer) // async call!
+                    // Get the worldPosition of the current container
+                    let currentContainerWorldPosition = selectedContainer.worldPosition
+                    
+                     // Get the worldPosition of the encompassingContainer (the new parent)
+                    let newParentContainer = getContainerByIdentifier(interaction.emcompassingContainerIdentifier)
+                    let newParentContainerWorldPosition = newParentContainer.worldPosition
+                    
+                    // Substract these two worldPositions: take into account the (world and local)scale of the parent
+                    // this is now the new local position of the current container.
+                    selectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.worldScale
+                    selectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.worldScale
+                    recalculateWorldPositions(selectedContainer)
+                    
+                    // TODO: the current container is (for 1 frame) still a child of a different container,
+                    //       so its new relative position will be relative to the old parent (for 1 frame)
+                    
+                    selectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
+                    
+                    // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
+                    //       and adds the child to the new parent. Can we do this more explicitly?
+                    storeContainerParent(selectedContainer)
+                    storeContainerPositionAndSize(selectedContainer) // async call!
+                }
+                // FIXME: we probably want to combine BOTH stores by adding an 'else' here!
+            
+                // We stopped dragging the selected container, so we store its (visual) data
+                storeContainerPositionAndSize(selectedContainer) // async call!
             }
-            // FIXME: we probably want to combine BOTH stores by adding an 'else' here!
-        
-            // We stopped dragging the selected container, so we store its (visual) data
-            storeContainerPositionAndSize(currentlySelectedContainer) // async call!
             interaction.selectedContainersAreBeingDragged = false
         }
     }
@@ -327,8 +333,9 @@ function doContainerDraggingByMouse() {
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-        if (containerAtMousePosition != null && currentlySelectedContainerIdentifier != null &&
-            containerAtMousePosition.identifier === currentlySelectedContainerIdentifier) {
+        if (containerAtMousePosition != null/* && currentlySelectedContainerIdentifier != null &&
+            containerAtMousePosition.identifier === currentlySelectedContainerIdentifier */) {
+// FIXME: what should be the logic here?
             interaction.selectedContainersAreBeingDragged = true
         }
         else {
