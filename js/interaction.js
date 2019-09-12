@@ -173,8 +173,20 @@ function doContainerSelectionByMouse() {
                     delete interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier]
                 }
                 else {
-                    // If a container was not selected yet and clicked (with ctrl down), its also selected
-                    interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
+                        let firstSelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+                        let firstSelectedContainer = getContainerByIdentifier(firstSelectedContainerIdentifier)
+                        
+                        // Note that it is only allowed to select mutliple containers if they have *same* parent
+                        if (firstSelectedContainer.parentContainerIdentifier === containerAtMousePosition.parentContainerIdentifier) {
+                            // If a container was not selected yet and clicked (with ctrl down), its also selected
+                            interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                        }
+                    }
+                    else {
+                        // If a container was not selected yet and clicked (with ctrl down), its also selected
+                        interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                    }
                 }
             }
         }
