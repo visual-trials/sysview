@@ -275,7 +275,9 @@ function doContainerDraggingByMouse() {
         
         worldRectangle.position = { x: currentlyHoveringContainer.worldPosition.x, y: currentlyHoveringContainer.worldPosition.y }
         worldRectangle.size = { width: currentlyHoveringContainer.worldSize.width, height: currentlyHoveringContainer.worldSize.height }
-        
+
+// FIXME: it now *somehow* possible to move containers towards the root container even though we hover (a just) de-selected container!        
+// FIXME: also, we cannot move containers from root to another container!
         // TODO: rename emcompassingContainer to hoveringParentContainer?
         let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
         if (encompassingContainer != null) {
