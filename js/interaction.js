@@ -163,9 +163,9 @@ function doContainerSelectionByMouse() {
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     
-    // TODO: you want the CTRL-key to be pressed here too!
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+         
         if (keyboardState.ctrlIsDown) {
             if (containerAtMousePosition != null) {
                 if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
@@ -182,12 +182,19 @@ function doContainerSelectionByMouse() {
                             // If a container was not selected yet and clicked (with ctrl down), its also selected
                             interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
                         }
+                        else {
+                            // When a container is clicked (with ctrl down) and it doesnt have the same parent as the container(s)
+                            // already selected, we do not add it to the selection
+                        }
                     }
                     else {
                         // If a container was not selected yet and clicked (with ctrl down), its also selected
                         interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
                     }
                 }
+            }
+            else {
+                // When the background is clicked (while holding ctrl), we do nothing to the selection
             }
         }
         else {
