@@ -32,9 +32,9 @@ let interaction = {
     // TODO: we should probably keep record of where things (like the view or a container) is being selected/dragged BY
     //       sometimes its the mouse, sometimes its a touch. We might want to keep a record of that.
     currentlyHoveredContainerIdentifier : null,
-    currentlySelectedContainerIdentifier : null,
+    currentlySelectedContainerIdentifiers : {},
     
-    selectedContainerIsBeingDragged : false,
+    selectedContainersAreBeingDragged : false,
     emcompassingContainerIdentifier : null,
     
     selectedContainerIsBeingResized : false,
@@ -87,7 +87,7 @@ function handleInputStateChange () {
                     
                     if (!interaction.mouseIsNearSelectedContainerBorder && 
                         !interaction.selectedContainerIsBeingResized &&
-                        !interaction.selectedContainerIsBeingDragged &&
+                        !interaction.selectedContainersAreBeingDragged &&
                         !interaction.viewIsBeingDraggedByMouse) {
                         doContainerSelectionByMouse()
                     }
@@ -98,12 +98,13 @@ function handleInputStateChange () {
                         doContainerDraggingByMouse()
                     }
                     
-                    if (!interaction.selectedContainerIsBeingDragged && 
+                    if (!interaction.selectedContainersAreBeingDragged && 
                         !interaction.viewIsBeingDraggedByMouse) {
                         doContainerResizingByMouse()
                     }
                     
-                    if (interaction.currentlySelectedContainerIdentifier == null) {
+                    
+                    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length == 0) {
                         doViewDraggingByMouse()
                     }
                     
@@ -162,19 +163,54 @@ function doContainerSelectionByMouse() {
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     
+    // TODO: you want the CTRL-key to be pressed here too!
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-        if (containerAtMousePosition != null) {
-            interaction.currentlySelectedContainerIdentifier = containerAtMousePosition.identifier
+        if (keyboardState.ctrlIsDown) {
+            if (containerAtMousePosition != null) {
+                if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
+                    // If a container was already selected and clicked again (with ctrl down), its de-selected
+                    delete interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier]
+                }
+                else {
+                    // If a container was not selected yet and clicked (with ctrl down), its also selected
+                    interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                }
+            }
         }
         else {
-            interaction.currentlySelectedContainerIdentifier = null
+            if (containerAtMousePosition != null) {
+                if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
+                    // if a container is clicked and was selected already (when ctrl is not down) we do not de-select it, 
+                    // we do nothing (the selected contains need to be kept selected and are about to be dragged)
+                }
+                else {
+                    // if a container is clicked and wasn't selected already (when ctrl is not down) it becomes the (only) selected container
+                    interaction.currentlySelectedContainerIdentifiers = {}
+                    interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                }
+            }
+            else {
+                // When we click in the background, de-select all selected containers (when ctrl is not down)
+                interaction.currentlySelectedContainerIdentifiers = {}
+            }
         }
     }
 }
 
 function doContainerDraggingByMouse() {
-    let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
+  
+// FIXME: allow multi-select dragging! 
+    let currentlySelectedContainer = null
+    let currentlySelectedContainerIdentifier = null // FIXME: temp var!
+    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length === 1) {
+        // For now, we only allow resizing when a single container has been selected
+        // if not, we assume no containers are selected (for resizing)
+        currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+        currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
+    }
+    
+//    let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
     
     if (interaction.currentlyHoveredContainerIdentifier != null) {
         interaction.mousePointerStyle = 'move'
@@ -190,7 +226,7 @@ function doContainerDraggingByMouse() {
     }
     let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
 
-    if (interaction.selectedContainerIsBeingDragged) {
+    if (interaction.selectedContainersAreBeingDragged) {
         if (mouseState.hasMoved) {
             // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
             currentlySelectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.worldScale
@@ -247,27 +283,33 @@ function doContainerDraggingByMouse() {
         
             // We stopped dragging the selected container, so we store its (visual) data
             storeContainerPositionAndSize(currentlySelectedContainer) // async call!
-            interaction.selectedContainerIsBeingDragged = false
+            interaction.selectedContainersAreBeingDragged = false
         }
     }
 
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-        if (containerAtMousePosition != null && interaction.currentlySelectedContainerIdentifier != null &&
-            containerAtMousePosition.identifier === interaction.currentlySelectedContainerIdentifier) {
-            interaction.selectedContainerIsBeingDragged = true
+        if (containerAtMousePosition != null && currentlySelectedContainerIdentifier != null &&
+            containerAtMousePosition.identifier === currentlySelectedContainerIdentifier) {
+            interaction.selectedContainersAreBeingDragged = true
         }
         else {
-            interaction.selectedContainerIsBeingDragged = false
+            interaction.selectedContainersAreBeingDragged = false
         }
     }
     
 }
 
 function doContainerResizingByMouse() {
-    
-    let currentlySelectedContainer = getContainerByIdentifier(interaction.currentlySelectedContainerIdentifier)
+
+    let currentlySelectedContainer = null
+    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length === 1) {
+        // For now, we only allow resizing when a single container has been selected
+        // if not, we assume no containers are selected (for resizing)
+        let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+        currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
+    }
     
     // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
     let parentOfSelectedContainerContainerIdentifier = 'root'
@@ -489,7 +531,7 @@ function doEditContainerText() {
                 if (keyUpDown.isDown) {
                     
                     // Checking if shift (or CAPS-LOCK) is down/active
-                    let shiftIsDown = keyboardState.keysThatAreDown[16] // FIXME: hardcoded code for SHIFT!
+                    let shiftIsDown = keyboardState.shiftIsDown
                     if (keyboardState.capsLockIsActive) {
                         shiftIsDown = !shiftIsDown // TODO: now putting the effective shift-ness in shiftIsDown.
                     }

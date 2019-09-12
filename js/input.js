@@ -321,6 +321,9 @@ function touchMoved (e) {
 
 let keyboardState = {
     keysThatAreDown : {},
+    ctrlIsDown : false,
+    shiftIsDown : false,
+    altIsDown : false,
     sequenceKeysUpDown : [],
     capsLockIsActive : false,
     keyboardStateHasChanged : false,
@@ -350,6 +353,15 @@ function keyDown (e) {
         
         if (!keyboardState.keysThatAreDown[keyCode]) {
             keyboardState.keysThatAreDown[keyCode] = true
+            if (keyCode === 16) {  // TODO: hardcoded code for SHIFT!
+                keyboardState.shiftIsDown = true
+            }
+            else if (keyCode === 17) {  // TODO: hardcoded code for CONTROL!
+                keyboardState.ctrlIsDown = true
+            }
+            else if (keyCode === 18) {  // TODO: hardcoded code for ALT!
+                keyboardState.altIsDown = true
+            }
         }
         else {
             // FIXME: a key is down, but there was already one down. This could be multiple keys pressed at once. Not supported atm.
@@ -387,6 +399,15 @@ function keyUp (e) {
         
         if (keyboardState.keysThatAreDown[keyCode]) {
             keyboardState.keysThatAreDown[keyCode] = false
+            if (keyCode === 16) {  // TODO: hardcoded code for SHIFT!
+                keyboardState.shiftIsDown = false
+            }
+            else if (keyCode === 17) {  // TODO: hardcoded code for CONTROL!
+                keyboardState.ctrlIsDown = false
+            }
+            else if (keyCode === 18) {  // TODO: hardcoded code for ALT!
+                keyboardState.altIsDown = false
+            }
         }
         else {
             // FIXME: No key was down, but a key went up. What happened?

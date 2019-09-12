@@ -418,8 +418,8 @@ function drawContainer(container, alpha = null) {
             ctx.closePath()
             ctx.fill()
             
-            if (interaction.currentlySelectedContainerIdentifier != null) {
-                if (container.identifier === interaction.currentlySelectedContainerIdentifier) {
+            if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
+                if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
                     ctx.lineWidth = 2 // TODO: do we want to scale this too?
                     ctx.strokeStyle = "#FF0000"
                     
@@ -431,7 +431,7 @@ function drawContainer(container, alpha = null) {
                     ctx.closePath()
                     ctx.stroke()
                 }
-                else if (interaction.selectedContainerIsBeingDragged && 
+                else if (interaction.selectedContainersAreBeingDragged && 
                          interaction.emcompassingContainerIdentifier !== 'root' &&
                          container.identifier === interaction.emcompassingContainerIdentifier) {
 
@@ -454,14 +454,14 @@ function drawContainer(container, alpha = null) {
             let screenContainerSize = scaleSize(interaction.viewScale, container.worldSize)
             ctx.fillRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
             
-            if (interaction.currentlySelectedContainerIdentifier != null) { 
-                if (container.identifier === interaction.currentlySelectedContainerIdentifier) {
+            if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
+                if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
                     
                     ctx.lineWidth = 2 // TODO: do we want to scale this too?
                     ctx.strokeStyle = "#FF0000"
                     ctx.strokeRect(screenContainerPosition.x, screenContainerPosition.y, screenContainerSize.width, screenContainerSize.height)
                 }
-                else if (interaction.selectedContainerIsBeingDragged && 
+                else if (interaction.selectedContainersAreBeingDragged && 
                          interaction.emcompassingContainerIdentifier !== 'root' &&
                          container.identifier === interaction.emcompassingContainerIdentifier) {
                              
