@@ -169,10 +169,16 @@ function doContainerSelectionByMouse() {
         interaction.currentlySelectedContainerIdentifiers = {}
     }
     
+    // FIXME: put this into its separage function. Right now you can only delete a container
+    //        if the mouse is not close to the side of it. This is not what we want. So it needs its own logic.
     // If delete is pressed, we delete all selected containers
     if (hasKeyGoneDown('DELETE')) {
         for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
             deleteContainerData(selectedContainerIdentifier)
+            // FIXME: if a container is fully delete (that is: it exists only in the visual-data, not in the source)
+            //        AND it has connections from/to it, we should ALSO delete thos connections OR disallow it
+            // FIXME: also take into account that containers that are fully delete can have children, for which its parent
+            //        also has to be changed/reverted to the source
         }
         interaction.currentlySelectedContainerIdentifiers = {}
         return
