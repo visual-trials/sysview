@@ -296,7 +296,7 @@ function getRectangleAroundWorld() {
 }
 
 
-function recalculateWorldPositions(container = null) {
+function recalculateWorldPositionsAndSizes(container = null) {
 
     if (container == null) {
         container = containersAndConnections.containers['root'] // = root container
@@ -316,7 +316,7 @@ function recalculateWorldPositions(container = null) {
         let childContainerIdentifier = container.children[containerIndex]
         let childContainer = containersAndConnections.containers[childContainerIdentifier]
         
-        recalculateWorldPositions(childContainer)
+        recalculateWorldPositionsAndSizes(childContainer)
     }
 }
 

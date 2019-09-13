@@ -224,3 +224,17 @@ function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnect
     return connectionData
 }
 
+function getConnectionByIdentifier(connectionIdentifier) {
+    
+    if (connectionIdentifier == null) {
+        return null
+    }
+    
+    if (containersAndConnections.connections.hasOwnProperty(connectionIdentifier)) {
+        return containersAndConnections.connections[connectionIdentifier]
+    }
+    else {
+        console.log('ERROR: unknown connectionIdentifier: ' + connectionIdentifier)
+        return null
+    }
+}

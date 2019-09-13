@@ -41,7 +41,8 @@ let interaction = {
     selectedContainerResizeSide : null,
     mouseIsNearSelectedContainerBorder : false,
     
-    newConnectionBeingAdded : null,
+    newConnectionBeingAddedIdentifier : null,
+    newConnectionBeingAddedData : null,
 
     // TODO: should we only edit a model? And then change the container/connection text accordingly (and save to the backend)?
     currentlyEditingContainerText : null, // TODO: maybe edit container attribute? Using some kind of Id?
@@ -74,7 +75,7 @@ function handleInputStateChange () {
     if (interaction.currentlyHoveredMenuButton == null) { 
         if (interaction.currentlySelectedMode === 'connect') {
             doAddNewConnection()
-            if (interaction.newConnectionBeingAdded == null) {
+            if (interaction.newConnectionBeingAddedIdentifier == null) {
                 doViewDraggingByMouse()
             }
             doViewZoomingByMouse()
@@ -252,7 +253,7 @@ function doContainerDraggingByMouse() {
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
                 selectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.worldScale
                 selectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.worldScale
-                recalculateWorldPositions(selectedContainer)
+                recalculateWorldPositionsAndSizes(selectedContainer)
             }
             
         }
@@ -300,23 +301,22 @@ function doContainerDraggingByMouse() {
                     // this is now the new local position of the current container.
                     selectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.worldScale
                     selectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.worldScale
-                    recalculateWorldPositions(selectedContainer)
+                    recalculateWorldPositionsAndSizes(selectedContainer)
                     
                     // TODO: the current container is (for 1 frame) still a child of a different container,
                     //       so its new relative position will be relative to the old parent (for 1 frame)
                     
                     selectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
                     
-// FIXME: we need to do storing more efficiently!                    
                     // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
                     //       and adds the child to the new parent. Can we do this more explicitly?
                     storeContainerParent(selectedContainer)
-                    storeContainerPositionAndSize(selectedContainer) // async call!
+                    storeContainerPositionAndSize(selectedContainer)
                 }
-                // FIXME: we probably want to combine BOTH stores by adding an 'else' here!
-            
-                // We stopped dragging the selected container, so we store its (visual) data
-                storeContainerPositionAndSize(selectedContainer) // async call!
+                else {
+                    // We stopped dragging the selected container (without re-parenting it), so we only store its position and size
+                    storeContainerPositionAndSize(selectedContainer)
+                }
             }
             interaction.selectedContainersAreBeingDragged = false
         }
@@ -362,29 +362,31 @@ function doContainerResizingByMouse() {
             
             if (interaction.selectedContainerResizeSide.x > 0) { // right side
                 currentlySelectedContainer.localSize.width += mouseWorldMovement.x / currentlySelectedContainer.worldScale
+                recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
                 currentlySelectedContainer.localSize.height += mouseWorldMovement.y / currentlySelectedContainer.worldScale
+                recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.x < 0) { // left side
                 currentlySelectedContainer.localSize.width -= mouseWorldMovement.x / currentlySelectedContainer.worldScale
                 
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
                 currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / parentOfSelectedContainer.worldScale
-                recalculateWorldPositions(currentlySelectedContainer)
+                recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.y < 0) { // top side
                 currentlySelectedContainer.localSize.height -= mouseWorldMovement.y / currentlySelectedContainer.worldScale
                 
                 // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
                 currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / parentOfSelectedContainer.worldScale
-                recalculateWorldPositions(currentlySelectedContainer)
+                recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
         }
         
         if (mouseState.leftButtonHasGoneUp) {
-            // We stopped resizing the selected container, so we store its (visual) data
-            storeContainerPositionAndSize(currentlySelectedContainer) // async call!
+            // We stopped resizing the selected container, so we store its position and size
+            storeContainerPositionAndSize(currentlySelectedContainer)
             interaction.selectedContainerIsBeingResized = false
             interaction.selectedContainerResizeSide = null
         }
@@ -473,36 +475,41 @@ function doAddNewConnection() {
         let currentDateTime = new Date()
         
         if (containerAtMousePosition != null) {
-            interaction.newConnectionBeingAdded = {
-                type: 'new',
+            interaction.newConnectionBeingAddedData = {
                 identifier: 'NewConnection_' + currentDateTime.getTime(),
                 name: 'New connection',
                 fromContainerIdentifier: containerAtMousePosition.identifier,
                 toContainerIdentifier: null,
-                stroke: { r:0, g:180, b:200, a:1 }, // TODO: we should use connection-types and choose a default one when we add a new one (or choose a type)
+                type: 'API2API'
             }
+            let newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
+            interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
         }
     }
     
     // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.toContainerIdentifier is not null)
-    if (interaction.newConnectionBeingAdded != null) {
+    if (interaction.newConnectionBeingAddedIdentifier != null) {
+        let newConnectionBeingAdded = getConnectionByIdentifier(interaction.newConnectionBeingAddedIdentifier)
         
         if (interaction.currentlyHoveredContainerIdentifier != null &&
-            interaction.currentlyHoveredContainerIdentifier !== interaction.newConnectionBeingAdded.fromContainerIdentifier) {
+            interaction.currentlyHoveredContainerIdentifier !== newConnectionBeingAdded.fromContainerIdentifier) {
             // We are hovering over a different container than we started the connection from, so we should connect with it
-            interaction.newConnectionBeingAdded.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
+            // TODO: we shouldn't do this twice, right?
+            newConnectionBeingAdded.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
+            interaction.newConnectionBeingAddedData.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
         }
         else {
-            interaction.newConnectionBeingAdded.toContainerIdentifier = null
+            // TODO: we shouldn't do this twice, right?
+            newConnectionBeingAdded.toContainerIdentifier = null
+            interaction.newConnectionBeingAddedData.toContainerIdentifier = null
         }
         
         if (mouseState.leftButtonHasGoneUp) {
-            if (interaction.newConnectionBeingAdded.toContainerIdentifier != null) {
-                // TODO: we should give this connection the correct properties (like type, color etc)
-                interaction.newConnectionBeingAdded.type = 'API2API'
-                storeConnectionData(interaction.newConnectionBeingAdded)
+            if (interaction.newConnectionBeingAddedData.toContainerIdentifier != null) {
+                storeConnectionData(interaction.newConnectionBeingAddedData)
             }
-            interaction.newConnectionBeingAdded = null
+            interaction.newConnectionBeingAddedIdentifier = null
+            interaction.newConnectionBeingAddedData = null
         }
     }
     
@@ -522,9 +529,7 @@ function doAddNewContainer() {
         
         let currentDateTime = new Date()
         
-        // TODO: we need some kind of (incremental) id here!
-        // TODO: what should we use as identifier here??
-        let extraServer = {
+        let newContainerData = {
             type: 'server',  // TODO: allow adding different kinds of containers
             parentContainerIdentifier: parentContainerIdentifier,
             identifier: 'ExtraServer_' + currentDateTime.getTime(),
@@ -539,7 +544,7 @@ function doAddNewContainer() {
                 height: 250
             }
         }
-        storeVisualContainerData(extraServer) // async call!
+        storeContainerData(newContainerData)
     }
 }
 

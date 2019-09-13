@@ -18,6 +18,8 @@
  
  
 let databaseData = { visual: null, source: null }
+let containerIdentifiersToBeStored = {}
+let connectionIdentifiersToBeStored = {}
 let databaseDataHasChanged = false
 let viewWasDrawnOnce = false
 let centerViewOnWorldCenter = false
@@ -55,6 +57,12 @@ function mainLoop () {
         }
 
         if (databaseDataHasChanged) {
+            if (Object.keys(containerIdentifiersToBeStored).length > 0 || 
+                Object.keys(connectionIdentifiersToBeStored).length > 0) {
+                    
+                storeVisualData()
+            }
+            
             integrateContainerAndConnectionData()
             databaseDataHasChanged = false
         }
@@ -111,7 +119,7 @@ function integrateContainerAndConnectionData () {
     }
     
     setContainerChildren()
-    recalculateWorldPositions()
+    recalculateWorldPositionsAndSizes()
     
     // First all visual connections in the visual data set
     for (let connectionIdentifier in databaseData.visual.connections) {
@@ -148,16 +156,30 @@ function loadContainerAndConnectionData() {
             databaseData.visual = projectData.visual
             databaseData.source = projectData.source
             databaseDataHasChanged = true
+            
             centerViewOnWorldCenter = true
+            containerIdentifiersToBeStored = {}
+            connectionIdentifiersToBeStored = {}
         }
     }
     xmlhttp.open("GET", url, true)
     xmlhttp.send()
 }
 
-// TODO: instead of actually storing the data, it is probably better to mark a container as to-be-stored (in a list of toBeStoredcontainersIdentifiers)
-//       and set databaseDataHasChanged to true. In the main loop, when databaseDataHasChanged is checked,
-//       all changed containers can then be stored. This prevents multiple store-calls per frame (and can bundle multiple containers in 1 call).
+
+function storeContainerData(containerData) {
+    databaseData.visual.containers[containerData.identifier] = containerData
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[containerData.identifier] = true
+}
+
+function storeConnectionData(connectionData) {
+    databaseData.visual.connections[connectionData.identifier] = connectionData
+    databaseDataHasChanged = true
+    
+    connectionIdentifiersToBeStored[connectionData.identifier] = true
+}
 
 // TODO: dont pass the whole container, only the containerIdentifier and the parentContainerIdentifier
 function storeContainerParent(container) {
@@ -167,8 +189,9 @@ function storeContainerParent(container) {
     }
     let visualContainerData = databaseData.visual.containers[container.identifier]
     visualContainerData.parentContainerIdentifier = container.parentContainerIdentifier
-    storeVisualContainerData(visualContainerData) // async call!
     databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[container.identifier] = true
 }
 
 // TODO: dont pass the whole container, only the containerIdentifier and the position and size
@@ -180,11 +203,12 @@ function storeContainerPositionAndSize(container) {
     let visualContainerData = databaseData.visual.containers[container.identifier]
     visualContainerData.localPosition = container.localPosition
     visualContainerData.localSize = container.localSize
-    storeVisualContainerData(visualContainerData) // async call!
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[container.identifier] = true
 }
 
-function storeVisualContainerData(visualContainerData) {
-    
+function storeVisualData() {
     let url = 'index.php?action=set_visual_data&project=' + project
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
@@ -194,29 +218,20 @@ function storeVisualContainerData(visualContainerData) {
     }
     xmlhttp.open("PUT", url, true)
     xmlhttp.setRequestHeader("Content-Type", "application/json")
-    let visualData = { 'containers' : {} }
-    visualData['containers'][visualContainerData.identifier] = visualContainerData
-    xmlhttp.send(JSON.stringify(visualData))
     
-    databaseData.visual.containers[visualContainerData.identifier] = visualContainerData
-    databaseDataHasChanged = true
-}
-
-function storeConnectionData(visualConnectionData) {
+    let visualData = { 'containers' : {}, 'connections' : {} }
     
-    let url = 'index.php?action=set_visual_data&project=' + project
-    let xmlhttp = new XMLHttpRequest()
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            // TODO: if we (un)succesfully stored the data, we should probably notify the user
-        }
+    for (let containerIdentifier in containerIdentifiersToBeStored) {
+        let visualContainerData = databaseData.visual.containers[containerIdentifier]
+        visualData['containers'][containerIdentifier] = visualContainerData
     }
-    xmlhttp.open("PUT", url, true)
-    xmlhttp.setRequestHeader("Content-Type", "application/json")
-    let visualData = { 'connections' : {} }
-    visualData['connections'][visualConnectionData.identifier] = visualConnectionData
+    for (let connectionIdentifier in connectionIdentifiersToBeStored) {
+        let visualConnectionData = databaseData.visual.connections[connectionIdentifier]
+        visualData['connections'][connectionIdentifier] = visualConnectionData
+    }
+    
     xmlhttp.send(JSON.stringify(visualData))
     
-    databaseData.visual.connections[visualConnectionData.identifier] = visualConnectionData
-    databaseDataHasChanged = true
+    containerIdentifiersToBeStored = {}
+    connectionIdentifiersToBeStored = {}
 }
