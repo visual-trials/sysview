@@ -29,6 +29,7 @@ function initContainersAndConnections () {
         id: 0,
         identifier: null,
         worldPosition : { x: 0, y: 0 },
+        worldSize : { width: 0, height: 0 },
         localScale: 1,
         children: [],
     }
