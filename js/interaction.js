@@ -169,6 +169,15 @@ function doContainerSelectionByMouse() {
         interaction.currentlySelectedContainerIdentifiers = {}
     }
     
+    // If delete is pressed, we delete all selected containers
+    if (hasKeyGoneDown('DELETE')) {
+        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+            deleteContainerData(selectedContainerIdentifier)
+        }
+        interaction.currentlySelectedContainerIdentifiers = {}
+        return
+    }
+    
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
          

@@ -167,6 +167,20 @@ function loadContainerAndConnectionData() {
 }
 
 
+function deleteContainerData(containerIdentifier) {
+    delete databaseData.visual.containers[containerIdentifier]
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[containerIdentifier] = true
+}
+
+function deleteConnectionData(connectionIdentifier) {
+    delete databaseData.visual.connections[connectionIdentifier]
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[connectionIdentifier] = true
+}
+
 function storeContainerData(containerData) {
     databaseData.visual.containers[containerData.identifier] = containerData
     databaseDataHasChanged = true
@@ -222,12 +236,26 @@ function storeVisualData() {
     let visualData = { 'containers' : {}, 'connections' : {} }
     
     for (let containerIdentifier in containerIdentifiersToBeStored) {
-        let visualContainerData = databaseData.visual.containers[containerIdentifier]
-        visualData['containers'][containerIdentifier] = visualContainerData
+        if (!databaseData.visual.containers.hasOwnProperty(containerIdentifier)) {
+            // We have to store the visual data of this container, but its key has been deleted
+            // this means we have to delete it in the backend too
+            visualData['containers'][containerIdentifier] = { remove : true }
+        }
+        else {
+            let visualContainerData = databaseData.visual.containers[containerIdentifier]
+            visualData['containers'][containerIdentifier] = visualContainerData
+        }
     }
     for (let connectionIdentifier in connectionIdentifiersToBeStored) {
-        let visualConnectionData = databaseData.visual.connections[connectionIdentifier]
-        visualData['connections'][connectionIdentifier] = visualConnectionData
+        if (!databaseData.visual.connections.hasOwnProperty(connectionIdentifier)) {
+            // We have to store the visual data of this connections, but its key has been deleted
+            // this means we have to delete it in the backend too
+            visualData['connections'][connectionIdentifier] = { remove : true }
+        }
+        else {
+            let visualConnectionData = databaseData.visual.connections[connectionIdentifier]
+            visualData['connections'][connectionIdentifier] = visualConnectionData
+        }
     }
     
     xmlhttp.send(JSON.stringify(visualData))
