@@ -163,7 +163,7 @@ function doContainerSelectionByMouse() {
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     
-    // If ESCAPE is pressed, de-select all containers    
+    // If escape is pressed, de-select all containers    
     if (hasKeyGoneDown('ESCAPE')) {
         interaction.currentlySelectedContainerIdentifiers = {}
     }
@@ -266,10 +266,9 @@ function doContainerDraggingByMouse() {
         worldRectangle.position = { x: containerAtMousePosition.worldPosition.x, y: containerAtMousePosition.worldPosition.y }
         worldRectangle.size = { width: containerAtMousePosition.worldSize.width, height: containerAtMousePosition.worldSize.height }
 
-// FIXME: it now *somehow* possible to move containers towards the root container even though we hover (a just) de-selected container!        
-// FIXME: also, we cannot move containers from root to another container!
         // TODO: rename emcompassingContainer to hoveringParentContainer?
-        let encompassingContainer = findContainerEncompassingWorldRectangle(worldRectangle)
+        let excludeSelectedContainers = true
+        let encompassingContainer = findContainerAtWorldPosition(mouseState.worldPosition, null, excludeSelectedContainers)
         if (encompassingContainer != null) {
             interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
         }

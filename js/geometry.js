@@ -323,14 +323,14 @@ function recalculateWorldPositions(container = null) {
 function findContainerEncompassingWorldRectangle(worldRectangle, container = null) {
     
     if (container == null) {
-        container = containersAndConnections.containers['root'] // = root container
+        // start with the root container, if no starting container has been supplied
+        container = containersAndConnections.containers['root'] 
     }
     
     // First check the children (since they are 'on-top' of the parent)
     for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
         let childContainerIdentifier = container.children[containerIndex]
         let childContainer = containersAndConnections.containers[childContainerIdentifier]
-        
         let containerEncompassingWorldRectangle = findContainerEncompassingWorldRectangle(worldRectangle, childContainer)
         if (containerEncompassingWorldRectangle != null) {
             return containerEncompassingWorldRectangle
@@ -345,7 +345,7 @@ function findContainerEncompassingWorldRectangle(worldRectangle, container = nul
     return null
 }
 
-function findContainerAtWorldPosition(worldPosition, container = null) {
+function findContainerAtWorldPosition(worldPosition, container = null, excludeSelectedContainers = false) {
     
     if (container == null) {
         container = containersAndConnections.containers['root'] // = root container
@@ -359,10 +359,14 @@ function findContainerAtWorldPosition(worldPosition, container = null) {
         let childContainerIdentifier = container.children[containerIndex]
         let childContainer = containersAndConnections.containers[childContainerIdentifier]
         
-        let containerAtWorldPosition = findContainerAtWorldPosition(worldPosition, childContainer)
+        let containerAtWorldPosition = findContainerAtWorldPosition(worldPosition, childContainer, excludeSelectedContainers)
         if (containerAtWorldPosition != null) {
             return containerAtWorldPosition
         }
+    }
+    
+    if (excludeSelectedContainers && interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
+        return null
     }
     
     // Then check the parent itself (but not if it's the root container)
