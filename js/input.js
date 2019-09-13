@@ -419,6 +419,22 @@ function keyUp (e) {
         console.log("ERROR: Invalid keyCode (" + keyCode + ") encountered!") 
     }
 }
+
+function hasKeyGoneDown(keyNameToCheck) {
+    if (keyboardState.sequenceKeysUpDown.length) {
+        for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
+            let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
+            let keyName = keyCodeMap[keyUpDown.keyCode]
+            if (keyUpDown.isDown) {
+                if (keyName === keyNameToCheck) {
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
+
     
 function addInputListeners () {
     canvasElement.addEventListener("mousedown", mouseButtonDown, false)

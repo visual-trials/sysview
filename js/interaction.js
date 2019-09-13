@@ -164,16 +164,8 @@ function doContainerSelectionByMouse() {
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     
     // If ESCAPE is pressed, de-select all containers    
-    if (keyboardState.sequenceKeysUpDown.length) {
-        for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
-            let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
-            let keyName = keyCodeMap[keyUpDown.keyCode]
-            if (keyUpDown.isDown) {
-                if (keyName === 'ESCAPE') {
-                    interaction.currentlySelectedContainerIdentifiers = {}
-                }
-            }
-        }
+    if (hasKeyGoneDown('ESCAPE')) {
+        interaction.currentlySelectedContainerIdentifiers = {}
     }
     
     if (!mouseState.leftButtonHasGoneDownTwice &&
@@ -234,6 +226,8 @@ function doContainerDraggingByMouse() {
   
     // Note: we can assume then all selected containers have the *same* parent
     
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    
     if (interaction.currentlyHoveredContainerIdentifier != null) {
         interaction.mousePointerStyle = 'move'
     }
@@ -263,18 +257,14 @@ function doContainerDraggingByMouse() {
             
         }
         
-        let currentlyHoveringContainer = null
         let worldRectangle = {}
-        if (interaction.currentlyHoveredContainerIdentifier != null) {
-            currentlyHoveringContainer = getContainerByIdentifier(interaction.currentlyHoveredContainerIdentifier)
-        }
-        else {
-            console.log('ERROR: we are not hovering a container, even though we are dragging container(s)!')
+        if (containerAtMousePosition == null) {
+            console.log('ERROR: there is not container at the mouse position, even though we are dragging container(s)!')
             return
         }
         
-        worldRectangle.position = { x: currentlyHoveringContainer.worldPosition.x, y: currentlyHoveringContainer.worldPosition.y }
-        worldRectangle.size = { width: currentlyHoveringContainer.worldSize.width, height: currentlyHoveringContainer.worldSize.height }
+        worldRectangle.position = { x: containerAtMousePosition.worldPosition.x, y: containerAtMousePosition.worldPosition.y }
+        worldRectangle.size = { width: containerAtMousePosition.worldSize.width, height: containerAtMousePosition.worldSize.height }
 
 // FIXME: it now *somehow* possible to move containers towards the root container even though we hover (a just) de-selected container!        
 // FIXME: also, we cannot move containers from root to another container!
@@ -318,6 +308,7 @@ function doContainerDraggingByMouse() {
                     
                     selectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
                     
+// FIXME: we need to do storing more efficiently!                    
                     // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
                     //       and adds the child to the new parent. Can we do this more explicitly?
                     storeContainerParent(selectedContainer)
@@ -332,7 +323,6 @@ function doContainerDraggingByMouse() {
         }
     }
 
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         if (containerAtMousePosition != null/* && currentlySelectedContainerIdentifier != null &&
