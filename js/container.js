@@ -27,7 +27,7 @@ function initContainersAndConnections () {
     let rootContainer = {
         type: 'root',
         id: 0,
-        identifier: null,
+        identifier: 'root',
         worldPosition : { x: 0, y: 0 },
         worldSize : { width: 0, height: 0 },
         localScale: 1,
