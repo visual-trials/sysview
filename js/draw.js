@@ -106,6 +106,8 @@ function drawCanvas() {
     drawConnections()
     drawNewConnection()
     
+    drawTinyDetail()
+    
     drawMenu()
     
     // TODO: when the mouse (with button pressed) is moving its style doesn't get changed?
@@ -194,6 +196,36 @@ function drawButton(buttonData, drawOnlySelected) {
         
     }
     
+}
+
+function drawTinyDetail () {
+    let tinyDetailSize = { width: 600, height: 40 }
+    let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 100, y: canvasElement.height - tinyDetailSize.height - 20 }
+
+    if (interaction.currentlyHoveredContainerIdentifier != null) {
+        ctx.lineWidth = 1
+        ctx.fillStyle = "#F0F0F0"
+        ctx.strokeStyle = "#888888"
+        ctx.fillRect(tinyDetailPosition.x, tinyDetailPosition.y, tinyDetailSize.width, tinyDetailSize.height)
+        ctx.strokeRect(tinyDetailPosition.x + 0.5, tinyDetailPosition.y + 0.5, tinyDetailSize.width, tinyDetailSize.height)
+        
+        let textToDraw = interaction.currentlyHoveredContainerIdentifier
+        
+        // Get text size
+        let textSize = {}
+        let fontSize = 14
+        let heightBottomWhiteArea = fontSize / 6
+        let textHeightToFontSizeRatioArial = 1.1499023
+        
+        textSize.width = ctx.measureText(textToDraw).width
+        textSize.height = textHeightToFontSizeRatioArial * fontSize
+        
+        ctx.font = fontSize + "px Arial"
+        ctx.textBaseline = "top"
+
+        ctx.fillStyle = "#000000"
+        ctx.fillText(textToDraw, tinyDetailPosition.x + 20, tinyDetailPosition.y + 20 - 5) // FIXME: hacked the position
+    }
 }
 
 function drawGrid () {
