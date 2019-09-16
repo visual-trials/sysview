@@ -18,6 +18,58 @@
  
 let containersAndConnections = null
 
+// FIXME: make this available as data
+let containerShapes = {
+    'rectangle4points' : {
+        'points' : {
+            'top' : {
+                type : 'straight',
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left' : {
+                type : 'straight',
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom' : {
+                type : 'straight',
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+            },
+            'right' : {
+                type : 'straight',
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            'left-top',
+            'right-top',
+            'right-bottom',
+            'left-bottom',
+            // 'left-top', TODO: for now, it always does closePath (when drawing). Should we always do that or add this extra path-point?
+        ]
+    }
+}
+
 function initContainersAndConnections () {
     containersAndConnections = { 
         containers: {}, 
@@ -31,6 +83,7 @@ function initContainersAndConnections () {
         worldPosition : { x: 0, y: 0 },
         worldSize : { width: 0, height: 0 },
         localScale: 1,
+        points: {},
         connectionPoints: {},
         children: [],
     }
@@ -89,7 +142,9 @@ function createContainer(containerData) {
         worldScale: null,
         fill: fill,
         stroke: stroke,
-        connectionPoints: {},
+        shapeType : 'rectangle4points', // FIXME: get this from containerData!
+        worldPoints: {}, 
+        worldConnectionPoints: {},
         children: [],
     }
     

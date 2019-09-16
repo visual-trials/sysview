@@ -295,6 +295,49 @@ function getRectangleAroundWorld() {
     return rectangleAroundWorld
 }
 
+function recalculateWorldPoints(container) {
+    
+    // FIXME: should we remove all worldPoints and worldConnectionPoints each time? Or maybe check which dont exist anymore, and remove them afterwatrds?
+    // container.worldPoints = {}
+    // container.worldConnectionPoints = {}
+    
+    // First create 4 default points
+    container.worldPoints['left-top'] = { x: container.worldPosition.x, y: container.worldPosition.y } 
+    container.worldPoints['right-top'] = { x: container.worldPosition.x + container.worldSize.width, y: container.worldPosition.y } 
+    container.worldPoints['right-bottom'] = { x: container.worldPosition.x + container.worldSize.width, y: container.worldPosition.y + container.worldSize.height } 
+    container.worldPoints['left-bottom'] = { x: container.worldPosition.x, y: container.worldPosition.y + container.worldSize.height } 
+
+    // TODO: check if type exists!
+    let containerShape = containerShapes[container.shapeType]
+    
+    for (let pointIdentifier in containerShape.points) {
+        let point = containerShape.points[pointIdentifier]
+        if (point.type === 'straight' && point.positioning === 'relative') {
+            if (container.worldPoints.hasOwnProperty(point.fromPoint) ||
+                container.worldPoints.hasOwnProperty(point.toPoint)) {
+                
+                let worldPoint = lerpPositionBetweenTwoPoints(container.worldPoints[point.fromPoint],
+                                                                 container.worldPoints[point.toPoint], 
+                                                                 point.fraction)
+                container.worldPoints[pointIdentifier] = worldPoint
+                
+                if (point.isConnectionPoint) {
+                    container.worldConnectionPoints[pointIdentifier] = {
+                        position : worldPoint,
+                        rightAngle : point.rightAngle
+                    }
+                }
+            }
+            else {
+                console.log('ERROR: either from-point: ' + point.fromPoint + ' or to-point:' + point.toPoint + 'doesnt exists (yet)!')
+            }
+        }
+        else {
+            console.log('ERROR: unsupported point type/positioning')
+        }
+    }
+    
+}
 
 function recalculateWorldPositionsAndSizes(container = null) {
 
@@ -309,6 +352,8 @@ function recalculateWorldPositionsAndSizes(container = null) {
         let scaledLocalPosition = scalePosition(container.worldScale, container.localPosition)
         container.worldPosition = addOffsetToPosition(scaledLocalPosition, parentContainer.worldPosition)
         container.worldSize = scaleSize(container.worldScale, container.localSize)
+        
+        recalculateWorldPoints(container)
     }
     
     // First check the children (since they are 'on-top' of the parent)
