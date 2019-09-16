@@ -310,6 +310,24 @@ function getFirstVisibleContainer(container) {
     return getFirstVisibleContainer(parentContainer)
 }
 
+function getClosestConnectionPointToThisPoint(container, toContainerCenterPosition) {
+    let closestDistance = null
+    let closestPoint = null
+    for (let pointIdentifier in container.worldConnectionPoints) {
+        let worldConnectionPoint = container.worldConnectionPoints[pointIdentifier]
+
+        let currentDistance = distanceBetweenTwoPoints(toContainerCenterPosition, worldConnectionPoint.position)
+
+        if (closestDistance == null || currentDistance < closestDistance) {
+            closestDistance = currentDistance
+            closestPoint = worldConnectionPoint
+
+        }
+    }
+    already = true
+    return closestPoint.position
+}
+
 function drawConnection(connection, fromContainer, toContainer) {
     
     let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
@@ -323,8 +341,10 @@ function drawConnection(connection, fromContainer, toContainer) {
         // Not drawing a connection if it effectively connects one container with itself
         return
     }
-    let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
-    let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
+    let fromContainerBorderPoint = getClosestConnectionPointToThisPoint(fromFirstVisibleContainer, toContainerCenterPosition)
+    let toContainerBorderPoint = getClosestConnectionPointToThisPoint(toFirstVisibleContainer, fromContainerCenterPosition)
+    // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
+    // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
     
     let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint)
     let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint)
