@@ -311,6 +311,10 @@ function getFirstVisibleContainer(container) {
 }
 
 function getClosestConnectionPointToThisPoint(container, toContainerCenterPosition) {
+    
+    // FIXME: use the dot product and check whether the point (that has the right-angle) is still *on* the line between the two centers of the containers
+    //        of those left, take the closest one to the line
+    
     let closestDistance = null
     let closestPoint = null
     for (let pointIdentifier in container.worldConnectionPoints) {
