@@ -24,13 +24,14 @@ function initContainersAndConnections () {
         connections: {}, 
     }
     
+    // FIXME: treat root as a (almost)normal container by using createContainer here!
     let rootContainer = {
         type: 'root',
-        id: 0,
         identifier: 'root',
         worldPosition : { x: 0, y: 0 },
         worldSize : { width: 0, height: 0 },
         localScale: 1,
+        connectionPoints: {},
         children: [],
     }
     
@@ -88,6 +89,7 @@ function createContainer(containerData) {
         worldScale: null,
         fill: fill,
         stroke: stroke,
+        connectionPoints: {},
         children: [],
     }
     
