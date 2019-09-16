@@ -432,19 +432,15 @@ function drawContainer(container, alpha = null) {
             ctx.fillStyle = rgba(fill)
         }
         
-        if (interaction.percentageIsoMetric > 0) {
         
-            let worldPosition = { x : 0, y : 0}
-            worldPosition.x = container.worldPosition.x
-            worldPosition.y = container.worldPosition.y
-            
+        drawContainerShape(container)
+        ctx.fill()
+        
+        /*
+        if (interaction.percentageIsoMetric > 0) {
             // TODO: using percentageIsoMetric directly (without sin/cos/tan) is probably not quite right
             let containerThickness = 6 * interaction.viewScale * container.worldScale * interaction.percentageIsoMetric
             
-            drawContainerShape(container)
-            ctx.fill()
-            
-            /*
             // TODO: at some point we want to draw the *sides* of the containers again
             ctx.fillStyle = rgba(darken(container.fill, 0.3))
             ctx.beginPath()
@@ -463,52 +459,27 @@ function drawContainer(container, alpha = null) {
             ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y + containerThickness)
             ctx.closePath()
             ctx.fill()
-            */
-            
-            if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
-                if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
-                    ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                    ctx.strokeStyle = "#FF0000"
-                    
-                    drawContainerShape(container)
-                    ctx.stroke()
-                }
-                else if (interaction.selectedContainersAreBeingDragged && 
-                         interaction.emcompassingContainerIdentifier !== 'root' &&
-                         container.identifier === interaction.emcompassingContainerIdentifier) {
-
-                    ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                    ctx.strokeStyle = "#FFFF00"
-                    
-                    drawContainerShape(container)
-                    ctx.stroke()
-                }
-            }
         }
-        else {
-            
-            drawContainerShape(container)
-            ctx.fill()
-            
-            if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
-                if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
-                    ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                    ctx.strokeStyle = "#FF0000"
-                    drawContainerShape(container)
-                    ctx.stroke()
-                }
-                else if (interaction.selectedContainersAreBeingDragged && 
-                         interaction.emcompassingContainerIdentifier !== 'root' &&
-                         container.identifier === interaction.emcompassingContainerIdentifier) {
-                             
-                    ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                    ctx.strokeStyle = "#FFFF00"
-                    drawContainerShape(container)
-                    ctx.stroke()
-                             
-                }
+        */
+        
+        if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
+            if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
+                ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                ctx.strokeStyle = "#FF0000"
+                
+                drawContainerShape(container)
+                ctx.stroke()
             }
+            else if (interaction.selectedContainersAreBeingDragged && 
+                     interaction.emcompassingContainerIdentifier !== 'root' &&
+                     container.identifier === interaction.emcompassingContainerIdentifier) {
 
+                ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                ctx.strokeStyle = "#FFFF00"
+                
+                drawContainerShape(container)
+                ctx.stroke()
+            }
         }
     }
     
