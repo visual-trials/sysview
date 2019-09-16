@@ -415,9 +415,6 @@ function drawContainerShape (container) {
     ctx.closePath()
 }
 
-// FIXME: remove this
-let alreadyLogged = false
-
 function drawContainer(container, alpha = null) {
     
     {
@@ -444,22 +441,11 @@ function drawContainer(container, alpha = null) {
             // TODO: using percentageIsoMetric directly (without sin/cos/tan) is probably not quite right
             let containerThickness = 6 * interaction.viewScale * container.worldScale * interaction.percentageIsoMetric
             
-            let leftTopContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
-            worldPosition.y += container.worldSize.height
-            let leftBottomContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
-            worldPosition.x += container.worldSize.width
-            let rightBottomContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
-            worldPosition.y -= container.worldSize.height
-            let rightTopContainerPosition = fromWorldPositionToScreenPosition(worldPosition)
-            
-            ctx.beginPath()
-            ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
-            ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
-            ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
-            ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
-            ctx.closePath()
+            drawContainerShape(container)
             ctx.fill()
             
+            /*
+            // TODO: at some point we want to draw the *sides* of the containers again
             ctx.fillStyle = rgba(darken(container.fill, 0.3))
             ctx.beginPath()
             ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
@@ -477,18 +463,14 @@ function drawContainer(container, alpha = null) {
             ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y + containerThickness)
             ctx.closePath()
             ctx.fill()
+            */
             
             if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
                 if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
                     ctx.lineWidth = 2 // TODO: do we want to scale this too?
                     ctx.strokeStyle = "#FF0000"
                     
-                    ctx.beginPath()
-                    ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
-                    ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
-                    ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
-                    ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
-                    ctx.closePath()
+                    drawContainerShape(container)
                     ctx.stroke()
                 }
                 else if (interaction.selectedContainersAreBeingDragged && 
@@ -498,24 +480,13 @@ function drawContainer(container, alpha = null) {
                     ctx.lineWidth = 2 // TODO: do we want to scale this too?
                     ctx.strokeStyle = "#FFFF00"
                     
-                    ctx.beginPath()
-                    ctx.moveTo(leftTopContainerPosition.x, leftTopContainerPosition.y)
-                    ctx.lineTo(leftBottomContainerPosition.x, leftBottomContainerPosition.y)
-                    ctx.lineTo(rightBottomContainerPosition.x, rightBottomContainerPosition.y)
-                    ctx.lineTo(rightTopContainerPosition.x, rightTopContainerPosition.y)
-                    ctx.closePath()
+                    drawContainerShape(container)
                     ctx.stroke()
                 }
             }
         }
         else {
             
-            if (!alreadyLogged) {
-                console.log(container.worldPoints)
-                alreadyLogged = true
-                
-            }
-
             drawContainerShape(container)
             ctx.fill()
             
