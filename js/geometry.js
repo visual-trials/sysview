@@ -312,28 +312,52 @@ function recalculateWorldPoints(container) {
     
     for (let pointIdentifier in containerShape.points) {
         let point = containerShape.points[pointIdentifier]
-        if (point.type === 'straight' && point.positioning === 'relative') {
-            if (container.worldPoints.hasOwnProperty(point.fromPoint) ||
-                container.worldPoints.hasOwnProperty(point.toPoint)) {
-                
-                let worldPoint = lerpPositionBetweenTwoPoints(container.worldPoints[point.fromPoint],
-                                                                 container.worldPoints[point.toPoint], 
-                                                                 point.fraction)
-                container.worldPoints[pointIdentifier] = worldPoint
-                
-                if (point.isConnectionPoint) {
-                    container.worldConnectionPoints[pointIdentifier] = {
-                        position : worldPoint,
-                        rightAngle : point.rightAngle
-                    }
+        
+        let worldPoint = null
+        
+        if (point.type === 'straight') {
+            if (point.positioning === 'relative') {
+                if (container.worldPoints.hasOwnProperty(point.fromPoint) &&
+                    container.worldPoints.hasOwnProperty(point.toPoint)) {
+                    
+                    worldPoint = lerpPositionBetweenTwoPoints(container.worldPoints[point.fromPoint],
+                                                                     container.worldPoints[point.toPoint], 
+                                                                     point.fraction)
+                }
+                else {
+                    console.log('ERROR: either from-point: ' + point.fromPoint + ' or to-point:' + point.toPoint + 'doesnt exists (yet)!')
+                }
+            }
+            else if (point.positioning === 'absolute') {
+                if (container.worldPoints.hasOwnProperty(point.fromPoint)) {
+                    let fromPoint = container.worldPoints[point.fromPoint]
+                    let offset = point.offset
+                    worldPoint = addOffsetToPosition(offset, fromPoint)
+                }
+                else {
+                    console.log('ERROR: from-point: ' + point.fromPoint + 'doesnt exists (yet)!')
                 }
             }
             else {
-                console.log('ERROR: either from-point: ' + point.fromPoint + ' or to-point:' + point.toPoint + 'doesnt exists (yet)!')
+                console.log('ERROR: unsupported point positioning')
             }
         }
         else {
-            console.log('ERROR: unsupported point type/positioning')
+            console.log('ERROR: unsupported point type')
+        }
+        
+        if (worldPoint != null) {
+            container.worldPoints[pointIdentifier] = worldPoint
+            
+            if (point.isConnectionPoint) {
+                container.worldConnectionPoints[pointIdentifier] = {
+                    position : worldPoint,
+                    rightAngle : point.rightAngle
+                }
+            }
+        }
+        else {
+            console.log('ERROR: couldnt create world-point!')
         }
     }
     

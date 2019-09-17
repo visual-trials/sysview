@@ -422,7 +422,7 @@ function drawContainers(containerIdentifiers, alpha = null) {
 
 function drawContainerShape (container) {
     let containerShape = containerShapes[container.shapeType]
-    
+
     ctx.beginPath()
     let pointFrom = null
     let pointTo = null

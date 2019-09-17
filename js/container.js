@@ -67,6 +67,71 @@ let containerShapes = {
             'left-bottom',
             // 'left-top', TODO: for now, it always does closePath (when drawing). Should we always do that or add this extra path-point?
         ]
+    },
+    'roundedRectangleManyConnections' : {
+        'points' : {
+            'left-top-r' : {
+                type : 'straight',
+                positioning : 'absolute',
+                fromPoint : 'left-top',
+                offset : { x: 200, y: 0 },
+                fraction : 0.1,
+                isConnectionPoint : false,
+            },
+            'left-top-b' : {
+                type : 'straight',
+                positioning : 'absolute',
+                fromPoint : 'left-top',
+                offset : { x: 0, y: 200 },
+                fraction : 0.1,
+                isConnectionPoint : false,
+            },
+            'top' : {
+                type : 'straight',
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left' : {
+                type : 'straight',
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom' : {
+                type : 'straight',
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+            },
+            'right' : {
+                type : 'straight',
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            'left-top-r',
+            'right-top',
+            'right-bottom',
+            'left-bottom',
+            'left-top-b',
+            // 'left-top', TODO: for now, it always does closePath (when drawing). Should we always do that or add this extra path-point?
+        ]
     }
 }
 
@@ -99,7 +164,9 @@ function createContainer(containerData) {
     
     let fill = { r:0, g:0, b:0, a:1 }
     let stroke = { r:0, g:0, b:0, a:1 }
-    
+
+    // FIXME: do this mapping outside this function!    
+    let shapeType = 'rectangle4points' // TODO: maybe a different default shape?
     if (containerData.type === 'server') {
         fill = { r:200, g:180, b:200, a:1 }
         stroke = { r:200, g:180, b:200, a:1 }
@@ -119,6 +186,7 @@ function createContainer(containerData) {
     else if (containerData.type === 'visualContainer') {
         fill = { r:240, g:240, b:240, a:1 }
         stroke = { r:100, g:100, b:100, a:1 }
+        shapeType = 'roundedRectangleManyConnections'
     }
     else {
         console.log("ERROR: Unknown container type: " + containerData.type)
@@ -142,7 +210,7 @@ function createContainer(containerData) {
         worldScale: null,
         fill: fill,
         stroke: stroke,
-        shapeType : 'rectangle4points', // FIXME: get this from containerData!
+        shapeType : shapeType, 
         worldPoints: {}, 
         worldConnectionPoints: {},
         children: [],
