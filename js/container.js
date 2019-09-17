@@ -57,11 +57,11 @@ let containerShapes = {
             },
         },
         'strokeAndFillPath' : [
-            'left-top',
-            'right-top',
-            'right-bottom',
-            'left-bottom',
-            // 'left-top', TODO: for now, it always does closePath (when drawing). Should we always do that or add this extra path-point?
+            { 'identifier' : 'left-top', type : 'move' },
+            { 'identifier' : 'right-top', type : 'line' },
+            { 'identifier' : 'right-bottom', type : 'line' },
+            { 'identifier' : 'left-bottom', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
     'roundedRectangleManyConnections' : {
@@ -115,12 +115,11 @@ let containerShapes = {
             },
         },
         'strokeAndFillPath' : [
-            'left-top-r',
-            'right-top',
-            'right-bottom',
-            'left-bottom',
-            'left-top-b',
-            // 'left-top', TODO: for now, it always does closePath (when drawing). Should we always do that or add this extra path-point?
+            { identifier : 'left-top-r', type : 'move' },
+            { identifier : 'right-top', type : 'line' },
+            { identifier : 'right-bottom', type : 'line' },
+            { identifier : 'left-bottom', type : 'line' },
+            { identifier : 'left-top-b', type : 'line' },
         ]
     }
 }

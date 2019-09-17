@@ -424,17 +424,19 @@ function drawContainerShape (container) {
     let containerShape = containerShapes[container.shapeType]
 
     ctx.beginPath()
-    let pointFrom = null
     let pointTo = null
-    for (let pointIdentifier of containerShape.strokeAndFillPath) {
-        pointTo = fromWorldPositionToScreenPosition(container.worldPoints[pointIdentifier])
-        if (pointFrom == null) {
+    for (let pathPart of containerShape.strokeAndFillPath) {
+        let toPointIdentifier = pathPart.identifier
+        pointTo = fromWorldPositionToScreenPosition(container.worldPoints[toPointIdentifier])
+        if (pathPart.type === 'move') {
             ctx.moveTo(pointTo.x, pointTo.y)
         }
-        else {
+        else if (pathPart.type === 'line') {
             ctx.lineTo(pointTo.x, pointTo.y)
         }
-        pointFrom = pointTo
+        else {
+            console.log('ERROR: unsupported pathPart type: ' + pathPart.type)
+        }
     }
     ctx.closePath()
 }
