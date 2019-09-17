@@ -181,6 +181,10 @@ function setContainerChildren() {
 }
 
 function containerIsSomeParentOfChild (container, childContainer) {
+    if (childContainer == null || childContainer.identifier === 'root') {
+        return false
+    }
+        
     if (childContainer.parentContainerIdentifier == null || childContainer.parentContainerIdentifier === 'root') {
         return false
     }
