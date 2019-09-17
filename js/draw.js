@@ -208,13 +208,13 @@ function drawButton(buttonData, drawOnlySelected) {
 }
 
 function drawTinyDetail () {
-    let tinyDetailSize = { width: 600, height: 40 }
+    let tinyDetailSize = { width: 600, height: 30 }
     let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 100, y: canvasElement.height - tinyDetailSize.height - 20 }
 
     if (interaction.currentlyHoveredContainerIdentifier != null) {
         ctx.lineWidth = 1
-        ctx.fillStyle = "#F0F0F0"
-        ctx.strokeStyle = "#888888"
+        ctx.fillStyle = "rgba(255,255,255,0.8)" // "#FFFFFF"
+        ctx.strokeStyle = "#DDDDDD"
         ctx.fillRect(tinyDetailPosition.x, tinyDetailPosition.y, tinyDetailSize.width, tinyDetailSize.height)
         ctx.strokeRect(tinyDetailPosition.x + 0.5, tinyDetailPosition.y + 0.5, tinyDetailSize.width, tinyDetailSize.height)
         
@@ -232,8 +232,8 @@ function drawTinyDetail () {
         ctx.font = fontSize + "px Arial"
         ctx.textBaseline = "top"
 
-        ctx.fillStyle = "#000000"
-        ctx.fillText(textToDraw, tinyDetailPosition.x + 20, tinyDetailPosition.y + 20 - 5) // FIXME: hacked the position
+        ctx.fillStyle = "#333333"
+        ctx.fillText(textToDraw, tinyDetailPosition.x + 20, tinyDetailPosition.y + 20 - 10) // FIXME: hacked the position
     }
 }
 
