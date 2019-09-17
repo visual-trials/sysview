@@ -105,8 +105,14 @@ function drawCanvas() {
     let rootContainer = containersAndConnections.containers['root']
     drawContainers(rootContainer.children)
     
-    groupConnections()
-    drawConnectionGroups()
+    let doConnectionGrouping = true
+    if (doConnectionGrouping) {
+        groupConnections()
+        drawConnectionGroups()
+    }
+    else {
+        drawConnections()
+    }
     drawNewConnection()
     
     drawTinyDetail()
@@ -454,6 +460,69 @@ function drawConnectionGroup(connectionGroup) {
                 ctx.stroke()
             }
             */
+
+        }
+    }
+    
+}
+
+function drawConnections() {
+    for (let connectionIdentifier in containersAndConnections.connections) {
+        let connection = containersAndConnections.connections[connectionIdentifier]
+
+        // Draw all connections here, but not the new connection-being-added
+        if (interaction.newConnectionBeingAddedIdentifier == null || 
+            connection.identifier !== interaction.newConnectionBeingAddedIdentifier) {
+
+            let fromContainer = containersAndConnections.containers[connection.fromContainerIdentifier]
+            let toContainer = containersAndConnections.containers[connection.toContainerIdentifier]
+            drawConnection(connection, fromContainer, toContainer)
+        }
+    }
+}
+
+function drawConnection(connection, fromContainer, toContainer) {
+    
+    let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
+    let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
+    
+    let angleBetweenPoints = getAngleBetweenPoints(fromContainerCenterPosition, toContainerCenterPosition)
+    
+    let fromFirstVisibleContainer = getFirstVisibleContainer(fromContainer)
+    let toFirstVisibleContainer = getFirstVisibleContainer(toContainer)
+    if (fromFirstVisibleContainer.identifier === toFirstVisibleContainer.identifier) {
+        // Not drawing a connection if it effectively connects one container with itself
+        return
+    }
+    let fromContainerBorderPoint = getClosestConnectionPointToThisPoint(fromFirstVisibleContainer, toContainerCenterPosition)
+    let toContainerBorderPoint = getClosestConnectionPointToThisPoint(toFirstVisibleContainer, fromContainerCenterPosition)
+    // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
+    // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
+    
+    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint)
+    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint)
+    
+    {
+        // Draw line 
+        ctx.lineWidth = 2 * interaction.viewScale
+        ctx.strokeStyle = rgba(connection.stroke)
+        
+        ctx.beginPath()
+        ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
+        ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
+        ctx.stroke()
+        
+        if (interaction.currentlySelectedConnection != null) {
+            if (connection.identifier === interaction.currentlySelectedConnection.identifier) {
+                
+                ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                ctx.strokeStyle = "#FF0000"
+                
+                ctx.beginPath()
+                ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
+                ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
+                ctx.stroke()
+            }
 
         }
     }
