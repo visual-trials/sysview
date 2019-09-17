@@ -323,7 +323,7 @@ function getClosestConnectionPointToThisPoint(container, toContainerCenterPositi
         }
     }
     already = true
-    return closestPoint.position
+    return closestPoint
 }
 
 function groupConnections() {
@@ -420,7 +420,7 @@ function drawConnectionGroup(connectionGroup) {
 
     let fromFirstVisibleContainer = getContainerByIdentifier(connectionGroup.fromFirstVisibleContainerIdentifier)
     let toFirstVisibleContainer = getContainerByIdentifier(connectionGroup.toFirstVisibleContainerIdentifier)
-    let connectionType = getContainerByIdentifier(connectionGroup.connectionType)
+    let connectionType = connectionGroup.connectionType
     
     let nrOfConnections = connectionGroup.nrOfConnections
     let averageFromPosition = connectionGroup.averageFromPosition
@@ -433,18 +433,49 @@ function drawConnectionGroup(connectionGroup) {
     // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
     // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
     
-    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint)
-    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint)
+    let worldDistanceBetweenFromAndTo = distanceBetweenTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
+    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
+    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
+    
+    let bendingDistance = worldDistanceBetweenFromAndTo / 2
+// FIXME
+if (fromContainerBorderPoint.rightAngle != 0.5) {
+//console.log(fromContainerBorderPoint.rightAngle)
+}    
+    let fromBendPosition = getPositionFromAnglePointAndDistance(fromContainerBorderPoint.position, fromContainerBorderPoint.rightAngle, bendingDistance)
+    let toBendPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, bendingDistance)
+    let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
+    let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
     
     {
+        let size = 10
+        ctx.fillStyle = "#FF00FF"
+        ctx.fillRect(screenFromContainerPosition.x - size/2, screenFromContainerPosition.y - size/2, size, size)
+        ctx.fillStyle = "#FF0000"
+        ctx.fillRect(screenFromBendPosition.x - size/2, screenFromBendPosition.y - size/2, size, size)
+        
+        ctx.fillStyle = "#FFFF00"
+        ctx.fillRect(screenToContainerPosition.x - size/2, screenToContainerPosition.y - size/2, size, size)
+        ctx.fillStyle = "#00FF00"
+        ctx.fillRect(screenToBendPosition.x - size/2, screenToBendPosition.y - size/2, size, size)
+        
         // Draw line 
         ctx.lineWidth = 2 * interaction.viewScale * nrOfConnections
         ctx.strokeStyle = rgba(connectionGroup.stroke)
         
+        /*
         ctx.beginPath()
         ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
         ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
         ctx.stroke()
+        */
+        
+        ctx.beginPath()
+        ctx.moveTo(       screenFromContainerPosition.x, screenFromContainerPosition.y)
+        ctx.bezierCurveTo(screenFromBendPosition.x, screenFromBendPosition.y, 
+                          screenToBendPosition.x, screenToBendPosition.y, 
+                          screenToContainerPosition.x, screenToContainerPosition.y)
+        ctx.stroke()        
         
         if (interaction.currentlySelectedConnection != null) {
             // TODO: how do we select grouped connections? And single connections when they are grouped?
@@ -499,18 +530,44 @@ function drawConnection(connection, fromContainer, toContainer) {
     // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
     // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
     
-    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint)
-    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint)
+    let worldDistanceBetweenFromAndTo = distanceBetweenTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
+    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
+    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
+    
+    let bendingDistance = worldDistanceBetweenFromAndTo / 2
+    let fromBendPosition = getPositionFromAnglePointAndDistance(fromContainerBorderPoint.position, fromContainerBorderPoint.rightAngle, bendingDistance)
+    let toBendPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, bendingDistance)
+    let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
+    let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
     
     {
+        let size = 5
+        ctx.fillStyle = "#FF00FF"
+        ctx.fillRect(screenFromContainerPosition.x - size/2, screenFromContainerPosition.y - size/2, size, size)
+        ctx.fillStyle = "#FF0000"
+        ctx.fillRect(screenFromBendPosition.x - size/2, screenFromBendPosition.y - size/2, size, size)
+        
+        ctx.fillStyle = "#FFFF00"
+        ctx.fillRect(screenToContainerPosition.x - size/2, screenToContainerPosition.y - size/2, size, size)
+        ctx.fillStyle = "#00FF00"
+        ctx.fillRect(screenToBendPosition.x - size/2, screenToBendPosition.y - size/2, size, size)
+        
         // Draw line 
         ctx.lineWidth = 2 * interaction.viewScale
         ctx.strokeStyle = rgba(connection.stroke)
-        
+/*        
         ctx.beginPath()
         ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
         ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
         ctx.stroke()
+        */
+        
+        ctx.beginPath()
+        ctx.moveTo(       screenFromContainerPosition.x, screenFromContainerPosition.y)
+        ctx.bezierCurveTo(screenFromBendPosition.x, screenFromBendPosition.y, 
+                          screenToBendPosition.x, screenToBendPosition.y, 
+                          screenToContainerPosition.x, screenToContainerPosition.y)
+        ctx.stroke()        
         
         if (interaction.currentlySelectedConnection != null) {
             if (connection.identifier === interaction.currentlySelectedConnection.identifier) {

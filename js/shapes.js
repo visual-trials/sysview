@@ -26,7 +26,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.5,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left' : {
@@ -43,7 +43,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.5,
                 isConnectionPoint : true,
-                rightAngle : 1.5 * Math.PI,
+                rightAngle : 0.5 * Math.PI,
             },
             'right' : {
                 positioning : 'relative',
@@ -126,7 +126,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.1,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'top-0.2' : {
@@ -135,7 +135,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.2,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'top-0.3' : {
@@ -144,7 +144,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.3,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'top-0.4' : {
@@ -153,7 +153,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.4,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'top-0.5' : {
@@ -162,7 +162,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.5,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'top-0.6' : {
@@ -171,7 +171,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.6,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'top-0.7' : {
@@ -180,7 +180,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.7,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'top-0.8' : {
@@ -189,7 +189,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.8,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'top-0.9' : {
@@ -198,7 +198,7 @@ let containerShapes = {
                 toPoint : 'right-top',
                 fraction : 0.9,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.1' : {
@@ -207,7 +207,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.1,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.2' : {
@@ -216,7 +216,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.2,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.3' : {
@@ -225,7 +225,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.3,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.4' : {
@@ -234,7 +234,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.4,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.5' : {
@@ -243,7 +243,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.5,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.6' : {
@@ -252,7 +252,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.6,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.7' : {
@@ -261,7 +261,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.7,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.8' : {
@@ -270,7 +270,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.8,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'right-0.9' : {
@@ -279,7 +279,7 @@ let containerShapes = {
                 toPoint : 'right-bottom',
                 fraction : 0.9,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 0.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'bottom-0.1' : {
@@ -369,7 +369,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.1,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left-0.2' : {
@@ -378,7 +378,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.2,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left-0.3' : {
@@ -387,7 +387,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.3,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left-0.4' : {
@@ -396,7 +396,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.4,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left-0.5' : {
@@ -405,7 +405,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.5,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left-0.6' : {
@@ -414,7 +414,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.6,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left-0.7' : {
@@ -423,7 +423,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.7,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left-0.8' : {
@@ -432,7 +432,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.8,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left-0.9' : {
@@ -441,7 +441,7 @@ let containerShapes = {
                 toPoint : 'left-bottom',
                 fraction : 0.9,
                 isConnectionPoint : true,
-                rightAngle : 0.5 * Math.PI,
+                rightAngle : 1.0 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
         },

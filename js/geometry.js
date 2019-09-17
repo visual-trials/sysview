@@ -358,6 +358,13 @@ function recalculateWorldPoints(container) {
     
 }
 
+function getPositionFromAnglePointAndDistance(position, angle, distance) {
+    let newPosition = {}
+    newPosition.x = position.x + distance * Math.cos(angle)
+    newPosition.y = position.y + distance * Math.sin(angle)
+    return newPosition
+}
+
 function recalculateWorldPositionsAndSizes(container = null) {
 
     if (container == null) {
