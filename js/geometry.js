@@ -315,35 +315,30 @@ function recalculateWorldPoints(container) {
         
         let worldPoint = null
         
-        if (point.type === 'straight') {
-            if (point.positioning === 'relative') {
-                if (container.worldPoints.hasOwnProperty(point.fromPoint) &&
-                    container.worldPoints.hasOwnProperty(point.toPoint)) {
-                    
-                    worldPoint = lerpPositionBetweenTwoPoints(container.worldPoints[point.fromPoint],
-                                                                     container.worldPoints[point.toPoint], 
-                                                                     point.fraction)
-                }
-                else {
-                    console.log('ERROR: either from-point: ' + point.fromPoint + ' or to-point:' + point.toPoint + 'doesnt exists (yet)!')
-                }
-            }
-            else if (point.positioning === 'absolute') {
-                if (container.worldPoints.hasOwnProperty(point.fromPoint)) {
-                    let fromPoint = container.worldPoints[point.fromPoint]
-                    let offset = point.offset
-                    worldPoint = addOffsetToPosition(offset, fromPoint)
-                }
-                else {
-                    console.log('ERROR: from-point: ' + point.fromPoint + 'doesnt exists (yet)!')
-                }
+        if (point.positioning === 'relative') {
+            if (container.worldPoints.hasOwnProperty(point.fromPoint) &&
+                container.worldPoints.hasOwnProperty(point.toPoint)) {
+                
+                worldPoint = lerpPositionBetweenTwoPoints(container.worldPoints[point.fromPoint],
+                                                                 container.worldPoints[point.toPoint], 
+                                                                 point.fraction)
             }
             else {
-                console.log('ERROR: unsupported point positioning')
+                console.log('ERROR: either from-point: ' + point.fromPoint + ' or to-point:' + point.toPoint + 'doesnt exists (yet)!')
+            }
+        }
+        else if (point.positioning === 'absolute') {
+            if (container.worldPoints.hasOwnProperty(point.fromPoint)) {
+                let fromPoint = container.worldPoints[point.fromPoint]
+                let offset = point.offset
+                worldPoint = addOffsetToPosition(offset, fromPoint)
+            }
+            else {
+                console.log('ERROR: from-point: ' + point.fromPoint + 'doesnt exists (yet)!')
             }
         }
         else {
-            console.log('ERROR: unsupported point type')
+            console.log('ERROR: unsupported point positioning')
         }
         
         if (worldPoint != null) {

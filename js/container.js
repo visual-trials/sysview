@@ -23,7 +23,6 @@ let containerShapes = {
     'rectangle4points' : {
         'points' : {
             'top' : {
-                type : 'straight',
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'right-top',
@@ -33,7 +32,6 @@ let containerShapes = {
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left' : {
-                type : 'straight',
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'left-bottom',
@@ -42,7 +40,6 @@ let containerShapes = {
                 rightAngle : 1 * Math.PI,
             },
             'bottom' : {
-                type : 'straight',
                 positioning : 'relative',
                 fromPoint : 'left-bottom',
                 toPoint : 'right-bottom',
@@ -51,7 +48,6 @@ let containerShapes = {
                 rightAngle : 1.5 * Math.PI,
             },
             'right' : {
-                type : 'straight',
                 positioning : 'relative',
                 fromPoint : 'right-top',
                 toPoint : 'right-bottom',
@@ -71,7 +67,6 @@ let containerShapes = {
     'roundedRectangleManyConnections' : {
         'points' : {
             'left-top-r' : {
-                type : 'straight',
                 positioning : 'absolute',
                 fromPoint : 'left-top',
                 offset : { x: 200, y: 0 },
@@ -79,7 +74,6 @@ let containerShapes = {
                 isConnectionPoint : false,
             },
             'left-top-b' : {
-                type : 'straight',
                 positioning : 'absolute',
                 fromPoint : 'left-top',
                 offset : { x: 0, y: 200 },
@@ -87,7 +81,6 @@ let containerShapes = {
                 isConnectionPoint : false,
             },
             'top' : {
-                type : 'straight',
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'right-top',
@@ -97,7 +90,6 @@ let containerShapes = {
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
             'left' : {
-                type : 'straight',
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'left-bottom',
@@ -106,7 +98,6 @@ let containerShapes = {
                 rightAngle : 1 * Math.PI,
             },
             'bottom' : {
-                type : 'straight',
                 positioning : 'relative',
                 fromPoint : 'left-bottom',
                 toPoint : 'right-bottom',
@@ -115,7 +106,6 @@ let containerShapes = {
                 rightAngle : 1.5 * Math.PI,
             },
             'right' : {
-                type : 'straight',
                 positioning : 'relative',
                 fromPoint : 'right-top',
                 toPoint : 'right-bottom',
