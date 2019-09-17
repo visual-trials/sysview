@@ -201,29 +201,248 @@ let containerShapes = {
                 rightAngle : 0.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
-            'middle-left' : {
+            'right-0.1' : {
                 positioning : 'relative',
-                fromPoint : 'left-top',
-                toPoint : 'left-bottom',
-                fraction : 0.5,
-                isConnectionPoint : true,
-                rightAngle : 1 * Math.PI,
-            },
-            'middle-bottom' : {
-                positioning : 'relative',
-                fromPoint : 'left-bottom',
+                fromPoint : 'right-top',
                 toPoint : 'right-bottom',
-                fraction : 0.5,
+                fraction : 0.1,
                 isConnectionPoint : true,
-                rightAngle : 1.5 * Math.PI,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
-            'middle-right' : {
+            'right-0.2' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.2,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'right-0.3' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.3,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'right-0.4' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.4,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'right-0.5' : {
                 positioning : 'relative',
                 fromPoint : 'right-top',
                 toPoint : 'right-bottom',
                 fraction : 0.5,
                 isConnectionPoint : true,
-                rightAngle : 0.0 * Math.PI,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'right-0.6' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.6,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'right-0.7' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.7,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'right-0.8' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.8,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'right-0.9' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.9,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.1' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.1,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.2' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.2,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.3' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.3,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.4' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.4,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.5' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.6' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.6,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.7' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.7,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.8' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.8,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'bottom-0.9' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.9,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.1' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.1,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.2' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.2,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.3' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.3,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.4' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.4,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.5' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.6' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.6,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.7' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.7,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.8' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.8,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-0.9' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.9,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
         },
         'strokeAndFillPath' : [
