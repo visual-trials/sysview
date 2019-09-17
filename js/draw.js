@@ -424,15 +424,24 @@ function drawContainerShape (container) {
     let containerShape = containerShapes[container.shapeType]
 
     ctx.beginPath()
-    let pointTo = null
     for (let pathPart of containerShape.strokeAndFillPath) {
-        let toPointIdentifier = pathPart.identifier
-        pointTo = fromWorldPositionToScreenPosition(container.worldPoints[toPointIdentifier])
         if (pathPart.type === 'move') {
-            ctx.moveTo(pointTo.x, pointTo.y)
+            let toPointIdentifier = pathPart.toPoint
+            let toPoint = fromWorldPositionToScreenPosition(container.worldPoints[toPointIdentifier])
+            ctx.moveTo(toPoint.x, toPoint.y)
         }
         else if (pathPart.type === 'line') {
-            ctx.lineTo(pointTo.x, pointTo.y)
+            let toPointIdentifier = pathPart.toPoint
+            let toPoint = fromWorldPositionToScreenPosition(container.worldPoints[toPointIdentifier])
+            ctx.lineTo(toPoint.x, toPoint.y)
+        }
+        else if (pathPart.type === 'arcto') {
+            let toPointIdentifier = pathPart.toPoint
+            let edgePointIdentifier = pathPart.edgePoint
+            let toPoint = fromWorldPositionToScreenPosition(container.worldPoints[toPointIdentifier])
+            let edgePoint = fromWorldPositionToScreenPosition(container.worldPoints[edgePointIdentifier])
+            let radius = distanceBetweenTwoPoints(toPoint, edgePoint) // TODO: we derive the radios, which might not always be correct
+            ctx.arcTo(edgePoint.x, edgePoint.y, toPoint.x, toPoint.y, radius)
         }
         else {
             console.log('ERROR: unsupported pathPart type: ' + pathPart.type)

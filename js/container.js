@@ -57,10 +57,10 @@ let containerShapes = {
             },
         },
         'strokeAndFillPath' : [
-            { 'identifier' : 'left-top', type : 'move' },
-            { 'identifier' : 'right-top', type : 'line' },
-            { 'identifier' : 'right-bottom', type : 'line' },
-            { 'identifier' : 'left-bottom', type : 'line' },
+            { toPoint : 'left-top', type : 'move' },
+            { toPoint : 'right-top', type : 'line' },
+            { toPoint : 'right-bottom', type : 'line' },
+            { toPoint : 'left-bottom', type : 'line' },
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
@@ -115,11 +115,12 @@ let containerShapes = {
             },
         },
         'strokeAndFillPath' : [
-            { identifier : 'left-top-r', type : 'move' },
-            { identifier : 'right-top', type : 'line' },
-            { identifier : 'right-bottom', type : 'line' },
-            { identifier : 'left-bottom', type : 'line' },
-            { identifier : 'left-top-b', type : 'line' },
+            { toPoint : 'left-top-r', type : 'move' },
+            { toPoint : 'right-top', type : 'line' },
+            { toPoint : 'right-bottom', type : 'line' },
+            { toPoint : 'left-bottom', type : 'line' },
+            { toPoint : 'left-top-b', type : 'line' },
+            { toPoint : 'left-top-r', edgePoint : 'left-top', type : 'arcto' },
         ]
     }
 }
