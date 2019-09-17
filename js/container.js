@@ -180,6 +180,20 @@ function setContainerChildren() {
     }
 }
 
+function containerIsSomeParentOfChild (container, childContainer) {
+    if (childContainer.parentContainerIdentifier == null || childContainer.parentContainerIdentifier === 'root') {
+        return false
+    }
+    
+    if (childContainer.parentContainerIdentifier === container.identifier) {
+        return true
+    }
+    
+    let parentContainerIdentifier = childContainer.parentContainerIdentifier
+    let parentContainer = containersAndConnections.containers[parentContainerIdentifier]
+    return containerIsSomeParentOfChild(container, parentContainer)
+}
+
 function getContainerByIdentifier(containerIdentifier) {
     
     if (containerIdentifier == null) {

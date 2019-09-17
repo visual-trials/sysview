@@ -303,6 +303,7 @@ function getFirstVisibleContainer(container) {
     if (container.parentContainerIdentifier === 'root') {
         return container
     }
+
     let parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
     if (showContainerChildren(parentContainer) > 0) {
         return container

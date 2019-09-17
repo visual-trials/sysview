@@ -303,7 +303,14 @@ function doContainerDraggingByMouse() {
                 let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
                 
                 // We are checking if we are landing on a (different) encompassingContainer, if so make it the parent 
-                if (selectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier) {
+                // We also check the if the selectedContainer isnt somehow the parent of the emcompassingContainer!
+                if (containerIsSomeParentOfChild(selectedContainer, encompassingContainer)) {
+                    // FIXME: this only seems to happen when multi-selecting now
+                    // TODO: we probably want to *restore* the positions in this case! Better to prevent this from ever happening though
+                    console.log('WARNING: Somehow the selectedContainer is the parent of the emcompassingContainer!')
+                }
+                if (selectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier &&
+                    !containerIsSomeParentOfChild(selectedContainer, encompassingContainer)) {
 
                     // Get the worldPosition of the current container
                     let currentContainerWorldPosition = selectedContainer.worldPosition
@@ -317,9 +324,6 @@ function doContainerDraggingByMouse() {
                     selectedContainer.localPosition.x = (currentContainerWorldPosition.x - newParentContainerWorldPosition.x) / newParentContainer.worldScale
                     selectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.worldScale
                     recalculateWorldPositionsAndSizes(selectedContainer)
-                    
-                    // TODO: the current container is (for 1 frame) still a child of a different container,
-                    //       so its new relative position will be relative to the old parent (for 1 frame)
                     
                     selectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
                     
