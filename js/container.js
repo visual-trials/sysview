@@ -227,6 +227,7 @@ function createConnection(connectionData) {
     let newConnection = {
         identifier: connectionData.identifier,
         name: connectionData.name,
+        type: connectionData.type, // TODO: maybe call this dataType? Or is there a type as well? (note this is grouped-by in draw.js)
         fromContainerIdentifier: connectionData.fromContainerIdentifier,
         toContainerIdentifier: connectionData.toContainerIdentifier,
         stroke: stroke,

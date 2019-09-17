@@ -51,6 +51,8 @@ let currentIsoMetricSettings = {
     rotate: 0,   
 }
 
+let groupedConnections = {}
+
 function clearCanvas() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height)
     ctx.beginPath() // See: http://codetheory.in/why-clearrect-might-not-be-clearing-canvas-pixels/
@@ -103,7 +105,8 @@ function drawCanvas() {
     let rootContainer = containersAndConnections.containers['root']
     drawContainers(rootContainer.children)
     
-    drawConnections()
+    groupConnections()
+    drawConnectionGroups()
     drawNewConnection()
     
     drawTinyDetail()
@@ -280,22 +283,6 @@ function drawNewConnection () {
     }
 }
 
-function drawConnections() {
-    for (let connectionIdentifier in containersAndConnections.connections) {
-        let connection = containersAndConnections.connections[connectionIdentifier]
-        
-        // Draw all connections here, but not the new connection-being-added
-        if (interaction.newConnectionBeingAddedIdentifier == null || 
-            connection.identifier !== interaction.newConnectionBeingAddedIdentifier) {
-                
-            let fromContainer = containersAndConnections.containers[connection.fromContainerIdentifier]
-            let toContainer = containersAndConnections.containers[connection.toContainerIdentifier]
-            drawConnection(connection, fromContainer, toContainer)
-        }
-    }
-}
-
-
 function getFirstVisibleContainer(container) {
     if (container.identifier === '__new__') { // TODO: this is a way to deal with to-be-added containers. Is there a better way?
         return container
@@ -333,21 +320,110 @@ function getClosestConnectionPointToThisPoint(container, toContainerCenterPositi
     return closestPoint.position
 }
 
-function drawConnection(connection, fromContainer, toContainer) {
+function groupConnections() {
     
-    let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
-    let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
+    groupedConnections = {}
     
-    let angleBetweenPoints = getAngleBetweenPoints(fromContainerCenterPosition, toContainerCenterPosition)
+    for (let connectionIdentifier in containersAndConnections.connections) {
+        let connection = containersAndConnections.connections[connectionIdentifier]
+        
+        // Draw all connections here, but not the new connection-being-added
+        if (interaction.newConnectionBeingAddedIdentifier == null || 
+            connection.identifier !== interaction.newConnectionBeingAddedIdentifier) {
+                
+            groupConnection(connection)
+        }
+    }
+}
+
+function groupConnection(connection) {
     
+    let fromContainer = containersAndConnections.containers[connection.fromContainerIdentifier]
+    let toContainer = containersAndConnections.containers[connection.toContainerIdentifier]
     let fromFirstVisibleContainer = getFirstVisibleContainer(fromContainer)
     let toFirstVisibleContainer = getFirstVisibleContainer(toContainer)
     if (fromFirstVisibleContainer.identifier === toFirstVisibleContainer.identifier) {
         // Not drawing a connection if it effectively connects one container with itself
         return
     }
-    let fromContainerBorderPoint = getClosestConnectionPointToThisPoint(fromFirstVisibleContainer, toContainerCenterPosition)
-    let toContainerBorderPoint = getClosestConnectionPointToThisPoint(toFirstVisibleContainer, fromContainerCenterPosition)
+    
+    if (!groupedConnections.hasOwnProperty(fromFirstVisibleContainer.identifier)) {
+        groupedConnections[fromFirstVisibleContainer.identifier] = {}
+    }
+    if (!groupedConnections[fromFirstVisibleContainer.identifier].hasOwnProperty(toFirstVisibleContainer.identifier)) {
+        groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier] = {}
+    }
+    // TODO: workaround for connections that dont have a type. Should we not group them instead? Of group all that have no type?
+    let connectionType = '_none_'
+    if (connection.type != null) {
+        connectionType = connection.type
+    }
+    if (!groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier].hasOwnProperty(connectionType)) {
+        groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier][connectionType] = {}
+    }
+    
+    groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier][connectionType][connection.identifier] = connection
+}
+
+function drawConnectionGroups() {
+    for (let fromFirstVisibleContainerIdentifier in groupedConnections) {
+        for (let toFirstVisibleContainerIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier]) {
+            for (let connectionType in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier]) {
+                let connectionGroup = { 
+                    'fromFirstVisibleContainerIdentifier' : fromFirstVisibleContainerIdentifier,
+                    'toFirstVisibleContainerIdentifier' : toFirstVisibleContainerIdentifier,
+                    'connectionType' : connectionType,
+                }
+                let nrOfConnections = 0
+                let sumOfXPositionFrom = 0
+                let sumOfYPositionFrom = 0
+                let sumOfXPositionTo = 0
+                let sumOfYPositionTo = 0
+                for (let connectionIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]) {
+                    let connection = groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType][connectionIdentifier]
+                    nrOfConnections++
+                    
+                    // We take the color of the first connection in the group
+                    if (!connectionGroup.hasOwnProperty('stroke')) {
+                        connectionGroup.stroke = connection.stroke
+                    }
+                    
+                    let fromContainer = containersAndConnections.containers[connection.fromContainerIdentifier]
+                    let toContainer = containersAndConnections.containers[connection.toContainerIdentifier]
+                    let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
+                    let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
+                    sumOfXPositionFrom += fromContainerCenterPosition.x
+                    sumOfYPositionFrom += fromContainerCenterPosition.y
+                    sumOfXPositionTo += toContainerCenterPosition.x
+                    sumOfYPositionTo += toContainerCenterPosition.y
+                }
+                let averageFromPosition = { x: sumOfXPositionFrom / nrOfConnections, y: sumOfYPositionFrom / nrOfConnections }
+                let averageToPosition = { x: sumOfXPositionTo / nrOfConnections, y: sumOfYPositionTo / nrOfConnections }
+                
+                connectionGroup.nrOfConnections = nrOfConnections
+                connectionGroup.averageFromPosition = averageFromPosition
+                connectionGroup.averageToPosition = averageToPosition
+                
+                drawConnectionGroup(connectionGroup)
+            }
+        }
+    }
+}
+
+function drawConnectionGroup(connectionGroup) {
+
+    let fromFirstVisibleContainer = getContainerByIdentifier(connectionGroup.fromFirstVisibleContainerIdentifier)
+    let toFirstVisibleContainer = getContainerByIdentifier(connectionGroup.toFirstVisibleContainerIdentifier)
+    let connectionType = getContainerByIdentifier(connectionGroup.connectionType)
+    
+    let nrOfConnections = connectionGroup.nrOfConnections
+    let averageFromPosition = connectionGroup.averageFromPosition
+    let averageToPosition = connectionGroup.averageToPosition
+                
+    let fromContainerBorderPoint = getClosestConnectionPointToThisPoint(fromFirstVisibleContainer, averageFromPosition)
+    let toContainerBorderPoint = getClosestConnectionPointToThisPoint(toFirstVisibleContainer, averageToPosition)
+    
+    // let angleBetweenPoints = getAngleBetweenPoints(averageFromPosition, averageToPosition)
     // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
     // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
     
@@ -356,8 +432,8 @@ function drawConnection(connection, fromContainer, toContainer) {
     
     {
         // Draw line 
-        ctx.lineWidth = 2 * interaction.viewScale
-        ctx.strokeStyle = rgba(connection.stroke)
+        ctx.lineWidth = 2 * interaction.viewScale * nrOfConnections
+        ctx.strokeStyle = rgba(connectionGroup.stroke)
         
         ctx.beginPath()
         ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
@@ -365,6 +441,8 @@ function drawConnection(connection, fromContainer, toContainer) {
         ctx.stroke()
         
         if (interaction.currentlySelectedConnection != null) {
+            // TODO: how do we select grouped connections? And single connections when they are grouped?
+            /*
             if (connection.identifier === interaction.currentlySelectedConnection.identifier) {
                 
                 ctx.lineWidth = 2 // TODO: do we want to scale this too?
@@ -375,6 +453,7 @@ function drawConnection(connection, fromContainer, toContainer) {
                 ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
                 ctx.stroke()
             }
+            */
 
         }
     }
