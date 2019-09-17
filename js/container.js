@@ -80,7 +80,49 @@ let containerShapes = {
                 fraction : 0.1,
                 isConnectionPoint : false,
             },
-            'top' : {
+            'right-top-l' : {
+                positioning : 'absolute',
+                fromPoint : 'right-top',
+                offset : { x: -200, y: 0 },
+                fraction : 0.1,
+                isConnectionPoint : false,
+            },
+            'right-top-b' : {
+                positioning : 'absolute',
+                fromPoint : 'right-top',
+                offset : { x: 0, y: 200 },
+                fraction : 0.1,
+                isConnectionPoint : false,
+            },
+            'right-bottom-t' : {
+                positioning : 'absolute',
+                fromPoint : 'right-bottom',
+                offset : { x: 0, y: -200 },
+                fraction : 0.1,
+                isConnectionPoint : false,
+            },
+            'right-bottom-l' : {
+                positioning : 'absolute',
+                fromPoint : 'right-bottom',
+                offset : { x: -200, y: 0 },
+                fraction : 0.1,
+                isConnectionPoint : false,
+            },
+            'left-bottom-r' : {
+                positioning : 'absolute',
+                fromPoint : 'left-bottom',
+                offset : { x: 200, y: 0 },
+                fraction : 0.1,
+                isConnectionPoint : false,
+            },
+            'left-bottom-t' : {
+                positioning : 'absolute',
+                fromPoint : 'left-bottom',
+                offset : { x: 0, y: -200 },
+                fraction : 0.1,
+                isConnectionPoint : false,
+            },
+            'middle-top' : {
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'right-top',
@@ -89,7 +131,7 @@ let containerShapes = {
                 rightAngle : 0.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
-            'left' : {
+            'middle-left' : {
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'left-bottom',
@@ -97,7 +139,7 @@ let containerShapes = {
                 isConnectionPoint : true,
                 rightAngle : 1 * Math.PI,
             },
-            'bottom' : {
+            'middle-bottom' : {
                 positioning : 'relative',
                 fromPoint : 'left-bottom',
                 toPoint : 'right-bottom',
@@ -105,7 +147,7 @@ let containerShapes = {
                 isConnectionPoint : true,
                 rightAngle : 1.5 * Math.PI,
             },
-            'right' : {
+            'middle-right' : {
                 positioning : 'relative',
                 fromPoint : 'right-top',
                 toPoint : 'right-bottom',
@@ -116,9 +158,12 @@ let containerShapes = {
         },
         'strokeAndFillPath' : [
             { toPoint : 'left-top-r', type : 'move' },
-            { toPoint : 'right-top', type : 'line' },
-            { toPoint : 'right-bottom', type : 'line' },
-            { toPoint : 'left-bottom', type : 'line' },
+            { toPoint : 'right-top-l', type : 'line' },
+            { toPoint : 'right-top-b', edgePoint : 'right-top', type : 'arcto' },
+            { toPoint : 'right-bottom-t', type : 'line' },
+            { toPoint : 'right-bottom-l', edgePoint : 'right-bottom', type : 'arcto' },
+            { toPoint : 'left-bottom-r', type : 'line' },
+            { toPoint : 'left-bottom-t', edgePoint : 'left-bottom', type : 'arcto' },
             { toPoint : 'left-top-b', type : 'line' },
             { toPoint : 'left-top-r', edgePoint : 'left-top', type : 'arcto' },
         ]
