@@ -416,18 +416,21 @@ function drawConnectionGroups() {
     }
 }
 
+let alreadyLogged = false
 function drawConnectionGroup(connectionGroup) {
 
     let fromFirstVisibleContainer = getContainerByIdentifier(connectionGroup.fromFirstVisibleContainerIdentifier)
     let toFirstVisibleContainer = getContainerByIdentifier(connectionGroup.toFirstVisibleContainerIdentifier)
+    // TODO: do something (color wise) with the connectionType?
     let connectionType = connectionGroup.connectionType
     
     let nrOfConnections = connectionGroup.nrOfConnections
     let averageFromPosition = connectionGroup.averageFromPosition
     let averageToPosition = connectionGroup.averageToPosition
-                
-    let fromContainerBorderPoint = getClosestConnectionPointToThisPoint(fromFirstVisibleContainer, averageFromPosition)
-    let toContainerBorderPoint = getClosestConnectionPointToThisPoint(toFirstVisibleContainer, averageToPosition)
+    
+    // TODO: add comment explaining why To and From are "mixed" here per line:
+    let fromContainerBorderPoint = getClosestConnectionPointToThisPoint(fromFirstVisibleContainer, averageToPosition)
+    let toContainerBorderPoint = getClosestConnectionPointToThisPoint(toFirstVisibleContainer, averageFromPosition)
     
     // let angleBetweenPoints = getAngleBetweenPoints(averageFromPosition, averageToPosition)
     // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
@@ -438,16 +441,13 @@ function drawConnectionGroup(connectionGroup) {
     let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
     
     let bendingDistance = worldDistanceBetweenFromAndTo / 2
-// FIXME
-if (fromContainerBorderPoint.rightAngle != 0.5) {
-//console.log(fromContainerBorderPoint.rightAngle)
-}    
     let fromBendPosition = getPositionFromAnglePointAndDistance(fromContainerBorderPoint.position, fromContainerBorderPoint.rightAngle, bendingDistance)
     let toBendPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, bendingDistance)
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
     
     {
+        /*
         let size = 10
         ctx.fillStyle = "#FF00FF"
         ctx.fillRect(screenFromContainerPosition.x - size/2, screenFromContainerPosition.y - size/2, size, size)
@@ -458,6 +458,7 @@ if (fromContainerBorderPoint.rightAngle != 0.5) {
         ctx.fillRect(screenToContainerPosition.x - size/2, screenToContainerPosition.y - size/2, size, size)
         ctx.fillStyle = "#00FF00"
         ctx.fillRect(screenToBendPosition.x - size/2, screenToBendPosition.y - size/2, size, size)
+        */
         
         // Draw line 
         ctx.lineWidth = 2 * interaction.viewScale * nrOfConnections
@@ -541,6 +542,7 @@ function drawConnection(connection, fromContainer, toContainer) {
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
     
     {
+        /*
         let size = 5
         ctx.fillStyle = "#FF00FF"
         ctx.fillRect(screenFromContainerPosition.x - size/2, screenFromContainerPosition.y - size/2, size, size)
@@ -551,6 +553,7 @@ function drawConnection(connection, fromContainer, toContainer) {
         ctx.fillRect(screenToContainerPosition.x - size/2, screenToContainerPosition.y - size/2, size, size)
         ctx.fillStyle = "#00FF00"
         ctx.fillRect(screenToBendPosition.x - size/2, screenToBendPosition.y - size/2, size, size)
+        */
         
         // Draw line 
         ctx.lineWidth = 2 * interaction.viewScale
