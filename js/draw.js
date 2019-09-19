@@ -679,6 +679,7 @@ function drawContainer(container, alpha = null) {
         
         drawContainerShape(container)
         ctx.fill()
+        ctx.stroke()
         
         /*
         if (interaction.percentageIsoMetric > 0) {
