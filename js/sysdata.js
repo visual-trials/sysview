@@ -49,9 +49,9 @@ else if (do_os_convert) {
 else {
     projectIdentifier = 'ClientLive'
     sourceNamedAs = 'sysadmin'
+    sourceIdentifier = 'sources/sysadmin_converted.json'
     sourceNamedAs2 = 'os'
-    sourceIdentifier = 'sources/client_live_os.json'
-    sourceIdentifier2 = 'sources/sysadmin_converted.json'
+    sourceIdentifier2 = 'sources/os_converted.json'
     conversionIdentifier = 'conversions/combine_os_and_sysadmin.js'
     destinationIdentifier = 'source.json'
 }
