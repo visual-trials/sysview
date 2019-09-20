@@ -31,6 +31,8 @@ let destinationIdentifier = null
 
 let do_sysadmin_convert = false
 let do_os_convert = false
+let do_pim_convert = false
+let do_os_and_sysadmin_combine = false
 
 if (do_sysadmin_convert) {
     projectIdentifier = 'ClientLive'
@@ -46,13 +48,29 @@ else if (do_os_convert) {
     conversionIdentifier = 'conversions/convert_os.js'
     destinationIdentifier = 'sources/os_converted.json'
 }
-else {
+else if (do_pim_convert) {
+    projectIdentifier = 'ClientLive'
+    sourceNamedAs = 'pim'
+    sourceIdentifier = 'sources/client_live_pim.json'
+    conversionIdentifier = 'conversions/convert_pim.js'
+    destinationIdentifier = 'sources/pim_converted.json'
+}
+else if (do_os_and_sysadmin_combine) {
     projectIdentifier = 'ClientLive'
     sourceNamedAs = 'sysadmin'
     sourceIdentifier = 'sources/sysadmin_converted.json'
     sourceNamedAs2 = 'os'
     sourceIdentifier2 = 'sources/os_converted.json'
     conversionIdentifier = 'conversions/combine_os_and_sysadmin.js'
+    destinationIdentifier = 'sources/os_and_sysadmin_combined.json'
+}
+else {
+    projectIdentifier = 'ClientLive'
+    sourceNamedAs = 'os_and_sysadmin'
+    sourceIdentifier = 'sources/os_and_sysadmin_combined.json'
+    sourceNamedAs2 = 'pim'
+    sourceIdentifier2 = 'sources/pim_converted.json'
+    conversionIdentifier = 'conversions/combine_os_and_sysadmin_and_pim.js'
     destinationIdentifier = 'source.json'
 }
 
