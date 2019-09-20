@@ -342,10 +342,19 @@ function groupConnections() {
     }
 }
 
+let nrOfErrors = 0
 function groupConnection(connection) {
     
     let fromContainer = containersAndConnections.containers[connection.fromContainerIdentifier]
+    if (fromContainer == null && nrOfErrors < 100) {
+        nrOfErrors++
+        console.log('ERROR:' + connection.fromContainerIdentifier + ' not found!')
+    }
     let toContainer = containersAndConnections.containers[connection.toContainerIdentifier]
+    if (toContainer == null && nrOfErrors < 100) {
+        nrOfErrors++
+        console.log('ERROR:' + connection.toContainerIdentifier + ' not found!')
+    }
     let fromFirstVisibleContainer = getFirstVisibleContainer(fromContainer)
     let toFirstVisibleContainer = getFirstVisibleContainer(toContainer)
     if (fromFirstVisibleContainer.identifier === toFirstVisibleContainer.identifier) {
