@@ -258,16 +258,8 @@ function doContainerDraggingByMouse() {
                 
                 let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
                 
-                // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
-                let parentOfSelectedContainerContainerIdentifier = 'root'
-                if (selectedContainer != null) {
-                    parentOfSelectedContainerContainerIdentifier = selectedContainer.parentContainerIdentifier
-                }
-                let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
-                
-                // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                selectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentOfSelectedContainer.worldScale
-                selectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentOfSelectedContainer.worldScale
+                selectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / selectedContainer.worldScale
+                selectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / selectedContainer.worldScale
                 recalculateWorldPositionsAndSizes(selectedContainer)
             }
             
@@ -365,13 +357,6 @@ function doContainerResizingByMouse() {
         currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
     }
     
-    // TODO: its kinda arbritrary to need the parent of the selectedContainer. Can't we do this more nicely?
-    let parentOfSelectedContainerContainerIdentifier = 'root'
-    if (currentlySelectedContainer != null) {
-        parentOfSelectedContainerContainerIdentifier = currentlySelectedContainer.parentContainerIdentifier
-    }
-    let parentOfSelectedContainer = getContainerByIdentifier(parentOfSelectedContainerContainerIdentifier)
-    
     if (interaction.selectedContainerIsBeingResized) {
         if (mouseState.hasMoved) {
             
@@ -389,16 +374,12 @@ function doContainerResizingByMouse() {
             }
             if (interaction.selectedContainerResizeSide.x < 0) { // left side
                 currentlySelectedContainer.localSize.width -= mouseWorldMovement.x / currentlySelectedContainer.worldScale
-                
-                // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / parentOfSelectedContainer.worldScale
+                currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / currentlySelectedContainer.worldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.y < 0) { // top side
                 currentlySelectedContainer.localSize.height -= mouseWorldMovement.y / currentlySelectedContainer.worldScale
-                
-                // TODO: we use parentOfSelectedContainer here! (which looks kinda arbritrary, even though it isnt)
-                currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / parentOfSelectedContainer.worldScale
+                currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / currentlySelectedContainer.worldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
         }

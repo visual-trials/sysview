@@ -29,7 +29,7 @@ let sourceIdentifier2 = null
 let conversionIdentifier = null
 let destinationIdentifier = null
 
-let do_sysadmin_convert = true
+let do_sysadmin_convert = false
 let do_os_convert = false
 let do_pim_convert = false
 let do_os_and_sysadmin_combine = false
@@ -39,8 +39,7 @@ if (do_sysadmin_convert) {
     sourceNamedAs = 'sysadmin'
     sourceIdentifier = 'sources/client_live_sysadmin.json'
     conversionIdentifier = 'conversions/convert_sysadmin.js'
-    destinationIdentifier = 'source.json'
-// FIXME    destinationIdentifier = 'sources/sysadmin_converted.json'
+    destinationIdentifier = 'sources/sysadmin_converted.json'
 }
 else if (do_os_convert) {
     projectIdentifier = 'ClientLive'
