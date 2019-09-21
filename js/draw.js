@@ -755,7 +755,7 @@ function drawContainer(container, alpha = null) {
         
         // Get text size
         let textSize = {}
-        let fontSize = 20
+        let fontSize = 14  // FIXME: allow containers to have a different localFontSize
         
         let heightBottomWhiteArea = fontSize / 6
         ctx.font = fontSize + "px Arial"
