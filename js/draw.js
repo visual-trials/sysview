@@ -460,6 +460,8 @@ function drawConnectionGroup(connectionGroup) {
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
     
+    let averageContainersWorldScale = (fromFirstVisibleContainer.worldScale + toFirstVisibleContainer.worldScale) / 2
+    
     {
         /*
         let size = 10
@@ -475,7 +477,7 @@ function drawConnectionGroup(connectionGroup) {
         */
         
         // Draw line 
-        ctx.lineWidth = 2 * interaction.viewScale * nrOfConnections
+        ctx.lineWidth = 2 * interaction.viewScale * nrOfConnections * averageContainersWorldScale
         ctx.strokeStyle = rgba(connectionGroup.stroke)
         
         /*
@@ -497,7 +499,7 @@ function drawConnectionGroup(connectionGroup) {
             /*
             if (connection.identifier === interaction.currentlySelectedConnection.identifier) {
                 
-                ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                ctx.lineWidth = 4 * interaction.viewScale * nrOfConnections * averageContainersWorldScale
                 ctx.strokeStyle = "#FF0000"
                 
                 ctx.beginPath()
@@ -526,7 +528,7 @@ function drawConnections() {
         }
     }
 }
-
+/*
 function drawConnection(connection, fromContainer, toContainer) {
     
     let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
@@ -556,6 +558,8 @@ function drawConnection(connection, fromContainer, toContainer) {
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
     
+    let averageContainersWorldScale = (fromFirstVisibleContainer.worldScale + toFirstVisibleContainer.worldScale) / 2
+    
     {
         /*
         let size = 5
@@ -569,17 +573,18 @@ function drawConnection(connection, fromContainer, toContainer) {
         ctx.fillStyle = "#00FF00"
         ctx.fillRect(screenToBendPosition.x - size/2, screenToBendPosition.y - size/2, size, size)
         */
-        
+/*        
         // Draw line 
-        ctx.lineWidth = 2 * interaction.viewScale
+        ctx.lineWidth = 2 * interaction.viewScale * averageContainersWorldScale
         ctx.strokeStyle = rgba(connection.stroke)
+        */
 /*        
         ctx.beginPath()
         ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
         ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
         ctx.stroke()
         */
-        
+        /*
         ctx.beginPath()
         ctx.moveTo(       screenFromContainerPosition.x, screenFromContainerPosition.y)
         ctx.bezierCurveTo(screenFromBendPosition.x, screenFromBendPosition.y, 
@@ -590,7 +595,7 @@ function drawConnection(connection, fromContainer, toContainer) {
         if (interaction.currentlySelectedConnection != null) {
             if (connection.identifier === interaction.currentlySelectedConnection.identifier) {
                 
-                ctx.lineWidth = 2 // TODO: do we want to scale this too?
+                ctx.lineWidth = 4 * interaction.viewScale * averageContainersWorldScale
                 ctx.strokeStyle = "#FF0000"
                 
                 ctx.beginPath()
@@ -603,7 +608,7 @@ function drawConnection(connection, fromContainer, toContainer) {
     }
     
 }
-
+*/
 // TODO: maybe call this: showCover instead?
 function showContainerChildren(container) {
     if (container.identifier === 'root') return 1
@@ -750,11 +755,7 @@ function drawContainer(container, alpha = null) {
         
         // Get text size
         let textSize = {}
-        let fontSize = 14
-// FIXME
-if (container.parentContainerIdentifier === 'root') {
-    fontSize *= 20
-}
+        let fontSize = 20
         
         let heightBottomWhiteArea = fontSize / 6
         ctx.font = fontSize + "px Arial"
@@ -764,16 +765,19 @@ if (container.parentContainerIdentifier === 'root') {
         textSize.width = ctx.measureText(textToDraw).width
         textSize.height = textHeightToFontSizeRatioArial * fontSize
 
+        // We are using the scale of the parent to determine the (world-)size of the font
+        let parentWorldScale = container.worldScale / container.localScale
+        
         // Determine text position
         let textWorldPosition = {}
-        textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
-        textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * container.worldScale / 2) + heightBottomWhiteArea * container.worldScale
+        textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * parentWorldScale / 2)
+        textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * parentWorldScale / 2) + heightBottomWhiteArea * parentWorldScale
         
         let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
         
         let debugText = false
         if (debugText) {
-            let screenTextSize = scaleSize(interaction.viewScale * container.worldScale, textSize)
+            let screenTextSize = scaleSize(interaction.viewScale * parentWorldScale, textSize)
             
             ctx.lineWidth = 1
             ctx.strokeStyle = "#FF0000"
@@ -782,7 +786,7 @@ if (container.parentContainerIdentifier === 'root') {
         
         ctx.save()
         ctx.translate(screenTextPosition.x, screenTextPosition.y) // move the text to the screen position (since we draw the text at 0,0)
-        ctx.scale(interaction.viewScale * container.worldScale, interaction.viewScale * container.worldScale) // make the text smaller/bigger according to zoom (viewScale)
+        ctx.scale(interaction.viewScale * parentWorldScale, interaction.viewScale * parentWorldScale) // make the text smaller/bigger according to zoom (viewScale)
         
         if (interaction.percentageIsoMetric > 0) {
             ctx.scale(1, currentIsoMetricSettings.scale)                   // make the text smaller vertically due to isometric view

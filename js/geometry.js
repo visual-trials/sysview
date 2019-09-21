@@ -330,7 +330,7 @@ function recalculateWorldPoints(container) {
         else if (point.positioning === 'absolute') {
             if (container.worldPoints.hasOwnProperty(point.fromPoint)) {
                 let fromPoint = container.worldPoints[point.fromPoint]
-                let offset = point.offset
+                let offset = { x: point.offset.x * container.worldScale, y: point.offset.y * container.worldScale }
                 worldPoint = addOffsetToPosition(offset, fromPoint)
             }
             else {
