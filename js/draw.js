@@ -105,14 +105,15 @@ function drawCanvas() {
     let rootContainer = containersAndConnections.containers['root']
     drawContainers(rootContainer.children)
     
-    let doConnectionGrouping = true
-    if (doConnectionGrouping) {
+    // FIXME: clean this up!
+    // let doConnectionGrouping = true
+    // if (doConnectionGrouping) {
         groupConnections()
         drawConnectionGroups()
-    }
-    else {
-        drawConnections()
-    }
+    // }
+    // else {
+    //    drawConnections()
+    //}
     drawNewConnection()
     
     drawTinyDetail()
@@ -514,6 +515,7 @@ function drawConnectionGroup(connectionGroup) {
     
 }
 
+/*
 function drawConnections() {
     for (let connectionIdentifier in containersAndConnections.connections) {
         let connection = containersAndConnections.connections[connectionIdentifier]
@@ -528,7 +530,7 @@ function drawConnections() {
         }
     }
 }
-/*
+
 function drawConnection(connection, fromContainer, toContainer) {
     
     let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
@@ -609,27 +611,19 @@ function drawConnection(connection, fromContainer, toContainer) {
     
 }
 */
-// TODO: maybe call this: showCover instead?
+
 function showContainerChildren(container) {
     if (container.identifier === 'root') return 1
     
-    // TODO: should we really iterate all children to see whether we should show them all? And should we take the highest scale or the average?
-    let highestChildScale = 0
-    for (let childContainerIndex = 0; childContainerIndex < container.children.length; childContainerIndex++) {
-        let childContainerIdentifier = container.children[childContainerIndex]
-        let childContainer = containersAndConnections.containers[childContainerIdentifier]
-        
-        if (interaction.viewScale * childContainer.worldScale > highestChildScale) {
-            highestChildScale = interaction.viewScale * childContainer.worldScale
-        }
-    }
+    let containerViewScale = interaction.viewScale * container.worldScale
+    
     let beginToShow = 0.1
     let fullyShow = 0.15
-    if (highestChildScale > fullyShow) {
+    if (containerViewScale > fullyShow) {
         return 1
     }
-    else if (highestChildScale > beginToShow) {
-        let fractionToShow = (highestChildScale - beginToShow) / (fullyShow - beginToShow)
+    else if (containerViewScale > beginToShow) {
+        let fractionToShow = (containerViewScale - beginToShow) / (fullyShow - beginToShow)
         return fractionToShow
     }
     else {
