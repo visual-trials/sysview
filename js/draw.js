@@ -304,17 +304,21 @@ function getFirstVisibleContainer(container) {
     return getFirstVisibleContainer(parentContainer)
 }
 
-function getClosestConnectionPointToThisPoint(container, toContainerCenterPosition) {
+function getClosestConnectionPointToThisPointUsingDistance(container, toContainerCenterPosition, distanceBetweenCenters) {
     
     // FIXME: use the dot product and check whether the point (that has the right-angle) is still *on* the line between the two centers of the containers
     //        of those left, take the closest one to the line
+    
+    // FIXME: we now try to mimic the bending point and see if it is the closest to the toContainerCenterPosition (btw the 2 is hardcoded!)
+    let approximateBendingDistance = distanceBetweenCenters / 2
     
     let closestDistance = null
     let closestPoint = null
     for (let pointIdentifier in container.worldConnectionPoints) {
         let worldConnectionPoint = container.worldConnectionPoints[pointIdentifier]
 
-        let currentDistance = distanceBetweenTwoPoints(toContainerCenterPosition, worldConnectionPoint.position)
+        let currentBendPosition = getPositionFromAnglePointAndDistance(worldConnectionPoint.position, worldConnectionPoint.rightAngle, approximateBendingDistance)
+        let currentDistance = distanceBetweenTwoPoints(toContainerCenterPosition, currentBendPosition)
 
         if (closestDistance == null || currentDistance < closestDistance) {
             closestDistance = currentDistance
@@ -438,8 +442,9 @@ function drawConnectionGroup(connectionGroup) {
     let averageToPosition = connectionGroup.averageToPosition
     
     // TODO: add comment explaining why To and From are "mixed" here per line:
-    let fromContainerBorderPoint = getClosestConnectionPointToThisPoint(fromFirstVisibleContainer, averageToPosition)
-    let toContainerBorderPoint = getClosestConnectionPointToThisPoint(toFirstVisibleContainer, averageFromPosition)
+    let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(averageFromPosition, averageToPosition)
+    let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, averageToPosition, worldDistanceBetweenFromAndToCenters)
+    let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toFirstVisibleContainer, averageFromPosition, worldDistanceBetweenFromAndToCenters)
     
     // let angleBetweenPoints = getAngleBetweenPoints(averageFromPosition, averageToPosition)
     // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
@@ -535,8 +540,9 @@ function drawConnection(connection, fromContainer, toContainer) {
         // Not drawing a connection if it effectively connects one container with itself
         return
     }
-    let fromContainerBorderPoint = getClosestConnectionPointToThisPoint(fromFirstVisibleContainer, toContainerCenterPosition)
-    let toContainerBorderPoint = getClosestConnectionPointToThisPoint(toFirstVisibleContainer, fromContainerCenterPosition)
+    let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromContainerCenterPosition, toContainerCenterPosition)
+    let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, toContainerCenterPosition, worldDistanceBetweenFromAndToCenters)
+    let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toFirstVisibleContainer, fromContainerCenterPosition, worldDistanceBetweenFromAndToCenters)
     // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
     // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
     
