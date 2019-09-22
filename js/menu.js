@@ -56,9 +56,11 @@ function initMenu() {
         {
             toggle: "isoMetric",
         },
+        /*
         {
             toggle: "grid",
         }
+        */
     ]
     
     let buttonPosition = { x: 20, y: 20 }
@@ -69,7 +71,7 @@ function initMenu() {
         // FIXME: ugly HACK!
         if (buttonIndex == 3) {
             buttonPosition.x = canvasElement.width - buttonSize.width - 20
-            buttonPosition.y = canvasElement.height - buttonSize.height * 2 - 20
+            buttonPosition.y = canvasElement.height - buttonSize.height /* *2 */ - 20
         }
         buttonData.position.x = buttonPosition.x
         buttonData.position.y = buttonPosition.y
