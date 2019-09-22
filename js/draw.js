@@ -635,11 +635,39 @@ function drawContainers(containerIdentifiers, alpha = null) {
     for (let containerIndex = 0; containerIndex < containerIdentifiers.length; containerIndex++) {
         let containerIdentifier = containerIdentifiers[containerIndex]
         let container = containersAndConnections.containers[containerIdentifier]
-        drawContainer(container, alpha)
-        let fractionToShowContainer = showContainerChildren(container)
-        if (fractionToShowContainer > 0) {
-            drawContainers(container.children, fractionToShowContainer)
+        
+        // TODO: this assumes that the children of a container are never outside the bounds of their parent
+        //       but that might not always be true
+        if (containerIsOnScreen(container)) {
+            drawContainer(container, alpha)
+            let fractionToShowContainer = showContainerChildren(container)
+            if (fractionToShowContainer > 0) {
+                drawContainers(container.children, fractionToShowContainer)
+            }
         }
+    }
+}
+
+function containerIsOnScreen (container) {
+    let leftTopPoint = fromWorldPositionToScreenPosition(container.worldPoints['left-top'])
+    let rightTopPoint = fromWorldPositionToScreenPosition(container.worldPoints['right-top'])
+    let rightBottomPoint = fromWorldPositionToScreenPosition(container.worldPoints['right-bottom'])
+    let leftBottomPoint = fromWorldPositionToScreenPosition(container.worldPoints['left-bottom'])
+    
+    // TODO: hardcoded, so this only works for full screen view!
+    let screenRectangle = { x: 0, y: 0, width: canvasElement.width, height: canvasElement.height }
+    // TODO: this only works (well) for non-isometric view!
+    if (
+        leftTopPoint.x > screenRectangle.x + screenRectangle.width ||
+        rightTopPoint.x < screenRectangle.x ||
+        leftTopPoint.y > screenRectangle.y + screenRectangle.height ||
+        rightBottomPoint.y < screenRectangle.y
+    ) {
+        // The container (assuming its is not rotated) in outside the screen-rectangel
+        return false
+    }
+    else {
+        return true
     }
 }
 
@@ -685,7 +713,7 @@ function drawContainerShape (container) {
 function drawContainer(container, alpha = null) {
     
     {
-        // Draw rectangle 
+        // Draw shape
         ctx.lineWidth = 2 * interaction.viewScale * container.worldScale
         let stroke = container.stroke
         if (alpha == null) {
