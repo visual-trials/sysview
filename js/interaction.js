@@ -23,7 +23,7 @@ let interaction = {
     viewIsBeingDraggedByTouch : false,
     viewAsIsoMetric : false,
     percentageIsoMetric : 0,
-    showGrid : true,
+    showGrid : false,
     isoMetricAnimationRunning : false,
    
     currentlyHoveredMenuButton : null,
