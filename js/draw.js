@@ -446,6 +446,8 @@ function drawConnectionGroup(connectionGroup) {
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(averageFromPosition, averageToPosition)
     let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, averageToPosition, worldDistanceBetweenFromAndToCenters)
     let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toFirstVisibleContainer, averageFromPosition, worldDistanceBetweenFromAndToCenters)
+
+// TODO: check if the rectangle (formed by the two border-points) is on screen, if not don't draw the connection
     
     // let angleBetweenPoints = getAngleBetweenPoints(averageFromPosition, averageToPosition)
     // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
