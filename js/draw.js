@@ -658,12 +658,11 @@ function containerIsOnScreen (container) {
     
     // TODO: hardcoded, so this only works for full screen view!
     let screenRectangle = { x: 0, y: 0, width: canvasElement.width, height: canvasElement.height }
-    // TODO: this only works (well) for non-isometric view!
     if (
-        leftTopPoint.x > screenRectangle.x + screenRectangle.width ||
-        rightTopPoint.x < screenRectangle.x ||
-        leftTopPoint.y > screenRectangle.y + screenRectangle.height ||
-        rightBottomPoint.y < screenRectangle.y
+        leftTopPoint.x > screenRectangle.x + screenRectangle.width ||   // checking most-left-side: for iso-metric leftTop is the most left point
+        rightBottomPoint.x < screenRectangle.x ||                       // checking most-right-side: for iso-metric rightBottom is the most right point
+        rightTopPoint.y > screenRectangle.y + screenRectangle.height || // checking most-top-side: for iso-metric rightTop is the most top point
+        leftBottomPoint.y < screenRectangle.y                           // checking most-bottom-side: for iso-metric leftBottom is the most bottom point
     ) {
         // The container (assuming its is not rotated) in outside the screen-rectangel
         return false
