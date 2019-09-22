@@ -74,6 +74,12 @@ function createContainer(containerData) {
     else if (containerData.type === 'localDir') {
         fill = { r:250, g:200, b:200, a:1 }
         stroke = { r:150, g:100, b:100, a:1 }
+        shapeType = 'ellipse4Points'
+    }
+    else if (containerData.type === 'remoteDir') {
+        fill = { r:200, g:200, b:250, a:1 }
+        stroke = { r:100, g:100, b:150, a:1 }
+        shapeType = 'ellipse4Points'
     }
     else if (containerData.type === 'visualContainer') {
         fill = { r:240, g:240, b:240, a:1 }
