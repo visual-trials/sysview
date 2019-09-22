@@ -666,6 +666,15 @@ function drawContainerShape (container) {
             let radius = distanceBetweenTwoPoints(toPoint, edgePoint) // TODO: we derive the radios, which might not always be correct
             ctx.arcTo(edgePoint.x, edgePoint.y, toPoint.x, toPoint.y, radius)
         }
+        else if (pathPart.type === 'bezierCurve') {
+            let toPointIdentifier = pathPart.toPoint
+            let controlPoint1Identifier = pathPart.controlPoint1
+            let controlPoint2Identifier = pathPart.controlPoint2
+            let toPoint = fromWorldPositionToScreenPosition(container.worldPoints[toPointIdentifier])
+            let controlPoint1 = fromWorldPositionToScreenPosition(container.worldPoints[controlPoint1Identifier])
+            let controlPoint2 = fromWorldPositionToScreenPosition(container.worldPoints[controlPoint2Identifier])
+            ctx.bezierCurveTo(controlPoint1.x, controlPoint1.y, controlPoint2.x, controlPoint2.y, toPoint.x, toPoint.y)
+        }
         else {
             console.log('ERROR: unsupported pathPart type: ' + pathPart.type)
         }

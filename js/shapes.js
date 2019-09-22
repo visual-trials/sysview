@@ -20,7 +20,7 @@
 let containerShapes = {
     'rectangle4points' : {
         'points' : {
-            'top' : {
+            'top-middle' : {
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'right-top',
@@ -29,7 +29,7 @@ let containerShapes = {
                 rightAngle : 1.5 * Math.PI,
                 // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
             },
-            'left' : {
+            'left-middle' : {
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'left-bottom',
@@ -37,7 +37,7 @@ let containerShapes = {
                 isConnectionPoint : true,
                 rightAngle : 1 * Math.PI,
             },
-            'bottom' : {
+            'bottom-middle' : {
                 positioning : 'relative',
                 fromPoint : 'left-bottom',
                 toPoint : 'right-bottom',
@@ -45,7 +45,7 @@ let containerShapes = {
                 isConnectionPoint : true,
                 rightAngle : 0.5 * Math.PI,
             },
-            'right' : {
+            'right-middle' : {
                 positioning : 'relative',
                 fromPoint : 'right-top',
                 toPoint : 'right-bottom',
@@ -60,6 +60,101 @@ let containerShapes = {
             { toPoint : 'right-bottom', type : 'line' },
             { toPoint : 'left-bottom', type : 'line' },
             // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
+    'ellipse4Points' : {
+        'points' : {
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+            // These connection depend on those above, so we add a ~ (since they are sorted alphabetically)
+            // Also see: http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
+            // And: https://stackoverflow.com/questions/14169234/the-relation-of-the-bezier-curve-and-ellipse
+            '~ctrl-left-half-top' : {
+                positioning : 'relative',
+                fromPoint : 'left-middle',
+                toPoint : 'left-top',
+                fraction : .5522848,
+            },
+            '~ctrl-top-half-left' : {
+                positioning : 'relative',
+                fromPoint : 'top-middle',
+                toPoint : 'left-top',
+                fraction : .5522848,
+            },
+            '~ctrl-top-half-right' : {
+                positioning : 'relative',
+                fromPoint : 'top-middle',
+                toPoint : 'right-top',
+                fraction : .5522848,
+            },
+            '~ctrl-right-half-top' : {
+                positioning : 'relative',
+                fromPoint : 'right-middle',
+                toPoint : 'right-top',
+                fraction : .5522848,
+            },
+            '~ctrl-right-half-bottom' : {
+                positioning : 'relative',
+                fromPoint : 'right-middle',
+                toPoint : 'right-bottom',
+                fraction : .5522848,
+            },
+            '~ctrl-bottom-half-right' : {
+                positioning : 'relative',
+                fromPoint : 'bottom-middle',
+                toPoint : 'right-bottom',
+                fraction : .5522848,
+            },
+            '~ctrl-bottom-half-left' : {
+                positioning : 'relative',
+                fromPoint : 'bottom-middle',
+                toPoint : 'left-bottom',
+                fraction : .5522848,
+            },
+            '~ctrl-left-half-bottom' : {
+                positioning : 'relative',
+                fromPoint : 'left-middle',
+                toPoint : 'left-bottom',
+                fraction : .5522848,
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-middle', type : 'move' },
+            { toPoint : 'top-middle', controlPoint1: '~ctrl-left-half-top', controlPoint2: '~ctrl-top-half-left', type : 'bezierCurve' },
+            { toPoint : 'right-middle', controlPoint1: '~ctrl-top-half-right', controlPoint2: '~ctrl-right-half-top', type : 'bezierCurve' },
+            { toPoint : 'bottom-middle', controlPoint1: '~ctrl-right-half-bottom', controlPoint2: '~ctrl-bottom-half-right', type : 'bezierCurve' },
+            { toPoint : 'left-middle', controlPoint1: '~ctrl-bottom-half-left', controlPoint2: '~ctrl-left-half-bottom', type : 'bezierCurve' },
         ]
     },
     'roundedRectangleManyConnections' : {

@@ -65,6 +65,7 @@ function createContainer(containerData) {
     else if (containerData.type === 'status') {
         fill = { r:150, g:150, b:220, a:1 }
         stroke = { r:150, g:150, b:150, a:1 }
+        shapeType = 'ellipse4Points'
     }
     else if (containerData.type === 'transferFiles') {
         fill = { r:180, g:0, b:200, a:1 }

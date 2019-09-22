@@ -29,7 +29,7 @@ let sourceIdentifier2 = null
 let conversionIdentifier = null
 let destinationIdentifier = null
 
-let do_sysadmin_convert = false
+let do_sysadmin_convert = true
 let do_os_convert = false
 let do_pim_convert = false
 let do_os_and_sysadmin_combine = false

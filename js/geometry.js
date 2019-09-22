@@ -310,7 +310,10 @@ function recalculateWorldPoints(container) {
     // TODO: check if type exists!
     let containerShape = containerShapes[container.shapeType]
     
-    for (let pointIdentifier in containerShape.points) {
+    
+    // TODO: for now we are ordering points alphabetically, instead of determining their dependence
+    for (let pointIdentifier of Object.keys(containerShape.points).sort()) {
+    // FIXME: remove this: for (let pointIdentifier in containerShape.points) {
         let point = containerShape.points[pointIdentifier]
         
         let worldPoint = null
