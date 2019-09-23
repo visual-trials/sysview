@@ -321,7 +321,7 @@ function doContainerDraggingByMouse() {
                     
                     // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
                     //       and adds the child to the new parent. Can we do this more explicitly?
-                    storeContainerParent(selectedContainer.identififer, selectedContainer.parentContainerIdentifier)
+                    storeContainerParent(selectedContainer.identifier, selectedContainer.parentContainerIdentifier)
                     storeContainerLocalPosition(selectedContainer.identifier, selectedContainer.localPosition)
                 }
                 else {
