@@ -103,14 +103,18 @@ function createContainer(containerData) {
             height: containerData.localSize.height,
         },
         localScale: containerData.localScale,
+        
+        shapeType : shapeType, 
+        
         worldPosition: {},
         worldSize: {},
         worldScale: null,
-        fill: fill,
-        stroke: stroke,
-        shapeType : shapeType, 
         worldPoints: {}, 
         worldConnectionPoints: {},
+        
+        fill: fill,
+        stroke: stroke,
+        
         children: [],
     }
     

@@ -597,6 +597,7 @@ function doEditContainerText() {
                         shiftIsDown = !shiftIsDown // TODO: now putting the effective shift-ness in shiftIsDown.
                     }
                     
+                    // FIXME: allow for more keys!
                     if (keyUpDown.keyCode >= 65 && keyUpDown.keyCode <= 90) {  // A through Z
                         if (shiftIsDown) {
                             textToEdit += keyName
@@ -605,13 +606,19 @@ function doEditContainerText() {
                             textToEdit += keyName.toLowerCase()
                         }
                     }
+                    else if (keyUpDown.keyCode >= 48 && keyUpDown.keyCode <= 59) {  // 0 through 9
+                        textToEdit += "" + keyUpDown.keyCode - 48
+                    }
+                    else if (keyUpDown.keyCode == 32) {  // space
+                        textToEdit += " "
+                    }
                     else {
                         // TODO: keep a record of the CURSOR!!
                         if (keyName === 'BACK_SPACE') {
                             textToEdit = textToEdit.substring(0, textToEdit.length - 1);
                         }
                         else if (keyName === 'ENTER') {
-                            // FIXME: store the text!
+                            storeContainerName(interaction.currentlyEditingContainerText.identifier, textToEdit)
                             interaction.currentlyEditingContainerText = null
                         }
                         else if (keyName === 'ESCAPE') {

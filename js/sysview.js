@@ -243,7 +243,18 @@ function storeContainerLocalScale(containerIdentififer, localScale) {
     containerIdentifiersToBeStored[containerIdentififer] = true
 }
 
-// TODO: storeContainerName(containerIdentififer, name)
+function storeContainerName(containerIdentififer, containerName) {
+    // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
+    if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {
+        databaseData.visual.containers[containerIdentififer] = { 'identifier': containerIdentififer }
+    }
+    let visualContainerData = databaseData.visual.containers[containerIdentififer]
+    visualContainerData.name = containerName
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[containerIdentififer] = true
+}
+
 // TODO: storeContainerType(containerIdentififer, type)
 // TODO: storeContainerDataType(containerIdentififer, dataType)
 
