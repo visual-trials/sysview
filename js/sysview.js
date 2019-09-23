@@ -243,6 +243,7 @@ function storeContainerLocalScale(containerIdentififer, localScale) {
     containerIdentifiersToBeStored[containerIdentififer] = true
 }
 
+// TODO: storeContainerName(containerIdentififer, name)
 // TODO: storeContainerType(containerIdentififer, type)
 // TODO: storeContainerDataType(containerIdentififer, dataType)
 
