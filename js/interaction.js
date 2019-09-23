@@ -184,6 +184,26 @@ function doContainerSelectionByMouse() {
         return
     }
     
+    // FIXME: put this into its separage function. Right now you can only delete a container
+    //        if the mouse is not close to the side of it. This is not what we want. So it needs its own logic.
+    // If "[" or "]" is pressed, we scale down or up all selected containers
+    if (hasKeyGoneDown('OPEN_BRACKET')) {
+        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+            let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
+            selectedContainer.localScale /= 2
+            recalculateWorldPositionsAndSizes(selectedContainer)
+            storeContainerLocalScale(selectedContainer.identifier, selectedContainer.localScale)
+        }
+    }
+    if (hasKeyGoneDown('CLOSE_BRACKET')) {
+        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+            let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
+            selectedContainer.localScale *= 2
+            recalculateWorldPositionsAndSizes(selectedContainer)
+            storeContainerLocalScale(selectedContainer.identifier, selectedContainer.localScale)
+        }
+    }
+    
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
          
