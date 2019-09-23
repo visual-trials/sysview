@@ -321,12 +321,12 @@ function doContainerDraggingByMouse() {
                     
                     // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
                     //       and adds the child to the new parent. Can we do this more explicitly?
-                    storeContainerParent(selectedContainer)
-                    storeContainerPositionAndSize(selectedContainer)
+                    storeContainerParent(selectedContainer.identififer, selectedContainer.parentContainerIdentifier)
+                    storeContainerLocalPosition(selectedContainer.identifier, selectedContainer.localPosition)
                 }
                 else {
                     // We stopped dragging the selected container (without re-parenting it), so we only store its position and size
-                    storeContainerPositionAndSize(selectedContainer)
+                    storeContainerLocalPosition(selectedContainer.identifier, selectedContainer.localPosition)
                 }
             }
             interaction.selectedContainersAreBeingDragged = false
@@ -386,7 +386,8 @@ function doContainerResizingByMouse() {
         
         if (mouseState.leftButtonHasGoneUp) {
             // We stopped resizing the selected container, so we store its position and size
-            storeContainerPositionAndSize(currentlySelectedContainer)
+            storeContainerLocalPosition(currentlySelectedContainer.identifier, currentlySelectedContainer.localPosition)
+            storeContainerLocalSize(currentlySelectedContainer.identifier, currentlySelectedContainer.localSize)
             interaction.selectedContainerIsBeingResized = false
             interaction.selectedContainerResizeSide = null
         }

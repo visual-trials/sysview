@@ -195,32 +195,56 @@ function storeConnectionData(connectionData) {
     connectionIdentifiersToBeStored[connectionData.identifier] = true
 }
 
-// TODO: dont pass the whole container, only the containerIdentifier and the parentContainerIdentifier
-function storeContainerParent(container) {
+function storeContainerParent(containerIdentififer, parentContainerIdentifier) {
     // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
-    if (!databaseData.visual.containers.hasOwnProperty(container.identifier)) {
-        databaseData.visual.containers[container.identifier] = { 'identifier': container.identifier }
+    if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {
+        databaseData.visual.containers[containerIdentififer] = { 'identifier': containerIdentififer }
     }
-    let visualContainerData = databaseData.visual.containers[container.identifier]
-    visualContainerData.parentContainerIdentifier = container.parentContainerIdentifier
+    let visualContainerData = databaseData.visual.containers[containerIdentififer]
+    visualContainerData.parentContainerIdentifier = parentContainerIdentifier
     databaseDataHasChanged = true
     
-    containerIdentifiersToBeStored[container.identifier] = true
+    containerIdentifiersToBeStored[containerIdentififer] = true
 }
 
-// TODO: dont pass the whole container, only the containerIdentifier and the position and size
-function storeContainerPositionAndSize(container) {
+function storeContainerLocalPosition(containerIdentififer, localPosition) {
     // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
-    if (!databaseData.visual.containers.hasOwnProperty(container.identifier)) {
-        databaseData.visual.containers[container.identifier] = { 'identifier': container.identifier }
+    if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {
+        databaseData.visual.containers[containerIdentififer] = { 'identifier': containerIdentififer }
     }
-    let visualContainerData = databaseData.visual.containers[container.identifier]
-    visualContainerData.localPosition = container.localPosition
-    visualContainerData.localSize = container.localSize
+    let visualContainerData = databaseData.visual.containers[containerIdentififer]
+    visualContainerData.localPosition = localPosition
     databaseDataHasChanged = true
     
-    containerIdentifiersToBeStored[container.identifier] = true
+    containerIdentifiersToBeStored[containerIdentififer] = true
 }
+
+function storeContainerLocalSize(containerIdentififer, localSize) {
+    // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
+    if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {
+        databaseData.visual.containers[containerIdentififer] = { 'identifier': containerIdentififer }
+    }
+    let visualContainerData = databaseData.visual.containers[containerIdentififer]
+    visualContainerData.localSize = localSize
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[containerIdentififer] = true
+}
+
+function storeContainerLocalScale(containerIdentififer, localScale) {
+    // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
+    if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {
+        databaseData.visual.containers[containerIdentififer] = { 'identifier': containerIdentififer }
+    }
+    let visualContainerData = databaseData.visual.containers[containerIdentififer]
+    visualContainerData.localScale = localScale
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[containerIdentififer] = true
+}
+
+// TODO: storeContainerType(containerIdentififer, type)
+// TODO: storeContainerDataType(containerIdentififer, dataType)
 
 function storeVisualData() {
     let url = 'index.php?action=set_visual_data&project=' + project
