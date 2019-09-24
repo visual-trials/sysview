@@ -34,6 +34,17 @@ else if ($action === 'get_project_data') {
         'source' => $sourceData,
     ]);
 }
+else if ($action === 'get_conversion_tree') {
+    $projectDir = $_GET['project'] ?? 'ExampleProject';
+
+    $filenameConversionTree = "projects/$projectDir/conversion_tree.json";
+    
+    $conversionTree = json_decode(file_get_contents($filenameConversionTree), true);
+
+    echo json_encode([ 
+        'conversionTree' => $conversionTree,
+    ]);
+}
 else if ($action === 'set_visual_data') {
     $projectDir = $_GET['project'] ?? 'ExampleProject';
     

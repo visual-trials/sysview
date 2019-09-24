@@ -16,12 +16,9 @@
 
  */
 
-function init() {
-    
-}
+let conversionTree = {}
 
-// FIXME: hardcoded!
-let projectIdentifier = 'ClientLive'
+let projectIdentifier = null
 let source1NamedAs = null
 let source1Identifier = null
 let source2NamedAs = null
@@ -34,46 +31,27 @@ let do_os_convert = false
 let do_pim_convert = false
 let do_os_and_sysadmin_combine = false
 
-if (do_sysadmin_convert) {
-    projectIdentifier = 'ClientLive'
-    source1NamedAs = 'sysadmin'
-    source1Identifier = 'sources/client_live_sysadmin.json'
-    conversionIdentifier = 'conversions/convert_sysadmin.js'
-    destinationIdentifier = 'sources/sysadmin_converted.json'
+function onConversionSelect(selectConversionElement) {
+    let conversionName = selectConversionElement.options[selectConversionElement.selectedIndex].value
+    
+    let conversionData = conversionTree[conversionName]
+    
+    conversionIdentifier = conversionData.conversionIdentifier
+    source1NamedAs = conversionData.source1NamedAs
+    source1Identifier = conversionData.source1Identifier
+    source2NamedAs = conversionData.source2NamedAs
+    source2Identifier = conversionData.source2Identifier
+    destinationIdentifier = conversionData.destinationIdentifier
+    
+    load()
 }
-else if (do_os_convert) {
+ 
+function init() {
+    // FIXME: hardcoded! (we should be able to choose this somehow)
     projectIdentifier = 'ClientLive'
-    source1NamedAs = 'os'
-    source1Identifier = 'sources/client_live_os.json'
-    conversionIdentifier = 'conversions/convert_os.js'
-    destinationIdentifier = 'sources/os_converted.json'
+    
+    loadConversionTree(projectIdentifier, 'conversionTree') // ASYNC!
 }
-else if (do_pim_convert) {
-    projectIdentifier = 'ClientLive'
-    source1NamedAs = 'pim'
-    source1Identifier = 'sources/client_live_pim.json'
-    conversionIdentifier = 'conversions/convert_pim.js'
-    destinationIdentifier = 'sources/pim_converted.json'
-}
-else if (do_os_and_sysadmin_combine) {
-    projectIdentifier = 'ClientLive'
-    source1NamedAs = 'sysadmin'
-    source1Identifier = 'sources/sysadmin_converted.json'
-    source2NamedAs = 'os'
-    source2Identifier = 'sources/os_converted.json'
-    conversionIdentifier = 'conversions/combine_os_and_sysadmin.js'
-    destinationIdentifier = 'sources/os_and_sysadmin_combined.json'
-}
-else {
-    projectIdentifier = 'ClientLive'
-    source1NamedAs = 'os_and_sysadmin'
-    source1Identifier = 'sources/os_and_sysadmin_combined.json'
-    source2NamedAs = 'pim'
-    source2Identifier = 'sources/pim_converted.json'
-    conversionIdentifier = 'conversions/combine_os_and_sysadmin_and_pim.js'
-    destinationIdentifier = 'source.json'
-}
-
 
 function load() {
     loadSourceData(projectIdentifier, source1Identifier, 'source1Data')  // ASYNC!
@@ -110,6 +88,28 @@ function saveCode() {
     let conversionCodeElement = document.getElementById('conversionCode')
     // TODO: maybe minify/un-prettify the JSON first
     storeConversionCode(conversionCodeElement.value, projectIdentifier, conversionIdentifier)
+}
+
+function loadConversionTree(projectIdentifier, selectConversionElementIdentifier) {
+    let url = 'index.php?action=get_conversion_tree&project=' + projectIdentifier
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            let conversionTreeData = JSON.parse(xmlhttp.responseText)
+            conversionTree = conversionTreeData.conversionTree
+            
+            let selectConversionElement = document.getElementById(selectConversionElementIdentifier)
+            for(let conversionName in conversionTree) {
+                let optionElement = document.createElement("option")
+                optionElement.textContent = conversionName
+                optionElement.value = conversionName
+                selectConversionElement.appendChild(optionElement)
+            }
+            
+        }
+    }
+    xmlhttp.open("GET", url, true)
+    xmlhttp.send()
 }
 
 function loadSourceData(projectIdentifier, sourceIdentifier, sourceElementIdentifier) {
