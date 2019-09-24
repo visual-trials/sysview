@@ -213,7 +213,7 @@ function drawButton(buttonData, drawOnlySelected) {
     
 }
 
-function drawDetailLabelAndValue(label, value, position) {
+function drawDetailLabelAndValue(position, label, value, secondValue = '__none__') {
     // Get text height
     let fontSize = 14
     let heightBottomWhiteArea = fontSize / 6
@@ -231,8 +231,29 @@ function drawDetailLabelAndValue(label, value, position) {
     ctx.fillText(value, position.x, position.y)
     position.x -= 30
     position.y += textHeight * 1.2
+    if (secondValue !== '__none__') {
+        position.x += 30
+        ctx.fillText(secondValue, position.x, position.y)
+        position.x -= 30
+        position.y += textHeight * 1.2
+    }
 }
 
+function drawContainerData (position, label, visualData, sourceData) {
+    if (visualData != null && sourceData != null) {
+        drawDetailLabelAndValue(position, label, visualData[label], sourceData[label])
+    }
+    else if (visualData != null) {
+        drawDetailLabelAndValue(position, label, visualData[label], '')
+    }
+    else if (sourceData != null) {
+        drawDetailLabelAndValue(position, label, '', sourceData[label])
+    }
+    else {
+        drawDetailLabelAndValue(position, label, '', '')
+    }
+
+}
 function drawDetail () {
     let detailSize = { width: 300, height: canvasElement.height - 80 }
     let detailPosition = { x: canvasElement.width - detailSize.width - 20, y: 20 }
@@ -245,17 +266,22 @@ function drawDetail () {
         ctx.strokeRect(detailPosition.x + 0.5, detailPosition.y + 0.5, detailSize.width, detailSize.height)
 
         let containerToDetail = getContainerByIdentifier(interaction.currentlyHoveredContainerIdentifier)
-        
+        let visualData = databaseData.visual.containers[containerToDetail.identifier]
+        let sourceData = databaseData.source.containers[containerToDetail.identifier]
 
         position = {x: detailPosition.x + 20, y: detailPosition.y + 20 }
         
-        drawDetailLabelAndValue('identifier', containerToDetail.identifier, position)
-        drawDetailLabelAndValue('name', containerToDetail.name, position)
-        drawDetailLabelAndValue('localScale', containerToDetail.localScale, position)
-        drawDetailLabelAndValue('localPosition.x', containerToDetail.localPosition.x, position)
-        drawDetailLabelAndValue('localPosition.y', containerToDetail.localPosition.y, position)
-        drawDetailLabelAndValue('localSize.width', containerToDetail.localSize.width, position)
-        drawDetailLabelAndValue('localSize.height', containerToDetail.localSize.height, position)
+        drawDetailLabelAndValue(position, 'identifier', containerToDetail.identifier)
+        drawDetailLabelAndValue(position, 'name', containerToDetail.name)
+        drawDetailLabelAndValue(position, 'worldScale', containerToDetail.worldScale)
+        drawDetailLabelAndValue(position, 'localScale', containerToDetail.localScale)
+        drawDetailLabelAndValue(position, 'localPosition.x', containerToDetail.localPosition.x)
+        drawDetailLabelAndValue(position, 'localPosition.y', containerToDetail.localPosition.y)
+        drawDetailLabelAndValue(position, 'localSize.width', containerToDetail.localSize.width)
+        drawDetailLabelAndValue(position, 'localSize.height', containerToDetail.localSize.height)
+        
+        drawContainerData(position, 'type', visualData, sourceData)
+        drawContainerData(position, 'localScale', visualData, sourceData)
     }
 }
 
