@@ -696,8 +696,8 @@ function showContainerChildren(container) {
     
     let containerViewScale = interaction.viewScale * container.worldScale
     
-    let beginToShow = 0.1
-    let fullyShow = 0.15
+    let beginToShow = 0.2
+    let fullyShow = 0.25
     if (containerViewScale > fullyShow) {
         return 1
     }
