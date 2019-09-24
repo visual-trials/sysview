@@ -609,7 +609,7 @@ function doEditContainerText() {
                     else if (keyUpDown.keyCode >= 48 && keyUpDown.keyCode <= 59) {  // 0 through 9
                         textToEdit += "" + keyUpDown.keyCode - 48
                     }
-                    else if (keyUpDown.keyCode == 32) {  // space
+                    else if (keyName === 'SPACE') {
                         textToEdit += " "
                     }
                     else {

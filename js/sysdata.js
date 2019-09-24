@@ -22,10 +22,10 @@ function init() {
 
 // FIXME: hardcoded!
 let projectIdentifier = 'ClientLive'
-let sourceNamedAs = null
-let sourceIdentifier = null
-let sourceNamedAs2 = null
-let sourceIdentifier2 = null
+let source1NamedAs = null
+let source1Identifier = null
+let source2NamedAs = null
+let source2Identifier = null
 let conversionIdentifier = null
 let destinationIdentifier = null
 
@@ -36,65 +36,64 @@ let do_os_and_sysadmin_combine = false
 
 if (do_sysadmin_convert) {
     projectIdentifier = 'ClientLive'
-    sourceNamedAs = 'sysadmin'
-    sourceIdentifier = 'sources/client_live_sysadmin.json'
+    source1NamedAs = 'sysadmin'
+    source1Identifier = 'sources/client_live_sysadmin.json'
     conversionIdentifier = 'conversions/convert_sysadmin.js'
     destinationIdentifier = 'sources/sysadmin_converted.json'
 }
 else if (do_os_convert) {
     projectIdentifier = 'ClientLive'
-    sourceNamedAs = 'os'
-    sourceIdentifier = 'sources/client_live_os.json'
+    source1NamedAs = 'os'
+    source1Identifier = 'sources/client_live_os.json'
     conversionIdentifier = 'conversions/convert_os.js'
     destinationIdentifier = 'sources/os_converted.json'
 }
 else if (do_pim_convert) {
     projectIdentifier = 'ClientLive'
-    sourceNamedAs = 'pim'
-    sourceIdentifier = 'sources/client_live_pim.json'
+    source1NamedAs = 'pim'
+    source1Identifier = 'sources/client_live_pim.json'
     conversionIdentifier = 'conversions/convert_pim.js'
     destinationIdentifier = 'sources/pim_converted.json'
 }
 else if (do_os_and_sysadmin_combine) {
     projectIdentifier = 'ClientLive'
-    sourceNamedAs = 'sysadmin'
-    sourceIdentifier = 'sources/sysadmin_converted.json'
-    sourceNamedAs2 = 'os'
-    sourceIdentifier2 = 'sources/os_converted.json'
+    source1NamedAs = 'sysadmin'
+    source1Identifier = 'sources/sysadmin_converted.json'
+    source2NamedAs = 'os'
+    source2Identifier = 'sources/os_converted.json'
     conversionIdentifier = 'conversions/combine_os_and_sysadmin.js'
     destinationIdentifier = 'sources/os_and_sysadmin_combined.json'
 }
 else {
     projectIdentifier = 'ClientLive'
-    sourceNamedAs = 'os_and_sysadmin'
-    sourceIdentifier = 'sources/os_and_sysadmin_combined.json'
-    sourceNamedAs2 = 'pim'
-    sourceIdentifier2 = 'sources/pim_converted.json'
+    source1NamedAs = 'os_and_sysadmin'
+    source1Identifier = 'sources/os_and_sysadmin_combined.json'
+    source2NamedAs = 'pim'
+    source2Identifier = 'sources/pim_converted.json'
     conversionIdentifier = 'conversions/combine_os_and_sysadmin_and_pim.js'
     destinationIdentifier = 'source.json'
 }
 
 
 function load() {
-    loadSourceData(projectIdentifier, sourceIdentifier)  // ASYNC!
-    if (sourceIdentifier2 != null) {
-        loadSourceData2(projectIdentifier, sourceIdentifier2)  // ASYNC!
+    loadSourceData(projectIdentifier, source1Identifier, 'source1Data')  // ASYNC!
+    if (source2Identifier != null) {
+        loadSourceData(projectIdentifier, source2Identifier, 'source2Data')  // ASYNC!
     }
     loadConversionCode(projectIdentifier, conversionIdentifier)  // ASYNC!
 }
 
 function run() {
-    // TODO: allow for multiple parameters/source into the conversion function!
-    let sourceDataElement = document.getElementById('sourceData')
-    let sourceDataElement2 = document.getElementById('sourceData2')
+    let source1DataElement = document.getElementById('source1Data')
+    let source2DataElement = document.getElementById('source1Data')
     let destinationDataElement = document.getElementById('destinationData')
     let conversionCodeElement = document.getElementById('conversionCode')
     
     let conversionCode = conversionCodeElement.value
     let sources = {}
-    sources[sourceNamedAs] = JSON.parse(sourceDataElement.value)
-    if (sourceNamedAs2 != null) {
-        sources[sourceNamedAs2] = JSON.parse(sourceDataElement2.value)
+    sources[source1NamedAs] = JSON.parse(source1DataElement.value)
+    if (source2NamedAs != null) {
+        sources[source2NamedAs] = JSON.parse(source2DataElement.value)
     }
     let conversionFunction = new Function('sources', conversionCode)
     
@@ -113,13 +112,13 @@ function saveCode() {
     storeConversionCode(conversionCodeElement.value, projectIdentifier, conversionIdentifier)
 }
 
-function loadSourceData(projectIdentifier, sourceIdentifier) {
+function loadSourceData(projectIdentifier, sourceIdentifier, sourceElementIdentifier) {
     let url = 'index.php?action=get_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             let sourceData = JSON.parse(xmlhttp.responseText)
-            let sourceDataElement = document.getElementById('sourceData')
+            let sourceDataElement = document.getElementById(sourceElementIdentifier)
             
             sourceDataElement.value = JSON.stringify(sourceData.sourceData, null, 4)
         }
@@ -128,24 +127,8 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
     xmlhttp.send()
 }
 
-// FIXME: we should not duplicate this function!
-function loadSourceData2(projectIdentifier, sourceIdentifier) {
-    let url = 'index.php?action=get_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
-    let xmlhttp = new XMLHttpRequest()
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            let sourceData = JSON.parse(xmlhttp.responseText)
-            let sourceDataElement = document.getElementById('sourceData2') // FIXME
-            
-            sourceDataElement.value = JSON.stringify(sourceData.sourceData, null, 4)
-        }
-    }
-    xmlhttp.open("GET", url, true)
-    xmlhttp.send()
-}
-
-function storeDestinationData(destinationData, projectIdentifier, sourceIdentifier) {
-    let url = 'index.php?action=set_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
+function storeDestinationData(destinationData, projectIdentifier, source1Identifier) {
+    let url = 'index.php?action=set_source_data&project=' + projectIdentifier + '&source=' + source1Identifier
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
