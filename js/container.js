@@ -103,6 +103,7 @@ function createContainer(containerData) {
             height: containerData.localSize.height,
         },
         localScale: containerData.localScale,
+        localFontSize: containerData.localFontSize,
         
         shapeType : shapeType, 
         
@@ -174,6 +175,7 @@ function mergeSourceAndVisualContainerData (sourceContainerData, visualContainer
             )
         },
         localScale : getExistingField('localScale', visualContainerData, sourceContainerData),
+        localFontSize : getExistingField('localFontSize', visualContainerData, sourceContainerData),
     }
     
     return containerData

@@ -141,6 +141,17 @@ function doMenuButtonModeSelect() {
     if (mouseState.leftButtonHasGoneDown && interaction.currentlyHoveredMenuButton.mode) {
         // If its a menu button with a 'mode', then we select that mode
         interaction.currentlySelectedMode = interaction.currentlyHoveredMenuButton.mode
+        
+        if (interaction.currentlySelectedMode === 'view') {
+            // TODO: we currently do not allow containers to be selected in view-mode, so we de-select
+            //       all selected containers here. But we might want to allow selecting of containers in
+            //       view-mode
+            interaction.currentlySelectedContainerIdentifiers = {}
+            // We also disable all the states
+            interaction.selectedContainerIsBeingResized = false
+            interaction.selectedContainersAreBeingDragged = false
+            interaction.mouseIsNearSelectedContainerBorder = false
+        }
     }
 }
 

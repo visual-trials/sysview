@@ -428,15 +428,18 @@ function findContainerAtWorldPosition(worldPosition, container = null, excludeSe
     
     // TODO: for performance, we probably want to check if the mousepointer is above the parent, and only
     //       then check its children (note: this assumes the children are always within the bounds of the parent!)
-    
-    // First check the children (since they are 'on-top' of the parent)
-    for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
-        let childContainerIdentifier = container.children[containerIndex]
-        let childContainer = containersAndConnections.containers[childContainerIdentifier]
-        
-        let containerAtWorldPosition = findContainerAtWorldPosition(worldPosition, childContainer, excludeSelectedContainers)
-        if (containerAtWorldPosition != null) {
-            return containerAtWorldPosition
+
+    // Only check the children if they are shown
+    if (showContainerChildren(container)) {
+        // First check the children (since they are 'on-top' of the parent)
+        for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
+            let childContainerIdentifier = container.children[containerIndex]
+            let childContainer = containersAndConnections.containers[childContainerIdentifier]
+            
+            let containerAtWorldPosition = findContainerAtWorldPosition(worldPosition, childContainer, excludeSelectedContainers)
+            if (containerAtWorldPosition != null) {
+                return containerAtWorldPosition
+            }
         }
     }
     

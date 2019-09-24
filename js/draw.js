@@ -275,6 +275,7 @@ function drawDetail () {
         drawDetailLabelAndValue(position, 'name', containerToDetail.name)
         drawDetailLabelAndValue(position, 'worldScale', containerToDetail.worldScale)
         drawDetailLabelAndValue(position, 'localScale', containerToDetail.localScale)
+        drawDetailLabelAndValue(position, 'localFontSize', containerToDetail.localFontSize)
         drawDetailLabelAndValue(position, 'localPosition.x', containerToDetail.localPosition.x)
         drawDetailLabelAndValue(position, 'localPosition.y', containerToDetail.localPosition.y)
         drawDetailLabelAndValue(position, 'localSize.width', containerToDetail.localSize.width)
@@ -282,6 +283,7 @@ function drawDetail () {
         
         drawContainerData(position, 'type', visualData, sourceData)
         drawContainerData(position, 'localScale', visualData, sourceData)
+        drawContainerData(position, 'localFontSize', visualData, sourceData)
     }
 }
 
@@ -864,15 +866,18 @@ function drawContainer(container, alpha = null) {
         
         // Get text size
         let textSize = {}
-        let fontSize = 14  // FIXME: allow containers to have a different localFontSize
+        let localFontSize = 14
+        if (container.localFontSize != null) {
+            localFontSize = container.localFontSize
+        }
         
-        let heightBottomWhiteArea = fontSize / 6
-        ctx.font = fontSize + "px Arial"
+        let heightBottomWhiteArea = localFontSize / 6
+        ctx.font = localFontSize + "px Arial"
         ctx.textBaseline = "top"
         let textHeightToFontSizeRatioArial = 1.1499023
         
         textSize.width = ctx.measureText(textToDraw).width
-        textSize.height = textHeightToFontSizeRatioArial * fontSize
+        textSize.height = textHeightToFontSizeRatioArial * localFontSize
 
         // We are using the scale of the parent to determine the (world-)size of the font
         let parentWorldScale = container.worldScale / container.localScale
