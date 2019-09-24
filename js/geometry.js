@@ -376,11 +376,11 @@ function recalculateWorldPositionsAndSizes(container = null) {
     }
     else {
         parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
-
-        container.worldScale = parentContainer.worldScale * container.localScale
-        let scaledLocalPosition = scalePosition(container.worldScale, container.localPosition)
+        
+        let scaledLocalPosition = scalePosition(parentContainer.worldScale, container.localPosition)
         container.worldPosition = addOffsetToPosition(scaledLocalPosition, parentContainer.worldPosition)
-        container.worldSize = scaleSize(container.worldScale, container.localSize)
+        container.worldSize = scaleSize(parentContainer.worldScale, container.localSize)
+        container.worldScale = parentContainer.worldScale * container.localScale
         
         recalculateWorldPoints(container)
     }

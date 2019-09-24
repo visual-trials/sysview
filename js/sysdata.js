@@ -63,7 +63,7 @@ function load() {
 
 function run() {
     let source1DataElement = document.getElementById('source1Data')
-    let source2DataElement = document.getElementById('source1Data')
+    let source2DataElement = document.getElementById('source2Data')
     let destinationDataElement = document.getElementById('destinationData')
     let conversionCodeElement = document.getElementById('conversionCode')
     

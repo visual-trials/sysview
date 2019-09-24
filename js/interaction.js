@@ -286,9 +286,10 @@ function doContainerDraggingByMouse() {
             for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
                 
                 let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
+                let parentWorldScale = selectedContainer.worldScale / selectedContainer.localScale
                 
-                selectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / selectedContainer.worldScale
-                selectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / selectedContainer.worldScale
+                selectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentWorldScale
+                selectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentWorldScale
                 recalculateWorldPositionsAndSizes(selectedContainer)
             }
             
@@ -393,22 +394,23 @@ function doContainerResizingByMouse() {
             mouseWorldMovement.x = mouseState.worldPosition.x - mouseState.previousWorldPosition.x
             mouseWorldMovement.y = mouseState.worldPosition.y - mouseState.previousWorldPosition.y
             
+            let parentWorldScale = currentlySelectedContainer.worldScale / currentlySelectedContainer.localScale
             if (interaction.selectedContainerResizeSide.x > 0) { // right side
-                currentlySelectedContainer.localSize.width += mouseWorldMovement.x / currentlySelectedContainer.worldScale
+                currentlySelectedContainer.localSize.width += mouseWorldMovement.x / parentWorldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
-                currentlySelectedContainer.localSize.height += mouseWorldMovement.y / currentlySelectedContainer.worldScale
+                currentlySelectedContainer.localSize.height += mouseWorldMovement.y / parentWorldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.x < 0) { // left side
-                currentlySelectedContainer.localSize.width -= mouseWorldMovement.x / currentlySelectedContainer.worldScale
-                currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / currentlySelectedContainer.worldScale
+                currentlySelectedContainer.localSize.width -= mouseWorldMovement.x / parentWorldScale
+                currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / parentWorldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
             if (interaction.selectedContainerResizeSide.y < 0) { // top side
-                currentlySelectedContainer.localSize.height -= mouseWorldMovement.y / currentlySelectedContainer.worldScale
-                currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / currentlySelectedContainer.worldScale
+                currentlySelectedContainer.localSize.height -= mouseWorldMovement.y / parentWorldScale
+                currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / parentWorldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
         }
