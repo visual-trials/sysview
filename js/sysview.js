@@ -243,6 +243,18 @@ function storeContainerLocalScale(containerIdentififer, localScale) {
     containerIdentifiersToBeStored[containerIdentififer] = true
 }
 
+function storeContainerLocalFontSize(containerIdentififer, localFontSize) {
+    // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
+    if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {
+        databaseData.visual.containers[containerIdentififer] = { 'identifier': containerIdentififer }
+    }
+    let visualContainerData = databaseData.visual.containers[containerIdentififer]
+    visualContainerData.localFontSize = localFontSize
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[containerIdentififer] = true
+}
+
 function storeContainerName(containerIdentififer, containerName) {
     // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
     if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {

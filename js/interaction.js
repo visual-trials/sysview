@@ -89,6 +89,7 @@ function handleInputStateChange () {
                     doDeleteContainerByKeyboard()
                     // TODO: this may change the hovered-over (part of the) container, so the functions below might not be accurate. Maybe skip them when re-scale has happened?
                     doReScaleSelectedContainersByKeyboard() 
+                    doChangeFontSizeSelectedContainersByKeyboard()
                     
                     if (!interaction.mouseIsNearSelectedContainerBorder && 
                         !interaction.selectedContainerIsBeingResized &&
@@ -210,6 +211,34 @@ function doReScaleSelectedContainersByKeyboard() {
             selectedContainer.localScale *= 2
             recalculateWorldPositionsAndSizes(selectedContainer)
             storeContainerLocalScale(selectedContainer.identifier, selectedContainer.localScale)
+        }
+    }
+    
+}
+
+function doChangeFontSizeSelectedContainersByKeyboard() {
+    
+    // If "[" or "]" is pressed, we scale down or up all selected containers
+    if (hasKeyGoneDown('RIGHT')) {
+        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+            let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
+            if (selectedContainer.localFontSize == null) {
+                // FIXME: hardcoded default fontsize!
+                selectedContainer.localFontSize = 14
+            }
+            selectedContainer.localFontSize += 2
+            storeContainerLocalFontSize(selectedContainer.identifier, selectedContainer.localFontSize)
+        }
+    }
+    if (hasKeyGoneDown('LEFT')) {
+        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+            let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
+            if (selectedContainer.localFontSize == null) {
+                // FIXME: hardcoded default fontsize!
+                selectedContainer.localFontSize = 14
+            }
+            selectedContainer.localFontSize -= 2
+            storeContainerLocalFontSize(selectedContainer.identifier, selectedContainer.localFontSize)
         }
     }
     
