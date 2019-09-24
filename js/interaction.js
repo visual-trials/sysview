@@ -147,7 +147,7 @@ function doMenuButtonModeSelect() {
             //       all selected containers here. But we might want to allow selecting of containers in
             //       view-mode
             interaction.currentlySelectedContainerIdentifiers = {}
-            // We also disable all the states
+            // We also disable all these states
             interaction.selectedContainerIsBeingResized = false
             interaction.selectedContainersAreBeingDragged = false
             interaction.mouseIsNearSelectedContainerBorder = false
@@ -317,7 +317,12 @@ function doContainerDraggingByMouse() {
 
         // TODO: rename emcompassingContainer to hoveringParentContainer?
         let excludeSelectedContainers = true
-        let encompassingContainer = findContainerAtWorldPosition(mouseState.worldPosition, null, excludeSelectedContainers)
+        // TODO: we now take the left-top position of the container our mouse-pointer is at (which is one of the containers we are dragging)
+        //       we do NOT use the mouse pointer since we might be dragging a container at its right-bottom position and dropping
+        //       this container inside another container can be very confusing: its size might get much smaller, but its position is at the same
+        //       world position, meaning it is going to be dropped far outside the new parent container.
+        // let encompassingContainer = findContainerAtWorldPosition(mouseState.worldPosition, null, excludeSelectedContainers)
+        let encompassingContainer = findContainerAtWorldPosition(containerAtMousePosition.worldPosition, null, excludeSelectedContainers)
         if (encompassingContainer != null) {
             interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
         }
