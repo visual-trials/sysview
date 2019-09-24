@@ -116,7 +116,12 @@ function drawCanvas() {
     //}
     drawNewConnection()
     
-    drawTinyDetail()
+    // if (interaction.currentlySelectedMode === 'view') {
+        drawDetail()
+    // }
+    // else {
+    //     drawTinyDetail()
+    // }
     
     drawMenu()
     
@@ -206,6 +211,52 @@ function drawButton(buttonData, drawOnlySelected) {
         
     }
     
+}
+
+function drawDetailLabelAndValue(label, value, position) {
+    // Get text height
+    let fontSize = 14
+    let heightBottomWhiteArea = fontSize / 6
+    let textHeightToFontSizeRatioArial = 1.1499023
+    let textHeight = textHeightToFontSizeRatioArial * fontSize
+    
+    ctx.textBaseline = "top"
+    ctx.fillStyle = "#333333"
+    
+    ctx.font = "bold " + fontSize + "px Arial"
+    ctx.fillText(label, position.x, position.y)
+    position.x += 30
+    position.y += textHeight * 1.2
+    ctx.font = fontSize + "px Arial"
+    ctx.fillText(value, position.x, position.y)
+    position.x -= 30
+    position.y += textHeight * 1.2
+}
+
+function drawDetail () {
+    let detailSize = { width: 300, height: canvasElement.height - 80 }
+    let detailPosition = { x: canvasElement.width - detailSize.width - 20, y: 20 }
+
+    if (interaction.currentlyHoveredContainerIdentifier != null) {
+        ctx.lineWidth = 1
+        ctx.fillStyle = "rgba(255,255,255,0.8)" // "#FFFFFF"
+        ctx.strokeStyle = "#DDDDDD"
+        ctx.fillRect(detailPosition.x, detailPosition.y, detailSize.width, detailSize.height)
+        ctx.strokeRect(detailPosition.x + 0.5, detailPosition.y + 0.5, detailSize.width, detailSize.height)
+
+        let containerToDetail = getContainerByIdentifier(interaction.currentlyHoveredContainerIdentifier)
+        
+
+        position = {x: detailPosition.x + 20, y: detailPosition.y + 20 }
+        
+        drawDetailLabelAndValue('identifier', containerToDetail.identifier, position)
+        drawDetailLabelAndValue('name', containerToDetail.name, position)
+        drawDetailLabelAndValue('localScale', containerToDetail.localScale, position)
+        drawDetailLabelAndValue('localPosition.x', containerToDetail.localPosition.x, position)
+        drawDetailLabelAndValue('localPosition.y', containerToDetail.localPosition.y, position)
+        drawDetailLabelAndValue('localSize.width', containerToDetail.localSize.width, position)
+        drawDetailLabelAndValue('localSize.height', containerToDetail.localSize.height, position)
+    }
 }
 
 function drawTinyDetail () {
