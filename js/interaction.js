@@ -562,10 +562,10 @@ function doAddNewContainer() {
         let currentDateTime = new Date()
         
         let newContainerData = {
-            type: 'server',  // TODO: allow adding different kinds of containers
+            type: 'visualContainer',  // TODO: allow adding different kinds of containers
             parentContainerIdentifier: parentContainerIdentifier,
-            identifier: 'ExtraServer_' + currentDateTime.getTime(),
-            name: 'My Extra Server',
+            identifier: 'AddedContainer_' + currentDateTime.getTime(),
+            name: 'My Added Container',
             localPosition: {
                 x: mouseState.worldPosition.x - parentContainer.worldPosition.x,
                 y: mouseState.worldPosition.y - parentContainer.worldPosition.y
