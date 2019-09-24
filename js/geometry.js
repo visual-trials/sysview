@@ -333,8 +333,9 @@ function recalculateWorldPoints(container) {
         else if (point.positioning === 'absolute') {
             if (container.worldPoints.hasOwnProperty(point.fromPoint)) {
                 let fromPoint = container.worldPoints[point.fromPoint]
-                let offset = { x: point.offset.x * container.worldScale, y: point.offset.y * container.worldScale }
-                worldPoint = addOffsetToPosition(offset, fromPoint)
+                let parentWorldScale = container.worldScale / container.localScale
+                let worldOffset = { x: point.offset.x * parentWorldScale, y: point.offset.y * parentWorldScale}
+                worldPoint = addOffsetToPosition(worldOffset, fromPoint)
             }
             else {
                 console.log('ERROR: from-point: ' + point.fromPoint + 'doesnt exists (yet)!')
