@@ -87,6 +87,8 @@ function handleInputStateChange () {
                 if (interaction.currentlyEditingContainerText == null) {
                     
                     doDeleteContainerByKeyboard()
+                    // TODO: this may change the hovered-over (part of the) container, so the functions below might not be accurate. Maybe skip them when re-scale has happened?
+                    doReScaleSelectedContainersByKeyboard() 
                     
                     if (!interaction.mouseIsNearSelectedContainerBorder && 
                         !interaction.selectedContainerIsBeingResized &&
@@ -180,17 +182,8 @@ function doDeleteContainerByKeyboard() {
     
 }
 
-function doContainerSelectionByMouse() {
+function doReScaleSelectedContainersByKeyboard() {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
-    
-    // If escape is pressed, de-select all containers    
-    if (hasKeyGoneDown('ESCAPE')) {
-        interaction.currentlySelectedContainerIdentifiers = {}
-    }
-    
-    // FIXME: put this into its separage function. Right now you can only delete a container
-    //        if the mouse is not close to the side of it. This is not what we want. So it needs its own logic.
     // If "[" or "]" is pressed, we scale down or up all selected containers
     if (hasKeyGoneDown('OPEN_BRACKET')) {
         for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
@@ -207,6 +200,17 @@ function doContainerSelectionByMouse() {
             recalculateWorldPositionsAndSizes(selectedContainer)
             storeContainerLocalScale(selectedContainer.identifier, selectedContainer.localScale)
         }
+    }
+    
+}
+
+function doContainerSelectionByMouse() {
+    
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    
+    // If escape is pressed, de-select all containers    
+    if (hasKeyGoneDown('ESCAPE')) {
+        interaction.currentlySelectedContainerIdentifiers = {}
     }
     
     if (!mouseState.leftButtonHasGoneDownTwice &&
