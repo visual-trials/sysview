@@ -306,14 +306,10 @@ function doContainerDraggingByMouse() {
             
         }
         
-        let worldRectangle = {}
         if (containerAtMousePosition == null) {
             console.log('ERROR: there is not container at the mouse position, even though we are dragging container(s)!')
             return
         }
-        
-        worldRectangle.position = { x: containerAtMousePosition.worldPosition.x, y: containerAtMousePosition.worldPosition.y }
-        worldRectangle.size = { width: containerAtMousePosition.worldSize.width, height: containerAtMousePosition.worldSize.height }
 
         // TODO: rename emcompassingContainer to hoveringParentContainer?
         let excludeSelectedContainers = true
