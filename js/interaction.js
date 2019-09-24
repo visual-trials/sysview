@@ -86,6 +86,8 @@ function handleInputStateChange () {
                 doEditContainerText()
                 if (interaction.currentlyEditingContainerText == null) {
                     
+                    doDeleteContainerByKeyboard()
+                    
                     if (!interaction.mouseIsNearSelectedContainerBorder && 
                         !interaction.selectedContainerIsBeingResized &&
                         !interaction.selectedContainersAreBeingDragged &&
@@ -159,18 +161,8 @@ function doMenuButtonGridToggle() {
     }
 }
 
-
-function doContainerSelectionByMouse() {
+function doDeleteContainerByKeyboard() {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
-    
-    // If escape is pressed, de-select all containers    
-    if (hasKeyGoneDown('ESCAPE')) {
-        interaction.currentlySelectedContainerIdentifiers = {}
-    }
-    
-    // FIXME: put this into its separage function. Right now you can only delete a container
-    //        if the mouse is not close to the side of it. This is not what we want. So it needs its own logic.
     // If delete is pressed, we delete all selected containers
     if (hasKeyGoneDown('DELETE')) {
         for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
@@ -181,7 +173,20 @@ function doContainerSelectionByMouse() {
             //        also has to be changed/reverted to the source
         }
         interaction.currentlySelectedContainerIdentifiers = {}
-        return
+        interaction.selectedContainerIsBeingResized = false
+        interaction.selectedContainersAreBeingDragged = false
+        interaction.mouseIsNearSelectedContainerBorder = false
+    }
+    
+}
+
+function doContainerSelectionByMouse() {
+    
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    
+    // If escape is pressed, de-select all containers    
+    if (hasKeyGoneDown('ESCAPE')) {
+        interaction.currentlySelectedContainerIdentifiers = {}
     }
     
     // FIXME: put this into its separage function. Right now you can only delete a container
