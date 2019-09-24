@@ -54,6 +54,10 @@ function init() {
 }
 
 function load() {
+    document.getElementById('source1Data').value = ""
+    document.getElementById('source2Data').value = ""
+    document.getElementById('conversionCode').value = ""
+    document.getElementById('destinationData').value = ""
     loadSourceData(projectIdentifier, source1Identifier, 'source1Data')  // ASYNC!
     if (source2Identifier != null) {
         loadSourceData(projectIdentifier, source2Identifier, 'source2Data')  // ASYNC!
