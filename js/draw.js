@@ -720,10 +720,15 @@ function drawContainers(containerIdentifiers, alpha = null) {
         // TODO: this assumes that the children of a container are never outside the bounds of their parent
         //       but that might not always be true
         if (containerIsOnScreen(container)) {
-            drawContainer(container, alpha)
-            let fractionToShowContainer = showContainerChildren(container)
-            if (fractionToShowContainer > 0) {
-                drawContainers(container.children, fractionToShowContainer)
+            let fractionToShowContainerChildren = showContainerChildren(container)
+            // When we draw the children, we do not want to draw the parents text
+            let fractionToShowText = 1
+            if (container.children.length > 0) {
+                fractionToShowText = 1 - fractionToShowContainerChildren
+            }
+            drawContainer(container, alpha, fractionToShowText)
+            if (fractionToShowContainerChildren > 0) {
+                drawContainers(container.children, fractionToShowContainerChildren)
             }
         }
     }
@@ -790,7 +795,7 @@ function drawContainerShape (container) {
     ctx.closePath()
 }
 
-function drawContainer(container, alpha = null) {
+function drawContainer(container, alpha = null, textAlpha = 1) {
     
     {
         // Draw shape
@@ -859,7 +864,7 @@ function drawContainer(container, alpha = null) {
         }
     }
     
-    let textColor = { r:0, g:0, b:0, a:1 }
+    let textColor = { r:0, g:0, b:0, a:1 * textAlpha }
     {
         // Draw text
         let textToDraw = container.name ? container.name : ''
