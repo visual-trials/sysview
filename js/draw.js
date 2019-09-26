@@ -118,9 +118,9 @@ function drawCanvas() {
     
     // if (interaction.currentlySelectedMode === 'view') {
         drawDetail()
+        drawTinyDetail()
     // }
     // else {
-    //     drawTinyDetail()
     // }
     
     drawMenu()
@@ -288,12 +288,12 @@ function drawDetail () {
 }
 
 function drawTinyDetail () {
-    let tinyDetailSize = { width: 600, height: 30 }
+    let tinyDetailSize = { width: 800, height: 30 }
     let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 100, y: canvasElement.height - tinyDetailSize.height - 20 }
 
     if (interaction.currentlyHoveredContainerIdentifier != null) {
         ctx.lineWidth = 1
-        ctx.fillStyle = "rgba(255,255,255,0.8)" // "#FFFFFF"
+        ctx.fillStyle = "rgba(255,255,255,0.9)" // "#FFFFFF"
         ctx.strokeStyle = "#DDDDDD"
         ctx.fillRect(tinyDetailPosition.x, tinyDetailPosition.y, tinyDetailSize.width, tinyDetailSize.height)
         ctx.strokeRect(tinyDetailPosition.x + 0.5, tinyDetailPosition.y + 0.5, tinyDetailSize.width, tinyDetailSize.height)
