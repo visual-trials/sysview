@@ -884,19 +884,16 @@ function drawContainer(container, alpha = null, textAlpha = 1) {
         textSize.width = ctx.measureText(textToDraw).width
         textSize.height = textHeightToFontSizeRatioArial * localFontSize
 
-        // We are using the scale of the parent to determine the (world-)size of the font
-        let parentWorldScale = container.worldScale / container.localScale
-        
         // Determine text position
         let textWorldPosition = {}
-        textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * parentWorldScale / 2)
-        textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * parentWorldScale / 2) + heightBottomWhiteArea * parentWorldScale
+        textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
+        textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * container.worldScale / 2) + heightBottomWhiteArea * container.worldScale
         
         let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
         
         let debugText = false
         if (debugText) {
-            let screenTextSize = scaleSize(interaction.viewScale * parentWorldScale, textSize)
+            let screenTextSize = scaleSize(interaction.viewScale * container.worldScale, textSize)
             
             ctx.lineWidth = 1
             ctx.strokeStyle = "#FF0000"
@@ -905,7 +902,7 @@ function drawContainer(container, alpha = null, textAlpha = 1) {
         
         ctx.save()
         ctx.translate(screenTextPosition.x, screenTextPosition.y) // move the text to the screen position (since we draw the text at 0,0)
-        ctx.scale(interaction.viewScale * parentWorldScale, interaction.viewScale * parentWorldScale) // make the text smaller/bigger according to zoom (viewScale)
+        ctx.scale(interaction.viewScale * container.worldScale, interaction.viewScale * container.worldScale) // make the text smaller/bigger according to zoom (viewScale)
         
         if (interaction.percentageIsoMetric > 0) {
             ctx.scale(1, currentIsoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
