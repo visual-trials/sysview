@@ -365,7 +365,25 @@ function drawNewConnection () {
                             y: mouseState.worldPosition.y }
             }
         }
-        drawConnection(newConnectionBeingAdded, fromContainer, toContainer)
+
+
+        // FIXME: this is a HACK!
+
+        let connectionGroup = { 
+            'fromFirstVisibleContainerIdentifier' : fromContainer.identifier, 
+            'toFirstVisibleContainerIdentifier' : toContainer.identifier,
+            'connectionType' : newConnectionBeingAdded.type,
+        }
+        
+        let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
+        let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
+        
+        connectionGroup.nrOfConnections = 1
+        connectionGroup.averageFromPosition = fromContainerCenterPosition
+        connectionGroup.averageToPosition = toContainerCenterPosition
+        
+        drawConnectionGroup(connectionGroup)
+//        drawConnection(newConnectionBeingAdded, fromContainer, toContainer)
     }
 }
 

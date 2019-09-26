@@ -259,6 +259,10 @@ function createConnection(connectionData) {
     return newConnection
 }
 
+function removeConnection(connectionIdentifier) {
+    delete containersAndConnections.connections[connectionData.identifier]
+}
+
 function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnectionData) {
     
     let connectionData = {

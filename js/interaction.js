@@ -549,11 +549,11 @@ function doAddNewConnection() {
         
         if (containerAtMousePosition != null) {
             interaction.newConnectionBeingAddedData = {
-                identifier: 'NewConnection_' + currentDateTime.getTime(),
-                name: 'New connection',
+                identifier: containerAtMousePosition.identifier + '->' + currentDateTime.getTime(), // Since we dont known the to-identifier yet, we put in a "random" number for now
+                name: 'Added connection',
                 fromContainerIdentifier: containerAtMousePosition.identifier,
                 toContainerIdentifier: null,
-                type: 'API2API'
+                type: 'API2API' // FIXME: we need a better default connection type
             }
             let newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
             interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
@@ -570,6 +570,19 @@ function doAddNewConnection() {
             // TODO: we shouldn't do this twice, right?
             newConnectionBeingAdded.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
             interaction.newConnectionBeingAddedData.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
+
+            // TODO: this is not really what we want, we have to remove the connection, since we are changing its identifier
+            removeConnection(newConnectionBeingAdded.identifier)
+            // TODO: we shouldn't do this triple, right?
+            let connectionIdentifier = newConnectionBeingAdded.fromContainerIdentifier + "->" + newConnectionBeingAdded.toContainerIdentifier
+            newConnectionBeingAdded.identifier = connectionIdentifier
+            interaction.newConnectionBeingAddedData.identifier = connectionIdentifier
+            interaction.newConnectionBeingAddedIdentifier = connectionIdentifier
+            
+            // TODO: this is not really what we want, we have to rre-create the connection, since we are changing its identifier
+            let newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
+            interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
+            
         }
         else {
             // TODO: we shouldn't do this twice, right?
