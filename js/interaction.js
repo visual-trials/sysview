@@ -311,8 +311,6 @@ function doContainerDraggingByMouse() {
   
     // Note: we can assume then all selected containers have the *same* parent
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
-    
     if (interaction.currentlyHoveredContainerIdentifier != null) {
         interaction.mousePointerStyle = 'move'
     }
@@ -332,22 +330,33 @@ function doContainerDraggingByMouse() {
                 selectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentWorldScale
                 recalculateWorldPositionsAndSizes(selectedContainer)
             }
-            
         }
         
+        let firstSelectedContainer = null
+        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+            firstSelectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
+        }
+        
+        if (firstSelectedContainer == null) {
+            console.log('ERROR: there is no first selected container even though selectedContainersAreBeingDragged is true!')
+            return;
+        }
+
+        /*
         if (containerAtMousePosition == null) {
             console.log('ERROR: there is not container at the mouse position, even though we are dragging container(s)!')
             return
         }
+        */
 
         // TODO: rename emcompassingContainer to hoveringParentContainer?
         let excludeSelectedContainers = true
-        // TODO: we now take the left-top position of the container our mouse-pointer is at (which is one of the containers we are dragging)
+        // TODO: we now take the left-top position of the first selected container (over which our mouse-pointer is hovering, which is one of the containers we are dragging)
         //       we do NOT use the mouse pointer since we might be dragging a container at its right-bottom position and dropping
         //       this container inside another container can be very confusing: its size might get much smaller, but its position is at the same
         //       world position, meaning it is going to be dropped far outside the new parent container.
         // let encompassingContainer = findContainerAtWorldPosition(mouseState.worldPosition, null, excludeSelectedContainers)
-        let encompassingContainer = findContainerAtWorldPosition(containerAtMousePosition.worldPosition, null, excludeSelectedContainers)
+        let encompassingContainer = findContainerAtWorldPosition(firstSelectedContainer.worldPosition, null, excludeSelectedContainers)
         if (encompassingContainer != null) {
             interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
         }
@@ -406,6 +415,8 @@ function doContainerDraggingByMouse() {
 
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+         
+        let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
         if (containerAtMousePosition != null/* && currentlySelectedContainerIdentifier != null &&
             containerAtMousePosition.identifier === currentlySelectedContainerIdentifier */) {
 // FIXME: what should be the logic here?
