@@ -75,6 +75,11 @@ function handleInputStateChange () {
     if (interaction.currentlyHoveredMenuButton == null) { 
         if (interaction.currentlySelectedMode === 'connect') {
             doAddNewConnection()
+            
+            if (interaction.newConnectionBeingAddedIdentifier == null) {
+                doConnectionSelectionByMouse()
+            }
+            // FIXME: check if no connections are selected!
             if (interaction.newConnectionBeingAddedIdentifier == null) {
                 doViewDraggingByMouse()
             }
@@ -242,6 +247,16 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
         }
     }
     
+}
+
+function doConnectionSelectionByMouse() {
+    let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
+    
+    if (connectionAtMousePosition != null) {
+        // FIXME: implement selecting the connection (and recording that)
+        // TODO: we like hovering also! (but how does the draw known the *group* is hovered?
+        console.log(connectionAtMousePosition)
+    }
 }
 
 function doContainerSelectionByMouse() {

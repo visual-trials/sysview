@@ -465,7 +465,7 @@ function findConnectionAtWorldPosition(worldPosition) {
                 let distance = distanceBetweenTwoPoints(worldPosition, connectionGroup.worldMiddlePoint)
                 if (distance < 10) { // FIXME: hardcoded!
                     if (connectionGroup.nrOfConnections === 1) {
-                        let foundConnection = connectionGroup.connections[0]
+                        let foundConnection = connectionGroup.connections[Object.keys(connectionGroup.connections)[0]]
                         return foundConnection
                     }
                 }
