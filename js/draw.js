@@ -364,10 +364,10 @@ function drawNewConnection () {
                 worldSize: { width: 0, height: 0},
                 worldPosition: { x: mouseState.worldPosition.x, y: mouseState.worldPosition.y },
                 worldConnectionPoints: { 
-                    'center-1' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: 0},
-                    'center-2' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: Math.PI / 90},
-                    'center-3' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: Math.PI / 180},
-                    'center-4' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: Math.PI / 270}
+                    'center-1' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: 0.0 * Math.PI},
+                    'center-2' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: 0.5 * Math.PI},
+                    'center-3' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: 1.0 * Math.PI},
+                    'center-4' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: 1.5 * Math.PI}
                 }
             }
         }
