@@ -616,13 +616,14 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
         
         
 
-        // FIXME: check if in mode 'connect'
-        fill = { r:250, g:200, b:200, a:0.5 }
-        ctx.fillStyle = rgba(fill)
-        
-        ctx.beginPath();
-        ctx.arc(screenMiddlePoint.x, screenMiddlePoint.y, 10, 0, 2 * Math.PI);
-        ctx.fill();
+        if (interaction.currentlySelectedMode === 'connect') {
+            fill = { r:250, g:200, b:200, a:0.5 }
+            ctx.fillStyle = rgba(fill)
+            
+            ctx.beginPath();
+            ctx.arc(screenMiddlePoint.x, screenMiddlePoint.y, 10, 0, 2 * Math.PI);
+            ctx.fill();
+        }
         
         if (interaction.currentlySelectedConnection != null) {
             // TODO: how do we select grouped connections? And single connections when they are grouped?
