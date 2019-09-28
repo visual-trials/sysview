@@ -483,11 +483,12 @@ function drawConnectionGroups() {
     for (let fromFirstVisibleContainerIdentifier in groupedConnections) {
         for (let toFirstVisibleContainerIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier]) {
             for (let connectionType in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier]) {
-                let connectionGroup = { 
-                    'fromFirstVisibleContainerIdentifier' : fromFirstVisibleContainerIdentifier,
-                    'toFirstVisibleContainerIdentifier' : toFirstVisibleContainerIdentifier,
-                    'connectionType' : connectionType,
-                }
+                let connectionGroup = groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]
+                
+                connectionGroup.fromFirstVisibleContainerIdentifier = fromFirstVisibleContainerIdentifier
+                connectionGroup.toFirstVisibleContainerIdentifier = toFirstVisibleContainerIdentifier
+                connectionGroup.connectionType = connectionType
+                
                 let nrOfConnections = 0
                 let sumOfXPositionFrom = 0
                 let sumOfYPositionFrom = 0
@@ -514,7 +515,7 @@ function drawConnectionGroups() {
                 let averageFromPosition = { x: sumOfXPositionFrom / nrOfConnections, y: sumOfYPositionFrom / nrOfConnections }
                 let averageToPosition = { x: sumOfXPositionTo / nrOfConnections, y: sumOfYPositionTo / nrOfConnections }
                 
-                connectionGroup.nrOfConnections = nrOfConnections
+                connectionGroup.nrOfConnections = nrOfConnections // TODO: this actually is redundant, since we already have the 'connections' array/object (we can count)
                 connectionGroup.averageFromPosition = averageFromPosition
                 connectionGroup.averageToPosition = averageToPosition
                 
