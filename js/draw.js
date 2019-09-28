@@ -378,7 +378,16 @@ function drawNewConnection () {
         let nrOfConnections = 1  // FIXME: hardcoded
         let stroke = "#0000FF" // FIXME: hardcoded
         
-        drawConnection(fromContainer, toContainer, newConnectionBeingAdded.type, fromContainerCenterPosition, toContainerCenterPosition, nrOfConnections, stroke);
+        let connectionGroup = { }
+        connectionGroup.connectionType = newConnectionBeingAdded.type
+        connectionGroup.nrOfConnections = nrOfConnections
+        connectionGroup['connections'] = {}
+        connectionGroup['connections'][interaction.newConnectionBeingAddedIdentifier] = newConnectionBeingAdded
+        connectionGroup.averageFromPosition = fromContainerCenterPosition
+        connectionGroup.averageToPosition = toContainerCenterPosition
+        connectionGroup.stroke = stroke
+        
+        drawConnection(fromContainer, toContainer, connectionGroup);
 //        drawConnection(newConnectionBeingAdded, fromContainer, toContainer)
     }
 }
@@ -480,6 +489,7 @@ function groupConnection(connection) {
 }
 
 function drawConnectionGroups() {
+    
     for (let fromFirstVisibleContainerIdentifier in groupedConnections) {
         for (let toFirstVisibleContainerIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier]) {
             for (let connectionType in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier]) {
@@ -530,20 +540,20 @@ function drawConnectionGroup(connectionGroup) {
 
     let fromFirstVisibleContainer = getContainerByIdentifier(connectionGroup.fromFirstVisibleContainerIdentifier)
     let toFirstVisibleContainer = getContainerByIdentifier(connectionGroup.toFirstVisibleContainerIdentifier)
+    
+    drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionGroup);
+    
+}
+
+function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionGroup) {
+
     // TODO: do something (color wise) with the connectionType?
     let connectionType = connectionGroup.connectionType
-    
     let nrOfConnections = connectionGroup.nrOfConnections
     let averageFromPosition = connectionGroup.averageFromPosition
     let averageToPosition = connectionGroup.averageToPosition
     let stroke = connectionGroup.stroke
     
-    drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionType, averageFromPosition, averageToPosition, nrOfConnections, stroke);
-    
-}
-
-function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionType, averageFromPosition, averageToPosition, nrOfConnections, stroke) {
-
     // TODO: add comment explaining why To and From are "mixed" here per line:
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(averageFromPosition, averageToPosition)
     let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, averageToPosition, worldDistanceBetweenFromAndToCenters)
