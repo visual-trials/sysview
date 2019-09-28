@@ -360,29 +360,20 @@ function drawNewConnection () {
         else {
             toContainer = {
                 identifier: '__new__', // TODO: this is a to prevent crashing at getFirstVisibleContainer. Is there a better way?
+                worldScale: 1,
                 worldSize: { width: 0, height: 0},
-                worldPosition: { x: mouseState.worldPosition.x, 
-                            y: mouseState.worldPosition.y }
+                worldPosition: { x: mouseState.worldPosition.x, y: mouseState.worldPosition.y },
+                worldConnectionPoints: { 'center' : { position: {x: mouseState.worldPosition.x, y: mouseState.worldPosition.y}, rightAngle: 0}}
             }
         }
 
-
-        // FIXME: this is a HACK!
-
-        let connectionGroup = { 
-            'fromFirstVisibleContainerIdentifier' : fromContainer.identifier, 
-            'toFirstVisibleContainerIdentifier' : toContainer.identifier,
-            'connectionType' : newConnectionBeingAdded.type,
-        }
-        
         let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
         let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
         
-        connectionGroup.nrOfConnections = 1
-        connectionGroup.averageFromPosition = fromContainerCenterPosition
-        connectionGroup.averageToPosition = toContainerCenterPosition
+        let nrOfConnections = 1  // FIXME: hardcoded
+        let stroke = "#0000FF" // FIXME: hardcoded
         
-        drawConnectionGroup(connectionGroup)
+        drawConnection(fromContainer, toContainer, newConnectionBeingAdded.type, fromContainerCenterPosition, toContainerCenterPosition, nrOfConnections, stroke);
 //        drawConnection(newConnectionBeingAdded, fromContainer, toContainer)
     }
 }
@@ -538,30 +529,39 @@ function drawConnectionGroup(connectionGroup) {
     let nrOfConnections = connectionGroup.nrOfConnections
     let averageFromPosition = connectionGroup.averageFromPosition
     let averageToPosition = connectionGroup.averageToPosition
+    let stroke = connectionGroup.stroke
     
+    drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionType, averageFromPosition, averageToPosition, nrOfConnections, stroke);
+    
+}
+
+function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionType, averageFromPosition, averageToPosition, nrOfConnections, stroke) {
+
     // TODO: add comment explaining why To and From are "mixed" here per line:
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(averageFromPosition, averageToPosition)
     let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, averageToPosition, worldDistanceBetweenFromAndToCenters)
     let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toFirstVisibleContainer, averageFromPosition, worldDistanceBetweenFromAndToCenters)
 
-// TODO: check if the rectangle (formed by the two border-points) is on screen, if not don't draw the connection
-    
+    // TODO: check if the rectangle (formed by the two border-points) is on screen, if not don't draw the connection
+
     // let angleBetweenPoints = getAngleBetweenPoints(averageFromPosition, averageToPosition)
     // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
     // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
-    
+
+    let averageContainersWorldScale = (fromFirstVisibleContainer.worldScale + toFirstVisibleContainer.worldScale) / 2
+
     let worldDistanceBetweenFromAndTo = distanceBetweenTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
     let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
     let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
-    
+
+
     let bendingDistance = worldDistanceBetweenFromAndTo / 2
     let fromBendPosition = getPositionFromAnglePointAndDistance(fromContainerBorderPoint.position, fromContainerBorderPoint.rightAngle, bendingDistance)
     let toBendPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, bendingDistance)
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
-    
-    let averageContainersWorldScale = (fromFirstVisibleContainer.worldScale + toFirstVisibleContainer.worldScale) / 2
-    
+
+
     {
         /*
         let size = 10
@@ -578,7 +578,7 @@ function drawConnectionGroup(connectionGroup) {
         
         // Draw line 
         ctx.lineWidth = 2 * interaction.viewScale * nrOfConnections * averageContainersWorldScale
-        ctx.strokeStyle = rgba(connectionGroup.stroke)
+        ctx.strokeStyle = rgba(stroke)
         
         /*
         ctx.beginPath()
@@ -611,7 +611,7 @@ function drawConnectionGroup(connectionGroup) {
 
         }
     }
-    
+
 }
 
 /*

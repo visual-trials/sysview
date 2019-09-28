@@ -260,7 +260,7 @@ function createConnection(connectionData) {
 }
 
 function removeConnection(connectionIdentifier) {
-    delete containersAndConnections.connections[connectionData.identifier]
+    delete containersAndConnections.connections[connectionIdentifier]
 }
 
 function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnectionData) {

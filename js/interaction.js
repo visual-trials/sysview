@@ -566,15 +566,14 @@ function doAddNewConnection() {
                 toContainerIdentifier: null,
                 type: 'API2API' // FIXME: we need a better default connection type
             }
-            let newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
-            interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
+            let newConnection = createConnection(interaction.newConnectionBeingAddedData)
+            interaction.newConnectionBeingAddedIdentifier = newConnection.identifier
         }
     }
     
     // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.toContainerIdentifier is not null)
     if (interaction.newConnectionBeingAddedIdentifier != null) {
         let newConnectionBeingAdded = getConnectionByIdentifier(interaction.newConnectionBeingAddedIdentifier)
-        
         if (interaction.currentlyHoveredContainerIdentifier != null &&
             interaction.currentlyHoveredContainerIdentifier !== newConnectionBeingAdded.fromContainerIdentifier) {
             // We are hovering over a different container than we started the connection from, so we should connect with it
@@ -591,7 +590,7 @@ function doAddNewConnection() {
             interaction.newConnectionBeingAddedIdentifier = connectionIdentifier
             
             // TODO: this is not really what we want, we have to rre-create the connection, since we are changing its identifier
-            let newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
+            newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
             interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
             
         }
