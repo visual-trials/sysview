@@ -473,9 +473,10 @@ function groupConnection(connection) {
     }
     if (!groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier].hasOwnProperty(connectionType)) {
         groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier][connectionType] = {}
+        groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier][connectionType]['connections'] = {}
     }
     
-    groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier][connectionType][connection.identifier] = connection
+    groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier][connectionType]['connections'][connection.identifier] = connection
 }
 
 function drawConnectionGroups() {
@@ -492,8 +493,8 @@ function drawConnectionGroups() {
                 let sumOfYPositionFrom = 0
                 let sumOfXPositionTo = 0
                 let sumOfYPositionTo = 0
-                for (let connectionIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]) {
-                    let connection = groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType][connectionIdentifier]
+                for (let connectionIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]['connections']) {
+                    let connection = groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]['connections'][connectionIdentifier]
                     nrOfConnections++
                     
                     // We take the color of the first connection in the group
