@@ -58,8 +58,8 @@ function distanceBetweenTwoPoints (firstPosition, secondPosition) {
 function middleOfTwoPoints (firstPosition, secondPosition) {
     let middlePoint = {x : 0, y : 0}
     
-    middlePoint.x = (firstPosition.x - secondPosition.x) / 2 + firstPosition.x
-    middlePoint.y = (firstPosition.y - secondPosition.y) / 2 + firstPosition.y
+    middlePoint.x = (secondPosition.x - firstPosition.x) / 2 + firstPosition.x
+    middlePoint.y = (secondPosition.y - firstPosition.y) / 2 + firstPosition.y
     
     return middlePoint
 }
@@ -455,6 +455,26 @@ function findContainerAtWorldPosition(worldPosition, container = null, excludeSe
     return null
 }
 
+function findConnectionAtWorldPosition(worldPosition) {
+    // TODO: this is quite expensive! We might want to use spatial partitioning here
+     for (let fromFirstVisibleContainerIdentifier in groupedConnections) {
+        for (let toFirstVisibleContainerIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier]) {
+            for (let connectionType in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier]) {
+                let connectionGroup = groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]
+
+                let distance = distanceBetweenTwoPoints(worldPosition, connectionGroup.worldMiddlePoint)
+                if (distance < 10) { // FIXME: hardcoded!
+                    if (connectionGroup.nrOfConnections === 1) {
+                        let foundConnection = connectionGroup.connections[0]
+                        return foundConnection
+                    }
+                }
+            }
+        }
+     }
+     return null
+}
+
 function whichSideIsPositionFromContainer(worldPosition, container) {
     
     let side = { x: 0, y: 0, isNearContainer: true }
@@ -512,6 +532,19 @@ function worldPositionIsInsideContainer(worldPosition, container) {
         worldPosition.y <= container.worldPosition.y ||
         worldPosition.x >= container.worldPosition.x + container.worldSize.width ||
         worldPosition.y >= container.worldPosition.y + container.worldSize.height) {
+            
+        return false
+    }
+    else {
+        return true
+    }
+}
+
+function positionIsInsideRectangle(position, rectangle) {
+    if (position.x <= rectangle.position.x ||
+        position.y <= rectangle.position.y ||
+        position.x >= rectangle.position.x + rectangle.size.width ||
+        position.y >= rectangle.position.y + rectangle.size.height) {
             
         return false
     }
