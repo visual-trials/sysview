@@ -103,20 +103,20 @@ function createContainer(containerData) {
         },
         "visualContainer": {
             "shape" : "roundedRectangleManyConnections",
-            "stroke" : { "color": "grey", "light": 0.0 },
-            "fill" : { "color": "grey", "light": 0.9 }
+            "stroke" : { "color": "blue", "light": 0.5 },
+            "fill" : { "color": "blue", "light": 0.9 }
         },
         "visualContainer-light": {
             "shape" : "roundedRectangleManyConnections",
-            "stroke" : { "color": "grey", "light": -0.5 },
-            "fill" : { "color": "white", "light": 0.8 }
+            "stroke" : { "color": "blue", "light": 0.3 },
+            "fill" : { "color": "blue", "light": 0.7 }
         }
     }
     
     let dataTypeToColor = {
         "salesOrders" : { 
-            "stroke" : { "color": "cyan", "light": -0.5 },
-            "fill" : { "color": "cyan", "light": 0.5 }
+            "stroke" : { "color": "blue", "light": -0.5 },
+            "fill" : { "color": "blue", "light": 0.5 }
         },
         "dispatchRequests": { 
             "stroke" : { "color": "purple", "light": -0.5 },
