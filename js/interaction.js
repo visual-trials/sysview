@@ -161,6 +161,9 @@ function handleInputStateChange () {
     
 }
 
+
+// ====== MENU ======
+
 function doMenuButtonModeSelect() {
     if (mouseState.leftButtonHasGoneDown && interaction.currentlyHoveredMenuButton.mode) {
         // If its a menu button with a 'mode', then we select that mode
@@ -198,6 +201,29 @@ function doMenuButtonGridToggle() {
     }
 }
 
+// ====== CONNECTION ======
+
+function doConnectionSelectionByMouse() {
+    let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
+    
+    // If escape is pressed, de-select the selected connection
+    if (hasKeyGoneDown('ESCAPE')) {
+        interaction.currentlySelectedConnectionIdentifier = null
+    }
+    
+    if (!mouseState.leftButtonHasGoneDownTwice &&
+         mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+        
+        if (connectionAtMousePosition != null) {
+            // When we click on a connection it becomes the selected connection
+            interaction.currentlySelectedConnectionIdentifier = connectionAtMousePosition.identifier
+        }
+        else {
+            // When we click in the background, de-select the selected connection
+            interaction.currentlySelectedConnectionIdentifier = null
+        }       
+    }
+}
 
 function doAddNewConnection() {
     
@@ -227,12 +253,12 @@ function doAddNewConnection() {
     // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.toContainerIdentifier is not null)
     if (interaction.newConnectionBeingAddedIdentifier != null) {
         let newConnectionBeingAdded = getConnectionByIdentifier(interaction.newConnectionBeingAddedIdentifier)
-        if (interaction.currentlyHoveredContainerIdentifier != null &&
-            interaction.currentlyHoveredContainerIdentifier !== newConnectionBeingAdded.fromContainerIdentifier) {
+        if (containerAtMousePosition != null &&
+            containerAtMousePosition.identifier !== newConnectionBeingAdded.fromContainerIdentifier) {
             // We are hovering over a different container than we started the connection from, so we should connect with it
             // TODO: we shouldn't do this twice, right?
-            newConnectionBeingAdded.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
-            interaction.newConnectionBeingAddedData.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
+            newConnectionBeingAdded.toContainerIdentifier = containerAtMousePosition.identifier
+            interaction.newConnectionBeingAddedData.toContainerIdentifier = containerAtMousePosition.identifier
 
             // TODO: this is not really what we want, we have to remove the connection, since we are changing its identifier
             removeConnection(newConnectionBeingAdded.identifier)
@@ -264,6 +290,7 @@ function doAddNewConnection() {
     
 }
 
+// ====== CONTAINER ======
 
 function doDeleteContainerByKeyboard() {
     
@@ -332,28 +359,6 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
         }
     }
     
-}
-
-function doConnectionSelectionByMouse() {
-    let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
-    
-    // If escape is pressed, de-select the selected connection
-    if (hasKeyGoneDown('ESCAPE')) {
-        interaction.currentlySelectedConnectionIdentifier = null
-    }
-    
-    if (!mouseState.leftButtonHasGoneDownTwice &&
-         mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-        
-        if (connectionAtMousePosition != null) {
-            // When we click on a connection it becomes the selected connection
-            interaction.currentlySelectedConnectionIdentifier = connectionAtMousePosition.identifier
-        }
-        else {
-            // When we click in the background, de-select the selected connection
-            interaction.currentlySelectedConnectionIdentifier = null
-        }       
-    }
 }
 
 function doContainerSelectionByMouse() {
@@ -764,6 +769,8 @@ function doEditContainerText() {
     }
     
 }
+
+// ====== VIEW ======
 
 function doViewDraggingAndZoomingByTouch () {
     
