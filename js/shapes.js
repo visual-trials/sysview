@@ -15,6 +15,18 @@
    limitations under the License.
 
  */
+
+let colors = {
+    red     : {r:230, g:25,  b:75,  a:1},
+    orange  : {r:245, g:130, b:48,  a:1},
+    yellow  : {r:255, g:225, b:25,  a:1},
+    lime    : {r:210, g:245, b:60,  a:1},
+    green   : {r:60,  g:180, b:75,  a:1},
+    cyan    : {r:70,  g:240, b:240, a:1},
+    blue    : {r:0,   g:130, b:200, a:1},
+    purple  : {r:145, g:30,  b:180, a:1},
+    magenta : {r:240, g:50,  b:230, a:1}
+}
  
 // FIXME: make this available as data
 let containerShapes = {
