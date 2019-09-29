@@ -323,6 +323,7 @@ function doDeleteContainerByKeyboard() {
         interaction.selectedContainerIsBeingResized = false
         interaction.selectedContainersAreBeingDragged = false
         interaction.mouseIsNearSelectedContainerBorder = false
+        interaction.currentlyHoveredContainerIdentifier = null // TODO: we might only want to do this if the hovered container is the deleted container
     }
     
 }
