@@ -94,6 +94,8 @@ function handleInputStateChange () {
         if (interaction.currentlySelectedMode === 'connect') {
             doAddNewConnection()
             
+            doDeleteConnectionByKeyboard()
+            
             if (interaction.newConnectionBeingAddedIdentifier == null) {
                 doConnectionSelectionByMouse()
             }
@@ -286,6 +288,20 @@ function doAddNewConnection() {
             interaction.newConnectionBeingAddedIdentifier = null
             interaction.newConnectionBeingAddedData = null
         }
+    }
+    
+}
+
+function doDeleteConnectionByKeyboard() {
+    
+    // If delete is pressed, we delete the  selected connection
+    if (hasKeyGoneDown('DELETE')) {
+        
+        if (interaction.currentlySelectedConnectionIdentifier != null) {
+            deleteConnectionData(interaction.currentlySelectedConnectionIdentifier)
+        }
+        interaction.currentlySelectedConnectionIdentifier = null
+        interaction.currentlyHoveredConnectionIdentifier = null // TODO: we might only want to do this if the hovered container is the deleted container
     }
     
 }

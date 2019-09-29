@@ -178,7 +178,7 @@ function deleteConnectionData(connectionIdentifier) {
     delete databaseData.visual.connections[connectionIdentifier]
     databaseDataHasChanged = true
     
-    containerIdentifiersToBeStored[connectionIdentifier] = true
+    connectionIdentifiersToBeStored[connectionIdentifier] = true
 }
 
 function storeContainerData(containerData) {
