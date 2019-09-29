@@ -39,55 +39,161 @@ function initContainersAndConnections () {
     containersAndConnections.containers['root'] = rootContainer
 }
 
+// TODO: put this in a more general place. Maybe in shapes.js?
+function getColorByColorNameAndLighten(colorNameAndLighten) {
+
+    let color = { r:0, g:0, b:0, a:1 }
+    
+    let colorName = colorNameAndLighten.color
+    let light = colorNameAndLighten.light
+    
+    if (basicColors.hasOwnProperty(colorName)) {
+        let basicColor = basicColors[colorName]
+        
+        if (light > 0) {
+            color = lighten(basicColor, light)
+        }
+        else {
+            color = darken(basicColor, -light)
+        }
+    }
+    else {
+        console.log("ERROR: unknown colorname: " + colorName)
+    }
+    
+    return color
+}
+
 function createContainer(containerData) {
     
     let containerIdentifier = containerData.identifier
     
     let parentContainerIdentifier = containerData.parentContainerIdentifier
     
-    let fill = { r:0, g:0, b:0, a:1 }
-    let stroke = { r:0, g:0, b:0, a:1 }
+    let fill = { r:255, g:0, b:255, a:1 }
+    let stroke = { r:255, g:255, b:0, a:1 }
+    let shape = 'rectangle4points'
 
-    // FIXME: do this mapping outside this function!    
-    let shapeType = 'rectangle4points' // TODO: maybe a different default shape?
-    if (containerData.type === 'server') {
-        fill = { r:200, g:180, b:200, a:1 }
-        stroke = { r:200, g:180, b:200, a:1 }
+    // FIXME: get this from colorAndShapeMappings!
+    let containerTypeToContainerShapeAndColor = {
+        "processor" : { 
+            "shape" : "rectangle4points",
+            "stroke" : { "color": "grey", "light": -0.5 },
+            "fill" : { "color": "grey", "light": 0.5 }
+        },
+        "status": { 
+            "shape" : "ellipse4Points",
+            "stroke" : { "color": "grey", "light": -0.5 },
+            "fill" : { "color": "grey", "light": 0.5 }
+        },
+        "transferFiles": { 
+            "shape" : "rectangle4points",
+            "stroke" : { "color": "grey", "light": -0.5 },
+            "fill" : { "color": "grey", "light": 0.5 }
+        },
+        "localDir": { 
+            "shape" : "ellipse4Points",
+            "stroke" : { "color": "grey", "light": -0.5 },
+            "fill" : { "color": "grey", "light": 0.5 }
+        },
+        "remoteDir": { 
+            "shape" : "ellipse4Points",
+            "stroke" : { "color": "grey", "light": -0.5 },
+            "fill" : { "color": "grey", "light": 0.5 }
+        },
+        "visualContainer": {
+            "shape" : "roundedRectangleManyConnections",
+            "stroke" : { "color": "grey", "light": 0.0 },
+            "fill" : { "color": "grey", "light": 0.9 }
+        },
+        "visualContainer-light": {
+            "shape" : "roundedRectangleManyConnections",
+            "stroke" : { "color": "grey", "light": -0.5 },
+            "fill" : { "color": "white", "light": 0.8 }
+        }
     }
-    else if (containerData.type === 'API') {
-        fill = { r:0, g:180, b:200, a:1 }
-        stroke = { r:0, g:180, b:200, a:1 }
+    
+    let dataTypeToColor = {
+        "salesOrders" : { 
+            "stroke" : { "color": "cyan", "light": -0.5 },
+            "fill" : { "color": "cyan", "light": 0.5 }
+        },
+        "dispatchRequests": { 
+            "stroke" : { "color": "purple", "light": -0.5 },
+            "fill" : { "color": "purple", "light": 0.5 }
+        },
+        "dispatchResults": { 
+            "stroke" : { "color": "green", "light": -0.5 },
+            "fill" : { "color": "green", "light": 0.5 }
+        },
+        "mancos": { 
+            "stroke" : { "color": "orange", "light": -0.5 },
+            "fill" : { "color": "orange", "light": 0.5 }
+        },
+        "returns": { 
+            "stroke" : { "color": "red", "light": -0.5 },
+            "fill" : { "color": "red", "light": 0.5 }
+        },
+        "payments": { 
+            "stroke" : { "color": "lime", "light": -0.5 },
+            "fill" : { "color": "lime", "light": 0.5 }
+        },
+        "cancels": { 
+            "stroke" : { "color": "magento", "light": -0.5 },
+            "fill" : { "color": "magento", "light": 0.5 }
+        },
+        "invoices": { 
+            "stroke" : { "color": "lime", "light": -0.5 },
+            "fill" : { "color": "lime", "light": 0.5 }
+        },
+        "quotes": { 
+            "stroke" : { "color": "cyan", "light": -0.5 },
+            "fill" : { "color": "cyan", "light": 0.5 }
+        },
+        
+        "stock": { 
+            "stroke" : { "color": "orange", "light": -0.5 },
+            "fill" : { "color": "orange", "light": 0.5 }
+        },
+        
+        "businessPartners": { 
+            "stroke" : { "color": "cyan", "light": -0.5 },
+            "fill" : { "color": "cyan", "light": 0.5 }
+        },
+        "products": { 
+            "stroke" : { "color": "blue", "light": -0.5 },
+            "fill" : { "color": "blue", "light": 0.5 }
+        },
+        "productAttributes": { 
+            "stroke" : { "color": "red", "light": -0.5 },
+            "fill" : { "color": "red", "light": 0.5 }
+        },
+        "productGroups": { 
+            "stroke" : { "color": "green", "light": -0.5 },
+            "fill" : { "color": "green", "light": 0.5 }
+        }
+
     }
-    if (containerData.type === 'processor') {
-        fill = { r:200, g:200, b:150, a:1 }
-        stroke = { r:200, g:200, b:150, a:1 }
+    
+    if (containerData.type != null) {
+        if (containerTypeToContainerShapeAndColor.hasOwnProperty(containerData.type)) {
+            shapeType = containerTypeToContainerShapeAndColor[containerData.type].shape
+            stroke = getColorByColorNameAndLighten(containerTypeToContainerShapeAndColor[containerData.type].stroke)
+            fill = getColorByColorNameAndLighten(containerTypeToContainerShapeAndColor[containerData.type].fill)
+        }
+        else {
+            console.log("ERROR: unknown container type: " + containerData.type)
+        }
     }
-    else if (containerData.type === 'status') {
-        fill = { r:150, g:150, b:220, a:1 }
-        stroke = { r:150, g:150, b:150, a:1 }
-        shapeType = 'ellipse4Points'
-    }
-    else if (containerData.type === 'transferFiles') {
-        fill = { r:180, g:0, b:200, a:1 }
-        stroke = { r:180, g:0, b:200, a:1 }
-    }
-    else if (containerData.type === 'localDir') {
-        fill = { r:250, g:200, b:200, a:1 }
-        stroke = { r:150, g:100, b:100, a:1 }
-        shapeType = 'ellipse4Points'
-    }
-    else if (containerData.type === 'remoteDir') {
-        fill = { r:200, g:200, b:250, a:1 }
-        stroke = { r:100, g:100, b:150, a:1 }
-        shapeType = 'ellipse4Points'
-    }
-    else if (containerData.type === 'visualContainer') {
-        fill = { r:240, g:240, b:240, a:1 }
-        stroke = { r:50, g:50, b:50, a:1 }
-        shapeType = 'roundedRectangleManyConnections'
-    }
-    else {
-        console.log("ERROR: Unknown container type: " + containerData.type)
+    
+    if (containerData.dataType != null) {
+        if (dataTypeToColor.hasOwnProperty(containerData.dataType)) {
+            stroke = getColorByColorNameAndLighten(dataTypeToColor[containerData.dataType].stroke)
+            fill = getColorByColorNameAndLighten(dataTypeToColor[containerData.dataType].fill)
+        }
+        else {
+            console.log("ERROR: unknown container data type: " + containerData.dataType)
+        }
     }
     
     let newContainer = {
@@ -176,6 +282,7 @@ function mergeSourceAndVisualContainerData (sourceContainerData, visualContainer
         },
         localScale : getExistingField('localScale', visualContainerData, sourceContainerData),
         localFontSize : getExistingField('localFontSize', visualContainerData, sourceContainerData),
+        dataType : getExistingField('dataType', visualContainerData, sourceContainerData),
     }
     
     return containerData
@@ -242,7 +349,7 @@ function createConnection(connectionData) {
         stroke = { r:0, g:180, b:200, a:1 }
     }
     else {
-        console.log("ERROR: Unknown connection type: " + connectionData.type)
+// FIXME: turn this on again?        console.log("ERROR: Unknown connection type: " + connectionData.type)
     }
     
     let newConnection = {

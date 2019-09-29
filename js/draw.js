@@ -282,6 +282,7 @@ function drawDetail () {
         drawDetailLabelAndValue(position, 'localSize.height', containerToDetail.localSize.height)
         
         drawContainerData(position, 'type', visualData, sourceData)
+        drawContainerData(position, 'dataType', visualData, sourceData)
         drawContainerData(position, 'localScale', visualData, sourceData)
         drawContainerData(position, 'localFontSize', visualData, sourceData)
     }
