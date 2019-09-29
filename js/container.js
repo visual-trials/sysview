@@ -254,19 +254,56 @@ function getContainerByIdentifier(containerIdentifier) {
 
 function createConnection(connectionData) {
     
-    let stroke = { r:0, g:0, b:0, a:1 }
+    // FIXME: old: let stroke = { r:0, g:0, b:0, a:1 }
+    
+    let shapeType = 'default'
+    let fill = { r:255, g:0, b:255, a:1 }
+    let stroke = { r:255, g:255, b:0, a:1 }
 
+    let connectionTypeToConnectionShapeAndColor = {}
+    let dataTypeToColor = {}
+    
+    if (databaseData.colorAndShapeMappings != null) {
+        connectionTypeToConnectionShapeAndColor = {} // FIXME: turned this off: databaseData.colorAndShapeMappings.connectionTypeToConnectionShapeAndColor
+        dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    }
+    
+    if (connectionData.type != null) {
+        if (connectionTypeToConnectionShapeAndColor.hasOwnProperty(connectionData.type)) {
+            shapeType = connectionTypeToConnectionShapeAndColor[connectionData.type].shape
+            stroke = getColorByColorNameAndLighten(connectionTypeToConnectionShapeAndColor[connectionData.type].stroke)
+            fill = getColorByColorNameAndLighten(connectionTypeToConnectionShapeAndColor[connectionData.type].fill)
+        }
+        else {
+            console.log("ERROR: unknown connection type: " + connectionData.type)
+        }
+    }
+    
+    if (connectionData.dataType != null) {
+        if (dataTypeToColor.hasOwnProperty(connectionData.dataType)) {
+            stroke = getColorByColorNameAndLighten(dataTypeToColor[connectionData.dataType].stroke)
+            fill = getColorByColorNameAndLighten(dataTypeToColor[connectionData.dataType].fill)
+        }
+        else {
+            console.log("ERROR: unknown connection data type: " + connectionData.dataType)
+        }
+    }
+/*
     if (connectionData.type === 'API2API') {
         stroke = { r:0, g:180, b:200, a:1 }
     }
     else {
 // FIXME: turn this on again?        console.log("ERROR: Unknown connection type: " + connectionData.type)
     }
+    */
     
     let newConnection = {
         identifier: connectionData.identifier,
         name: connectionData.name,
-        type: connectionData.type, // TODO: maybe call this dataType? Or is there a type as well? (note this is grouped-by in draw.js)
+        
+        type: connectionData.type,  // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
+        dataType: connectionData.dataType, // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
+        
         fromContainerIdentifier: connectionData.fromContainerIdentifier,
         toContainerIdentifier: connectionData.toContainerIdentifier,
         stroke: stroke,
@@ -287,6 +324,7 @@ function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnect
         identifier : getExistingField('identifier', visualConnectionData, sourceConnectionData),
         name : getExistingField('name', visualConnectionData, sourceConnectionData),
         type : getExistingField('type', visualConnectionData, sourceConnectionData),
+        dataType : getExistingField('dataType', visualConnectionData, sourceConnectionData),
         fromContainerIdentifier : getExistingField('fromContainerIdentifier', visualConnectionData, sourceConnectionData),
         toContainerIdentifier : getExistingField('toContainerIdentifier', visualConnectionData, sourceConnectionData),
     }

@@ -95,6 +95,7 @@ function handleInputStateChange () {
             doAddNewConnection()
             
             doDeleteConnectionByKeyboard()
+            doChangeContainerDataTypeSelectedConnectionByKeyboard()
             
             if (interaction.newConnectionBeingAddedIdentifier == null) {
                 doConnectionSelectionByMouse()
@@ -442,6 +443,52 @@ function doChangeContainerDataTypeSelectedContainersByKeyboard() {
     if (hasChanged) {
         dataTypeIndex = dataTypeIndex % nrOfpossibleDataTypes
         storeContainerDataType(currentlySelectedContainer.identifier, possibleDataTypes[dataTypeIndex])
+    }
+ 
+}
+
+
+function doChangeContainerDataTypeSelectedConnectionByKeyboard() {
+
+    if (databaseData.colorAndShapeMappings == null) {
+        return
+    }
+    let dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    
+    if (interaction.currentlySelectedConnectionIdentifier == null) {
+        return
+    }
+    let currentlySelectedConnection = getConnectionByIdentifier(interaction.currentlySelectedConnectionIdentifier)
+
+    let possibleDataTypes = Object.keys(dataTypeToColor)
+    possibleDataTypes.unshift(null) // Note: the first item is null (meaning: no dataType)
+    let nrOfpossibleDataTypes = possibleDataTypes.length
+    
+    let dataTypeIndex = 0
+    if (currentlySelectedConnection.dataType != null) { // so, if dataType == null, dataTypeIndex will be 0
+        for (dataTypeIndex = 1; dataTypeIndex < nrOfpossibleDataTypes; dataTypeIndex++) {
+            let possibleDataType = possibleDataTypes[dataTypeIndex]
+            if (currentlySelectedConnection.dataType === possibleDataType) {
+                // We found the container type in the list of possible container types, so we keep dataTypeIndex
+                break;
+            }
+        }
+    }
+console.log(dataTypeIndex)
+    // If "-" or "=" is pressed, we change the data type of the selected container
+    let hasChanged = false
+    if (hasKeyGoneDown('EQUALS')) {
+        dataTypeIndex++
+        hasChanged = true
+    }
+    if (hasKeyGoneDown('MINUS')) {
+        dataTypeIndex--
+        hasChanged = true
+    }
+    
+    if (hasChanged) {
+        dataTypeIndex = dataTypeIndex % nrOfpossibleDataTypes
+        storeConnectionDataType(currentlySelectedConnection.identifier, possibleDataTypes[dataTypeIndex])
     }
  
 }
