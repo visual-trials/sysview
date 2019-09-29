@@ -25,13 +25,17 @@ else if ($action === 'get_project_data') {
 
     $filenameVisual = "projects/$projectDir/visual.json";
     $filenameSource = "projects/$projectDir/source.json";
+    $filenameColorAndShapeMappings = "projects/$projectDir/colorAndShapeMappings.json";
 
     $visualData = json_decode(file_get_contents($filenameVisual), true);
     $sourceData = json_decode(file_get_contents($filenameSource), true);
+    $colorAndShapeMappingsData = json_decode(file_get_contents($filenameColorAndShapeMappings), true);
+    
 
     echo json_encode([ 
         'visual' => $visualData,
         'source' => $sourceData,
+        'colorAndShapeMappings' => $colorAndShapeMappingsData,
     ]);
 }
 else if ($action === 'get_conversion_tree') {

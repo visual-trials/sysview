@@ -74,105 +74,12 @@ function createContainer(containerData) {
     let stroke = { r:255, g:255, b:0, a:1 }
     let shape = 'rectangle4points'
 
-    // FIXME: get this from colorAndShapeMappings!
-    let containerTypeToContainerShapeAndColor = {
-        "processor" : { 
-            "shape" : "rectangle4points",
-            "stroke" : { "color": "grey", "light": -0.5 },
-            "fill" : { "color": "grey", "light": 0.5 }
-        },
-        "status": { 
-            "shape" : "ellipse4Points",
-            "stroke" : { "color": "grey", "light": -0.5 },
-            "fill" : { "color": "grey", "light": 0.5 }
-        },
-        "transferFiles": { 
-            "shape" : "rectangle4points",
-            "stroke" : { "color": "grey", "light": -0.5 },
-            "fill" : { "color": "grey", "light": 0.5 }
-        },
-        "localDir": { 
-            "shape" : "ellipse4Points",
-            "stroke" : { "color": "grey", "light": -0.5 },
-            "fill" : { "color": "grey", "light": 0.5 }
-        },
-        "remoteDir": { 
-            "shape" : "ellipse4Points",
-            "stroke" : { "color": "grey", "light": -0.5 },
-            "fill" : { "color": "grey", "light": 0.5 }
-        },
-        "visualContainer": {
-            "shape" : "roundedRectangleManyConnections",
-            "stroke" : { "color": "blue", "light": 0.5 },
-            "fill" : { "color": "blue", "light": 0.9 }
-        },
-        "visualContainer-light": {
-            "shape" : "roundedRectangleManyConnections",
-            "stroke" : { "color": "blue", "light": 0.3 },
-            "fill" : { "color": "blue", "light": 0.7 }
-        }
-    }
+    let containerTypeToContainerShapeAndColor = {}
+    let dataTypeToColor = {}
     
-    let dataTypeToColor = {
-        "salesOrders" : { 
-            "stroke" : { "color": "blue", "light": -0.5 },
-            "fill" : { "color": "blue", "light": 0.5 }
-        },
-        "dispatchRequests": { 
-            "stroke" : { "color": "purple", "light": -0.5 },
-            "fill" : { "color": "purple", "light": 0.5 }
-        },
-        "dispatchResults": { 
-            "stroke" : { "color": "green", "light": -0.5 },
-            "fill" : { "color": "green", "light": 0.5 }
-        },
-        "mancos": { 
-            "stroke" : { "color": "orange", "light": -0.5 },
-            "fill" : { "color": "orange", "light": 0.5 }
-        },
-        "returns": { 
-            "stroke" : { "color": "red", "light": -0.5 },
-            "fill" : { "color": "red", "light": 0.5 }
-        },
-        "payments": { 
-            "stroke" : { "color": "lime", "light": -0.5 },
-            "fill" : { "color": "lime", "light": 0.5 }
-        },
-        "cancels": { 
-            "stroke" : { "color": "magento", "light": -0.5 },
-            "fill" : { "color": "magento", "light": 0.5 }
-        },
-        "invoices": { 
-            "stroke" : { "color": "lime", "light": -0.5 },
-            "fill" : { "color": "lime", "light": 0.5 }
-        },
-        "quotes": { 
-            "stroke" : { "color": "cyan", "light": -0.5 },
-            "fill" : { "color": "cyan", "light": 0.5 }
-        },
-        
-        "stock": { 
-            "stroke" : { "color": "orange", "light": -0.5 },
-            "fill" : { "color": "orange", "light": 0.5 }
-        },
-        
-        "businessPartners": { 
-            "stroke" : { "color": "cyan", "light": -0.5 },
-            "fill" : { "color": "cyan", "light": 0.5 }
-        },
-        "products": { 
-            "stroke" : { "color": "blue", "light": -0.5 },
-            "fill" : { "color": "blue", "light": 0.5 }
-        },
-        "productAttributes": { 
-            "stroke" : { "color": "red", "light": -0.5 },
-            "fill" : { "color": "red", "light": 0.5 }
-        },
-        "productGroups": { 
-            "stroke" : { "color": "green", "light": -0.5 },
-            "fill" : { "color": "green", "light": 0.5 }
-        }
-
+    if (databaseData.colorAndShapeMappings != null) {
+        containerTypeToContainerShapeAndColor = databaseData.colorAndShapeMappings.containerTypeToContainerShapeAndColor
+        dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
     }
     
     if (containerData.type != null) {
