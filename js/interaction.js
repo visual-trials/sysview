@@ -198,6 +198,73 @@ function doMenuButtonGridToggle() {
     }
 }
 
+
+function doAddNewConnection() {
+    
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    
+    // TODO: is this always correct?
+    interaction.mousePointerStyle = 'default'
+        
+    if (!mouseState.rightButtonHasGoneDownTwice &&
+         mouseState.rightButtonHasGoneDown) {  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+        
+        let currentDateTime = new Date()
+        
+        if (containerAtMousePosition != null) {
+            interaction.newConnectionBeingAddedData = {
+                identifier: containerAtMousePosition.identifier + '->' + currentDateTime.getTime(), // Since we dont known the to-identifier yet, we put in a "random" number for now
+                name: 'Added connection',
+                fromContainerIdentifier: containerAtMousePosition.identifier,
+                toContainerIdentifier: null,
+                type: 'API2API' // FIXME: we need a better default connection type
+            }
+            let newConnection = createConnection(interaction.newConnectionBeingAddedData)
+            interaction.newConnectionBeingAddedIdentifier = newConnection.identifier
+        }
+    }
+    
+    // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.toContainerIdentifier is not null)
+    if (interaction.newConnectionBeingAddedIdentifier != null) {
+        let newConnectionBeingAdded = getConnectionByIdentifier(interaction.newConnectionBeingAddedIdentifier)
+        if (interaction.currentlyHoveredContainerIdentifier != null &&
+            interaction.currentlyHoveredContainerIdentifier !== newConnectionBeingAdded.fromContainerIdentifier) {
+            // We are hovering over a different container than we started the connection from, so we should connect with it
+            // TODO: we shouldn't do this twice, right?
+            newConnectionBeingAdded.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
+            interaction.newConnectionBeingAddedData.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
+
+            // TODO: this is not really what we want, we have to remove the connection, since we are changing its identifier
+            removeConnection(newConnectionBeingAdded.identifier)
+            // TODO: we shouldn't do this triple, right?
+            let connectionIdentifier = newConnectionBeingAdded.fromContainerIdentifier + "->" + newConnectionBeingAdded.toContainerIdentifier
+            newConnectionBeingAdded.identifier = connectionIdentifier
+            interaction.newConnectionBeingAddedData.identifier = connectionIdentifier
+            interaction.newConnectionBeingAddedIdentifier = connectionIdentifier
+            
+            // TODO: this is not really what we want, we have to rre-create the connection, since we are changing its identifier
+            newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
+            interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
+            
+        }
+        else {
+            // TODO: we shouldn't do this twice, right?
+            newConnectionBeingAdded.toContainerIdentifier = null
+            interaction.newConnectionBeingAddedData.toContainerIdentifier = null
+        }
+        
+        if (mouseState.rightButtonHasGoneUp) {
+            if (interaction.newConnectionBeingAddedData.toContainerIdentifier != null) {
+                storeConnectionData(interaction.newConnectionBeingAddedData)
+            }
+            interaction.newConnectionBeingAddedIdentifier = null
+            interaction.newConnectionBeingAddedData = null
+        }
+    }
+    
+}
+
+
 function doDeleteContainerByKeyboard() {
     
     // If delete is pressed, we delete all selected containers
@@ -270,10 +337,22 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
 function doConnectionSelectionByMouse() {
     let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
     
-    if (connectionAtMousePosition != null) {
-        // FIXME: implement selecting the connection (and recording that)
-        // TODO: we like hovering also! (but how does the draw known the *group* is hovered?
-        console.log(connectionAtMousePosition)
+    // If escape is pressed, de-select the selected connection
+    if (hasKeyGoneDown('ESCAPE')) {
+        interaction.currentlySelectedConnectionIdentifier = null
+    }
+    
+    if (!mouseState.leftButtonHasGoneDownTwice &&
+         mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+        
+        if (connectionAtMousePosition != null) {
+            // When we click on a connection it becomes the selected connection
+            interaction.currentlySelectedConnectionIdentifier = connectionAtMousePosition.identifier
+        }
+        else {
+            // When we click in the background, de-select the selected connection
+            interaction.currentlySelectedConnectionIdentifier = null
+        }       
     }
 }
 
@@ -575,71 +654,6 @@ function doContainerResizingByMouse() {
         // If the mouse is outside the selected container (or if there is no selected container), 
         // we set mouseIsNearSelectedContainerBorder to false
         interaction.mouseIsNearSelectedContainerBorder = false
-    }
-    
-}
-
-function doAddNewConnection() {
-    
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
-    
-    // TODO: is this always correct?
-    interaction.mousePointerStyle = 'default'
-        
-    if (!mouseState.leftButtonHasGoneDownTwice &&
-         mouseState.leftButtonHasGoneDown) {  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-        
-        let currentDateTime = new Date()
-        
-        if (containerAtMousePosition != null) {
-            interaction.newConnectionBeingAddedData = {
-                identifier: containerAtMousePosition.identifier + '->' + currentDateTime.getTime(), // Since we dont known the to-identifier yet, we put in a "random" number for now
-                name: 'Added connection',
-                fromContainerIdentifier: containerAtMousePosition.identifier,
-                toContainerIdentifier: null,
-                type: 'API2API' // FIXME: we need a better default connection type
-            }
-            let newConnection = createConnection(interaction.newConnectionBeingAddedData)
-            interaction.newConnectionBeingAddedIdentifier = newConnection.identifier
-        }
-    }
-    
-    // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.toContainerIdentifier is not null)
-    if (interaction.newConnectionBeingAddedIdentifier != null) {
-        let newConnectionBeingAdded = getConnectionByIdentifier(interaction.newConnectionBeingAddedIdentifier)
-        if (interaction.currentlyHoveredContainerIdentifier != null &&
-            interaction.currentlyHoveredContainerIdentifier !== newConnectionBeingAdded.fromContainerIdentifier) {
-            // We are hovering over a different container than we started the connection from, so we should connect with it
-            // TODO: we shouldn't do this twice, right?
-            newConnectionBeingAdded.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
-            interaction.newConnectionBeingAddedData.toContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
-
-            // TODO: this is not really what we want, we have to remove the connection, since we are changing its identifier
-            removeConnection(newConnectionBeingAdded.identifier)
-            // TODO: we shouldn't do this triple, right?
-            let connectionIdentifier = newConnectionBeingAdded.fromContainerIdentifier + "->" + newConnectionBeingAdded.toContainerIdentifier
-            newConnectionBeingAdded.identifier = connectionIdentifier
-            interaction.newConnectionBeingAddedData.identifier = connectionIdentifier
-            interaction.newConnectionBeingAddedIdentifier = connectionIdentifier
-            
-            // TODO: this is not really what we want, we have to rre-create the connection, since we are changing its identifier
-            newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
-            interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
-            
-        }
-        else {
-            // TODO: we shouldn't do this twice, right?
-            newConnectionBeingAdded.toContainerIdentifier = null
-            interaction.newConnectionBeingAddedData.toContainerIdentifier = null
-        }
-        
-        if (mouseState.leftButtonHasGoneUp) {
-            if (interaction.newConnectionBeingAddedData.toContainerIdentifier != null) {
-                storeConnectionData(interaction.newConnectionBeingAddedData)
-            }
-            interaction.newConnectionBeingAddedIdentifier = null
-            interaction.newConnectionBeingAddedData = null
-        }
     }
     
 }

@@ -566,6 +566,12 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
     let averageToPosition = connectionGroup.averageToPosition
     let stroke = connectionGroup.stroke
     
+    let singleConnectionIdentifier = null
+    if (connectionGroup.nrOfConnections === 1) {
+        let singleConnection = connectionGroup.connections[Object.keys(connectionGroup.connections)[0]]
+        singleConnectionIdentifier = singleConnection.identifier
+    }
+    
     // TODO: add comment explaining why To and From are "mixed" here per line:
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(averageFromPosition, averageToPosition)
     let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, averageToPosition, worldDistanceBetweenFromAndToCenters)
@@ -625,6 +631,9 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
         ctx.stroke()
         */
         
+        if (singleConnectionIdentifier != null && singleConnectionIdentifier === interaction.currentlySelectedConnectionIdentifier) {
+            ctx.strokeStyle = rgba({ r:255, g:0, b:0, a:1 })
+        }
         ctx.beginPath()
         ctx.moveTo(       screenFromContainerPosition.x, screenFromContainerPosition.y)
         ctx.bezierCurveTo(screenFromBendPosition.x, screenFromBendPosition.y, 
@@ -635,12 +644,23 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
         
 
         if (interaction.currentlySelectedMode === 'connect') {
-            fill = { r:250, g:200, b:200, a:0.5 }
+            let fill = { r:250, g:200, b:200, a:0.5 }
             ctx.fillStyle = rgba(fill)
             
-            ctx.beginPath();
-            ctx.arc(screenMiddlePoint.x, screenMiddlePoint.y, 10, 0, 2 * Math.PI);
-            ctx.fill();
+            ctx.beginPath()
+            ctx.arc(screenMiddlePoint.x, screenMiddlePoint.y, 10, 0, 2 * Math.PI)
+            if (singleConnectionIdentifier != null && singleConnectionIdentifier === interaction.currentlyHoveredConnectionIdentifier) {
+                let stroke = { r:250, g:150, b:150, a:0.8 }
+                fill = { r:250, g:200, b:0, a:0.8 }
+                ctx.strokeStyle = rgba(stroke)
+                ctx.fillStyle = rgba(fill)
+                ctx.stroke()
+                ctx.fill()
+            }
+            else {
+                ctx.fill()
+            }
+            
         }
         
         if (interaction.currentlySelectedConnection != null) {

@@ -476,7 +476,7 @@ function findConnectionAtWorldPosition(worldPosition) {
                 let connectionGroup = groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]
 
                 let distance = distanceBetweenTwoPoints(worldPosition, connectionGroup.worldMiddlePoint)
-                if (distance < 10) { // FIXME: hardcoded!
+                if (distance < 10 / interaction.viewScale) {
                     if (connectionGroup.nrOfConnections === 1) {
                         let foundConnection = connectionGroup.connections[Object.keys(connectionGroup.connections)[0]]
                         return foundConnection
