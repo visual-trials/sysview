@@ -545,6 +545,7 @@ function drawConnectionGroup(connectionGroup) {
     
 }
 
+
 function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionGroup) {
 
     // TODO: do something (color wise) with the connectionType?
@@ -559,9 +560,6 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
     let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, averageToPosition, worldDistanceBetweenFromAndToCenters)
     let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toFirstVisibleContainer, averageFromPosition, worldDistanceBetweenFromAndToCenters)
 
-    connectionGroup.worldMiddlePoint = middleOfTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
-    let screenMiddlePoint = fromWorldPositionToScreenPosition(connectionGroup.worldMiddlePoint)
-    
     // TODO: check if the rectangle (formed by the two border-points) is on screen, if not don't draw the connection
 
     // let angleBetweenPoints = getAngleBetweenPoints(averageFromPosition, averageToPosition)
@@ -581,6 +579,15 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
 
+
+    // FIXME: remove this (old way):     
+    // let screenMiddlePoint = fromWorldPositionToScreenPosition(connectionGroup.worldMiddlePoint)
+    // connectionGroup.worldMiddlePoint = middleOfTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
+
+    let percentageOfCurve = 0.5 // FIXME: hardcoded!
+    let screenMiddlePoint = getPointOnBezierCurve(percentageOfCurve, screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition)
+    connectionGroup.worldMiddlePoint = fromScreenPositionToWorldPosition(screenMiddlePoint)
+    
 
     {
         /*

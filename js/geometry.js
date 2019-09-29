@@ -64,6 +64,19 @@ function middleOfTwoPoints (firstPosition, secondPosition) {
     return middlePoint
 }
 
+function getPointOnBezierCurve (percent, C1, C2, C3, C4) {
+    function B1(t) { return t * t * t }
+    function B2(t) { return 3 * t * t * (1 - t) }
+    function B3(t) { return 3 * t * (1 - t) * (1 - t) }
+    function B4(t) { return (1 - t) * (1 - t) * (1 - t) }
+
+    let invertedPercent = 1 - percent
+    let pos = {};
+    pos.x = C1.x * B1(invertedPercent) + C2.x * B2(invertedPercent) + C3.x * B3(invertedPercent) + C4.x * B4(invertedPercent);
+    pos.y = C1.y * B1(invertedPercent) + C2.y * B2(invertedPercent) + C3.y * B3(invertedPercent) + C4.y * B4(invertedPercent);
+    return pos;
+}
+
 function lerpPositionBetweenTwoPoints (firstPosition, secondPosition, fraction) {
     let middlePoint = {x : 0, y : 0}
     
