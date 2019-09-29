@@ -66,7 +66,16 @@ function handleInputStateChange () {
     }
     else {
         if (interaction.currentlySelectedMode === 'connect') {
-            // FIXME: hover and select connection
+            let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
+            
+            // FIXME: put this in a separate function (hoverconnectionbymouse or selectconnection by mouse)
+            if (connectionAtMousePosition != null) {
+                interaction.currentlyHoveredConnectionIdentifier = connectionAtMousePosition.identifier
+            }
+            else {
+                interaction.currentlyHoveredConnectionIdentifier = null
+            }
+            interaction.currentlyHoveredMenuButton = null
         }
         else {
             // FIXME: put this in a separate function (hovercontainerbymouse or selectcontainer by mouse)
