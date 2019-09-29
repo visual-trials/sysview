@@ -31,6 +31,9 @@ let interaction = {
     
     // TODO: we should probably keep record of where things (like the view or a container) is being selected/dragged BY
     //       sometimes its the mouse, sometimes its a touch. We might want to keep a record of that.
+    currentlyHoveredConnectionIdentifier : null,
+    currentlySelectedConnectionIdentifier : null,
+
     currentlyHoveredContainerIdentifier : null,
     currentlySelectedContainerIdentifiers : {},
     
@@ -62,13 +65,19 @@ function handleInputStateChange () {
         interaction.currentlyHoveredMenuButton = menuButtonAtMousePosition
     }
     else {
-        if (containerAtMousePosition != null) {
-            interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
+        if (interaction.currentlySelectedMode === 'connect') {
+            // FIXME: hover and select connection
         }
         else {
-            interaction.currentlyHoveredContainerIdentifier = null
+            // FIXME: put this in a separate function (hovercontainerbymouse or selectcontainer by mouse)
+            if (containerAtMousePosition != null) {
+                interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
+            }
+            else {
+                interaction.currentlyHoveredContainerIdentifier = null
+            }
+            interaction.currentlyHoveredMenuButton = null
         }
-        interaction.currentlyHoveredMenuButton = null
     }
     
     // TODO: maybe we do not always want to disable dragging/editing/etc if we happen to move the mouse over a menu item?
