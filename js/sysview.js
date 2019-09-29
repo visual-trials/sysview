@@ -256,6 +256,30 @@ function storeContainerLocalFontSize(containerIdentififer, localFontSize) {
     containerIdentifiersToBeStored[containerIdentififer] = true
 }
 
+function storeContainerType(containerIdentififer, containerType) {
+    // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
+    if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {
+        databaseData.visual.containers[containerIdentififer] = { 'identifier': containerIdentififer }
+    }
+    let visualContainerData = databaseData.visual.containers[containerIdentififer]
+    visualContainerData.type = containerType
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[containerIdentififer] = true
+}
+
+function storeContainerDataType(containerIdentififer, dataType) {
+    // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
+    if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {
+        databaseData.visual.containers[containerIdentififer] = { 'identifier': containerIdentififer }
+    }
+    let visualContainerData = databaseData.visual.containers[containerIdentififer]
+    visualContainerData.dataType = dataType
+    databaseDataHasChanged = true
+    
+    containerIdentifiersToBeStored[containerIdentififer] = true
+}
+
 function storeContainerName(containerIdentififer, containerName) {
     // TODO: creating empty visualContainerData inside databaseData.visual. Is this correct?
     if (!databaseData.visual.containers.hasOwnProperty(containerIdentififer)) {

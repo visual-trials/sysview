@@ -115,6 +115,8 @@ function handleInputStateChange () {
                     // TODO: this may change the hovered-over (part of the) container, so the functions below might not be accurate. Maybe skip them when re-scale has happened?
                     doReScaleSelectedContainersByKeyboard() 
                     doChangeFontSizeSelectedContainersByKeyboard()
+                    doChangeContainerTypeSelectedContainersByKeyboard()
+                    doChangeContainerDataTypeSelectedContainersByKeyboard()
                     
                     if (!interaction.mouseIsNearSelectedContainerBorder && 
                         !interaction.selectedContainerIsBeingResized &&
@@ -349,6 +351,101 @@ function doReScaleSelectedContainersByKeyboard() {
     }
     
 }
+
+function doChangeContainerTypeSelectedContainersByKeyboard() {
+
+    if (databaseData.colorAndShapeMappings == null) {
+        return
+    }
+    let containerTypeToContainerShapeAndColor = databaseData.colorAndShapeMappings.containerTypeToContainerShapeAndColor
+    
+    // For now, we only allow changing container type only when a single container has been selected
+    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 1) {
+        return
+    }
+    let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+    let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
+
+    let possibleContainerTypes = Object.keys(containerTypeToContainerShapeAndColor)
+    possibleContainerTypes.unshift(null) // Note: the first item is null (meaning: no containerType)
+    let nrOfpossibleContainerTypes = possibleContainerTypes.length
+    
+    let containerTypeIndex = 0
+    if (currentlySelectedContainer.type != null) { // so, if type == null, containerTypeIndex will be 0
+        for (containerTypeIndex = 1; containerTypeIndex < nrOfpossibleContainerTypes; containerTypeIndex++) {
+            let possibleContainerType = possibleContainerTypes[containerTypeIndex]
+            if (currentlySelectedContainer.type === possibleContainerType) {
+                // We found the container type in the list of possible container types, so we keep containerTypeIndex
+                break;
+            }
+        }
+    }
+
+    // If "," or "." is pressed, we change the container type of the selected container
+    let hasChanged = false
+    if (hasKeyGoneDown('PERIOD')) {
+        containerTypeIndex++
+        hasChanged = true
+    }
+    if (hasKeyGoneDown('COMMA')) {
+        containerTypeIndex--
+        hasChanged = true
+    }
+    
+    if (hasChanged) {
+        containerTypeIndex = containerTypeIndex % nrOfpossibleContainerTypes
+        storeContainerType(currentlySelectedContainer.identifier, possibleContainerTypes[containerTypeIndex])
+    }
+ 
+}
+
+function doChangeContainerDataTypeSelectedContainersByKeyboard() {
+
+    if (databaseData.colorAndShapeMappings == null) {
+        return
+    }
+    let dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    
+    // For now, we only allow changing data type only when a single container has been selected
+    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 1) {
+        return
+    }
+    let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+    let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
+
+    let possibleDataTypes = Object.keys(dataTypeToColor)
+    possibleDataTypes.unshift(null) // Note: the first item is null (meaning: no dataType)
+    let nrOfpossibleDataTypes = possibleDataTypes.length
+    
+    let dataTypeIndex = 0
+    if (currentlySelectedContainer.dataType != null) { // so, if dataType == null, dataTypeIndex will be 0
+        for (dataTypeIndex = 1; dataTypeIndex < nrOfpossibleDataTypes; dataTypeIndex++) {
+            let possibleDataType = possibleDataTypes[dataTypeIndex]
+            if (currentlySelectedContainer.dataType === possibleDataType) {
+                // We found the container type in the list of possible container types, so we keep dataTypeIndex
+                break;
+            }
+        }
+    }
+
+    // If "-" or "=" is pressed, we change the data type of the selected container
+    let hasChanged = false
+    if (hasKeyGoneDown('EQUALS')) {
+        dataTypeIndex++
+        hasChanged = true
+    }
+    if (hasKeyGoneDown('MINUS')) {
+        dataTypeIndex--
+        hasChanged = true
+    }
+    
+    if (hasChanged) {
+        dataTypeIndex = dataTypeIndex % nrOfpossibleDataTypes
+        storeContainerDataType(currentlySelectedContainer.identifier, possibleDataTypes[dataTypeIndex])
+    }
+ 
+}
+
 
 function doChangeFontSizeSelectedContainersByKeyboard() {
     

@@ -106,6 +106,10 @@ function createContainer(containerData) {
     let newContainer = {
         identifier: containerIdentifier,
         name: containerData.name,
+        
+        type: containerData.type,  // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
+        dataType: containerData.dataType, // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
+        
         parentContainerIdentifier: parentContainerIdentifier != null ? parentContainerIdentifier : 'root',
         localPosition: {
             x: containerData.localPosition.x,
