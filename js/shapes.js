@@ -78,6 +78,106 @@ let containerShapes = {
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
+    'parallelogram4points' : {
+        'points' : {
+            'bottom-rightish' : {
+                positioning : 'absolute',
+                fromPoint : 'right-bottom',
+                offset : { x: -10, y: 0 },
+                isConnectionPoint : false,
+            },
+            'bottom-leftish' : {
+                positioning : 'absolute',
+                fromPoint : 'left-bottom',
+                offset : { x: 10, y: 0 },
+                isConnectionPoint : false,
+            },
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-top', type : 'move' },
+            { toPoint : 'right-top', type : 'line' },
+            { toPoint : 'bottom-rightish', type : 'line' },
+            { toPoint : 'bottom-leftish', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
+    'diamond4points' : {
+        'points' : {
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'top-middle', type : 'move' },
+            { toPoint : 'right-middle', type : 'line' },
+            { toPoint : 'bottom-middle', type : 'line' },
+            { toPoint : 'left-middle', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
     'ellipse4Points' : {
         'points' : {
             'top-middle' : {

@@ -258,7 +258,7 @@ function createConnection(connectionData) {
     
     let shapeType = 'default'
     let fill = { r:255, g:0, b:255, a:1 }
-    let stroke = { r:255, g:255, b:0, a:1 }
+    let stroke = { r:255, g:0, b:255, a:1 }
 
     let connectionTypeToConnectionShapeAndColor = {}
     let dataTypeToColor = {}
