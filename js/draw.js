@@ -830,10 +830,9 @@ function drawContainers(containerIdentifiers, alpha = null) {
             let fractionToShowContainerChildren = showContainerChildren(container)
             // When we draw the children, we do not want to draw the parents text
             let fractionToShowText = 1
-            // TODO: turned this off again. We really want to see the (large) text, even when zoomed in
-            //if (container.children.length > 0) {
-            //    fractionToShowText = 1 - fractionToShowContainerChildren
-            //}
+            if (container.children.length > 0) {
+                fractionToShowText = 1 - fractionToShowContainerChildren
+            }
             drawContainer(container, alpha, fractionToShowText)
             if (fractionToShowContainerChildren > 0) {
                 drawContainers(container.children, fractionToShowContainerChildren)

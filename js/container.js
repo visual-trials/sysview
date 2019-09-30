@@ -53,8 +53,11 @@ function getColorByColorNameAndLighten(colorNameAndLighten) {
         if (light > 0) {
             color = lighten(basicColor, light)
         }
-        else {
+        else if (light < 0) {
             color = darken(basicColor, -light)
+        }
+        else {
+            color = basicColor // TODO: shouldnt we make a copy?
         }
     }
     else {

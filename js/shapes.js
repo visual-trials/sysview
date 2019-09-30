@@ -18,6 +18,7 @@
 
  // TODO: what about brown? Or is that too close to orange?
 let basicColors = {
+    transparent: {r:255, g:255,  b:255,   a:0},
     white   : {r:255, g:255, b:255, a:1},
     grey    : {r:127, g:127, b:127, a:1},
     black   : {r:  0, g:  0, b:  0, a:1},
@@ -32,7 +33,7 @@ let basicColors = {
     magenta : {r:240, g: 50, b:230, a:1}
 }
  
-// FIXME: make this available as data
+// TODO: make this available as data
 let containerShapes = {
     'rectangle4points' : {
         'points' : {
