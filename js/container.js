@@ -76,6 +76,7 @@ function createContainer(containerData) {
     let fill = { r:255, g:0, b:255, a:1 }
     let stroke = { r:255, g:255, b:0, a:1 }
     let shape = 'rectangle4points'
+    let textBelowContainer = false
 
     let containerTypeToContainerShapeAndColor = {}
     let dataTypeToColor = {}
@@ -90,6 +91,9 @@ function createContainer(containerData) {
             shapeType = containerTypeToContainerShapeAndColor[containerData.type].shape
             stroke = getColorByColorNameAndLighten(containerTypeToContainerShapeAndColor[containerData.type].stroke)
             fill = getColorByColorNameAndLighten(containerTypeToContainerShapeAndColor[containerData.type].fill)
+            if (containerTypeToContainerShapeAndColor[containerData.type].hasOwnProperty('textBelowContainer')) {
+                textBelowContainer = containerTypeToContainerShapeAndColor[containerData.type].textBelowContainer
+            }
         }
         else {
             console.log("ERROR: unknown container type: " + containerData.type)
@@ -126,6 +130,7 @@ function createContainer(containerData) {
         localFontSize: containerData.localFontSize,
         
         shapeType : shapeType, 
+        textBelowContainer : textBelowContainer,
         
         worldPosition: {},
         worldSize: {},

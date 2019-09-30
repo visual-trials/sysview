@@ -998,8 +998,14 @@ function drawContainer(container, alpha = null, textAlpha = 1) {
 
         // Determine text position
         let textWorldPosition = {}
-        textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
-        textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * container.worldScale / 2) + heightBottomWhiteArea * container.worldScale
+        if (container.textBelowContainer) {
+            textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
+            textWorldPosition.y = container.worldPosition.y + (container.worldSize.height * 1.15)
+        }
+        else {
+            textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
+            textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * container.worldScale / 2) + heightBottomWhiteArea * container.worldScale
+        }
         
         let screenTextPosition = fromWorldPositionToScreenPosition(textWorldPosition)
         

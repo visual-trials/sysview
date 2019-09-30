@@ -79,6 +79,194 @@ let containerShapes = {
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
+    'arrowUp4points' : {
+        'points' : {
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            '~top-middle-higher' : {
+                positioning : 'relative',
+                fromPoint : 'top-middle',
+                toPoint : 'bottom-middle',
+                fraction : -0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+            },
+            'left-bottom-lower' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'left-top',
+                fraction : -0.5
+            },
+            'right-bottom-lower' : {
+                positioning : 'relative',
+                fromPoint : 'right-bottom',
+                toPoint : 'right-top',
+                fraction : -0.5
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-top', type : 'move' },
+            { toPoint : '~top-middle-higher', type : 'line' },
+            { toPoint : 'right-top', type : 'line' },
+            { toPoint : 'right-bottom-lower', type : 'line' },
+            { toPoint : 'bottom-middle', type : 'line' },
+            { toPoint : 'left-bottom-lower', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
+    'arrowDown4points' : {
+        'points' : {
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5
+            },
+            '~bottom-middle-lower' : {
+                positioning : 'relative',
+                fromPoint : 'bottom-middle',
+                toPoint : 'top-middle',
+                fraction : -0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            'left-top-higher' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : -0.5
+            },
+            'right-top-higher' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : -0.5
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-top-higher', type : 'move' },
+            { toPoint : 'top-middle', type : 'line' },
+            { toPoint : 'right-top-higher', type : 'line' },
+            { toPoint : 'right-bottom', type : 'line' },
+            { toPoint : '~bottom-middle-lower', type : 'line' },
+            { toPoint : 'left-bottom', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
+    'arrowRight4points' : {
+        'points' : {
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5
+            },
+            '~right-middle-righter' : {
+                positioning : 'relative',
+                fromPoint : 'right-middle',
+                toPoint : 'left-middle',
+                fraction : -0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+            'left-top-lefter' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : -0.5
+            },
+            'left-bottom-lefter' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : -0.5
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-top-lefter', type : 'move' },
+            { toPoint : 'right-top', type : 'line' },
+            { toPoint : '~right-middle-righter', type : 'line' },
+            { toPoint : 'right-bottom', type : 'line' },
+            { toPoint : 'left-bottom-lefter', type : 'line' },
+            { toPoint : 'left-middle', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
+    'arrowLeft4points' : {
+        'points' : {
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+            '~left-middle-lefter' : {
+                positioning : 'relative',
+                fromPoint : 'left-middle',
+                toPoint : 'right-middle',
+                fraction : -0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.0 * Math.PI,
+            },
+            'right-top-righter' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'left-top',
+                fraction : -0.5
+            },
+            'right-bottom-righter' : {
+                positioning : 'relative',
+                fromPoint : 'right-bottom',
+                toPoint : 'left-bottom',
+                fraction : -0.5
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-top', type : 'move' },
+            { toPoint : 'right-top-righter', type : 'line' },
+            { toPoint : 'right-middle', type : 'line' },
+            { toPoint : 'right-bottom-righter', type : 'line' },
+            { toPoint : 'left-bottom', type : 'line' },
+            { toPoint : '~left-middle-lefter', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
     'parallelogram4points' : {
         'points' : {
             'bottom-rightish' : {
@@ -176,6 +364,49 @@ let containerShapes = {
             { toPoint : 'right-middle', type : 'line' },
             { toPoint : 'bottom-middle', type : 'line' },
             { toPoint : 'left-middle', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
+    'triangle4points' : {
+        'points' : {
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-top', type : 'move' },
+            { toPoint : 'right-top', type : 'line' },
+            { toPoint : 'bottom-middle', type : 'line' },
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
