@@ -116,12 +116,10 @@ function drawCanvas() {
     //}
     drawNewConnection()
     
-    // if (interaction.currentlySelectedMode === 'view') {
+    if (interaction.currentlySelectedMode !== 'view') {
         drawDetail()
-        drawTinyDetail()
-    // }
-    // else {
-    // }
+    }
+    drawTinyDetail()
     
     drawMenu()
     
@@ -255,8 +253,8 @@ function drawContainerData (position, label, visualData, sourceData) {
 
 }
 function drawDetail () {
-    let detailSize = { width: 300, height: canvasElement.height - 80 }
-    let detailPosition = { x: canvasElement.width - detailSize.width - 20, y: 20 }
+    let detailSize = { width: 300, height: canvasElement.height - 115 }
+    let detailPosition = { x: canvasElement.width - detailSize.width - 20, y: 55 }
 
     if (interaction.currentlyHoveredContainerIdentifier != null) {
         ctx.lineWidth = 1
@@ -276,15 +274,15 @@ function drawDetail () {
         drawDetailLabelAndValue(position, 'worldScale', containerToDetail.worldScale)
         drawDetailLabelAndValue(position, 'localScale', containerToDetail.localScale)
         drawDetailLabelAndValue(position, 'localFontSize', containerToDetail.localFontSize)
-        drawDetailLabelAndValue(position, 'localPosition.x', containerToDetail.localPosition.x)
-        drawDetailLabelAndValue(position, 'localPosition.y', containerToDetail.localPosition.y)
-        drawDetailLabelAndValue(position, 'localSize.width', containerToDetail.localSize.width)
-        drawDetailLabelAndValue(position, 'localSize.height', containerToDetail.localSize.height)
+        //drawDetailLabelAndValue(position, 'localPosition.x', containerToDetail.localPosition.x)
+        //drawDetailLabelAndValue(position, 'localPosition.y', containerToDetail.localPosition.y)
+        //drawDetailLabelAndValue(position, 'localSize.width', containerToDetail.localSize.width)
+        //drawDetailLabelAndValue(position, 'localSize.height', containerToDetail.localSize.height)
         
         drawContainerData(position, 'type', visualData, sourceData)
         drawContainerData(position, 'dataType', visualData, sourceData)
-        drawContainerData(position, 'localScale', visualData, sourceData)
-        drawContainerData(position, 'localFontSize', visualData, sourceData)
+        //drawContainerData(position, 'localScale', visualData, sourceData)
+        //drawContainerData(position, 'localFontSize', visualData, sourceData)
     }
     else if (interaction.currentlyHoveredConnectionIdentifier != null) {
         ctx.lineWidth = 1
@@ -308,8 +306,9 @@ function drawDetail () {
 }
 
 function drawTinyDetail () {
-    let tinyDetailSize = { width: 800, height: 30 }
-    let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 100, y: canvasElement.height - tinyDetailSize.height - 20 }
+    let tinyDetailSize = { width: 600, height: 30 }
+    // bottom right: let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 100, y: canvasElement.height - tinyDetailSize.height - 20 }
+    let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 20, y: 20 }
 
     let textToDraw = null
     if (interaction.currentlySelectedMode === 'connect') {
@@ -319,7 +318,13 @@ function drawTinyDetail () {
     }
     else {
         if (interaction.currentlyHoveredContainerIdentifier != null) {
-            textToDraw = interaction.currentlyHoveredContainerIdentifier
+            if (interaction.currentlyHoveredContainerIdentifier.startsWith('AddedContainer_')) {
+                let hoveredContainer = getContainerByIdentifier(interaction.currentlyHoveredContainerIdentifier)
+                textToDraw = hoveredContainer.name + ' (added manually)'
+            }
+            else {
+                textToDraw = interaction.currentlyHoveredContainerIdentifier
+            }
         }
     }
 
