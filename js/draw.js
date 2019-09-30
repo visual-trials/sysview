@@ -306,10 +306,6 @@ function drawDetail () {
 }
 
 function drawTinyDetail () {
-    let tinyDetailSize = { width: 600, height: 30 }
-    // bottom right: let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 100, y: canvasElement.height - tinyDetailSize.height - 20 }
-    let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 20, y: 20 }
-
     let textToDraw = null
     if (interaction.currentlySelectedMode === 'connect') {
         if (interaction.currentlyHoveredConnectionIdentifier != null) {
@@ -329,6 +325,14 @@ function drawTinyDetail () {
     }
 
     if (textToDraw != null) {
+        let tinyDetailSize = { width: 600, height: 30 }
+        
+        if (textToDraw.length > 80) {
+            tinyDetailSize.width = 800
+        }
+        // bottom right: let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 100, y: canvasElement.height - tinyDetailSize.height - 20 }
+        let tinyDetailPosition = { x: canvasElement.width - tinyDetailSize.width - 20, y: 20 }
+
         ctx.lineWidth = 1
         ctx.fillStyle = "rgba(255,255,255,0.9)" // "#FFFFFF"
         ctx.strokeStyle = "#DDDDDD"
@@ -513,8 +517,8 @@ function groupConnection(connection) {
     }
     // TODO: workaround for connections that dont have a type. Should we not group them instead? Of group all that have no type?
     let connectionType = '_none_'
-    if (connection.type != null) {
-        connectionType = connection.type
+    if (connection.dataType != null) {
+        connectionType = connection.dataType
     }
     if (!groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier].hasOwnProperty(connectionType)) {
         groupedConnections[fromFirstVisibleContainer.identifier][toFirstVisibleContainer.identifier][connectionType] = {}
