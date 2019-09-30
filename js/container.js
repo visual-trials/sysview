@@ -283,7 +283,7 @@ function createConnection(connectionData) {
             fill = getColorByColorNameAndLighten(connectionTypeToConnectionShapeAndColor[connectionData.type].fill)
         }
         else {
-            console.log("ERROR: unknown connection type: " + connectionData.type)
+            // FIXME: turned off: console.log("ERROR: unknown connection type: " + connectionData.type)
         }
     }
     
@@ -314,7 +314,7 @@ function createConnection(connectionData) {
         
         fromContainerIdentifier: connectionData.fromContainerIdentifier,
         toContainerIdentifier: connectionData.toContainerIdentifier,
-        stroke: stroke,
+        stroke: fill, // TODO: now using fill as line color!
     }
     
     containersAndConnections.connections[connectionData.identifier] = newConnection

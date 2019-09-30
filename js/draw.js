@@ -650,7 +650,7 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
         */
         
         // Draw line 
-        ctx.lineWidth = 2 * interaction.viewScale * nrOfConnections * averageContainersWorldScale
+        ctx.lineWidth = 4 * interaction.viewScale * nrOfConnections * averageContainersWorldScale
         ctx.strokeStyle = rgba(stroke)
         
         /*
