@@ -286,6 +286,25 @@ function drawDetail () {
         drawContainerData(position, 'localScale', visualData, sourceData)
         drawContainerData(position, 'localFontSize', visualData, sourceData)
     }
+    else if (interaction.currentlyHoveredConnectionIdentifier != null) {
+        ctx.lineWidth = 1
+        ctx.fillStyle = "rgba(255,255,255,0.8)" // "#FFFFFF"
+        ctx.strokeStyle = "#DDDDDD"
+        ctx.fillRect(detailPosition.x, detailPosition.y, detailSize.width, detailSize.height)
+        ctx.strokeRect(detailPosition.x + 0.5, detailPosition.y + 0.5, detailSize.width, detailSize.height)
+
+        let connectionToDetail = getConnectionByIdentifier(interaction.currentlyHoveredConnectionIdentifier)
+        let visualData = databaseData.visual.connections[connectionToDetail.identifier]
+        let sourceData = databaseData.source.connections[connectionToDetail.identifier]
+
+        position = {x: detailPosition.x + 20, y: detailPosition.y + 20 }
+        
+        drawDetailLabelAndValue(position, 'identifier', connectionToDetail.identifier)
+        drawDetailLabelAndValue(position, 'name', connectionToDetail.name)
+        
+        drawContainerData(position, 'type', visualData, sourceData)
+        drawContainerData(position, 'dataType', visualData, sourceData)
+    }
 }
 
 function drawTinyDetail () {

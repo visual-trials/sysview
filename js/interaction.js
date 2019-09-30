@@ -474,7 +474,6 @@ function doChangeContainerDataTypeSelectedConnectionByKeyboard() {
             }
         }
     }
-console.log(dataTypeIndex)
     // If "-" or "=" is pressed, we change the data type of the selected container
     let hasChanged = false
     if (hasKeyGoneDown('EQUALS')) {
@@ -488,6 +487,7 @@ console.log(dataTypeIndex)
     
     if (hasChanged) {
         dataTypeIndex = dataTypeIndex % nrOfpossibleDataTypes
+console.log(dataTypeIndex)
         storeConnectionDataType(currentlySelectedConnection.identifier, possibleDataTypes[dataTypeIndex])
     }
  

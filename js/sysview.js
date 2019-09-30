@@ -280,7 +280,7 @@ function storeContainerDataType(containerIdentififer, dataType) {
     containerIdentifiersToBeStored[containerIdentififer] = true
 }
 
-function storeConnedtionDataType(connectionIdentififer, dataType) {
+function storeConnectionDataType(connectionIdentififer, dataType) {
     // TODO: creating empty visualConnectionData inside databaseData.visual. Is this correct?
     if (!databaseData.visual.connections.hasOwnProperty(connectionIdentififer)) {
         databaseData.visual.connections[connectionIdentififer] = { 'identifier': connectionIdentififer }
