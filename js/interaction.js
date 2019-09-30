@@ -487,7 +487,6 @@ function doChangeContainerDataTypeSelectedConnectionByKeyboard() {
     
     if (hasChanged) {
         dataTypeIndex = dataTypeIndex % nrOfpossibleDataTypes
-console.log(dataTypeIndex)
         storeConnectionDataType(currentlySelectedConnection.identifier, possibleDataTypes[dataTypeIndex])
     }
  
