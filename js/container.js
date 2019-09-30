@@ -265,8 +265,8 @@ function createConnection(connectionData) {
     // FIXME: old: let stroke = { r:0, g:0, b:0, a:1 }
     
     let shapeType = 'default'
-    let fill = { r:255, g:0, b:255, a:1 }
-    let stroke = { r:255, g:0, b:255, a:1 }
+    let fill = { r:170, g:170, b:170, a:1 }
+    let stroke = { r:100, g:100, b:100, a:1 }
 
     let connectionTypeToConnectionShapeAndColor = {}
     let dataTypeToColor = {}
@@ -296,14 +296,6 @@ function createConnection(connectionData) {
             console.log("ERROR: unknown connection data type: " + connectionData.dataType)
         }
     }
-/*
-    if (connectionData.type === 'API2API') {
-        stroke = { r:0, g:180, b:200, a:1 }
-    }
-    else {
-// FIXME: turn this on again?        console.log("ERROR: Unknown connection type: " + connectionData.type)
-    }
-    */
     
     let newConnection = {
         identifier: connectionData.identifier,
