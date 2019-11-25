@@ -47,8 +47,14 @@ function onConversionSelect(selectConversionElement) {
 }
  
 function init() {
-    // FIXME: hardcoded! (we should be able to choose this somehow)
     projectIdentifier = 'ClientLive'
+	
+	let urlString = window.location.href
+	let url = new URL(urlString)
+	let projectOverrule = url.searchParams.get("project")
+	if (projectOverrule != null) {
+		projectIdentifier = projectOverrule
+	}
     
     loadConversionTree(projectIdentifier, 'conversionTree') // ASYNC!
 }

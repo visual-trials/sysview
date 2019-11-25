@@ -24,9 +24,14 @@ let databaseDataHasChanged = false
 let viewWasDrawnOnce = false
 let centerViewOnWorldCenter = false
 
-// FIXME: hardcoded!
 let project = 'ClientLive'
-//let project = 'ExampleProject'
+
+let urlString = window.location.href
+let url = new URL(urlString)
+let projectOverrule = url.searchParams.get("project")
+if (projectOverrule != null) {
+	project = projectOverrule
+}
  
 function init() {
     
