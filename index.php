@@ -92,7 +92,20 @@ else if ($action === 'get_source_data') {
 
     $filenameSource = "projects/$projectDir/$sourceFile";
 
-    $sourceData = json_decode(file_get_contents($filenameSource), true);
+	$pathInfo = pathinfo($filenameSource);
+	if ($pathInfo["extension"] == "csv") {
+		// TODO: make  $delimiter, $enclosure, $escape configurable
+		$rows   = array_map(function($row) { return str_getcsv($row, "\t", '"', "\\"); }, file($filenameSource));
+		$header = array_shift($rows);
+		$sourceData = [];
+		foreach($rows as $row) {
+			$sourceData[] = array_combine($header, $row);
+		}
+	}
+	else {
+		// We assume json-content by default
+		$sourceData = json_decode(file_get_contents($filenameSource), true);
+	}
 
     echo json_encode([ 
         'sourceData' => $sourceData,
