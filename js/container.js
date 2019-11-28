@@ -75,7 +75,7 @@ function createContainer(containerData) {
     
     let fill = { r:255, g:0, b:255, a:1 }
     let stroke = { r:255, g:255, b:0, a:1 }
-    let shape = 'rectangle4points'
+    let shapeType = 'rectangle4points'
     let textBelowContainer = false
 
     let containerTypeToContainerShapeAndColor = {}
