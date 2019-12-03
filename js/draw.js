@@ -282,6 +282,7 @@ function drawDetail () {
         drawContainerData(position, 'type', visualData, sourceData)
         drawContainerData(position, 'dataType', visualData, sourceData)
         drawContainerData(position, 'longName', visualData, sourceData)
+        drawContainerData(position, 'parentContainerIdentifier', visualData, sourceData)
         //drawContainerData(position, 'localScale', visualData, sourceData)
         //drawContainerData(position, 'localFontSize', visualData, sourceData)
     }
