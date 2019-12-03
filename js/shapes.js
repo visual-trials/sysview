@@ -99,7 +99,7 @@ let containerShapes = {
                 positioning : 'relative',
                 fromPoint : 'top-middle',
                 toPoint : 'bottom-middle',
-                fraction : -0.5,
+                fraction : -0.2,
                 isConnectionPoint : true,
                 rightAngle : 1.5 * Math.PI,
             },
@@ -107,13 +107,13 @@ let containerShapes = {
                 positioning : 'relative',
                 fromPoint : 'left-bottom',
                 toPoint : 'left-top',
-                fraction : -0.5
+                fraction : -0.2
             },
             'right-bottom-lower' : {
                 positioning : 'relative',
                 fromPoint : 'right-bottom',
                 toPoint : 'right-top',
-                fraction : -0.5
+                fraction : -0.2
             },
         },
         'strokeAndFillPath' : [
@@ -146,7 +146,7 @@ let containerShapes = {
                 positioning : 'relative',
                 fromPoint : 'bottom-middle',
                 toPoint : 'top-middle',
-                fraction : -0.5,
+                fraction : -0.2,
                 isConnectionPoint : true,
                 rightAngle : 0.5 * Math.PI,
             },
@@ -154,13 +154,13 @@ let containerShapes = {
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'left-bottom',
-                fraction : -0.5
+                fraction : -0.2
             },
             'right-top-higher' : {
                 positioning : 'relative',
                 fromPoint : 'right-top',
                 toPoint : 'right-bottom',
-                fraction : -0.5
+                fraction : -0.2
             },
         },
         'strokeAndFillPath' : [
@@ -193,7 +193,7 @@ let containerShapes = {
                 positioning : 'relative',
                 fromPoint : 'right-middle',
                 toPoint : 'left-middle',
-                fraction : -0.5,
+                fraction : -0.2,
                 isConnectionPoint : true,
                 rightAngle : 0.0 * Math.PI,
             },
@@ -201,13 +201,13 @@ let containerShapes = {
                 positioning : 'relative',
                 fromPoint : 'left-top',
                 toPoint : 'right-top',
-                fraction : -0.5
+                fraction : -0.2
             },
             'left-bottom-lefter' : {
                 positioning : 'relative',
                 fromPoint : 'left-bottom',
                 toPoint : 'right-bottom',
-                fraction : -0.5
+                fraction : -0.2
             },
         },
         'strokeAndFillPath' : [
@@ -240,7 +240,7 @@ let containerShapes = {
                 positioning : 'relative',
                 fromPoint : 'left-middle',
                 toPoint : 'right-middle',
-                fraction : -0.5,
+                fraction : -0.2,
                 isConnectionPoint : true,
                 rightAngle : 1.0 * Math.PI,
             },
@@ -248,13 +248,13 @@ let containerShapes = {
                 positioning : 'relative',
                 fromPoint : 'right-top',
                 toPoint : 'left-top',
-                fraction : -0.5
+                fraction : -0.2
             },
             'right-bottom-righter' : {
                 positioning : 'relative',
                 fromPoint : 'right-bottom',
                 toPoint : 'left-bottom',
-                fraction : -0.5
+                fraction : -0.2
             },
         },
         'strokeAndFillPath' : [
