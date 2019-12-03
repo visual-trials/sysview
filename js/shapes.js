@@ -79,7 +79,7 @@ let containerShapes = {
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
-    'arrowUp4points' : {
+    'arrowUp2points' : {
         'points' : {
             'top-middle' : {
                 positioning : 'relative',
@@ -126,7 +126,7 @@ let containerShapes = {
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
-    'arrowDown4points' : {
+    'arrowDown2points' : {
         'points' : {
             'top-middle' : {
                 positioning : 'relative',
@@ -173,7 +173,7 @@ let containerShapes = {
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
-    'arrowRight4points' : {
+    'arrowRight2points' : {
         'points' : {
             'left-middle' : {
                 positioning : 'relative',
@@ -220,7 +220,7 @@ let containerShapes = {
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
-    'arrowLeft4points' : {
+    'arrowLeft2points' : {
         'points' : {
             'left-middle' : {
                 positioning : 'relative',
