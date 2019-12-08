@@ -95,7 +95,14 @@ else if ($action === 'get_source_data') {
 	$pathInfo = pathinfo($filenameSource);
 	if ($pathInfo["extension"] == "csv") {
 		// TODO: make  $delimiter, $enclosure, $escape configurable
-		$rows   = array_map(function($row) { return str_getcsv($row, "\t", '"', "\\"); }, file($filenameSource));
+        $rows = [];
+        if (($handle = fopen($filenameSource, "r")) !== false) {
+            while (($data = fgetcsv($handle, 1000, "\t", '"', "\\")) !== false) {
+                $rows[] = $data;
+            }
+            fclose($handle);
+        }        
+        
 		$header = array_shift($rows);
 		$sourceData = [];
 		foreach($rows as $row) {
