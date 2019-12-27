@@ -816,7 +816,7 @@ function showContainerChildren(container) {
     
     let containerViewScale = interaction.viewScale * container.worldScale
     
-    let beginToShow = 0.2
+    let beginToShow = 0.2 // 0.001
     let fullyShow = 0.25
     if (containerViewScale > fullyShow) {
         return 1
@@ -834,6 +834,13 @@ function drawContainers(containerIdentifiers, alpha = null) {
     for (let containerIndex = 0; containerIndex < containerIdentifiers.length; containerIndex++) {
         let containerIdentifier = containerIdentifiers[containerIndex]
         let container = containersAndConnections.containers[containerIdentifier]
+        
+        /* TODO: do this when setting the absolute position of each container,
+                 if its outside the parent, mark the container, so it is drawn purple!
+        if (!containerIsInsideParent(container)) {
+            console.log(containerIdentifier)
+        }
+        */
         
         // TODO: this assumes that the children of a container are never outside the bounds of their parent
         //       but that might not always be true
@@ -865,6 +872,38 @@ function containerIsOnScreen (container) {
         rightBottomPoint.x < screenRectangle.x ||                       // checking most-right-side: for iso-metric rightBottom is the most right point
         rightTopPoint.y > screenRectangle.y + screenRectangle.height || // checking most-top-side: for iso-metric rightTop is the most top point
         leftBottomPoint.y < screenRectangle.y                           // checking most-bottom-side: for iso-metric leftBottom is the most bottom point
+    ) {
+        // The container (assuming its is not rotated) in outside the screen-rectangel
+        return false
+    }
+    else {
+        return true
+    }
+}
+
+function containerIsInsideParent (container) {
+    let leftTopPoint = container.worldPoints['left-top']
+    let rightTopPoint = container.worldPoints['right-top']
+    let rightBottomPoint = container.worldPoints['right-bottom']
+    let leftBottomPoint = container.worldPoints['left-bottom']
+    
+    let parentContainerIdentifier = container.parentContainerIdentifier
+    // TODO: we now assume the parent always exist. What if it doesn't? Will it be put into a special container?
+    let parentContainer = containersAndConnections.containers[parentContainerIdentifier]
+    if (parentContainer == null || parentContainer.identifier === 'root') {
+        return true
+    }
+    
+    let parentLeftTopPoint = parentContainer.worldPoints['left-top']
+    let parentrightBottomPoint = parentContainer.worldPoints['right-bottom']
+    
+    // TODO: hardcoded, so this only works for full screen view!
+    let screenRectangle = { x: 0, y: 0, width: canvasElement.width, height: canvasElement.height }
+    if (
+        leftTopPoint.x > parentrightBottomPoint.x ||
+        rightBottomPoint.x < parentLeftTopPoint.x ||
+        rightTopPoint.y > parentrightBottomPoint.y ||
+        leftBottomPoint.y < parentLeftTopPoint.y                          
     ) {
         // The container (assuming its is not rotated) in outside the screen-rectangel
         return false

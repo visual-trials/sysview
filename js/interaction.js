@@ -315,10 +315,15 @@ function doSelectChildContainersByKeyboard() {
     // If 'C' is pressed, we select all its child containers
     if (hasKeyGoneDown('C')) {
         // For now, we only allow selecting children only when a single container has been selected
-        if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 1) {
+        if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 1) {
             return
         }
-        let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+        
+        let currentlySelectedContainerIdentifier = 'root' // If nothing is selected, we do as-if the root container has been selected (when selecting all children)
+        if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 0) {
+            currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+        }
+        
         let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
         
         interaction.currentlySelectedContainerIdentifiers = {}
