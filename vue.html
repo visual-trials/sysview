@@ -4,7 +4,13 @@
     </head>
     <body>
         <div id="app">
-          <p>{{ message }}</p>
+            <p>Project: {{ projectName }}</p>
+            <br>
+            <ul id="example-1">
+              <li v-for="conversion in conversionList">
+                {{ conversion.name }}
+              </li>
+            </ul>
         </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
