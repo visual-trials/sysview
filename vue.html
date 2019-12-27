@@ -6,6 +6,11 @@
         <div id="app">
             <p>Project: {{ projectName }}</p>
             <br>
+            <ul id="applications">
+              <li v-for="application in applications">
+                {{ application.Name }}
+              </li>
+            </ul>
             <ul id="example-1">
               <li v-for="conversion in conversionList">
                 {{ conversion.name }}
