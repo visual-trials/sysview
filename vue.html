@@ -6,14 +6,9 @@
         <div id="app">
             <p>Project: {{ projectName }}</p>
             <br>
-            <ul id="applications">
-              <li v-for="application in applications">
-                {{ application.Identifier }}
-              </li>
-            </ul>
-            <ul id="example-1">
-              <li v-for="conversion in conversionList">
-                {{ conversion.name }}
+            <ul id="baseNodes">
+              <li v-for="baseNode in sourceData.baseNodes">
+                {{ baseNode.name }}
               </li>
             </ul>
         </div>
