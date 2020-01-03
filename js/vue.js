@@ -3,6 +3,7 @@ let myVue = new Vue({
     data: {
         integrationData : {},
         flatIntegrationData : {},
+        selectedBaseNode : null,
         selectedNode : null,
     },
     mounted () {
@@ -11,7 +12,10 @@ let myVue = new Vue({
         loadSourceData(projectIdentifier, sourceIdentifier)
     },
     methods : {
-        selectNode : function (node) {
+        selectBaseNode : function (baseNode) {
+            myVue.selectedBaseNode = baseNode
+        },
+        selectNode : function(node) {
             myVue.selectedNode = node
         }
     }
@@ -66,8 +70,9 @@ function structureFlatIntegrationData (flatIntegrationData) {
         integrationData.linksById[linkId] = link
     }
     
-    integrationData.nodes = []
+    integrationData.baseNodes = []
     integrationData.nodesById = {}
+    integrationData.baseNodesById = {}
     for (nodeId in nodesById) {
         let sourceNode = nodesById[nodeId]
         let baseNode = baseNodesById[sourceNode.baseNodeId]
@@ -79,10 +84,15 @@ function structureFlatIntegrationData (flatIntegrationData) {
         node.outputLinks = getLinksWithSpecificFromNodeId(integrationData.linksById, node.id)
         node.inputLinks = getLinksWithSpecificToNodeId(integrationData.linksById, node.id)
         
-        integrationData.nodes.push(node)
+        if (!integrationData.baseNodesById.hasOwnProperty(baseNode.id)) {
+            baseNode.nodes = []
+            integrationData.baseNodes.push(baseNode)
+            integrationData.baseNodesById[nodeId] = baseNode
+        }
+        baseNode.nodes.push(node)
         integrationData.nodesById[nodeId] = node
     }
-    
+
     return integrationData
 }
 
