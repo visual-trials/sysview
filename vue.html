@@ -15,8 +15,34 @@
                                     <h3>Mediations</h3>
                                 </div>
                             </div>
-                            <div class="row mb-1 text-center" v-for="baseNode in integrationData.baseNodes">
+                            <div class="row text-center" v-for="baseNode in integrationData.baseNodes">
+                                <div class="col-md-12 mb-1 text-center" v-if="baseNode.type === 'Mediation'">
+                                    <button type="button" v-on:click="selectBaseNode(baseNode)" class="btn btn-secondary" v-bind:class="{ 'btn-success' : selectedBaseNode && selectedBaseNode.id === baseNode.id }" >
+                                      {{ baseNode.name }}
+                                    </button>                    
+                                </div>            
+                            </div>
+                            <br/>
+                            <div class="row mb-3 ">
                                 <div class="col-md-12 text-center">
+                                    <h3>Topics</h3>
+                                </div>
+                            </div>
+                            <div class="row text-center" v-for="baseNode in integrationData.baseNodes">
+                                <div class="col-md-12 mb-1 text-center" v-if="baseNode.type === 'Topic'">
+                                    <button type="button" v-on:click="selectBaseNode(baseNode)" class="btn btn-secondary" v-bind:class="{ 'btn-success' : selectedBaseNode && selectedBaseNode.id === baseNode.id }" >
+                                      {{ baseNode.name }}
+                                    </button>                    
+                                </div>            
+                            </div>
+                            <br/>
+                            <div class="row mb-3 ">
+                                <div class="col-md-12 text-center">
+                                    <h3>Applications</h3>
+                                </div>
+                            </div>
+                            <div class="row text-center" v-for="baseNode in integrationData.baseNodes">
+                                <div class="col-md-12 mb-1 text-center" v-if="baseNode.type === 'Application'">
                                     <button type="button" v-on:click="selectBaseNode(baseNode)" class="btn btn-secondary" v-bind:class="{ 'btn-success' : selectedBaseNode && selectedBaseNode.id === baseNode.id }" >
                                       {{ baseNode.name }}
                                     </button>                    
@@ -83,7 +109,7 @@
                                             <br/>
                                             <h5>Inputs</h5>
                                             <br/>
-                                            <div class="row" v-for="inputLink in selectedNode.inputLinks">
+                                            <div class="row mb-1" v-for="inputLink in selectedNode.inputLinks">
                                                 <div class="col-md-11">
                                                     <button type="button" class="btn btn-secondary float-right" v-on:click="selectNodeByInputLink(inputLink)" >
                                                         {{ integrationData.nodesById[inputLink.fromNodeId].baseData.name }}
@@ -106,7 +132,7 @@
                                             <br/>
                                             <h5>Outputs</h5>
                                             <br/>
-                                            <div class="row" v-for="outputLink in selectedNode.outputLinks">
+                                            <div class="row mb-1" v-for="outputLink in selectedNode.outputLinks">
                                             
                                                 <div class="col-md-1" data-toggle="tooltip" data-placement="top" :title=outputLink.dataType.baseData.name >
                                                     <span class="fa fa-arrow-right" style="margin-top: 10px;"></span>
