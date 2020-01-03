@@ -43,6 +43,13 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
             myVue.integrationData = structureFlatIntegrationData(flatIntegrationData)
             myVue.flatIntegrationData = flatIntegrationData
             
+            // By default select the first node
+            if (!myVue.selectedBaseNode) {
+                if (myVue.integrationData.baseNodes.length > 0) {
+                    myVue.selectedBaseNode = myVue.integrationData.baseNodes[0]
+                }
+            }
+            
             // TODO: is there a better moment/way of adding tooltips?
             $(function () {
               $('[data-toggle="tooltip"]').tooltip()
