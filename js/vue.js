@@ -1,7 +1,6 @@
 let myVue = new Vue({
     el: '#app',
     data: {
-        projectName: '',
         integrationData : {},
         flatIntegrationData : {}
     },
@@ -22,7 +21,6 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
             let flatIntegrationData = sourceData.sourceData // TODO: we probably dont want the data to be inside .sourceData
             myVue.integrationData = structureFlatIntegrationData(flatIntegrationData)
             myVue.flatIntegrationData = flatIntegrationData
-            myVue.projectName = projectIdentifier
             
             // TODO: is there a better moment/way of adding tooltips?
             $(function () {
