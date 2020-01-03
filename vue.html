@@ -79,7 +79,7 @@
                                     </div>            
                                     <div class="row" v-if=selectedNode>
                                         <br/>
-                                        <div class="col-md-6 border-right">
+                                        <div class="col-md-4 border-right">
                                             <br/>
                                             <h5>Inputs</h5>
                                             <br/>
@@ -90,18 +90,26 @@
                                                     </button>                    
                                                 </div>
                                                 <div class="col-md-1" data-toggle="tooltip" data-placement="top" :title=inputLink.dataType.baseData.name >
-                                                    <span class="fa fa-arrow-right"></span>
+                                                    <span class="fa fa-arrow-right" style="margin-top: 10px;"></span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4 text-center">
+                                            <br/>
+                                            <h5>{{ selectedNode.baseData.type }}</h5>
+                                            <br/>
+                                            <button type="button" class="btn btn-success" >
+                                                {{ selectedNode.baseData.name }}
+                                            </button>                    
+                                        </div>
+                                        <div class="col-md-4 border-left">
                                             <br/>
                                             <h5>Outputs</h5>
                                             <br/>
                                             <div class="row" v-for="outputLink in selectedNode.outputLinks">
                                             
                                                 <div class="col-md-1" data-toggle="tooltip" data-placement="top" :title=outputLink.dataType.baseData.name >
-                                                    <span class="fa fa-arrow-right"></span>
+                                                    <span class="fa fa-arrow-right" style="margin-top: 10px;"></span>
                                                 </div>
                                                 <div class="col-md-11">
                                                     <button type="button" class="btn btn-secondary float-left" v-on:click="selectNodeByOutputLink(outputLink)" >
