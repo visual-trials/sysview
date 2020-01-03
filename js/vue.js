@@ -2,12 +2,18 @@ let myVue = new Vue({
     el: '#app',
     data: {
         integrationData : {},
-        flatIntegrationData : {}
+        flatIntegrationData : {},
+        selectedNode : null,
     },
     mounted () {
         let projectIdentifier = 'ClientLive' // FIXME: hardcoded!
         let sourceIdentifier = 'sources/integration_db.json'
         loadSourceData(projectIdentifier, sourceIdentifier)
+    },
+    methods : {
+        selectNode : function (node) {
+            myVue.selectedNode = node
+        }
     }
 })
 

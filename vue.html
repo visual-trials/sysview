@@ -5,52 +5,70 @@
     </head>
     <body>
         <div id="app">
-
-            
             <div class="wrapper container col-md-12">
                 <br/>
-                <div class="row mb-1">
-                    <div class="col-md-12 text-center">
-                        <h1>ESB Integraties</h1>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="wrapper container col-md-12">
-                <div class="row mb-1" v-for="node in integrationData.nodes">
-                    <div class="col-md-5">
-                        <div class="row" v-for="inputLink in node.inputLinks">
-                            <div class="col-md-11">
-                                <button type="button" class="btn btn-secondary float-right" >
-                                    {{ integrationData.nodesById[inputLink.fromNodeId].baseData.name }}
-                                </button>                    
+                <div class="row">
+                    <div class="col-md-2 border-right">
+                        <div class="wrapper container col-md-12">
+                            <div class="row mb-3 ">
+                                <div class="col-md-12 text-center">
+                                    <h3>Mediations</h3>
+                                </div>
                             </div>
-                            <div class="col-md-1" data-toggle="tooltip" data-placement="top" :title=inputLink.dataType.baseData.name >
-                                <span class="fa fa-arrow-right"></span>
+                            <div class="row mb-1 text-center" v-for="node in integrationData.nodes">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" v-on:click="selectNode(node)" class="btn btn-secondary">
+                                      {{ node.baseData.name }}
+                                    </button>                    
+                                </div>            
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-2 text-center">
-                        <button type="button" class="btn btn-secondary">
-                          {{ node.baseData.name }}
-                        </button>                    
-                    </div>            
-                    <div class="col-md-5">
-                        <div class="row" v-for="outputLink in node.outputLinks">
                         
-                            <div class="col-md-1" data-toggle="tooltip" data-placement="top" :title=outputLink.dataType.baseData.name >
-                                <span class="fa fa-arrow-right"></span>
+                    </div>
+                    <div class="col-md-10">
+                        <div v-if=selectedNode class="wrapper container col-md-12">
+                            <div class="row mb-3 ">
+                                <div class="col-md-12 text-center">
+                                    <h3>Mediation: {{ selectedNode.baseData.name }}</h3>
+                                </div>
                             </div>
-                            <div class="col-md-11">
-                                <button type="button" class="btn btn-secondary float-left" >
-                                    {{ integrationData.nodesById[outputLink.toNodeId].baseData.name }}
-                                </button>                    
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row" v-for="inputLink in selectedNode.inputLinks">
+                                        <div class="col-md-11">
+                                            <button type="button" class="btn btn-secondary float-right" >
+                                                {{ integrationData.nodesById[inputLink.fromNodeId].baseData.name }}
+                                            </button>                    
+                                        </div>
+                                        <div class="col-md-1" data-toggle="tooltip" data-placement="top" :title=inputLink.dataType.baseData.name >
+                                            <span class="fa fa-arrow-right"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <button type="button" class="btn btn-secondary">
+                                      {{ selectedNode.baseData.name }}
+                                    </button>                    
+                                </div>            
+                                <div class="col-md-5">
+                                    <div class="row" v-for="outputLink in selectedNode.outputLinks">
+                                    
+                                        <div class="col-md-1" data-toggle="tooltip" data-placement="top" :title=outputLink.dataType.baseData.name >
+                                            <span class="fa fa-arrow-right"></span>
+                                        </div>
+                                        <div class="col-md-11">
+                                            <button type="button" class="btn btn-secondary float-left" >
+                                                {{ integrationData.nodesById[outputLink.toNodeId].baseData.name }}
+                                            </button>                    
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+            
                     </div>
                 </div>
             </div>
-            </ul>
         </div>
         
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
