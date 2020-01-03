@@ -14,9 +14,20 @@ let myVue = new Vue({
     methods : {
         selectBaseNode : function (baseNode) {
             myVue.selectedBaseNode = baseNode
+            myVue.selectedNode = null
         },
         selectNode : function(node) {
             myVue.selectedNode = node
+        },
+        selectNodeByOutputLink : function (outputLink) {
+            let node = myVue.integrationData.nodesById[outputLink.toNodeId]
+            myVue.selectedNode = node
+            myVue.selectedBaseNode = myVue.integrationData.baseNodesById[node.baseNodeId]
+        },
+        selectNodeByInputLink : function (inputLink) {
+            let node = myVue.integrationData.nodesById[inputLink.fromNodeId]
+            myVue.selectedNode = node
+            myVue.selectedBaseNode = myVue.integrationData.baseNodesById[node.baseNodeId]
         }
     }
 })
