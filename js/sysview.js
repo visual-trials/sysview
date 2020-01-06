@@ -35,6 +35,9 @@ if (projectOverrule != null) {
  
 function init() {
     
+    let ourCanvasElement = document.getElementById('canvas')
+    setCanvas(ourCanvasElement)
+
     initIcons()
     initMenu()
     

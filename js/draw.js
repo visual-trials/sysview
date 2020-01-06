@@ -16,8 +16,15 @@
 
  */
  
-let canvasElement = document.getElementById('canvas')
-let ctx = canvasElement.getContext("2d")
+// FIXME: let canvasElement = document.getElementById('canvas')
+
+let canvasElement = null
+let ctx = null
+
+function setCanvas(vueCanvasElement) {
+    canvasElement = vueCanvasElement
+    ctx = canvasElement.getContext("2d")
+}
 
 // TODO: what we really should be doing is:
 // - use target and current translate/scale/rotate settings
@@ -90,10 +97,11 @@ function rgba(color) {
     return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + color.a + ')'
 }
 
-function drawCanvas() {
-    
+function drawCanvas(doResize = true) {
     clearCanvas()
-    resizeCanvasToWindowSize()
+    if (doResize) {
+        resizeCanvasToWindowSize()
+    }
     
     // TODO: we want to re-position the button (because the screensize might have just changed), not re-inialize the menu
     initMenu()
