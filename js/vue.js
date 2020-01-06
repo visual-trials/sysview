@@ -171,7 +171,10 @@ function setNodesAndLinksAsContainersAndConnections() {
         let selectedEnvironmentId = myVue.selectedNode.environment.id
 
         let nodesInEnvironment = myVue.integrationData.nodesByEnvironment[selectedEnvironmentId]
+        let nodesInEnvironmentByNodeId = {}
         for (let node of nodesInEnvironment) {
+            nodesInEnvironmentByNodeId[node.id] = node // FIXME: group by id?
+            
             let position = { x: 100, y: 100}
             if (node.visualInfo) {
                 position = node.visualInfo.position
@@ -186,7 +189,7 @@ function setNodesAndLinksAsContainersAndConnections() {
             
             let containerInfo = {
                 type: baseNodetypeToContainerType[node.baseData.type],
-                identifier: node.baseData.id, // TODO: should we use node.id here??
+                identifier: node.id, // TODO: should we use node.id here??
                 parentContainerIdentifier: 'root', // FIXME: hardcodes for now
                 name: node.baseData.name,
                 localPosition: {
@@ -207,17 +210,20 @@ function setNodesAndLinksAsContainersAndConnections() {
         for (let linkId in myVue.integrationData.linksById) {
             let link = myVue.integrationData.linksById[linkId]
             
-            // link.dataType = sourceDataType
-            // link.dataType.baseData = baseDataType
-            let connectionInfo = {
-                "identifier": link.id,
-                "type": "??->??", // FIXME
-                "dataType": "unknown", // FIXME
-                "fromContainerIdentifier": link.fromNodeId,
-                "toContainerIdentifier": link.toNodeId
+            if (nodesInEnvironmentByNodeId.hasOwnProperty(link.fromNodeId) &&
+                nodesInEnvironmentByNodeId.hasOwnProperty(link.toNodeId)) {
+                // link.dataType = sourceDataType
+                // link.dataType.baseData = baseDataType
+                let connectionInfo = {
+                    "identifier": link.id,
+                    "type": "??->??", // FIXME
+                    "dataType": "unknown", // FIXME
+                    "fromContainerIdentifier": link.fromNodeId,
+                    "toContainerIdentifier": link.toNodeId
+                }
+                
+                createConnection(connectionInfo)
             }
-            
-            createConnection(connectionInfo)
         }
                 
 
