@@ -84,7 +84,8 @@ function drawVisualView () {
     updateWorld()
     
     // Render world
-    drawCanvas()
+    let resizeCanvas = false
+    drawCanvas(resizeCanvas)
     
 }
 
@@ -151,6 +152,24 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
                     }
                     createContainer(containerInfo)
                 }
+                
+
+                for (let linkId in myVue.integrationData.linksById) {
+                    let link = myVue.integrationData.linksById[linkId]
+                    
+                    // link.dataType = sourceDataType
+                    // link.dataType.baseData = baseDataType
+                    let connectionInfo = {
+                        "identifier": link.id,
+                        "type": "??->??", // FIXME
+                        "dataType": "unknown", // FIXME
+                        "fromContainerIdentifier": link.fromNodeId,
+                        "toContainerIdentifier": link.toNodeId
+                    }
+                    
+                    createConnection(connectionInfo)
+                }
+                        
 
                 setContainerChildren()
                 recalculateWorldPositionsAndSizes()    
