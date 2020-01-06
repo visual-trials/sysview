@@ -75,6 +75,14 @@
                                                     <label for="inputType">Type</label>
                                                     <input type="text" class="form-control" id="inputType" placeholder="Enter type" :value=selectedBaseNode.type>
                                                 </div>
+                                                <div v-if="selectedBaseNode.type == 'Mediation'" class="form-group">
+                                                    <label for="inputSubType">SubType</label>
+                                                    <input type="text" class="form-control" id="inputSubType" placeholder="Enter subtype" :value=selectedBaseNode.subType>
+                                                </div>
+                                                <div v-if="selectedBaseNode.type == 'Application'" class="form-group">
+                                                    <label for="inputDomain">Domain</label>
+                                                    <input type="text" class="form-control" id="inputDomain" placeholder="Enter domain" :value=selectedBaseNode.domain>
+                                                </div>
                                                 <div class="form-group">
                                                     <label for="inputName">Name</label>
                                                     <input type="text" class="form-control" id="inputName" placeholder="Enter name" :value=selectedBaseNode.name>
