@@ -42,7 +42,17 @@ let myVue = new Vue({
     methods : {
         selectBaseNode : function (baseNode) {
             myVue.selectedBaseNode = baseNode
+            let currentEnvironment = myVue.selectedNode.environment
             myVue.selectedNode = null
+            // Try to find a node of this baseNode with the same environment (as the previosly selected node)
+            for (nodeId in myVue.integrationData.nodesById) {
+                let node = myVue.integrationData.nodesById[nodeId]
+                if (baseNode.id === node.baseData.id && currentEnvironment.id === node.environment.id) {
+                    myVue.selectedNode = node
+                    break
+                }
+            }
+            
             setNodesAndLinksAsContainersAndConnections()
         },
         selectNode : function(node) {
@@ -83,6 +93,7 @@ function initVisualView () {
 function drawVisualView () {
     
     // FIXME: enable main loop! (and input handling etc)
+    
     
     // Update world
     updateWorld()
@@ -131,10 +142,10 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
 
 function setNodesAndLinksAsContainersAndConnections() {
     
+    // Removing all connections and containers
+    initContainersAndConnections()
     
     if (myVue.selectedNode) {
-        // Removing all connections and containers
-        initContainersAndConnections()
     
         let selectedEnvironmentId = myVue.selectedNode.environment.id
 
@@ -167,6 +178,7 @@ function setNodesAndLinksAsContainersAndConnections() {
                     height: 100 // FIXME: get from visualInfo or part of shape?
                 }
             }
+
             createContainer(containerInfo)
         }
         
@@ -194,10 +206,14 @@ function setNodesAndLinksAsContainersAndConnections() {
         
         setContainerChildren()
         recalculateWorldPositionsAndSizes()    
-        // FIXME: we should watch the underlying data and draw each time it changes!
-        drawVisualView()            
-
     }
+    
+    // FIXME: for now we force a re-center the view on the world (since the world size could be 0 in the previous call of this function)
+    centerViewOnWorldCenter = true
+    
+    // FIXME: we should watch the underlying data and draw each time it changes!
+    drawVisualView()            
+
 }
 
 

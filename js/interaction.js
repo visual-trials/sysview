@@ -1095,7 +1095,7 @@ function doViewZoomingByMouse () {
 function updateWorld() {
     
     if (centerViewOnWorldCenter) {
-        
+
         let rectangleAroundWorld = getRectangleAroundWorld()
         
         // TODO: put this in a function that centers the view on a world-rectangle
