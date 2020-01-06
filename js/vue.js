@@ -42,16 +42,7 @@ let myVue = new Vue({
     methods : {
         selectBaseNode : function (baseNode) {
             myVue.selectedBaseNode = baseNode
-            let currentEnvironment = myVue.selectedNode.environment
-            myVue.selectedNode = null
-            // Try to find a node of this baseNode with the same environment (as the previosly selected node)
-            for (nodeId in myVue.integrationData.nodesById) {
-                let node = myVue.integrationData.nodesById[nodeId]
-                if (baseNode.id === node.baseData.id && currentEnvironment.id === node.environment.id) {
-                    myVue.selectedNode = node
-                    break
-                }
-            }
+            myVue.selectedNode = getMostObviouSelectedNode(baseNode, myVue.selectedNode)
             
             setNodesAndLinksAsContainersAndConnections()
         },
@@ -73,6 +64,35 @@ let myVue = new Vue({
         }
     }
 })
+
+function getMostObviouSelectedNode (baseNode, currentlySelectedNode) {
+    
+    let selectedNode = null
+    
+    if (currentlySelectedNode) {
+        let currentEnvironment = currentlySelectedNode.environment
+        // Try to find a node of this baseNode with the same environment (as the previosly selected node)
+        for (nodeId in myVue.integrationData.nodesById) {
+            let node = myVue.integrationData.nodesById[nodeId]
+            if (baseNode.id === node.baseData.id && currentEnvironment.id === node.environment.id) {
+                selectedNode = node
+                break
+            }
+        }
+    }
+    if (!selectedNode) {
+        // Try to find a node of this baseNode withing ANY environment // FIXME: we probably have a preference for the environemnt here?
+        for (nodeId in myVue.integrationData.nodesById) {
+            let node = myVue.integrationData.nodesById[nodeId]
+            if (baseNode.id === node.baseData.id) {
+                selectedNode = node
+                break
+            }
+        }
+    }
+    
+    return selectedNode
+}
 
 function initVisualView () {
     
@@ -121,6 +141,7 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
             if (!myVue.selectedBaseNode) {
                 if (myVue.integrationData.baseNodes.length > 0) {
                     myVue.selectedBaseNode = myVue.integrationData.baseNodes[0]
+                    myVue.selectedNode = getMostObviouSelectedNode(myVue.selectedBaseNode, myVue.selectedNode)
                 }
             }
             
