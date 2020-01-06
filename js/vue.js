@@ -43,19 +43,23 @@ let myVue = new Vue({
         selectBaseNode : function (baseNode) {
             myVue.selectedBaseNode = baseNode
             myVue.selectedNode = null
+            setNodesAndLinksAsContainersAndConnections()
         },
         selectNode : function(node) {
             myVue.selectedNode = node
+            setNodesAndLinksAsContainersAndConnections()
         },
         selectNodeByOutputLink : function (outputLink) {
             let node = myVue.integrationData.nodesById[outputLink.toNodeId]
             myVue.selectedNode = node
             myVue.selectedBaseNode = myVue.integrationData.baseNodesById[node.baseNodeId]
+            setNodesAndLinksAsContainersAndConnections()
         },
         selectNodeByInputLink : function (inputLink) {
             let node = myVue.integrationData.nodesById[inputLink.fromNodeId]
             myVue.selectedNode = node
             myVue.selectedBaseNode = myVue.integrationData.baseNodesById[node.baseNodeId]
+            setNodesAndLinksAsContainersAndConnections()
         }
     }
 })
@@ -115,69 +119,7 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
             })
             
             
-    
-            // TODO: maybe store this somewhere or simply lowercase the baseNodeType? Or change the ContainerTypes?
-            let baseNodetypeToContainerType = {
-                "Mediation" : "mediation",
-                "Application" : "application",
-                "Topic" : "topic"
-            }
-            // FIXME: get environmentId from selectedEnvironment!
-            // if (selectedNode) {
-                let selectedEnvironmentId = 4 // FIXME: selectedNode.environment.id
-                
-                // Removing all connections and containers
-                initContainersAndConnections()
-
-                let nodesInEnvironment = myVue.integrationData.nodesByEnvironment[selectedEnvironmentId]
-                for (let node of nodesInEnvironment) {
-                    let position = { x: 100, y: 100}
-                    if (node.visualInfo) {
-                        position = node.visualInfo.position
-                    }
-                    
-                    let containerInfo = {
-                        type: baseNodetypeToContainerType[node.baseData.type],
-                        identifier: node.baseData.id, // TODO: should we use node.id here??
-                        parentContainerIdentifier: 'root', // FIXME: hardcodes for now
-                        name: node.baseData.name,
-                        localPosition: {
-                            x: position.x,
-                            y: position.y
-                        },
-                        localScale: 1,
-                        localSize: {
-                            width: 100, // FIXME: change to width of text!
-                            height: 100 // FIXME: get from visualInfo or part of shape?
-                        }
-                    }
-                    createContainer(containerInfo)
-                }
-                
-
-                for (let linkId in myVue.integrationData.linksById) {
-                    let link = myVue.integrationData.linksById[linkId]
-                    
-                    // link.dataType = sourceDataType
-                    // link.dataType.baseData = baseDataType
-                    let connectionInfo = {
-                        "identifier": link.id,
-                        "type": "??->??", // FIXME
-                        "dataType": "unknown", // FIXME
-                        "fromContainerIdentifier": link.fromNodeId,
-                        "toContainerIdentifier": link.toNodeId
-                    }
-                    
-                    createConnection(connectionInfo)
-                }
-                        
-
-                setContainerChildren()
-                recalculateWorldPositionsAndSizes()    
-                // FIXME: we should watch the underlying data and draw each time it changes!
-                drawVisualView()            
-
-            // }
+            setNodesAndLinksAsContainersAndConnections()
     
         }
     }
@@ -185,6 +127,79 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
     xmlhttp.open("GET", url, true)
     xmlhttp.send()
 }
+
+
+function setNodesAndLinksAsContainersAndConnections() {
+    
+    
+    if (myVue.selectedNode) {
+        // Removing all connections and containers
+        initContainersAndConnections()
+    
+        let selectedEnvironmentId = myVue.selectedNode.environment.id
+
+        let nodesInEnvironment = myVue.integrationData.nodesByEnvironment[selectedEnvironmentId]
+        for (let node of nodesInEnvironment) {
+            let position = { x: 100, y: 100}
+            if (node.visualInfo) {
+                position = node.visualInfo.position
+            }
+            
+            // TODO: maybe store this somewhere or simply lowercase the baseNodeType? Or change the ContainerTypes?
+            let baseNodetypeToContainerType = {
+                "Mediation" : "mediation",
+                "Application" : "application",
+                "Topic" : "topic"
+            }
+            
+            let containerInfo = {
+                type: baseNodetypeToContainerType[node.baseData.type],
+                identifier: node.baseData.id, // TODO: should we use node.id here??
+                parentContainerIdentifier: 'root', // FIXME: hardcodes for now
+                name: node.baseData.name,
+                localPosition: {
+                    x: position.x,
+                    y: position.y
+                },
+                localScale: 1,
+                localSize: {
+                    width: 100, // FIXME: change to width of text!
+                    height: 100 // FIXME: get from visualInfo or part of shape?
+                }
+            }
+            createContainer(containerInfo)
+        }
+        
+
+        for (let linkId in myVue.integrationData.linksById) {
+            let link = myVue.integrationData.linksById[linkId]
+            
+            // link.dataType = sourceDataType
+            // link.dataType.baseData = baseDataType
+            let connectionInfo = {
+                "identifier": link.id,
+                "type": "??->??", // FIXME
+                "dataType": "unknown", // FIXME
+                "fromContainerIdentifier": link.fromNodeId,
+                "toContainerIdentifier": link.toNodeId
+            }
+            
+            createConnection(connectionInfo)
+        }
+                
+
+        // TODO: do this somewhere else!
+        interaction.currentlySelectedContainerIdentifiers = {}
+        interaction.currentlySelectedContainerIdentifiers[myVue.selectedNode.id] = true
+        
+        setContainerChildren()
+        recalculateWorldPositionsAndSizes()    
+        // FIXME: we should watch the underlying data and draw each time it changes!
+        drawVisualView()            
+
+    }
+}
+
 
 function structureFlatIntegrationData (flatIntegrationData) {
     let integrationData  = {}

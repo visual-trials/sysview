@@ -1011,7 +1011,6 @@ function drawContainer(container, alpha = null, textAlpha = 1) {
             ctx.fill()
         }
         */
-        
         if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
             if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
                 ctx.lineWidth = 2 // TODO: do we want to scale this too?
