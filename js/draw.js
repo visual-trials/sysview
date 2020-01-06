@@ -97,14 +97,16 @@ function rgba(color) {
     return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + color.a + ')'
 }
 
-function drawCanvas(doResize = true) {
+function drawCanvas(doResize = true, doMenu = true) {
     clearCanvas()
     if (doResize) {
         resizeCanvasToWindowSize()
     }
     
     // TODO: we want to re-position the button (because the screensize might have just changed), not re-inialize the menu
-    initMenu()
+    if (doMenu) {
+        initMenu()
+    }
 
     if (interaction.showGrid) {
         drawGrid()
@@ -129,7 +131,9 @@ function drawCanvas(doResize = true) {
     }
     drawTinyDetail()
     
-    drawMenu()
+    if (doMenu) {
+        drawMenu()
+    }
     
     // TODO: when the mouse (with button pressed) is moving its style doesn't get changed?
     canvasElement.style.cursor = interaction.mousePointerStyle

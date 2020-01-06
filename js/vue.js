@@ -65,8 +65,8 @@ function initVisualView () {
     let vueCanvasElement = document.getElementById('canvas')
     setCanvas(vueCanvasElement)
 
-    initIcons()
-    initMenu()
+//    initIcons()
+//    initMenu()
     
     initContainersAndConnections()
     
@@ -85,7 +85,8 @@ function drawVisualView () {
     
     // Render world
     let resizeCanvas = false
-    drawCanvas(resizeCanvas)
+    let drawMenu = false
+    drawCanvas(resizeCanvas, drawMenu)
     
 }
 
