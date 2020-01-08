@@ -31,6 +31,7 @@ let myVue = new Vue({
         flatIntegrationData : {},
         selectedBaseNode : null,
         selectedNode : null,
+        environmentTabSelected : false
     },
     mounted () {
         initVisualView()
@@ -40,6 +41,9 @@ let myVue = new Vue({
         loadSourceData(projectIdentifier, sourceIdentifier) // ASYNC!
     },
     methods : {
+        selectEnvironmentTab : function (environmentTabSelected) {
+            myVue.environmentTabSelected = environmentTabSelected
+        },
         selectBaseNode : function (baseNode) {
             myVue.selectedBaseNode = baseNode
             myVue.selectedNode = getMostObviouSelectedNode(baseNode, myVue.selectedNode)
@@ -80,6 +84,7 @@ function getMostObviouSelectedNode (baseNode, currentlySelectedNode) {
             }
         }
     }
+    /* TODO: do we want this? 
     if (!selectedNode) {
         // Try to find a node of this baseNode withing ANY environment // FIXME: we probably have a preference for the environemnt here?
         for (nodeId in myVue.integrationData.nodesById) {
@@ -90,6 +95,7 @@ function getMostObviouSelectedNode (baseNode, currentlySelectedNode) {
             }
         }
     }
+    */
     
     return selectedNode
 }
@@ -141,7 +147,7 @@ function loadSourceData(projectIdentifier, sourceIdentifier) {
             if (!myVue.selectedBaseNode) {
                 if (myVue.integrationData.baseNodes.length > 0) {
                     myVue.selectedBaseNode = myVue.integrationData.baseNodes[0]
-                    myVue.selectedNode = getMostObviouSelectedNode(myVue.selectedBaseNode, myVue.selectedNode)
+                    // TODO: do we want to do this? myVue.selectedNode = getMostObviouSelectedNode(myVue.selectedBaseNode, myVue.selectedNode)
                 }
             }
             
