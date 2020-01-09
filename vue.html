@@ -84,8 +84,12 @@
                                                     <input type="text" class="form-control" id="inputType" placeholder="Enter type" :value=selectedBaseNode.type>
                                                 </div>
                                                 <div v-if="selectedBaseNode.type == 'Mediation'" class="form-group">
-                                                    <label for="inputSubType">SubType</label>
-                                                    <input type="text" class="form-control" id="inputSubType" placeholder="Enter subtype" :value=selectedBaseNode.subType>
+                                                    <label for="inputIraType">IRA Type</label>
+                                                    <input type="text" class="form-control" id="inputIraType" placeholder="Enter IRA type" :value=selectedBaseNode.iraType>
+                                                </div>
+                                                <div v-if="selectedBaseNode.type == 'Topic'" class="form-group">
+                                                    <label for="inputSubtype">Subtype</label>
+                                                    <input type="text" class="form-control" id="inputSubtype" placeholder="Enter subtype" :value=selectedBaseNode.subtype>
                                                 </div>
                                                 <div v-if="selectedBaseNode.type == 'Application'" class="form-group">
                                                     <label for="inputDomain">Domain</label>
@@ -117,7 +121,15 @@
                                         <div class="col-md-12">
                                             <form>
                                                 <br/>
-                                                <div class="form-group">
+                                                <div v-if="selectedBaseNode.type == 'Mediation' || selectedBaseNode.type == 'Topic'" class="form-group">
+                                                    <label for="inputMajorVersion">Major version</label>
+                                                    <input type="text" class="form-control" id="inputMajorVersion" placeholder="Enter major version" :value=selectedNode.majorVersion>
+                                                </div>
+                                                <div v-if="selectedBaseNode.type == 'Mediation'" class="form-group">
+                                                    <label for="inputDocumentVersion">Document version</label>
+                                                    <input type="text" class="form-control" id="inputDocumentVersion" placeholder="Enter document version" :value=selectedNode.documentVersion>
+                                                </div>
+                                                <div v-if="selectedBaseNode.type == 'Application'" class="form-group">
                                                     <label for="inputVersion">Version</label>
                                                     <input type="text" class="form-control" id="inputVersion" placeholder="Enter version" :value=selectedNode.version>
                                                 </div>
