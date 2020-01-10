@@ -9,7 +9,7 @@
             <div class="wrapper container col-md-12">
                 <br/>
                 <div class="row">
-                    <div class="col-md-2 border-right">
+                    <div class="col-md-3 border-right">
                         <div class="wrapper container col-md-12">
                             <div class="row mb-3 ">
                                 <div class="col-md-12 text-center">
@@ -52,7 +52,7 @@
                         </div>
                         
                     </div>
-                    <div class="col-md-10">
+                    <div class="col-md-9">
                         <div v-if=selectedBaseNode class="wrapper container col-md-12">
                             <div class="row">
                                 <div class="col-md-12 text-center">
@@ -126,7 +126,7 @@
                                                     <label for="inputMajorVersion">Major version</label>
                                                     <input type="text" class="form-control" id="inputMajorVersion" placeholder="Enter major version" :value=selectedNode.majorVersion>
                                                 </div>
-                                                <div v-if="selectedBaseNode.type == 'Mediation'" class="form-group">
+                                                <div v-if="selectedBaseNode.type == 'Mediation' || selectedBaseNode.type == 'Topic'" class="form-group">
                                                     <label for="inputDocumentVersion">Document version</label>
                                                     <input type="text" class="form-control" id="inputDocumentVersion" placeholder="Enter document version" :value=selectedNode.documentVersion>
                                                 </div>
