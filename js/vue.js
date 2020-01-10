@@ -6,17 +6,17 @@ let databaseData = {}
 databaseData.colorAndShapeMappings = {}
 databaseData.colorAndShapeMappings.containerTypeToContainerShapeAndColor = {
     "application": {
-        "shape" : "roundedRectangleManyConnections",
+        "shape" : "roundedRectangleManyConnectionsLR",
         "stroke" : { "color": "blue", "light": 0.2 },
         "fill" : { "color": "blue", "light": 0.6 }
     },
     "topic": { 
-        "shape" : "ellipse4Points",
+        "shape" : "ellipse2PointsLR",
         "stroke" : { "color": "grey", "light": -0.5 },
         "fill" : { "color": "grey", "light": 0.5 }
     },
     "mediation": { 
-        "shape" : "rectangle4points",
+        "shape" : "rectangle2pointsLR",
         "stroke" : { "color": "grey", "light": -0.5 },
         "fill" : { "color": "grey", "light": 0.5 },
         "textBelowContainer" : true
