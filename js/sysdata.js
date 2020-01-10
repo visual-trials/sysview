@@ -101,7 +101,7 @@ function saveCode() {
 }
 
 function loadConversionTree(projectIdentifier, selectConversionElementIdentifier) {
-    let url = 'index.php?action=get_conversion_tree&project=' + projectIdentifier
+    let url = 'api.php?action=get_conversion_tree&project=' + projectIdentifier
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -123,7 +123,7 @@ function loadConversionTree(projectIdentifier, selectConversionElementIdentifier
 }
 
 function loadSourceData(projectIdentifier, sourceIdentifier, sourceElementIdentifier) {
-    let url = 'index.php?action=get_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
+    let url = 'api.php?action=get_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -138,7 +138,7 @@ function loadSourceData(projectIdentifier, sourceIdentifier, sourceElementIdenti
 }
 
 function storeDestinationData(destinationData, projectIdentifier, source1Identifier) {
-    let url = 'index.php?action=set_source_data&project=' + projectIdentifier + '&source=' + source1Identifier
+    let url = 'api.php?action=set_source_data&project=' + projectIdentifier + '&source=' + source1Identifier
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -151,7 +151,7 @@ function storeDestinationData(destinationData, projectIdentifier, source1Identif
 }
 
 function loadConversionCode(projectIdentifier, conversionIdentifier) {
-    let url = 'index.php?action=get_conversion_code&project=' + projectIdentifier + '&conversion=' + conversionIdentifier
+    let url = 'api.php?action=get_conversion_code&project=' + projectIdentifier + '&conversion=' + conversionIdentifier
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -166,7 +166,7 @@ function loadConversionCode(projectIdentifier, conversionIdentifier) {
 }
 
 function storeConversionCode(conversionCode, projectIdentifier, conversionIdentifier) {
-    let url = 'index.php?action=set_conversion_code&project=' + projectIdentifier + '&conversion=' + conversionIdentifier
+    let url = 'api.php?action=set_conversion_code&project=' + projectIdentifier + '&conversion=' + conversionIdentifier
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {

@@ -133,7 +133,7 @@ function drawVisualView () {
 
 
 function loadSourceData(projectIdentifier, sourceIdentifier) {
-    let url = 'index.php?action=get_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
+    let url = 'api.php?action=get_source_data&project=' + projectIdentifier + '&source=' + sourceIdentifier
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {

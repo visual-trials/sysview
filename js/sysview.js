@@ -155,7 +155,7 @@ function integrateContainerAndConnectionData () {
 
 function loadContainerAndConnectionData() {
     
-    let url = 'index.php?action=get_project_data&project=' + project
+    let url = 'api.php?action=get_project_data&project=' + project
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -316,7 +316,7 @@ function storeContainerName(containerIdentififer, containerName) {
 // TODO: storeContainerDataType(containerIdentififer, dataType)
 
 function storeVisualData() {
-    let url = 'index.php?action=set_visual_data&project=' + project
+    let url = 'api.php?action=set_visual_data&project=' + project
     let xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
