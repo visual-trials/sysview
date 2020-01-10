@@ -313,7 +313,7 @@ function structureFlatIntegrationData (flatIntegrationData) {
         if (!integrationData.baseNodesById.hasOwnProperty(baseNode.id)) {
             baseNode.nodes = []
             integrationData.baseNodes.push(baseNode)
-            integrationData.baseNodesById[nodeId] = baseNode
+            integrationData.baseNodesById[baseNode.id] = baseNode
         }
         baseNode.nodes.push(node)
         integrationData.nodesById[nodeId] = node
