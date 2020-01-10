@@ -24,6 +24,15 @@ databaseData.colorAndShapeMappings.containerTypeToContainerShapeAndColor = {
 }
 databaseData.colorAndShapeMappings.dataTypeToColor = {}
 
+let project = 'PoC'
+
+let urlString = window.location.href
+let url = new URL(urlString)
+let projectOverrule = url.searchParams.get("project")
+if (projectOverrule != null) {
+	project = projectOverrule
+}
+
 let myVue = new Vue({
     el: '#app',
     data: {
@@ -36,7 +45,7 @@ let myVue = new Vue({
     mounted : function () {
         initVisualView()
         
-        let projectIdentifier = 'ClientLive' // FIXME: hardcoded!
+        let projectIdentifier = project
         let sourceIdentifier = 'sources/integration_db.json'
         loadSourceData(projectIdentifier, sourceIdentifier) // ASYNC!
     },
