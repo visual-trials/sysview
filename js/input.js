@@ -191,7 +191,7 @@ function resetTouchEventData () {
     touchesStateHasChanged = false
 }
 
-function updateTouchPosition (touch, x, y, previousX = null, previousY = null) {
+function updateTouchPosition (touch, x, y, previousX, previousY) {
     touch.position.x = x
     touch.position.y = y
     
@@ -261,7 +261,7 @@ function touchEnded (e) {
             }
             // TODO: should we do this?: endedTouch.touchHasStarted = false
             
-            updateTouchPosition(endedTouch, changedTouch.pageX, changedTouch.pageY)
+            updateTouchPosition(endedTouch, changedTouch.pageX, changedTouch.pageY, null, null)
         }
         else {
             console.log("ERROR: touch ended that did not start!")
@@ -304,7 +304,7 @@ function touchMoved (e) {
         if (touchesState.hasOwnProperty(changedTouch.identifier)) {
             let movedTouch = touchesState[changedTouch.identifier]
             
-            updateTouchPosition(movedTouch, changedTouch.pageX, changedTouch.pageY)
+            updateTouchPosition(movedTouch, changedTouch.pageX, changedTouch.pageY, null, null)
         }
         else {
             console.log("ERROR: touch moved that did not start!")
@@ -435,6 +435,10 @@ function hasKeyGoneDown(keyNameToCheck) {
     return false
 }
 
+function contextMenuDown (e) {
+    // TODO: for now preventing the context-menu this way
+    e.preventDefault()
+}
     
 function addInputListeners () {
     canvasElement.addEventListener("mousedown", mouseButtonDown, false)
@@ -461,8 +465,7 @@ function addInputListeners () {
         
     window.addEventListener("resize", drawCanvas, false)
     
-    // TODO: for now preventing the context-menu this way
-    canvasElement.addEventListener('contextmenu', event => event.preventDefault());
+    canvasElement.addEventListener('contextmenu', contextMenuDown, false)
 }
 
 // From here: https://stackoverflow.com/questions/1772179/get-character-value-from-keycode-in-javascript-then-trim/5829387#5829387

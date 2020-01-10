@@ -57,7 +57,7 @@ let interaction = {
 
 function handleInputStateChange () {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
     let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
     
     if (menuButtonAtMousePosition != null) {
@@ -233,7 +233,7 @@ function doConnectionSelectionByMouse() {
 
 function doAddNewConnection() {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
     
     // TODO: is this always correct?
     interaction.mousePointerStyle = 'default'
@@ -327,7 +327,8 @@ function doSelectChildContainersByKeyboard() {
         let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
         
         interaction.currentlySelectedContainerIdentifiers = {}
-        for (let childContainerIdentifier of currentlySelectedContainer.children) {
+        for (let childContainerIdentifierIndex = 0; childContainerIdentifierIndex < currentlySelectedContainer.children.length; childContainerIdentifierIndex++) {
+            let childContainerIdentifier = currentlySelectedContainer.children[childContainerIdentifierIndex]
             interaction.currentlySelectedContainerIdentifiers[childContainerIdentifier] = true
         }
         
@@ -547,7 +548,7 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
 
 function doContainerSelectionByMouse() {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
     
     // If escape is pressed, de-select all containers    
     if (hasKeyGoneDown('ESCAPE')) {
@@ -717,7 +718,7 @@ function doContainerDraggingByMouse() {
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
          
-        let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+        let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
         if (containerAtMousePosition != null/* && currentlySelectedContainerIdentifier != null &&
             containerAtMousePosition.identifier === currentlySelectedContainerIdentifier */) {
 // FIXME: what should be the logic here?
@@ -882,7 +883,7 @@ function doAddNewContainer() {
 
 function doEditContainerText() {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition)
+    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
     
     if (mouseState.leftButtonHasGoneDownTwice) {
         // TODO: we might want to check if the container is selected and/or hovered

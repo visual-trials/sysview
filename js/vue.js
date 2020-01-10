@@ -33,14 +33,14 @@ let myVue = new Vue({
         selectedNode : null,
         environmentTabSelected : false
     },
-    mounted () {
+    mounted : function () {
         initVisualView()
         
         let projectIdentifier = 'ClientLive' // FIXME: hardcoded!
         let sourceIdentifier = 'sources/integration_db.json'
         loadSourceData(projectIdentifier, sourceIdentifier) // ASYNC!
     },
-    methods : {
+    methods: {
         selectEnvironmentTab : function (environmentTabSelected) {
             myVue.environmentTabSelected = environmentTabSelected
         },
@@ -178,7 +178,8 @@ function setNodesAndLinksAsContainersAndConnections() {
 
         let nodesInEnvironment = myVue.integrationData.nodesByEnvironment[selectedEnvironmentId]
         let nodesInEnvironmentByNodeId = {}
-        for (let node of nodesInEnvironment) {
+        for (let nodeIndex = 0; nodeIndex < nodesInEnvironment.length; nodeIndex++) {
+            let node = nodesInEnvironment[nodeIndex]
             nodesInEnvironmentByNodeId[node.id] = node // FIXME: group by id?
             
             let position = { x: 100, y: 100}
@@ -238,7 +239,7 @@ function setNodesAndLinksAsContainersAndConnections() {
         interaction.currentlySelectedContainerIdentifiers[myVue.selectedNode.id] = true
         
         setContainerChildren()
-        recalculateWorldPositionsAndSizes()    
+        recalculateWorldPositionsAndSizes(null)
     }
     
     // FIXME: for now we force a re-center the view on the world (since the world size could be 0 in the previous call of this function)
@@ -265,11 +266,11 @@ function structureFlatIntegrationData (flatIntegrationData) {
     for (let linkId in linksById) {
         let sourceLink = linksById[linkId]
         
-        let link = Object.assign({}, sourceLink)
+        let link = $.extend({}, sourceLink) // Note: Object.assign() doesnt work in IE11, so we use $.extend (from jQuery) instead
         let sourceDataType = dataTypesById[link.dataTypeId]
         let baseDataType = baseDataTypesById[sourceDataType.baseDataTypeId]
         
-        let dataType = Object.assign({}, sourceDataType)
+        let dataType = $.extend({}, sourceDataType) // Note: Object.assign() doesnt work in IE11, so we use $.extend (from jQuery) instead
         dataType.baseData = baseDataType
         
         link.dataType = dataType
@@ -287,7 +288,7 @@ function structureFlatIntegrationData (flatIntegrationData) {
         let baseNode = baseNodesById[sourceNode.baseNodeId]
         let environment = environmentsById[sourceNode.environmentId]
         
-        let node = Object.assign({}, sourceNode)
+        let node = $.extend({}, sourceNode) // Note: Object.assign() doesnt work in IE11, so we use $.extend (from jQuery) instead
         node.baseData = baseNode
         node.environment = environment
         node.outputLinks = getLinksWithSpecificFromNodeId(integrationData.linksById, node.id)
@@ -345,7 +346,8 @@ function getLinksWithSpecificToNodeId(linksById, toNodeId) {
 
 function groupById (listWithIds) {
     let elementsById = {}
-    for (let listElement of listWithIds) {
+    for (let index = 0; index < listWithIds.length; index++) {
+        let listElement = listWithIds[index]
         elementsById[listElement.id] = listElement
     }
     return elementsById

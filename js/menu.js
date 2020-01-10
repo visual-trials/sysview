@@ -37,7 +37,7 @@ function initIcons() {
         iconImage.onload = function(){
             menuIcons[mode] = iconImage
             // FIXME: there is probably a better way to do this!
-            drawCanvas()
+            drawCanvas(true, true)
         }
     }
 }

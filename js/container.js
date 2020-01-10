@@ -152,7 +152,11 @@ function createContainer(containerData) {
     return newContainer
 }
 
-function getExistingField(fieldName, firstObject, secondObject, defaultValue = null) {
+function getExistingField(fieldName, firstObject, secondObject) {
+    return getExistingFieldOrDefault(fieldName, firstObject, secondObject, null)
+}
+
+function getExistingFieldOrDefault(fieldName, firstObject, secondObject, defaultValue) {
     if (firstObject != null && firstObject.hasOwnProperty(fieldName)) {
         return firstObject[fieldName]
     }
@@ -172,13 +176,13 @@ function mergeSourceAndVisualContainerData (sourceContainerData, visualContainer
         type : getExistingField('type', visualContainerData, sourceContainerData),
         parentContainerIdentifier : getExistingField('parentContainerIdentifier', visualContainerData, sourceContainerData),
         localPosition : { 
-            x: parseFloat(getExistingField(
+            x: parseFloat(getExistingFieldOrDefault(
                 'x', 
                 visualContainerData == null ? null : visualContainerData.localPosition, 
                 sourceContainerData == null ? null : sourceContainerData.localPosition, 
                 0)
             ),
-            y: parseFloat(getExistingField(
+            y: parseFloat(getExistingFieldOrDefault(
                 'y', 
                 visualContainerData == null ? null : visualContainerData.localPosition, 
                 sourceContainerData == null ? null : sourceContainerData.localPosition, 
@@ -186,13 +190,13 @@ function mergeSourceAndVisualContainerData (sourceContainerData, visualContainer
             )
         },
         localSize : { 
-            width: parseFloat(getExistingField(
+            width: parseFloat(getExistingFieldOrDefault(
                 'width', 
                 visualContainerData == null ? null : visualContainerData.localSize, 
                 sourceContainerData == null ? null : sourceContainerData.localSize, 
                 0)
             ),
-            height: parseFloat(getExistingField(
+            height: parseFloat(getExistingFieldOrDefault(
                 'height', 
                 visualContainerData == null ? null : visualContainerData.localSize, 
                 sourceContainerData == null ? null : sourceContainerData.localSize, 

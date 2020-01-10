@@ -174,7 +174,7 @@ function getAngleBetweenPoints(fromPosition, toPosition) {
     return Math.atan2(toPosition.y - fromPosition.y, toPosition.x - fromPosition.x);
 }
 
-function getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, container, reverseAngle, centerPoint = null) {
+function getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, container, reverseAngle, centerPoint) {
     
     if (reverseAngle) {
         angleBetweenPoints += Math.PI
@@ -325,7 +325,9 @@ function recalculateWorldPoints(container) {
     
     
     // TODO: for now we are ordering points alphabetically, instead of determining their dependence
-    for (let pointIdentifier of Object.keys(containerShape.points).sort()) {
+    let sortedPointIdentifiers = Object.keys(containerShape.points).sort()
+    for (let pointIdentifierIndex = 0; pointIdentifierIndex < sortedPointIdentifiers.length; pointIdentifierIndex++)  {
+        let pointIdentifier = sortedPointIdentifiers[pointIdentifierIndex]
     // FIXME: remove this: for (let pointIdentifier in containerShape.points) {
         let point = containerShape.points[pointIdentifier]
         
@@ -382,7 +384,7 @@ function getPositionFromAnglePointAndDistance(position, angle, distance) {
     return newPosition
 }
 
-function recalculateWorldPositionsAndSizes(container = null) {
+function recalculateWorldPositionsAndSizes(container) {
 
     if (container == null) {
         container = containersAndConnections.containers['root'] // = root container
@@ -408,7 +410,7 @@ function recalculateWorldPositionsAndSizes(container = null) {
     }
 }
 
-function findContainerEncompassingWorldRectangle(worldRectangle, container = null) {
+function findContainerEncompassingWorldRectangle(worldRectangle, container) {
     
     if (container == null) {
         // start with the root container, if no starting container has been supplied
@@ -433,7 +435,7 @@ function findContainerEncompassingWorldRectangle(worldRectangle, container = nul
     return null
 }
 
-function findContainerAtWorldPosition(worldPosition, container = null, excludeSelectedContainers = false) {
+function findContainerAtWorldPosition(worldPosition, container, excludeSelectedContainers) {
     
     if (container == null) {
         container = containersAndConnections.containers['root'] // = root container

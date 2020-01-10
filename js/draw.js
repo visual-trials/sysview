@@ -97,7 +97,7 @@ function rgba(color) {
     return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + color.a + ')'
 }
 
-function drawCanvas(doResize = true, doMenu = true) {
+function drawCanvas(doResize, doMenu) {
     clearCanvas()
     if (doResize) {
         resizeCanvasToWindowSize()
@@ -113,7 +113,7 @@ function drawCanvas(doResize = true, doMenu = true) {
     }
  
     let rootContainer = containersAndConnections.containers['root']
-    drawContainers(rootContainer.children)
+    drawContainers(rootContainer.children, null)
     
     // FIXME: clean this up!
     // let doConnectionGrouping = true
@@ -223,7 +223,11 @@ function drawButton(buttonData, drawOnlySelected) {
     
 }
 
-function drawDetailLabelAndValue(position, label, value, secondValue = '__none__') {
+function drawDetailLabelAndValue(position, label, value) {
+    drawDetailLabelAndTwoValues(position, label, value, '__none__')
+}
+
+function drawDetailLabelAndTwoValues(position, label, value, secondValue) {
     // Get text height
     let fontSize = 14
     let heightBottomWhiteArea = fontSize / 6
@@ -251,16 +255,16 @@ function drawDetailLabelAndValue(position, label, value, secondValue = '__none__
 
 function drawContainerData (position, label, visualData, sourceData) {
     if (visualData != null && sourceData != null) {
-        drawDetailLabelAndValue(position, label, visualData[label], sourceData[label])
+        drawDetailLabelAndTwoValues(position, label, visualData[label], sourceData[label])
     }
     else if (visualData != null) {
-        drawDetailLabelAndValue(position, label, visualData[label], '')
+        drawDetailLabelAndTwoValues(position, label, visualData[label], '')
     }
     else if (sourceData != null) {
-        drawDetailLabelAndValue(position, label, '', sourceData[label])
+        drawDetailLabelAndTwoValues(position, label, '', sourceData[label])
     }
     else {
-        drawDetailLabelAndValue(position, label, '', '')
+        drawDetailLabelAndTwoValues(position, label, '', '')
     }
 
 }
@@ -842,7 +846,7 @@ function showContainerChildren(container) {
     }
 }
 
-function drawContainers(containerIdentifiers, alpha = null) {
+function drawContainers(containerIdentifiers, alpha) {
     for (let containerIndex = 0; containerIndex < containerIdentifiers.length; containerIndex++) {
         let containerIdentifier = containerIdentifiers[containerIndex]
         let container = containersAndConnections.containers[containerIdentifier]
@@ -929,7 +933,8 @@ function drawContainerShape (container) {
     let containerShape = containerShapes[container.shapeType]
 
     ctx.beginPath()
-    for (let pathPart of containerShape.strokeAndFillPath) {
+    for (let pathPartIndex = 0; pathPartIndex < containerShape.strokeAndFillPath.length; pathPartIndex++) {
+        let pathPart = containerShape.strokeAndFillPath[pathPartIndex]
         if (pathPart.type === 'move') {
             let toPointIdentifier = pathPart.toPoint
             let toPoint = fromWorldPositionToScreenPosition(container.worldPoints[toPointIdentifier])
@@ -964,7 +969,7 @@ function drawContainerShape (container) {
     ctx.closePath()
 }
 
-function drawContainer(container, alpha = null, textAlpha = 1) {
+function drawContainer(container, alpha, textAlpha) {
     
     {
         // Draw shape

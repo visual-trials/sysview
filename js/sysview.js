@@ -79,7 +79,7 @@ function mainLoop () {
         updateWorld()
         
         // Render world
-        drawCanvas()
+        drawCanvas(true, true)
         viewWasDrawnOnce = true
     }
     
@@ -127,7 +127,7 @@ function integrateContainerAndConnectionData () {
     }
     
     setContainerChildren()
-    recalculateWorldPositionsAndSizes()
+    recalculateWorldPositionsAndSizes(null)
     
     // First all visual connections in the visual data set
     for (let connectionIdentifier in databaseData.visual.connections) {
