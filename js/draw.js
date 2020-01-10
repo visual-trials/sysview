@@ -971,6 +971,7 @@ function drawContainerShape (container) {
 
 function drawContainer(container, alpha, textAlpha) {
     
+    ctx.save()
     {
         // Draw shape
         ctx.lineWidth = 2 * interaction.viewScale * container.worldScale
@@ -1016,6 +1017,7 @@ function drawContainer(container, alpha, textAlpha) {
             ctx.fill()
         }
         */
+        
         if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
             if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
                 ctx.lineWidth = 2 // TODO: do we want to scale this too?
@@ -1036,6 +1038,7 @@ function drawContainer(container, alpha, textAlpha) {
             }
         }
     }
+    ctx.restore()
     
     let textColor = { r:0, g:0, b:0, a:1 * textAlpha }
     {
