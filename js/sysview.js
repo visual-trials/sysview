@@ -23,6 +23,7 @@ let connectionIdentifiersToBeStored = {}
 let databaseDataHasChanged = false
 let viewWasDrawnOnce = false
 let centerViewOnWorldCenter = false
+let centerViewOnFirstSelectedContainer = false
 
 let project = 'ClientLive'
 

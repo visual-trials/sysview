@@ -1131,6 +1131,23 @@ function updateWorld() {
         
         centerViewOnWorldCenter = false
     }
+    else if (centerViewOnFirstSelectedContainer)  {
+        if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 0) {
+            currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+            let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
+            
+            // For now we are resetting to the default
+            interaction.viewScale = 0.8 // FIXME: hardcoded!
+            interaction.viewOffset = { x: 0, y: 0 }
+            
+            // After setting the scale we can calculate the viewOffset
+            let containerPositionOnScreen = fromWorldPositionToScreenPosition(currentlySelectedContainer.worldPosition)
+            let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
+            interaction.viewOffset = { x: middleOfScreen.x - containerPositionOnScreen.x, y: middleOfScreen.y - containerPositionOnScreen.y } 
+        }
+        
+        centerViewOnFirstSelectedContainer = false
+    }
     
     if (interaction.viewAsIsoMetric) {
         if (interaction.percentageIsoMetric < 1) {

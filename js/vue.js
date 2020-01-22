@@ -1,6 +1,7 @@
 
 // FIXME: maybe put this in interaction.js?
 let centerViewOnWorldCenter = true
+let centerViewOnFirstSelectedContainer = false
 // FIXME: maybe put this somewhere else?
 let databaseData = {}
 databaseData.colorAndShapeMappings = {}
@@ -46,7 +47,8 @@ let myVue = new Vue({
         flatIntegrationData : {},
         selectedBaseNode : null,
         selectedNode : null,
-        environmentTabSelected : false
+        environmentTabSelected : false,
+        zoomToShowAllNodes : true
     },
     mounted : function () {
         initVisualView()
@@ -79,6 +81,10 @@ let myVue = new Vue({
             let node = myVue.integrationData.nodesById[inputLink.fromNodeId]
             myVue.selectedNode = node
             myVue.selectedBaseNode = myVue.integrationData.baseNodesById[node.baseNodeId]
+            setNodesAndLinksAsContainersAndConnections()
+        },
+        toggleZoom : function () {
+            myVue.zoomToShowAllNodes = !myVue.zoomToShowAllNodes
             setNodesAndLinksAsContainersAndConnections()
         }
     }
@@ -135,7 +141,11 @@ function drawVisualView () {
     
     // FIXME: enable main loop! (and input handling etc)
     
-    
+    // Handle input 
+    if (keyboardState.keyboardStateHasChanged || mouseState.mouseStateHasChanged || touchesStateHasChanged) {
+        handleInputStateChange()
+    }
+        
     // Update world
     updateWorld()
     
@@ -257,8 +267,13 @@ function setNodesAndLinksAsContainersAndConnections() {
         recalculateWorldPositionsAndSizes(null)
     }
     
-    // FIXME: for now we force a re-center the view on the world (since the world size could be 0 in the previous call of this function)
-    centerViewOnWorldCenter = true
+    if (myVue.zoomToShowAllNodes) {
+        // FIXME: for now we force a re-center the view on the world (since the world size could be 0 in the previous call of this function)
+        centerViewOnWorldCenter = true
+    }
+    else {
+        centerViewOnFirstSelectedContainer = true
+    }
     
     // FIXME: we should watch the underlying data and draw each time it changes!
     drawVisualView()            
