@@ -15,10 +15,30 @@
             canvas {
                 display:block;
             }
+            /* to cloak vue elements while vue is compiling/starting up */
+            [v-cloak] {
+                display: none;
+            }
         </style>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
     </head>
     <body onload="init()">
         <canvas id="canvas" width="800" height="600"></canvas>
+        
+        <div id="vueContainerDetail" v-cloak v-if="showDetail" style="position: absolute; top: 140px; left: 20px; width: 300px; height: 600px; background-color: lightblue;">
+            <p>Selected container: <br> {{ display }}</p>
+            
+            <button type="button" v-on:click="testButton('1')" class="btn btn-secondary">
+                Submit 1
+            </button>                    
+            <button type="button" v-on:click="testButton('2')" class="btn btn-secondary">
+                Submit 2
+            </button>                    
+        </div>
+        
+        <!-- Vue.js -->
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <!-- production: <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
         
         <script src="zui/shapes.js"></script>
         <script src="zui/geometry.js"></script>
@@ -28,7 +48,7 @@
         <script src="zui/container.js"></script>
         <script src="zui/menu.js"></script>
 
-        <script src="js/example.js"></script>
+        <!-- <script src="js/example.js"></script> -->
         <script src="js/sysview.js"></script>
     </body>
 </html>
