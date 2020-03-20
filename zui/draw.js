@@ -280,6 +280,7 @@ function drawDetail () {
         ctx.strokeRect(detailPosition.x + 0.5, detailPosition.y + 0.5, detailSize.width, detailSize.height)
 
         let containerToDetail = getContainerByIdentifier(interaction.currentlyHoveredContainerIdentifier)
+// FIXME: we should not assume visual/source databaseData here!!
         let visualData = databaseData.visual.containers[containerToDetail.identifier]
         let sourceData = databaseData.source.containers[containerToDetail.identifier]
 
@@ -310,6 +311,7 @@ function drawDetail () {
         ctx.strokeRect(detailPosition.x + 0.5, detailPosition.y + 0.5, detailSize.width, detailSize.height)
 
         let connectionToDetail = getConnectionByIdentifier(interaction.currentlyHoveredConnectionIdentifier)
+// FIXME: we should not assume visual/source databaseData here!!
         let visualData = databaseData.visual.connections[connectionToDetail.identifier]
         let sourceData = databaseData.source.connections[connectionToDetail.identifier]
 
