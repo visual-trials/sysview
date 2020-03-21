@@ -331,7 +331,7 @@ let keyboardState = {
 
 function resetKeyboardEventData() {
     keyboardState.sequenceKeysUpDown = []
-    keyboardStateHasChanged : false
+    keyboardState.keyboardStateHasChanged = false
 }
 
 function keyDown (e) {
@@ -435,6 +435,24 @@ function hasKeyGoneDown(keyNameToCheck) {
     return false
 }
 
+// Window
+let windowState = {
+    windowHasBeenResized : false,
+    windowStateHasChanged : false
+}
+
+function resetWindowEventData() {
+    windowState.windowHasBeenResized = false
+    windowState.windowStateHasChanged = false
+}
+
+function windowResized() {
+    windowState.windowHasBeenResized = true
+    windowState.windowStateHasChanged = true
+}
+
+
+
 function contextMenuDown (e) {
     // TODO: for now preventing the context-menu this way
     e.preventDefault()
@@ -463,7 +481,7 @@ function addInputListeners () {
     document.addEventListener("keydown", keyDown, false)
     document.addEventListener("keyup", keyUp, false)
         
-    window.addEventListener("resize", drawCanvas, false)
+    window.addEventListener("resize", windowResized, false)
     
     canvasElement.addEventListener('contextmenu', contextMenuDown, false)
 }

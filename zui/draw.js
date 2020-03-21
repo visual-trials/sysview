@@ -21,6 +21,7 @@
 let canvasElement = null
 let ctx = null
 
+// TODO: we dont want to call this vue...! (maybe external... ?)
 function setCanvas(vueCanvasElement) {
     canvasElement = vueCanvasElement
     ctx = canvasElement.getContext("2d")
@@ -66,12 +67,14 @@ function clearCanvas() {
     ctx.closePath()    
 }
 
-function resizeCanvasToWindowSize () {
-    if ( canvasElement.width != window.innerWidth || canvasElement.height != window.innerHeight) {
-        canvasElement.style.width = window.innerWidth
-        canvasElement.style.height = window.innerHeight
-        canvasElement.width = window.innerWidth
-        canvasElement.height = window.innerHeight
+function resizeCanvasToDesiredSize (desiredCanvasSize) {
+    let desiredWidth = desiredCanvasSize.width
+    let desiredHeight = desiredCanvasSize.height
+    if ( canvasElement.width != desiredWidth || canvasElement.height != desiredHeight) {
+        canvasElement.style.width = desiredWidth
+        canvasElement.style.height = desiredHeight
+        canvasElement.width = desiredWidth
+        canvasElement.height = desiredHeight
     }
 }
     
@@ -97,10 +100,10 @@ function rgba(color) {
     return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + color.a + ')'
 }
 
-function drawCanvas(doResize, doMenu) {
+function drawCanvas(desiredCanvasSize, doMenu) {
     clearCanvas()
-    if (doResize) {
-        resizeCanvasToWindowSize()
+    if (desiredCanvasSize != null) {
+        resizeCanvasToDesiredSize(desiredCanvasSize)
     }
     
     // TODO: we want to re-position the button (because the screensize might have just changed), not re-inialize the menu
