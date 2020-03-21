@@ -81,11 +81,16 @@ function init() {
 
 function mainLoop () {
     
-    if (keyboardState.keyboardStateHasChanged || mouseState.mouseStateHasChanged || touchesStateHasChanged || 
-        interaction.isoMetricAnimationRunning || databaseDataHasChanged || !viewWasDrawnOnce) {
+    if (keyboardState.keyboardStateHasChanged ||
+        mouseState.mouseStateHasChanged || 
+        windowState.windowStateHasChanged || 
+        touchesStateHasChanged || 
+        interaction.isoMetricAnimationRunning || 
+        databaseDataHasChanged || 
+        !viewWasDrawnOnce) {
             
         // Handle input 
-        if (keyboardState.keyboardStateHasChanged || mouseState.mouseStateHasChanged || touchesStateHasChanged) {
+        if (keyboardState.keyboardStateHasChanged || mouseState.mouseStateHasChanged || windowState.windowStateHasChanged || touchesStateHasChanged) {
             handleInputStateChange()
             
 // FIXME: cleanup / implement this somewhere else!
@@ -115,7 +120,8 @@ vueContainerDetailApp.showDetail = showDetail
         updateWorld()
         
         // Render world
-        drawCanvas(true, true)
+        let desiredCanvasSize = { width: window.innerWidth, height: window.innerHeight }
+        drawCanvas(desiredCanvasSize, true)
         viewWasDrawnOnce = true
     }
     
