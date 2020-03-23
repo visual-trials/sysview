@@ -149,6 +149,7 @@ function handleInputStateChange () {
             doViewZoomingByMouse()
         }
         else if (interaction.currentlySelectedMode === 'view') {
+            doContainerSelectionByMouse()
             doViewDraggingByMouse()
             doViewZoomingByMouse()
         }

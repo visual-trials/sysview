@@ -129,10 +129,13 @@ function drawCanvas(desiredCanvasSize, doMenu) {
     //}
     drawNewConnection()
     
+    /*
+    // FIXME probably only for DEBUG:
     if (interaction.currentlySelectedMode !== 'view') {
         drawDetail()
     }
     drawTinyDetail()
+    */
     
     if (doMenu) {
         drawMenu()
@@ -1023,6 +1026,17 @@ function drawContainer(container, alpha, textAlpha) {
         }
         */
         
+        // TODO: currenltly we are drawing a shape multiple times if it is being hovered AND is selected
+        if (interaction.currentlyHoveredContainerIdentifier != null &&
+            interaction.currentlyHoveredContainerIdentifier === container.identifier) {
+                
+            ctx.lineWidth = 2 // TODO: do we want to scale this too?
+            ctx.strokeStyle = "#EECC00"
+            
+            drawContainerShape(container)
+            ctx.stroke()
+        }
+        
         if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
             if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
                 ctx.lineWidth = 2 // TODO: do we want to scale this too?
@@ -1036,12 +1050,13 @@ function drawContainer(container, alpha, textAlpha) {
                      container.identifier === interaction.emcompassingContainerIdentifier) {
 
                 ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                ctx.strokeStyle = "#FFFF00"
+                ctx.strokeStyle = "#00CC00"
                 
                 drawContainerShape(container)
                 ctx.stroke()
             }
         }
+        
     }
     ctx.restore()
     
