@@ -1031,10 +1031,11 @@ function drawContainer(container, alpha, textAlpha) {
             interaction.currentlyHoveredContainerIdentifier === container.identifier) {
                 
             ctx.lineWidth = 2 // TODO: do we want to scale this too?
-            ctx.strokeStyle = "#EECC00"
+            ctx.fillStyle = "#EECC00"
             
+            // FIXME: currently filling AFTER stroking, removed HALF of the stroke!
             drawContainerShape(container)
-            ctx.stroke()
+            ctx.fill()
         }
         
         if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
