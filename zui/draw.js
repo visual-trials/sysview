@@ -340,7 +340,8 @@ function drawTinyDetail () {
     }
     else {
         if (interaction.currentlyHoveredContainerIdentifier != null) {
-            if (interaction.currentlyHoveredContainerIdentifier.indexOf('AddedContainer_') == 0) {
+            if (typeof interaction.currentlyHoveredContainerIdentifier === 'string' && 
+                interaction.currentlyHoveredContainerIdentifier.indexOf('AddedContainer_') == 0) {
                 let hoveredContainer = getContainerByIdentifier(interaction.currentlyHoveredContainerIdentifier)
                 textToDraw = hoveredContainer.name + ' (added manually)'
             }
