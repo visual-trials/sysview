@@ -323,6 +323,11 @@ function recalculateWorldPoints(container) {
     // TODO: check if type exists!
     let containerShape = containerShapes[container.shapeType]
     
+    if (!containerShape) {
+        console.log("ERROR: no containershape found for container:")
+        console.log(container)
+    }
+    
     
     // TODO: for now we are ordering points alphabetically, instead of determining their dependence
     let sortedPointIdentifiers = Object.keys(containerShape.points).sort()

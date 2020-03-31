@@ -25,6 +25,7 @@ let interaction = {
     percentageIsoMetric : 0,
     showGrid : false,
     isoMetricAnimationRunning : false,
+    highlightHoveredContainer : false,
    
     currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',

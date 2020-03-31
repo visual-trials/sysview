@@ -35,25 +35,6 @@ if (projectOverrule != null) {
 }
  
  
-const vueContainerDetailApp = new Vue({
-    el: '#vueContainerDetail',
-    data: { 
-        display: '...',
-        showDetail: false
-    },
-    methods: {
-        testButton : function (buttonNumber) {
-            if (buttonNumber == '2') {
-                deselectContainers()
-            }
-            console.log(buttonNumber)
-        }
-    }
-})
-
-// FIXME: with the addition of the Vue-element, the left mouse button has become "sticky"!!
-// FIXME: with the addition of the Vue-element, the left mouse button has become "sticky"!!
-// FIXME: with the addition of the Vue-element, the left mouse button has become "sticky"!!
 
 function deselectContainers() {
     interaction.currentlySelectedContainerIdentifiers = {}
@@ -92,17 +73,6 @@ function mainLoop () {
         // Handle input 
         if (keyboardState.keyboardStateHasChanged || mouseState.mouseStateHasChanged || windowState.windowStateHasChanged || touchesStateHasChanged) {
             handleInputStateChange()
-            
-// FIXME: cleanup / implement this somewhere else!
-let displayString = "Nothing selected"
-let showDetail = false
-if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length === 1) {
-    let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
-    displayString = currentlySelectedContainerIdentifier
-    showDetail = true
-}
-vueContainerDetailApp.display = displayString
-vueContainerDetailApp.showDetail = showDetail
         }
 
         if (databaseDataHasChanged) {

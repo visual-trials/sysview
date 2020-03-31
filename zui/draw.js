@@ -1028,7 +1028,8 @@ function drawContainer(container, alpha, textAlpha) {
         */
         
         // TODO: currenltly we are drawing a shape multiple times if it is being hovered AND is selected
-        if (interaction.currentlyHoveredContainerIdentifier != null &&
+        if (interaction.highlightHoveredContainer &&
+            interaction.currentlyHoveredContainerIdentifier != null &&
             interaction.currentlyHoveredContainerIdentifier === container.identifier) {
                 
             ctx.lineWidth = 2 // TODO: do we want to scale this too?
