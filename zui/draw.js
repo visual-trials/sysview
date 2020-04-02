@@ -129,13 +129,11 @@ function drawCanvas(desiredCanvasSize, doMenu) {
     //}
     drawNewConnection()
     
-    /*
-    // FIXME probably only for DEBUG:
-    if (interaction.currentlySelectedMode !== 'view') {
+    // if (interaction.currentlySelectedMode !== 'view') {
+    if (interaction.showDebugDetail) {
         drawDetail()
     }
-    */
-    if (interaction.showTinyDetail) {
+    if (interaction.showTinyDebugDetail) {
         drawTinyDetail()
     }
     

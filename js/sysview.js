@@ -25,7 +25,8 @@ let viewWasDrawnOnce = false
 let centerViewOnWorldCenter = false
 let centerViewOnFirstSelectedContainer = false
 
-interaction.showTinyDetail = true
+interaction.showTinyDebugDetail = true
+interaction.showDebugDetail = true
 
 let project = 'ClientLive'
 
