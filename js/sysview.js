@@ -25,6 +25,8 @@ let viewWasDrawnOnce = false
 let centerViewOnWorldCenter = false
 let centerViewOnFirstSelectedContainer = false
 
+interaction.showTinyDetail = true
+
 let project = 'ClientLive'
 
 let urlString = window.location.href

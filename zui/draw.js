@@ -134,8 +134,10 @@ function drawCanvas(desiredCanvasSize, doMenu) {
     if (interaction.currentlySelectedMode !== 'view') {
         drawDetail()
     }
-    drawTinyDetail()
     */
+    if (interaction.showTinyDetail) {
+        drawTinyDetail()
+    }
     
     if (doMenu) {
         drawMenu()
