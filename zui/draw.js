@@ -100,52 +100,6 @@ function rgba(color) {
     return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + color.a + ')'
 }
 
-function drawCanvas(desiredCanvasSize, doMenu) {
-    clearCanvas()
-    if (desiredCanvasSize != null) {
-        resizeCanvasToDesiredSize(desiredCanvasSize)
-    }
-    
-    // TODO: we want to re-position the button (because the screensize might have just changed), not re-inialize the menu
-    if (doMenu) {
-        initMenu()
-    }
-
-    if (interaction.showGrid) {
-        drawGrid()
-    }
- 
-    let rootContainer = containersAndConnections.containers['root']
-    drawContainers(rootContainer.children, null)
-    
-    // FIXME: clean this up!
-    // let doConnectionGrouping = true
-    // if (doConnectionGrouping) {
-        groupConnections()
-        drawConnectionGroups()
-    // }
-    // else {
-    //    drawConnections()
-    //}
-    drawNewConnection()
-    
-    // if (interaction.currentlySelectedMode !== 'view') {
-    if (interaction.showDebugDetail) {
-        drawDetail()
-    }
-    if (interaction.showTinyDebugDetail) {
-        drawTinyDetail()
-    }
-    
-    if (doMenu) {
-        drawMenu()
-    }
-    
-    // TODO: when the mouse (with button pressed) is moving its style doesn't get changed?
-    canvasElement.style.cursor = interaction.mousePointerStyle
-    
-}
-
 function drawMenu() {
     drawButtonList(menuButtons)
 }
@@ -274,7 +228,7 @@ function drawContainerData (position, label, visualData, sourceData) {
     }
 
 }
-function drawDetail () {
+function drawDebugDetail (databaseData) {
     let detailSize = { width: 300, height: canvasElement.height - 115 }
     let detailPosition = { x: canvasElement.width - detailSize.width - 20, y: 55 }
 
@@ -286,7 +240,7 @@ function drawDetail () {
         ctx.strokeRect(detailPosition.x + 0.5, detailPosition.y + 0.5, detailSize.width, detailSize.height)
 
         let containerToDetail = getContainerByIdentifier(interaction.currentlyHoveredContainerIdentifier)
-// FIXME: we should not assume visual/source databaseData here!!
+        // TODO: we should not assume visual/source databaseData here
         let visualData = databaseData.visual.containers[containerToDetail.identifier]
         let sourceData = databaseData.source.containers[containerToDetail.identifier]
 
@@ -317,7 +271,7 @@ function drawDetail () {
         ctx.strokeRect(detailPosition.x + 0.5, detailPosition.y + 0.5, detailSize.width, detailSize.height)
 
         let connectionToDetail = getConnectionByIdentifier(interaction.currentlyHoveredConnectionIdentifier)
-// FIXME: we should not assume visual/source databaseData here!!
+        // TODO: we should not assume visual/source databaseData here
         let visualData = databaseData.visual.connections[connectionToDetail.identifier]
         let sourceData = databaseData.source.connections[connectionToDetail.identifier]
 
@@ -331,7 +285,7 @@ function drawDetail () {
     }
 }
 
-function drawTinyDetail () {
+function drawTinyDebugDetail () {
     let textToDraw = null
     if (interaction.currentlySelectedMode === 'connect') {
         if (interaction.currentlyHoveredConnectionIdentifier != null) {
