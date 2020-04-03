@@ -25,8 +25,8 @@ let viewWasDrawnOnce = false
 let centerViewOnWorldCenter = false
 let centerViewOnFirstSelectedContainer = false
 
-interaction.showTinyDebugDetail = true
-interaction.showDebugDetail = true
+let showTinyDebugDetail = true
+let showDebugDetail = true
 
 let project = 'ClientLive'
 
@@ -136,10 +136,10 @@ function drawCanvas(desiredCanvasSize, doMenu) {
     drawNewConnection()
     
     // if (interaction.currentlySelectedMode !== 'view') {
-    if (interaction.showDebugDetail) {
+    if (showDebugDetail) {
         drawDebugDetail(databaseData)
     }
-    if (interaction.showTinyDebugDetail) {
+    if (showTinyDebugDetail) {
         drawTinyDebugDetail()
     }
     
