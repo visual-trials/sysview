@@ -106,6 +106,53 @@ function mainLoop () {
     window.requestAnimationFrame(mainLoop)
 }
 
+function drawCanvas(desiredCanvasSize, doMenu) {
+    clearCanvas()
+    if (desiredCanvasSize != null) {
+        resizeCanvasToDesiredSize(desiredCanvasSize)
+    }
+    
+    // TODO: we want to re-position the button (because the screensize might have just changed), not re-inialize the menu
+    if (doMenu) {
+        initMenu()
+    }
+
+    if (interaction.showGrid) {
+        drawGrid()
+    }
+ 
+    let rootContainer = containersAndConnections.containers['root']
+    drawContainers(rootContainer.children, null)
+    
+    // FIXME: clean this up!
+    // let doConnectionGrouping = true
+    // if (doConnectionGrouping) {
+        groupConnections()
+        drawConnectionGroups()
+    // }
+    // else {
+    //    drawConnections()
+    //}
+    drawNewConnection()
+    
+    // if (interaction.currentlySelectedMode !== 'view') {
+    if (interaction.showDebugDetail) {
+        drawDebugDetail(databaseData)
+    }
+    if (interaction.showTinyDebugDetail) {
+        drawTinyDebugDetail()
+    }
+    
+    if (doMenu) {
+        drawMenu()
+    }
+    
+    // TODO: when the mouse (with button pressed) is moving its style doesn't get changed?
+    canvasElement.style.cursor = interaction.mousePointerStyle
+    
+}
+
+
 function integrateContainerAndConnectionData () {
     
     // TODO: should we also reset the interaction-info? Or at least check if its still valid?
