@@ -384,10 +384,10 @@ function doReScaleSelectedContainersByKeyboard() {
 
 function doChangeContainerTypeSelectedContainersByKeyboard() {
 
-    if (databaseData.colorAndShapeMappings == null) {
+    if (colorAndShapeMappings == null) {
         return
     }
-    let containerTypeToContainerShapeAndColor = databaseData.colorAndShapeMappings.containerTypeToContainerShapeAndColor
+    let containerTypeToContainerShapeAndColor = colorAndShapeMappings.containerTypeToContainerShapeAndColor
     
     // For now, we only allow changing container type only when a single container has been selected
     if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 1) {
@@ -431,10 +431,10 @@ function doChangeContainerTypeSelectedContainersByKeyboard() {
 
 function doChangeContainerDataTypeSelectedContainersByKeyboard() {
 
-    if (databaseData.colorAndShapeMappings == null) {
+    if (colorAndShapeMappings == null) {
         return
     }
-    let dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    let dataTypeToColor = colorAndShapeMappings.dataTypeToColor
     
     // For now, we only allow changing data type only when a single container has been selected
     if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 1) {
@@ -479,10 +479,10 @@ function doChangeContainerDataTypeSelectedContainersByKeyboard() {
 
 function doChangeContainerDataTypeSelectedConnectionByKeyboard() {
 
-    if (databaseData.colorAndShapeMappings == null) {
+    if (colorAndShapeMappings == null) {
         return
     }
-    let dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    let dataTypeToColor = colorAndShapeMappings.dataTypeToColor
     
     if (interaction.currentlySelectedConnectionIdentifier == null) {
         return

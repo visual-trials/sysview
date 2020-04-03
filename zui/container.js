@@ -81,9 +81,9 @@ function createContainer(containerData) {
     let containerTypeToContainerShapeAndColor = {}
     let dataTypeToColor = {}
     
-    if (databaseData.colorAndShapeMappings != null) {
-        containerTypeToContainerShapeAndColor = databaseData.colorAndShapeMappings.containerTypeToContainerShapeAndColor
-        dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    if (colorAndShapeMappings != null) {
+        containerTypeToContainerShapeAndColor = colorAndShapeMappings.containerTypeToContainerShapeAndColor
+        dataTypeToColor = colorAndShapeMappings.dataTypeToColor
     }
     
     if (containerData.type != null) {
@@ -275,9 +275,9 @@ function createConnection(connectionData) {
     let connectionTypeToConnectionShapeAndColor = {}
     let dataTypeToColor = {}
     
-    if (databaseData.colorAndShapeMappings != null) {
-        connectionTypeToConnectionShapeAndColor = {} // FIXME: turned this off: databaseData.colorAndShapeMappings.connectionTypeToConnectionShapeAndColor
-        dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    if (colorAndShapeMappings != null) {
+        connectionTypeToConnectionShapeAndColor = {} // FIXME: turned this off: colorAndShapeMappings.connectionTypeToConnectionShapeAndColor
+        dataTypeToColor = colorAndShapeMappings.dataTypeToColor
     }
     
     if (connectionData.type != null) {

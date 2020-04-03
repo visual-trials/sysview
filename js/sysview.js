@@ -17,7 +17,7 @@
  */
  
  
-let databaseData = { visual: null, source: null, colorAndShapeMappings: null }
+let databaseData = { visual: null, source: null }
 let containerIdentifiersToBeStored = {}
 let connectionIdentifiersToBeStored = {}
 let databaseDataHasChanged = false
@@ -178,7 +178,8 @@ function loadContainerAndConnectionData() {
 
             databaseData.visual = projectData.visual
             databaseData.source = projectData.source
-            databaseData.colorAndShapeMappings = projectData.colorAndShapeMappings
+            // FIXME: this should not be a gloval like this (probably put it into a ZUI global)
+            colorAndShapeMappings = projectData.colorAndShapeMappings
             databaseDataHasChanged = true
             
             centerViewOnWorldCenter = true

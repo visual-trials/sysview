@@ -16,6 +16,12 @@
 
  */
 
+// TODO: we need to be able to set this (probably via a function)
+let colorAndShapeMappings = {
+    "containerTypeToContainerShapeAndColor" : {},
+    "dataTypeToColor" : {}
+}
+
  // TODO: what about brown? Or is that too close to orange?
 let basicColors = {
     transparent: {r:255, g:255,  b:255,   a:0},
