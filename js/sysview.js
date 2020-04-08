@@ -253,11 +253,29 @@ function deleteConnectionData(connectionIdentifier) {
     connectionIdentifiersToBeStored[connectionIdentifier] = true
 }
 
-function storeContainerData(containerData) {
-    databaseData.visual.containers[containerData.identifier] = containerData
+function storeNewContainer(localPosition, parentContainerIdentifier) {
+    let currentDateTime = new Date()
+    
+    let newContainerData = {
+        type: 'visualContainer',  // TODO: allow adding different kinds of containers
+        parentContainerIdentifier: parentContainerIdentifier,
+        identifier: 'AddedContainer_' + currentDateTime.getTime(),
+        name: 'My Added Container',
+        localPosition: {
+            x: localPosition.x,
+            y: localPosition.y
+        },
+        localScale: 1,
+        localSize: {
+            width: 200,
+            height: 250
+        }
+    }
+        // FIXME; remove OLD WAY: storeContainerData(newContainerData)
+    databaseData.visual.containers[newContainerData.identifier] = newContainerData
     databaseDataHasChanged = true
     
-    containerIdentifiersToBeStored[containerData.identifier] = true
+    containerIdentifiersToBeStored[newContainerData.identifier] = true
 }
 
 function storeConnectionData(connectionData) {
