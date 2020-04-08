@@ -1077,3 +1077,24 @@ function drawContainer(container, alpha, textAlpha) {
     
 }
 
+function drawBackgoundImage (backgroundImage) {
+    let backgroundImageWorldPosition = { x: 0, y: 0 }
+    
+    let backgroundImageScreenPosition = fromWorldPositionToScreenPosition(backgroundImageWorldPosition)
+    
+    ctx.save()
+    ctx.translate(backgroundImageScreenPosition.x, backgroundImageScreenPosition.y) // move the image to the screen position (since we draw the image at 0,0)
+    ctx.scale(interaction.viewScale, interaction.viewScale) // make the image smaller/bigger according to zoom (viewScale)
+    
+    if (interaction.percentageIsoMetric > 0) {
+        ctx.scale(1, currentIsoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
+        ctx.rotate(currentIsoMetricSettings.rotate * Math.PI / 180)    // rotate the text due to isometric view
+    }
+    
+    ctx.drawImage(backgroundImage, 0, 0)
+    
+    ctx.restore()
+    
+}
+
+
