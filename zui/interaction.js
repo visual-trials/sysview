@@ -862,24 +862,13 @@ function doAddNewContainer() {
         }
         let parentContainer = getContainerByIdentifier(parentContainerIdentifier)
         
-        let currentDateTime = new Date()
-        
-        let newContainerData = {
-            type: 'visualContainer',  // TODO: allow adding different kinds of containers
-            parentContainerIdentifier: parentContainerIdentifier,
-            identifier: 'AddedContainer_' + currentDateTime.getTime(),
-            name: 'My Added Container',
-            localPosition: {
-                x: mouseState.worldPosition.x - parentContainer.worldPosition.x,
-                y: mouseState.worldPosition.y - parentContainer.worldPosition.y
-            },
-            localScale: 1,
-            localSize: {
-                width: 200,
-                height: 250
-            }
+        let localPosition = {
+            x: mouseState.worldPosition.x - parentContainer.worldPosition.x,
+            y: mouseState.worldPosition.y - parentContainer.worldPosition.y
         }
-        storeContainerData(newContainerData)
+        
+        // FIXME: we might want to do this differently (maybe add localScale? maybe other values?) 
+        storeNewContainer(localPosition, parentContainerIdentifier)
     }
 }
 
