@@ -37,7 +37,46 @@ if (projectOverrule != null) {
 	project = projectOverrule
 }
  
- 
+function initMenu() {
+    menuButtons = [
+        {
+            mode: "view",
+        },
+        {
+            mode: "move",
+        },
+        {
+            mode: "connect",
+        },
+        {
+            toggle: "isoMetric",
+        },
+        /*
+        {
+            toggle: "grid",
+        }
+        */
+    ]
+    
+    let buttonPosition = { x: 20, y: 20 }
+    let buttonSize = { width: 32, height: 32 }
+    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
+        let buttonData = menuButtons[buttonIndex]
+        buttonData.position = {}
+        // FIXME: ugly HACK!
+        if (buttonIndex == 3) {
+            buttonPosition.x = canvasElement.width - buttonSize.width - 20
+            buttonPosition.y = canvasElement.height - buttonSize.height /* *2 */ - 20
+        }
+        buttonData.position.x = buttonPosition.x
+        buttonData.position.y = buttonPosition.y
+        buttonData.size = {}
+        buttonData.size.width = buttonSize.width
+        buttonData.size.height = buttonSize.height
+        
+        buttonPosition.y += buttonSize.height
+    }
+}
 
 function deselectContainers() {
     interaction.currentlySelectedContainerIdentifiers = {}
