@@ -709,6 +709,11 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
         ctx.stroke()
         */
         
+        if (singleConnectionIdentifier != null && singleConnectionIdentifier === interaction.currentlyHoveredConnectionIdentifier) {
+            ctx.lineWidth = 6 * interaction.viewScale * nrOfConnections * averageContainersWorldScale
+            ctx.strokeStyle = "#FFAA00" // rgba({ r:250, g:150, b:150, a:0.8 })
+        }
+        
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === interaction.currentlySelectedConnectionIdentifier) {
             ctx.strokeStyle = rgba({ r:255, g:0, b:0, a:1 })
         }
@@ -720,7 +725,7 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
         ctx.stroke()        
         
         
-
+/*
         if (interaction.currentlySelectedMode === 'connect') {
             let fill = { r:250, g:200, b:200, a:0.5 }
             ctx.fillStyle = rgba(fill)
@@ -740,6 +745,7 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
             }
             
         }
+*/        
         
         if (interaction.currentlySelectedConnection != null) {
             // TODO: how do we select grouped connections? And single connections when they are grouped?
