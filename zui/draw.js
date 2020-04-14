@@ -537,6 +537,10 @@ function groupConnection(connection) {
 
 function drawConnectionGroups() {
     
+    // TODO: is this the right place to reset this?
+    interaction.closestConnectionDistance = null
+    interaction.closestConnectionIdentifier = null
+            
     for (let fromFirstVisibleContainerIdentifier in groupedConnections) {
         for (let toFirstVisibleContainerIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier]) {
             for (let connectionType in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier]) {
@@ -580,6 +584,7 @@ function drawConnectionGroups() {
             }
         }
     }
+    
 }
 
 let alreadyLogged = false
@@ -632,23 +637,56 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
 
-
+    
+    
+    let screenRectangleAroundConnection = getRectangleAroundPoints([screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition])
+    let screenRectangle = { 
+        position : {
+            x: 0, 
+            y: 0
+        },
+        size : {
+            width: canvasElement.width, 
+            height: canvasElement.height 
+        }
+    }
+    if (!rectanglesOverlap(screenRectangleAroundConnection, screenRectangle)) {
+        // if rectangle around 4 bezier points are not inside the screen, then we dont have to draw it
+        return
+    }
+    
     // FIXME: remove this (old way):     
     // let screenMiddlePoint = fromWorldPositionToScreenPosition(connectionGroup.worldMiddlePoint)
     // connectionGroup.worldMiddlePoint = middleOfTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
 
+// FIXME: remove this!    
     let percentageOfCurve = 0.5 // FIXME: hardcoded!
     let screenMiddlePoint = getPointOnBezierCurve(percentageOfCurve, screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition)
     connectionGroup.worldMiddlePoint = fromScreenPositionToWorldPosition(screenMiddlePoint)
-    
 
+    
+    
+    if (singleConnectionIdentifier != null) {
+        let screenPointToFindClosestDistanceTo = mouseState.position
+        // Only check the distance if the mouse pointer is somewhere inside the rectangle surrounding the 4 points of the bezier curve
+        if (positionIsInsideRectangle(screenPointToFindClosestDistanceTo, screenRectangleAroundConnection)) {
+            let closestDistance = getClosestDistanceFromPointToBezierCurve(screenPointToFindClosestDistanceTo, screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition)
+            
+            if (interaction.closestConnectionDistance == null || closestDistance < interaction.closestConnectionDistance) {
+                interaction.closestConnectionDistance = closestDistance
+                interaction.closestConnectionIdentifier = singleConnectionIdentifier
+            }
+        }
+    }
+
+        
     {
         /*
-        let size = 10
+        let size = 5
         ctx.fillStyle = "#FF00FF"
-        ctx.fillRect(screenFromContainerPosition.x - size/2, screenFromContainerPosition.y - size/2, size, size)
+        ctx.fillRect(screenPointToFindClosestDistanceTo.x - size/2, screenPointToFindClosestDistanceTo.y - size/2, size, size)
         ctx.fillStyle = "#FF0000"
-        ctx.fillRect(screenFromBendPosition.x - size/2, screenFromBendPosition.y - size/2, size, size)
+        ctx.fillRect(closestPoint.x - size/2, closestPoint.y - size/2, size, size)
         
         ctx.fillStyle = "#FFFF00"
         ctx.fillRect(screenToContainerPosition.x - size/2, screenToContainerPosition.y - size/2, size, size)

@@ -32,8 +32,13 @@ let interaction = {
     
     // TODO: we should probably keep record of where things (like the view or a container) is being selected/dragged BY
     //       sometimes its the mouse, sometimes its a touch. We might want to keep a record of that.
+    
+    closestConnectionDistance : null, // distance from mouse pointer
+    closestConnectionIdentifier : null,
+    
     currentlyHoveredConnectionIdentifier : null,
     currentlySelectedConnectionIdentifier : null,
+    
 
     currentlyHoveredContainerIdentifier : null,
     currentlySelectedContainerIdentifiers : {},
@@ -56,6 +61,9 @@ let interaction = {
     mousePointerStyle: 'default'  // Possible mouse styles: http://www.javascripter.net/faq/stylesc.htm
 }
 
+// FIXME: put this somewhere else! (and finetune it)
+let minimumDistanceFromConnectionToDetectMouseHover = 8
+
 function handleInputStateChange () {
     
     let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
@@ -67,8 +75,15 @@ function handleInputStateChange () {
     }
     else {
         if (interaction.currentlySelectedMode === 'connect') {
-            let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
+            if (interaction.closestConnectionIdentifier != null && interaction.closestConnectionDistance < minimumDistanceFromConnectionToDetectMouseHover) {
+                interaction.currentlyHoveredConnectionIdentifier = interaction.closestConnectionIdentifier
+            }
+            else {
+                interaction.currentlyHoveredConnectionIdentifier = null
+            }
             
+/*            
+            let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
             // FIXME: put this in a separate function (hoverconnectionbymouse or selectconnection by mouse)
             if (connectionAtMousePosition != null) {
                 interaction.currentlyHoveredConnectionIdentifier = connectionAtMousePosition.identifier
@@ -76,6 +91,7 @@ function handleInputStateChange () {
             else {
                 interaction.currentlyHoveredConnectionIdentifier = null
             }
+*/
             interaction.currentlyHoveredMenuButton = null
         }
         else {
@@ -212,7 +228,6 @@ function doMenuButtonGridToggle() {
 // ====== CONNECTION ======
 
 function doConnectionSelectionByMouse() {
-    let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
     
     // If escape is pressed, de-select the selected connection
     if (hasKeyGoneDown('ESCAPE')) {
@@ -222,6 +237,15 @@ function doConnectionSelectionByMouse() {
     if (!mouseState.leftButtonHasGoneDownTwice &&
          mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         
+        if (interaction.closestConnectionIdentifier != null && interaction.closestConnectionDistance < minimumDistanceFromConnectionToDetectMouseHover) {
+            interaction.currentlySelectedConnectionIdentifier = interaction.closestConnectionIdentifier
+        }
+        else {
+            interaction.currentlySelectedConnectionIdentifier = null
+        }
+        /*
+        let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
+        
         if (connectionAtMousePosition != null) {
             // When we click on a connection it becomes the selected connection
             interaction.currentlySelectedConnectionIdentifier = connectionAtMousePosition.identifier
@@ -229,7 +253,8 @@ function doConnectionSelectionByMouse() {
         else {
             // When we click in the background, de-select the selected connection
             interaction.currentlySelectedConnectionIdentifier = null
-        }       
+        }
+        */
     }
 }
 

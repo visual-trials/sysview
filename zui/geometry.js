@@ -77,6 +77,50 @@ function getPointOnBezierCurve (percent, C1, C2, C3, C4) {
     return pos;
 }
 
+function getClosestDistanceFromPointToBezierCurve(pointToFindClosestDistanceTo, fromPosition, fromBendPosition, toBendPosition, toPosition) {
+    
+    // TODO: we should add a threshhold when we have found a close-enough distance
+    // TODO: we should stop when we didnt find a certain closestDistance after the first iteration (for example double that of our threshhold)
+    
+    // FIXME: hardcoded number (which number works best?)
+    let nrOfPoints = 10 // Actually we do + 1 due to '<=' (so its the nr of segments)
+    
+    let closestPoint = null
+    let closestDistance = null
+    let bestIndex = null
+    let majorStep = 1 / nrOfPoints
+    let minorStep = 1 / nrOfPoints / nrOfPoints
+    for (let pointIndex = 0; pointIndex <= nrOfPoints; pointIndex++) {
+        let fraction = pointIndex * majorStep
+        let pointOnCurve = getPointOnBezierCurve(fraction, fromPosition, fromBendPosition, toBendPosition, toPosition)
+        let distance = distanceBetweenTwoPoints(pointToFindClosestDistanceTo, pointOnCurve)
+        if (closestDistance == null || distance < closestDistance) {
+            closestDistance = distance
+            bestIndex = pointIndex
+            closestPoint = pointOnCurve
+        }
+    }
+    
+    for (let pointIndex = 0; pointIndex <= nrOfPoints; pointIndex++) {
+        let majorFraction = bestIndex * majorStep
+        let fraction = majorFraction - 0.5 * majorStep
+        fraction += pointIndex * minorStep
+        
+        if (fraction < 0) fraction = 0
+        if (fraction > 1) fraction = 1
+        let pointOnCurve = getPointOnBezierCurve(fraction, fromPosition, fromBendPosition, toBendPosition, toPosition)
+        let distance = distanceBetweenTwoPoints(pointToFindClosestDistanceTo, pointOnCurve)
+        if (closestDistance == null || distance < closestDistance) {
+            closestDistance = distance
+            closestPoint = pointOnCurve
+        }
+    }    
+    
+    // TODO: alternatively we could (also) return the closestPoint
+    
+    return closestDistance
+}
+
 function lerpPositionBetweenTwoPoints (firstPosition, secondPosition, fraction) {
     let middlePoint = {x : 0, y : 0}
     
@@ -280,16 +324,16 @@ function getRectangleAroundWorld() {
         let childContainerIdentifier = rootContainer.children[containerIndex]
         let childContainer = containersAndConnections.containers[childContainerIdentifier]
         
-        if (childContainer.worldPosition.x < minX) {
+        if (minX == null || childContainer.worldPosition.x < minX) {
             minX = childContainer.worldPosition.x
         }
-        if (childContainer.worldPosition.x + childContainer.worldSize.width > maxX) {
+        if (maxX == null || childContainer.worldPosition.x + childContainer.worldSize.width > maxX) {
             maxX = childContainer.worldPosition.x + childContainer.worldSize.width
         }
-        if (childContainer.worldPosition.y < minY) {
+        if (minY == null || childContainer.worldPosition.y < minY) {
             minY = childContainer.worldPosition.y
         }
-        if (childContainer.worldPosition.y + childContainer.worldSize.height > maxY) {
+        if (maxY == null || childContainer.worldPosition.y + childContainer.worldSize.height > maxY) {
             maxY = childContainer.worldPosition.y + childContainer.worldSize.height
         }
     }
@@ -306,6 +350,44 @@ function getRectangleAroundWorld() {
     }
     
     return rectangleAroundWorld
+}
+
+function getRectangleAroundPoints(arrayOfPoints) {
+
+    let minX = null
+    let minY = null
+    let maxX = null
+    let maxY = null
+    
+    for (let pointIndex = 0; pointIndex < arrayOfPoints.length; pointIndex++) {
+        let point = arrayOfPoints[pointIndex]
+        
+        if (minX == null || point.x < minX) {
+            minX = point.x
+        }
+        if (maxX == null || point.x > maxX) {
+            maxX = point.x
+        }
+        if (minY == null || point.y < minY) {
+            minY = point.y
+        }
+        if (maxY == null || point.y > maxY) {
+            maxY = point.y
+        }
+    }
+    
+    let rectangleAroundPoints = {
+        position : {
+            x : minX,
+            y : minY
+        },
+        size : {
+            width : maxX - minX,
+            height :  maxY - minY
+        }
+    }
+    
+    return rectangleAroundPoints
 }
 
 function recalculateWorldPoints(container) {
@@ -440,6 +522,8 @@ function findContainerEncompassingWorldRectangle(worldRectangle, container) {
     return null
 }
 
+
+// FIXME: shouldnt this also be deprecated like findConnectionAtWorldPosition? Since we can check if the mouse position is inside a container during drawing right?
 function findContainerAtWorldPosition(worldPosition, container, excludeSelectedContainers) {
     
     if (container == null) {
@@ -475,6 +559,8 @@ function findContainerAtWorldPosition(worldPosition, container, excludeSelectedC
     return null
 }
 
+/* 
+FIXME: deprecated
 function findConnectionAtWorldPosition(worldPosition) {
     // TODO: this is quite expensive! We might want to use spatial partitioning here
      for (let fromFirstVisibleContainerIdentifier in groupedConnections) {
@@ -494,6 +580,7 @@ function findConnectionAtWorldPosition(worldPosition) {
      }
      return null
 }
+*/
 
 function whichSideIsPositionFromContainer(worldPosition, container) {
     
@@ -566,6 +653,21 @@ function positionIsInsideRectangle(position, rectangle) {
         position.x >= rectangle.position.x + rectangle.size.width ||
         position.y >= rectangle.position.y + rectangle.size.height) {
             
+        return false
+    }
+    else {
+        return true
+    }
+}
+
+function rectanglesOverlap (firstRectangle, secondRectangle) {
+    if (
+        firstRectangle.position.x > secondRectangle.position.x + secondRectangle.size.width ||   // first rect is to the right of the second rect
+        firstRectangle.position.x + firstRectangle.size.width < secondRectangle.position.x ||     // first rect is to the left of the second rect
+        firstRectangle.position.y > secondRectangle.position.y + secondRectangle.size.height ||  // first rect is below the second rect
+        firstRectangle.position.y + firstRectangle.size.height < secondRectangle.position.y      // first rect is above the second rect
+    ) {
+        // rects don't overlap
         return false
     }
     else {
