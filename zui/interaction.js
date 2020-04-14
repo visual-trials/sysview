@@ -95,13 +95,23 @@ function handleInputStateChange () {
             interaction.currentlyHoveredMenuButton = null
         }
         else {
-            // FIXME: put this in a separate function (hovercontainerbymouse or selectcontainer by mouse)
-            if (containerAtMousePosition != null) {
-                interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
+            
+            // FIXME: put this in a separate function (hoverconnectionbymouse or something)
+            if (interaction.closestConnectionIdentifier != null && interaction.closestConnectionDistance < minimumDistanceFromConnectionToDetectMouseHover) {
+                interaction.currentlyHoveredConnectionIdentifier = interaction.closestConnectionIdentifier
             }
             else {
-                interaction.currentlyHoveredContainerIdentifier = null
+                interaction.currentlyHoveredConnectionIdentifier = null
+                
+                // FIXME: put this in a separate function (hovercontainerbymouse or selectcontainer by mouse)
+                if (containerAtMousePosition != null) {
+                    interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
+                }
+                else {
+                    interaction.currentlyHoveredContainerIdentifier = null
+                }
             }
+            
             interaction.currentlyHoveredMenuButton = null
         }
     }
@@ -167,6 +177,7 @@ function handleInputStateChange () {
         }
         else if (interaction.currentlySelectedMode === 'view') {
             doContainerSelectionByMouse()
+            doConnectionSelectionByMouse()
             doViewDraggingByMouse()
             doViewZoomingByMouse()
         }
