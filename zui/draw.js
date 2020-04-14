@@ -669,7 +669,11 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
     if (singleConnectionIdentifier != null) {
         let screenPointToFindClosestDistanceTo = mouseState.position
         // Only check the distance if the mouse pointer is somewhere inside the rectangle surrounding the 4 points of the bezier curve
-        if (positionIsInsideRectangle(screenPointToFindClosestDistanceTo, screenRectangleAroundConnection)) {
+        
+// FIXME: using minimumDistanceFromConnectionToDetectMouseHover here! But it is defined elsewhere!
+
+        let screenRectangleAroundConnectionWithMargin = addMarginToRectangle(screenRectangleAroundConnection, minimumDistanceFromConnectionToDetectMouseHover)
+        if (positionIsInsideRectangle(screenPointToFindClosestDistanceTo, screenRectangleAroundConnectionWithMargin)) {
             let closestDistance = getClosestDistanceFromPointToBezierCurve(screenPointToFindClosestDistanceTo, screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition)
             
             if (interaction.closestConnectionDistance == null || closestDistance < interaction.closestConnectionDistance) {

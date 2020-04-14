@@ -675,6 +675,21 @@ function rectanglesOverlap (firstRectangle, secondRectangle) {
     }
 }
 
+function addMarginToRectangle(rectangle, margin) {
+    let rectangleWithMargin = {
+        position : {
+            x : rectangle.position.x - margin,
+            y : rectangle.position.y - margin
+        },
+        size : {
+            width : rectangle.size.width + margin * 2,
+            height : rectangle.size.height + margin * 2
+        }
+    }
+    
+    return rectangleWithMargin
+}
+
 function lerp (start, end, fraction) {
     return start + (end - start) * fraction
 }
