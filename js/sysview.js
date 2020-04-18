@@ -24,6 +24,7 @@ let databaseDataHasChanged = false
 let viewWasDrawnOnce = false
 let centerViewOnWorldCenter = false
 let centerViewOnFirstSelectedContainer = false
+let centerViewOnSelectedConnection = false
 
 let showTinyDebugDetail = true
 let showDebugDetail = true
