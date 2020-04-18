@@ -1160,20 +1160,58 @@ function updateWorld() {
     }
     else if (centerViewOnFirstSelectedContainer)  {
         if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 0) {
-            currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+            let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
             let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
             
-            // For now we are resetting to the default
-            interaction.viewScale = 0.8 // FIXME: hardcoded!
-            interaction.viewOffset = { x: 0, y: 0 }
-            
-            // After setting the scale we can calculate the viewOffset
-            let containerPositionOnScreen = fromWorldPositionToScreenPosition(currentlySelectedContainer.worldPosition)
-            let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
-            interaction.viewOffset = { x: middleOfScreen.x - containerPositionOnScreen.x, y: middleOfScreen.y - containerPositionOnScreen.y } 
+            if (currentlySelectedContainer != null) {
+                // For now we are resetting to the default
+                interaction.viewScale = 0.8 // FIXME: hardcoded!
+                interaction.viewOffset = { x: 0, y: 0 }
+                
+                // After setting the scale we can calculate the viewOffset
+                let containerPositionOnScreen = fromWorldPositionToScreenPosition(currentlySelectedContainer.worldPosition)
+                
+                let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
+                // TODO: this is probably not correct: for the size we have to take into account the viewScale, right? And what about (local)scale?
+                interaction.viewOffset = { x: middleOfScreen.x - containerPositionOnScreen.x - currentlySelectedContainer.localSize.width / 2, 
+                                           y: middleOfScreen.y - containerPositionOnScreen.y - currentlySelectedContainer.localSize.height / 2} 
+            }
+            else {
+                console.log("WARNING: trying to center on a container that does not exist!")
+            }
         }
         
         centerViewOnFirstSelectedContainer = false
+    }
+    else if (centerViewOnSelectedConnection)  {
+        if (interaction.currentlySelectedConnectionIdentifier != null) {
+            let currentlySelectedConnection = getConnectionByIdentifier(interaction.currentlySelectedConnectionIdentifier)
+            
+            if (currentlySelectedConnection != null) {
+                let fromContainer = getContainerByIdentifier(currentlySelectedConnection.fromContainerIdentifier)
+                let toContainer = getContainerByIdentifier(currentlySelectedConnection.toContainerIdentifier)
+                
+                if (fromContainer != null && toContainer != null) {
+                    // For now we are resetting to the default
+                    interaction.viewScale = 0.8 // FIXME: hardcoded!
+                    interaction.viewOffset = { x: 0, y: 0 }
+                    
+                    // FIXME: this is not accurate at all! We should store the end-points of the connection itself and take the middle of THAT (not of the centers/positions of the containers!)
+                    let middleWorldPointBetweenContainers = middleOfTwoPoints(fromContainer.worldPosition, toContainer.worldPosition)
+                    // After setting the scale we can calculate the viewOffset
+                    let middlePointBetweenContainersOnScreen = fromWorldPositionToScreenPosition(middleWorldPointBetweenContainers)
+                    
+                    let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
+                    interaction.viewOffset = { x: middleOfScreen.x - middlePointBetweenContainersOnScreen.x, 
+                                               y: middleOfScreen.y - middlePointBetweenContainersOnScreen.y} 
+                }
+            }
+            else {
+                console.log("WARNING: trying to center on a connection that does not exist!")
+            }
+        }
+        
+        centerViewOnSelectedConnection = false
     }
     
     if (interaction.viewAsIsoMetric) {
