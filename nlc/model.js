@@ -16,12 +16,11 @@
 
  */
 
-// FIXME: pass this variable!
 let NLC = {}
 
 NLC.dataHasChanged = false
 NLC.dataChangesToStore = []
-
+NLC.nodesAndLinksData = {}
 
 function storeChangesBetweenNodes(originalNode, changedNode) {
     let nodeChanges = []
@@ -146,6 +145,101 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
         originalLink.toNodeId = changedLink.toNodeId
     }
 }
+
+function storeNodeLocalPositionInDiagram (nodeId, diagramIdentifier, localPosition) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    if (nodesById.hasOwnProperty(nodeId)) {
+        let node = nodesById[nodeId]
+        
+        // TODO: check if key exists instead of checking for the value to be "true"
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {
+            // TODO: do we really need to make a clone here?
+            let newLocalPosition = {
+                "x" : localPosition.x,
+                "y" : localPosition.y
+            }
+            
+            node.diagramSpecificVisualData[diagramIdentifier].position = newLocalPosition
+
+            // TODO: you probably want to apply this change in javascript to (on the node in nodesAndLinksData.nodes)
+            let nlcDataChange = {
+                "method" : "update",
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier, "position"],
+                "data" : newLocalPosition                
+            }
+            NLC.dataChangesToStore.push(nlcDataChange)
+        }
+    
+        // TODO: maybe its better to call this: visualDataHasChanged ?
+        NLC.dataHasChanged = true
+    }
+    else {
+        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)
+    }
+}
+
+function storeNodeLocalSizeInDiagram(nodeId, diagramIdentifier, localSize) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    if (nodesById.hasOwnProperty(nodeId)) {
+        let node = nodesById[nodeId]
+        
+        // TODO: check if key exists instead of checking for the value to be "true"
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {
+            // TODO: do we really need to make a clone here?
+            let newLocalSize = {
+                "width" : localSize.width,
+                "height" : localSize.height
+            }
+            
+            node.diagramSpecificVisualData[diagramIdentifier].size = newLocalSize
+
+            // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)
+            let nlcDataChange = {
+                "method" : "update",
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier, "size"],
+                "data" : newLocalSize
+            }
+            NLC.dataChangesToStore.push(nlcDataChange)
+        }
+    
+        // TODO: maybe its better to call this: visualDataHasChanged ?
+        NLC.dataHasChanged = true
+    }
+    else {
+        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)
+    }
+}
+
+function deleteNodeFromDiagram(nodeId, diagramIdentifier) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    if (nodesById.hasOwnProperty(nodeId)) {
+        let node = nodesById[nodeId]
+
+        // TODO: check if key exists instead of checking for the value to be "true"
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {
+            // We are removing the node from the diagram (or actually: the diagram info from the node)
+            delete node.diagramSpecificVisualData[diagramIdentifier]
+            
+            // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)
+            let nlcDataChange = {
+                "method" : "delete",
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier],
+                "data" : null
+            }
+            NLC.dataChangesToStore.push(nlcDataChange)
+        }
+        
+        // TODO: maybe its better to call this: visualDataHasChanged ?
+        NLC.dataHasChanged = true
+    }
+}
+
 
 function createNewNode(nodeTypeIdentifier) {
     
