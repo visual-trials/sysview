@@ -110,7 +110,7 @@ function mainLoop () {
         ZUI.windowState.windowStateHasChanged || 
         ZUI.touchesStateHasChanged || 
         ZUI.interaction.isoMetricAnimationRunning || 
-        ZUI.databaseDataHasChanged || 
+        databaseDataHasChanged || 
         !viewWasDrawnOnce) {
             
         // Handle input 
