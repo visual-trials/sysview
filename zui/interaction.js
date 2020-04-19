@@ -17,6 +17,9 @@
  */
  
 ZUI.interaction = {
+    centerViewOnWorldCenter : false,
+    centerViewOnFirstSelectedContainer :  false,
+    centerViewOnSelectedConnection : false,
     viewScale : 1,
     viewOffset : { x: 0, y: 0},
     viewIsBeingDraggedByMouse : false,
@@ -1122,7 +1125,7 @@ function doViewZoomingByMouse () {
 
 function updateWorld() {
     
-    if (centerViewOnWorldCenter) {
+    if (ZUI.interaction.centerViewOnWorldCenter) {
 
         let rectangleAroundWorld = getRectangleAroundWorld()
         
@@ -1156,9 +1159,9 @@ function updateWorld() {
             ZUI.interaction.viewOffset = { x: middleOfScreen.x - middleOfWorldOnScreen.x, y: middleOfScreen.y - middleOfWorldOnScreen.y } 
         }
         
-        centerViewOnWorldCenter = false
+        ZUI.interaction.centerViewOnWorldCenter = false
     }
-    else if (centerViewOnFirstSelectedContainer)  {
+    else if (ZUI.interaction.centerViewOnFirstSelectedContainer)  {
         if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 0) {
             let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
             let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
@@ -1181,9 +1184,9 @@ function updateWorld() {
             }
         }
         
-        centerViewOnFirstSelectedContainer = false
+        ZUI.interaction.centerViewOnFirstSelectedContainer = false
     }
-    else if (centerViewOnSelectedConnection)  {
+    else if (ZUI.interaction.centerViewOnSelectedConnection)  {
         if (ZUI.interaction.currentlySelectedConnectionIdentifier != null) {
             let currentlySelectedConnection = getConnectionByIdentifier(ZUI.interaction.currentlySelectedConnectionIdentifier)
             
@@ -1211,7 +1214,7 @@ function updateWorld() {
             }
         }
         
-        centerViewOnSelectedConnection = false
+        ZUI.interaction.centerViewOnSelectedConnection = false
     }
     
     if (ZUI.interaction.viewAsIsoMetric) {

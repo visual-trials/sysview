@@ -433,5 +433,4 @@ function addNodeToDiagram(node, diagramIdentifier) {
 
     // TODO: maybe its better to call this: visualDataHasChanged ?
     NLC.dataHasChanged = true
-    centerViewOnWorldCenter = true
 }
