@@ -214,7 +214,7 @@ function storeNodeLocalSizeInDiagram(nodeId, diagramIdentifier, localSize) {
     }
 }
 
-function deleteNodeFromDiagram(nodeId, diagramIdentifier) {
+function removeNodeFromDiagram(nodeId, diagramIdentifier) {
     
     let nodesById = NLC.nodesAndLinksData.nodesById
     
@@ -240,6 +240,82 @@ function deleteNodeFromDiagram(nodeId, diagramIdentifier) {
     }
 }
 
+function removeLink (linkToBeRemoved) {
+    let linksById = NLC.nodesAndLinksData.linksById
+
+    let linkIndexToDelete = null
+    for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {
+        let link = NLC.nodesAndLinksData.links[linkIndex]
+        if (link.id === linkToBeRemoved.id) {
+            linkIndexToDelete = linkIndex
+        }
+    }
+    if (linkIndexToDelete != null) {
+        NLC.nodesAndLinksData.links.splice(linkIndexToDelete)
+        delete linksById[linkToBeRemoved.id]
+    }
+    else {
+        console.log("ERROR: could not find link to be deleted!")
+    }
+
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)
+    let nlcDataChange = {
+        "method" : "delete",
+        "path" : [ "links", linkToBeRemoved.id],
+        "data" : linkToBeRemoved
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)
+    
+    NLC.dataHasChanged = true
+}
+
+function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
+    let nodesById = NLC.nodesAndLinksData.nodesById
+
+    if (removeLinksAttachedToNode) {
+        let linksToBeRemoved = []
+        
+        for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {
+            let link = NLC.nodesAndLinksData.links[linkIndex]
+            if (link.fromNodeId === nodeToBeRemoved.id) {
+                linksToBeRemoved.push(link)
+            }
+            if (link.toNodeId === nodeToBeRemoved.id) {
+                linksToBeRemoved.push(link)
+            }
+        }
+        
+        for (let linkToBeRemovedIndex = 0; linkToBeRemovedIndex < linksToBeRemoved.length; linkToBeRemovedIndex++) {
+            let linkTobeRemoved = linksToBeRemoved[linkToBeRemovedIndex]
+            removeLink(linkTobeRemoved)
+        }
+    }
+    
+    let nodeIndexToDelete = null
+    for (let nodeIndex = 0; nodeIndex < NLC.nodesAndLinksData.nodes.length; nodeIndex++) {
+        let node = NLC.nodesAndLinksData.nodes[nodeIndex]
+        if (node.id === nodeToBeRemoved.id) {
+            nodeIndexToDelete = nodeIndex
+        }
+    }
+    if (nodeIndexToDelete != null) {
+        NLC.nodesAndLinksData.nodes.splice(nodeIndexToDelete)
+        delete nodesById[nodeToBeRemoved.id]
+    }
+    else {
+        console.log("ERROR: could not find node to be deleted!")
+    }
+
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)
+    let nlcDataChange = {
+        "method" : "delete",
+        "path" : [ "nodes", nodeToBeRemoved.id],
+        "data" : nodeToBeRemoved
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)
+
+    NLC.dataHasChanged = true
+}
 
 function createNewNode(nodeTypeIdentifier) {
     
@@ -272,6 +348,22 @@ function createNewNode(nodeTypeIdentifier) {
     
 }
 
+function storeNewNode(newNode) {
+    let nodesById = NLC.nodesAndLinksData.nodesById
+
+    nodesById[newNode.id] = newNode
+    NLC.nodesAndLinksData.nodes.push(newNode)
+
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)
+    let nlcDataChange = {
+        "method" : "insert",
+        "path" : [ "nodes"],
+        "data" : newNode
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)
+    NLC.dataHasChanged = true
+}
+
 function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
     
     // FIXME: we should take into account default values and required fields!
@@ -302,6 +394,23 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
     
     return newNode
     
+}
+
+function storeNewLink(newLink) {
+    
+    let linksById = NLC.nodesAndLinksData.linksById
+
+    linksById[newLink.id] = newLink
+    NLC.nodesAndLinksData.links.push(newLink)
+
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)
+    let nlcDataChange = {
+        "method" : "insert",
+        "path" : [ "links"],
+        "data" : newLink
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)
+    NLC.dataHasChanged = true
 }
 
 function addNodeToDiagram(node, diagramIdentifier) {
