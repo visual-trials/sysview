@@ -39,7 +39,7 @@ if (projectOverrule != null) {
 }
  
 function initMenu() {
-    menuButtons = [
+    ZUI.menuButtons = [
         {
             mode: "view",
         },
@@ -61,13 +61,13 @@ function initMenu() {
     
     let buttonPosition = { x: 20, y: 20 }
     let buttonSize = { width: 32, height: 32 }
-    for (let buttonIndex = 0; buttonIndex < menuButtons.length; buttonIndex++) {
-        let buttonData = menuButtons[buttonIndex]
+    for (let buttonIndex = 0; buttonIndex < ZUI.menuButtons.length; buttonIndex++) {
+        let buttonData = ZUI.menuButtons[buttonIndex]
         buttonData.position = {}
         // FIXME: ugly HACK!
         if (buttonIndex == 3) {
-            buttonPosition.x = canvasElement.width - buttonSize.width - 20
-            buttonPosition.y = canvasElement.height - buttonSize.height /* *2 */ - 20
+            buttonPosition.x = ZUI.canvasElement.width - buttonSize.width - 20
+            buttonPosition.y = ZUI.canvasElement.height - buttonSize.height /* *2 */ - 20
         }
         buttonData.position.x = buttonPosition.x
         buttonData.position.y = buttonPosition.y
@@ -80,7 +80,7 @@ function initMenu() {
 }
 
 function deselectContainers() {
-    interaction.currentlySelectedContainerIdentifiers = {}
+    ZUI.interaction.currentlySelectedContainerIdentifiers = {}
 }
 function init() {
     
@@ -105,16 +105,16 @@ function init() {
 
 function mainLoop () {
     
-    if (keyboardState.keyboardStateHasChanged ||
-        mouseState.mouseStateHasChanged || 
-        windowState.windowStateHasChanged || 
-        touchesStateHasChanged || 
-        interaction.isoMetricAnimationRunning || 
-        databaseDataHasChanged || 
+    if (ZUI.keyboardState.keyboardStateHasChanged ||
+        ZUI.mouseState.mouseStateHasChanged || 
+        ZUI.windowState.windowStateHasChanged || 
+        ZUI.touchesStateHasChanged || 
+        ZUI.interaction.isoMetricAnimationRunning || 
+        ZUI.databaseDataHasChanged || 
         !viewWasDrawnOnce) {
             
         // Handle input 
-        if (keyboardState.keyboardStateHasChanged || mouseState.mouseStateHasChanged || windowState.windowStateHasChanged || touchesStateHasChanged) {
+        if (ZUI.keyboardState.keyboardStateHasChanged || ZUI.mouseState.mouseStateHasChanged || ZUI.windowState.windowStateHasChanged || ZUI.touchesStateHasChanged) {
             handleInputStateChange()
         }
 
@@ -157,11 +157,11 @@ function drawCanvas(desiredCanvasSize, doMenu) {
         initMenu()
     }
 
-    if (interaction.showGrid) {
+    if (ZUI.interaction.showGrid) {
         drawGrid()
     }
  
-    let rootContainer = containersAndConnections.containers['root']
+    let rootContainer = ZUI.containersAndConnections.containers['root']
     drawContainers(rootContainer.children, null)
     
     // FIXME: clean this up!
@@ -175,7 +175,7 @@ function drawCanvas(desiredCanvasSize, doMenu) {
     //}
     drawNewConnection()
     
-    // if (interaction.currentlySelectedMode !== 'view') {
+    // if (ZUI.interaction.currentlySelectedMode !== 'view') {
     if (showDebugDetail) {
         drawDebugDetail(databaseData)
     }
@@ -188,7 +188,7 @@ function drawCanvas(desiredCanvasSize, doMenu) {
     }
     
     // TODO: when the mouse (with button pressed) is moving its style doesn't get changed?
-    canvasElement.style.cursor = interaction.mousePointerStyle
+    ZUI.canvasElement.style.cursor = ZUI.interaction.mousePointerStyle
     
 }
 
@@ -266,7 +266,7 @@ function loadContainerAndConnectionData() {
             databaseData.visual = projectData.visual
             databaseData.source = projectData.source
             // FIXME: this should not be a gloval like this (probably put it into a ZUI global)
-            colorAndShapeMappings = projectData.colorAndShapeMappings
+            ZUI.colorAndShapeMappings = projectData.colorAndShapeMappings
             databaseDataHasChanged = true
             
             centerViewOnWorldCenter = true
