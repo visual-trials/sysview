@@ -16,10 +16,11 @@
 
  */
  
-let containersAndConnections = null
+ 
+ZUI.containersAndConnections = null
 
 function initContainersAndConnections () {
-    containersAndConnections = { 
+    ZUI.containersAndConnections = { 
         containers: {}, 
         connections: {}, 
     }
@@ -36,7 +37,7 @@ function initContainersAndConnections () {
         children: [],
     }
     
-    containersAndConnections.containers['root'] = rootContainer
+    ZUI.containersAndConnections.containers['root'] = rootContainer
 }
 
 // TODO: put this in a more general place. Maybe in shapes.js?
@@ -47,8 +48,8 @@ function getColorByColorNameAndLighten(colorNameAndLighten) {
     let colorName = colorNameAndLighten.color
     let light = colorNameAndLighten.light
     
-    if (basicColors.hasOwnProperty(colorName)) {
-        let basicColor = basicColors[colorName]
+    if (ZUI.basicColors.hasOwnProperty(colorName)) {
+        let basicColor = ZUI.basicColors[colorName]
         
         if (light > 0) {
             color = lighten(basicColor, light)
@@ -81,9 +82,9 @@ function createContainer(containerData) {
     let containerTypeToContainerShapeAndColor = {}
     let dataTypeToColor = {}
     
-    if (colorAndShapeMappings != null) {
-        containerTypeToContainerShapeAndColor = colorAndShapeMappings.containerTypeToContainerShapeAndColor
-        dataTypeToColor = colorAndShapeMappings.dataTypeToColor
+    if (ZUI.colorAndShapeMappings != null) {
+        containerTypeToContainerShapeAndColor = ZUI.colorAndShapeMappings.containerTypeToContainerShapeAndColor
+        dataTypeToColor = ZUI.colorAndShapeMappings.dataTypeToColor
     }
     
     if (containerData.type != null) {
@@ -144,10 +145,10 @@ function createContainer(containerData) {
         children: [],
     }
     
-    if (containersAndConnections.containers.hasOwnProperty(containerIdentifier)) {
+    if (ZUI.containersAndConnections.containers.hasOwnProperty(containerIdentifier)) {
         console.log('WARNING: container with identifier ' + containerIdentifier + 'already exists!')
     }
-    containersAndConnections.containers[containerIdentifier] = newContainer
+    ZUI.containersAndConnections.containers[containerIdentifier] = newContainer
     
     return newContainer
 }
@@ -213,12 +214,12 @@ function mergeSourceAndVisualContainerData (sourceContainerData, visualContainer
 
 function setContainerChildren() {
 
-    for (let containerIdentifier in containersAndConnections.containers) {
-        let container = containersAndConnections.containers[containerIdentifier]
+    for (let containerIdentifier in ZUI.containersAndConnections.containers) {
+        let container = ZUI.containersAndConnections.containers[containerIdentifier]
         
         let parentContainerIdentifier = container.parentContainerIdentifier
         // TODO: we now assume the parent always exist. What if it doesn't? Will it be put into a special container?
-        let parentContainer = containersAndConnections.containers[parentContainerIdentifier]
+        let parentContainer = ZUI.containersAndConnections.containers[parentContainerIdentifier]
         if (parentContainer != null) {
             parentContainer.children.push(containerIdentifier)
         }
@@ -245,7 +246,7 @@ function containerIsSomeParentOfChild (container, childContainer) {
     }
     
     let parentContainerIdentifier = childContainer.parentContainerIdentifier
-    let parentContainer = containersAndConnections.containers[parentContainerIdentifier]
+    let parentContainer = ZUI.containersAndConnections.containers[parentContainerIdentifier]
     return containerIsSomeParentOfChild(container, parentContainer)
 }
 
@@ -255,8 +256,8 @@ function getContainerByIdentifier(containerIdentifier) {
         return null
     }
     
-    if (containersAndConnections.containers.hasOwnProperty(containerIdentifier)) {
-        return containersAndConnections.containers[containerIdentifier]
+    if (ZUI.containersAndConnections.containers.hasOwnProperty(containerIdentifier)) {
+        return ZUI.containersAndConnections.containers[containerIdentifier]
     }
     else {
         console.log('ERROR: unknown containerIdentifier: ' + containerIdentifier)
@@ -275,9 +276,9 @@ function createConnection(connectionData) {
     let connectionTypeToConnectionShapeAndColor = {}
     let dataTypeToColor = {}
     
-    if (colorAndShapeMappings != null) {
-        connectionTypeToConnectionShapeAndColor = {} // FIXME: turned this off: colorAndShapeMappings.connectionTypeToConnectionShapeAndColor
-        dataTypeToColor = colorAndShapeMappings.dataTypeToColor
+    if (ZUI.colorAndShapeMappings != null) {
+        connectionTypeToConnectionShapeAndColor = {} // FIXME: turned this off: ZUI.colorAndShapeMappings.connectionTypeToConnectionShapeAndColor
+        dataTypeToColor = ZUI.colorAndShapeMappings.dataTypeToColor
     }
     
     if (connectionData.type != null) {
@@ -313,13 +314,13 @@ function createConnection(connectionData) {
         stroke: fill, // TODO: now using fill as line color!
     }
     
-    containersAndConnections.connections[connectionData.identifier] = newConnection
+    ZUI.containersAndConnections.connections[connectionData.identifier] = newConnection
     
     return newConnection
 }
 
 function removeConnection(connectionIdentifier) {
-    delete containersAndConnections.connections[connectionIdentifier]
+    delete ZUI.containersAndConnections.connections[connectionIdentifier]
 }
 
 function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnectionData) {
@@ -342,8 +343,8 @@ function getConnectionByIdentifier(connectionIdentifier) {
         return null
     }
     
-    if (containersAndConnections.connections.hasOwnProperty(connectionIdentifier)) {
-        return containersAndConnections.connections[connectionIdentifier]
+    if (ZUI.containersAndConnections.connections.hasOwnProperty(connectionIdentifier)) {
+        return ZUI.containersAndConnections.connections[connectionIdentifier]
     }
     else {
         console.log('ERROR: unknown connectionIdentifier: ' + connectionIdentifier)

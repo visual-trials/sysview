@@ -16,7 +16,7 @@
 
  */
  
-let mouseState = {
+ZUI.mouseState = {
     position : { x: 0, y: 0 },
     previousPosition : { x: 0, y: 0 },
     worldPosition : { x: 0, y: 0 },
@@ -42,32 +42,32 @@ let mouseState = {
 }
 
 function resetMouseEventData() {
-    mouseState.previousPosition.x = mouseState.position.x
-    mouseState.previousPosition.y = mouseState.position.y
-    mouseState.previousWorldPosition = fromScreenPositionToWorldPosition(mouseState.previousPosition)
+    ZUI.mouseState.previousPosition.x = ZUI.mouseState.position.x
+    ZUI.mouseState.previousPosition.y = ZUI.mouseState.position.y
+    ZUI.mouseState.previousWorldPosition = fromScreenPositionToWorldPosition(ZUI.mouseState.previousPosition)
     
-    mouseState.hasMoved = false
+    ZUI.mouseState.hasMoved = false
     
-    mouseState.leftButtonHasGoneDown = false
-    mouseState.leftButtonHasGoneDownTwice = false
-    mouseState.leftButtonHasGoneUp = false
+    ZUI.mouseState.leftButtonHasGoneDown = false
+    ZUI.mouseState.leftButtonHasGoneDownTwice = false
+    ZUI.mouseState.leftButtonHasGoneUp = false
     
-    mouseState.rightButtonHasGoneDown = false
-    mouseState.rightButtonHasGoneDownTwice = false
-    mouseState.rightButtonHasGoneUp = false
+    ZUI.mouseState.rightButtonHasGoneDown = false
+    ZUI.mouseState.rightButtonHasGoneDownTwice = false
+    ZUI.mouseState.rightButtonHasGoneUp = false
     
-    mouseState.mouseWheelHasMoved = false
+    ZUI.mouseState.mouseWheelHasMoved = false
     
-    mouseState.mouseStateHasChanged = false
+    ZUI.mouseState.mouseStateHasChanged = false
 }
 
 function updateMousePosition(x, y) {
-    mouseState.position.x = x
-    mouseState.position.y = y
-    mouseState.hasMoved = mouseState.previousPosition.x != mouseState.position.x || 
-                          mouseState.previousPosition.y != mouseState.position.y
+    ZUI.mouseState.position.x = x
+    ZUI.mouseState.position.y = y
+    ZUI.mouseState.hasMoved = ZUI.mouseState.previousPosition.x != ZUI.mouseState.position.x || 
+                          ZUI.mouseState.previousPosition.y != ZUI.mouseState.position.y
                
-    mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
+    ZUI.mouseState.worldPosition = fromScreenPositionToWorldPosition(ZUI.mouseState.position)
 }
 
 function mouseButtonDown (e) {
@@ -76,25 +76,25 @@ function mouseButtonDown (e) {
     
     if (e.button == 0) {
         // left mouse button down
-        mouseState.leftButtonHasGoneDown = true
-        mouseState.leftButtonIsDown = true
-        if (mouseState.leftButtonHasGoneDownAt != null && now - mouseState.leftButtonHasGoneDownAt < 500) {
-            mouseState.leftButtonHasGoneDownTwice = true
+        ZUI.mouseState.leftButtonHasGoneDown = true
+        ZUI.mouseState.leftButtonIsDown = true
+        if (ZUI.mouseState.leftButtonHasGoneDownAt != null && now - ZUI.mouseState.leftButtonHasGoneDownAt < 500) {
+            ZUI.mouseState.leftButtonHasGoneDownTwice = true
         }
-        mouseState.leftButtonHasGoneDownAt = now        
+        ZUI.mouseState.leftButtonHasGoneDownAt = now        
         
-        mouseState.mouseStateHasChanged = true
+        ZUI.mouseState.mouseStateHasChanged = true
     }
     else if (e.button == 2) {
         // right mouse button down
-        mouseState.rightButtonHasGoneDown = true
-        mouseState.rightButtonIsDown = true
-        if (mouseState.rightButtonHasGoneDownAt != null && now - mouseState.rightButtonHasGoneDownAt < 500) {
-            mouseState.rightButtonHasGoneDownTwice = true
+        ZUI.mouseState.rightButtonHasGoneDown = true
+        ZUI.mouseState.rightButtonIsDown = true
+        if (ZUI.mouseState.rightButtonHasGoneDownAt != null && now - ZUI.mouseState.rightButtonHasGoneDownAt < 500) {
+            ZUI.mouseState.rightButtonHasGoneDownTwice = true
         }
-        mouseState.rightButtonHasGoneDownAt = now        
+        ZUI.mouseState.rightButtonHasGoneDownAt = now        
         
-        mouseState.mouseStateHasChanged = true
+        ZUI.mouseState.mouseStateHasChanged = true
     }
 
     e.preventDefault()
@@ -103,17 +103,17 @@ function mouseButtonDown (e) {
 function mouseButtonUp (e) {
     if (e.button == 0) {
         // left mouse button up
-        mouseState.leftButtonHasGoneUp = true
-        mouseState.leftButtonIsDown = false
+        ZUI.mouseState.leftButtonHasGoneUp = true
+        ZUI.mouseState.leftButtonIsDown = false
         
-        mouseState.mouseStateHasChanged = true
+        ZUI.mouseState.mouseStateHasChanged = true
     }
     else if (e.button == 2) {
         // right mouse button up
-        mouseState.rightButtonHasGoneUp = true
-        mouseState.rightButtonIsDown = false
+        ZUI.mouseState.rightButtonHasGoneUp = true
+        ZUI.mouseState.rightButtonIsDown = false
         
-        mouseState.mouseStateHasChanged = true
+        ZUI.mouseState.mouseStateHasChanged = true
     }
 
     e.preventDefault()
@@ -121,34 +121,34 @@ function mouseButtonUp (e) {
 
 function mouseEntered (e) {
     updateMousePosition(e.offsetX, e.offsetY)
-    mouseState.mouseStateHasChanged = true
+    ZUI.mouseState.mouseStateHasChanged = true
 
     e.preventDefault()
 }
 
 function mouseMoved (e) {
     updateMousePosition(e.offsetX, e.offsetY)
-    mouseState.mouseStateHasChanged = true
+    ZUI.mouseState.mouseStateHasChanged = true
 
     e.preventDefault()
 }
 
 function mouseExited (e) {
     updateMousePosition(e.offsetX, e.offsetY)
-    mouseState.mouseStateHasChanged = true
+    ZUI.mouseState.mouseStateHasChanged = true
 
     e.preventDefault()
 }
 
 function mouseWheelMoved (e) {
     updateMousePosition(e.offsetX, e.offsetY)
-    mouseState.mouseWheelHasMoved = true
+    ZUI.mouseState.mouseWheelHasMoved = true
 
     // Cross-browser wheel delta (Mac is much more sensitive)
     // A number between -1 and 1
-    mouseState.mouseWheelDelta = Math.max(-1, Math.min(1, (e.wheelDelta / 120 || -e.detail)))
+    ZUI.mouseState.mouseWheelDelta = Math.max(-1, Math.min(1, (e.wheelDelta / 120 || -e.detail)))
 
-    mouseState.mouseStateHasChanged = true
+    ZUI.mouseState.mouseStateHasChanged = true
     
     e.preventDefault()
 }
@@ -158,15 +158,15 @@ function mouseWheelMoved (e) {
 
 // Note that IE, Opera, Safari do not support touch!  ( https://developer.mozilla.org/en-US/docs/Web/API/Touch )
     
-let touchesState = {}
-let touchesStateHasChanged = false
+ZUI.touchesState = {}
+ZUI.touchesStateHasChanged = false
 
 function resetTouchEventData () {
 
     let touchesToDelete = {}
-    for (let touch_identifier in touchesState) {
+    for (let touch_identifier in ZUI.touchesState) {
         
-        let touch = touchesState[touch_identifier]
+        let touch = ZUI.touchesState[touch_identifier]
         
         if (touch.hasEnded || touch.wasCanceled) {
             touchesToDelete[touch_identifier] = true
@@ -185,10 +185,10 @@ function resetTouchEventData () {
     }
     
     for (let touch_identifier in touchesToDelete) {
-        delete touchesState[touch_identifier]
+        delete ZUI.touchesState[touch_identifier]
     }
     
-    touchesStateHasChanged = false
+    ZUI.touchesStateHasChanged = false
 }
 
 function updateTouchPosition (touch, x, y, previousX, previousY) {
@@ -233,12 +233,12 @@ function touchStarted (e) {
         newTouch.hasEndedQuickly = false
         newTouch.wasCanceled = false
         
-        touchesState[changedTouch.identifier] = newTouch
+        ZUI.touchesState[changedTouch.identifier] = newTouch
         
         updateTouchPosition(newTouch, changedTouch.pageX, changedTouch.pageY, changedTouch.pageX, changedTouch.pageY)
     }
     
-    touchesStateHasChanged = true
+    ZUI.touchesStateHasChanged = true
 
     e.preventDefault()
 }
@@ -252,8 +252,8 @@ function touchEnded (e) {
     for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
         let changedTouch = changedTouches[touchIndex]
 
-        if (touchesState.hasOwnProperty(changedTouch.identifier)) {
-            let endedTouch = touchesState[changedTouch.identifier]
+        if (ZUI.touchesState.hasOwnProperty(changedTouch.identifier)) {
+            let endedTouch = ZUI.touchesState[changedTouch.identifier]
             
             endedTouch.hasEnded = true
             if (endedTouch.startedAt != null && now - endedTouch.startedAt < 500) {
@@ -268,7 +268,7 @@ function touchEnded (e) {
         }
     }
 
-    touchesStateHasChanged = true
+    ZUI.touchesStateHasChanged = true
     
     e.preventDefault()
 }
@@ -279,8 +279,8 @@ function touchCanceled (e) {
     for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
         let changedTouch = changedTouches[touchIndex]
 
-        if (touchesState.hasOwnProperty(changedTouch.identifier)) {
-            let canceledTouch = touchesState[changedTouch.identifier]
+        if (ZUI.touchesState.hasOwnProperty(changedTouch.identifier)) {
+            let canceledTouch = ZUI.touchesState[changedTouch.identifier]
             canceled.wasCanceled = true
             // TODO: should we do this?: canceled.touchHasStarted = false
         }
@@ -289,7 +289,7 @@ function touchCanceled (e) {
         }
     }
     
-    touchesStateHasChanged = true
+    ZUI.touchesStateHasChanged = true
 
     e.preventDefault()
 }
@@ -301,8 +301,8 @@ function touchMoved (e) {
     for (let touchIndex = 0; touchIndex < changedTouches.length; touchIndex++) {
         let changedTouch = changedTouches[touchIndex]
         
-        if (touchesState.hasOwnProperty(changedTouch.identifier)) {
-            let movedTouch = touchesState[changedTouch.identifier]
+        if (ZUI.touchesState.hasOwnProperty(changedTouch.identifier)) {
+            let movedTouch = ZUI.touchesState[changedTouch.identifier]
             
             updateTouchPosition(movedTouch, changedTouch.pageX, changedTouch.pageY, null, null)
         }
@@ -311,7 +311,7 @@ function touchMoved (e) {
         }
     }
     
-    touchesStateHasChanged = true
+    ZUI.touchesStateHasChanged = true
 
     e.preventDefault()
 }
@@ -319,7 +319,7 @@ function touchMoved (e) {
 
 // Keyboard
 
-let keyboardState = {
+ZUI.keyboardState = {
     keysThatAreDown : {},
     ctrlIsDown : false,
     shiftIsDown : false,
@@ -330,8 +330,8 @@ let keyboardState = {
 }
 
 function resetKeyboardEventData() {
-    keyboardState.sequenceKeysUpDown = []
-    keyboardState.keyboardStateHasChanged = false
+    ZUI.keyboardState.sequenceKeysUpDown = []
+    ZUI.keyboardState.keyboardStateHasChanged = false
 }
 
 function keyDown (e) {
@@ -344,23 +344,23 @@ function keyDown (e) {
 
     if (keyCode <= 255) {
         
-        if (keyboardState.sequenceKeysUpDown.length < 25) {
-            keyboardState.sequenceKeysUpDown.push({ "isDown" : true, "keyCode" : keyCode})
+        if (ZUI.keyboardState.sequenceKeysUpDown.length < 25) {
+            ZUI.keyboardState.sequenceKeysUpDown.push({ "isDown" : true, "keyCode" : keyCode})
         }
         else {
             console.log("ERROR: Too many keys have gone up and down during this frame")
         }
         
-        if (!keyboardState.keysThatAreDown[keyCode]) {
-            keyboardState.keysThatAreDown[keyCode] = true
+        if (!ZUI.keyboardState.keysThatAreDown[keyCode]) {
+            ZUI.keyboardState.keysThatAreDown[keyCode] = true
             if (keyCode === 16) {  // TODO: hardcoded code for SHIFT!
-                keyboardState.shiftIsDown = true
+                ZUI.keyboardState.shiftIsDown = true
             }
             else if (keyCode === 17) {  // TODO: hardcoded code for CONTROL!
-                keyboardState.ctrlIsDown = true
+                ZUI.keyboardState.ctrlIsDown = true
             }
             else if (keyCode === 18) {  // TODO: hardcoded code for ALT!
-                keyboardState.altIsDown = true
+                ZUI.keyboardState.altIsDown = true
             }
         }
         else {
@@ -369,13 +369,13 @@ function keyDown (e) {
         
         // TODO: now we always check CapsLock. Can we only check when it is pressed (or can it be pressed outside of our window, so thats not safe?)
         if (e.getModifierState("CapsLock")) {
-            keyboardState.capsLockIsActive = true
+            ZUI.keyboardState.capsLockIsActive = true
         }
         else {
-            keyboardState.capsLockIsActive = false
+            ZUI.keyboardState.capsLockIsActive = false
         }
         
-        keyboardState.keyboardStateHasChanged = true
+        ZUI.keyboardState.keyboardStateHasChanged = true
     }
     else {
         console.log("ERROR: Invalid keyCode (" + keyCode + ") encountered!") 
@@ -390,30 +390,30 @@ function keyUp (e) {
     
     if (keyCode <= 255) {
         
-        if (keyboardState.sequenceKeysUpDown.length < 25) {
-            keyboardState.sequenceKeysUpDown.push({ "isDown" : false, "keyCode" : keyCode})
+        if (ZUI.keyboardState.sequenceKeysUpDown.length < 25) {
+            ZUI.keyboardState.sequenceKeysUpDown.push({ "isDown" : false, "keyCode" : keyCode})
         }
         else {
             console.log("ERROR: Too many keys have gone up and down during this frame")
         }
         
-        if (keyboardState.keysThatAreDown[keyCode]) {
-            keyboardState.keysThatAreDown[keyCode] = false
+        if (ZUI.keyboardState.keysThatAreDown[keyCode]) {
+            ZUI.keyboardState.keysThatAreDown[keyCode] = false
             if (keyCode === 16) {  // TODO: hardcoded code for SHIFT!
-                keyboardState.shiftIsDown = false
+                ZUI.keyboardState.shiftIsDown = false
             }
             else if (keyCode === 17) {  // TODO: hardcoded code for CONTROL!
-                keyboardState.ctrlIsDown = false
+                ZUI.keyboardState.ctrlIsDown = false
             }
             else if (keyCode === 18) {  // TODO: hardcoded code for ALT!
-                keyboardState.altIsDown = false
+                ZUI.keyboardState.altIsDown = false
             }
         }
         else {
             // FIXME: No key was down, but a key went up. What happened?
         }
         
-        keyboardState.keyboardStateHasChanged = true
+        ZUI.keyboardState.keyboardStateHasChanged = true
     }
     else {
         console.log("ERROR: Invalid keyCode (" + keyCode + ") encountered!") 
@@ -421,9 +421,9 @@ function keyUp (e) {
 }
 
 function hasKeyGoneDown(keyNameToCheck) {
-    if (keyboardState.sequenceKeysUpDown.length) {
-        for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
-            let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
+    if (ZUI.keyboardState.sequenceKeysUpDown.length) {
+        for (let sequenceIndex = 0; sequenceIndex < ZUI.keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
+            let keyUpDown = ZUI.keyboardState.sequenceKeysUpDown[sequenceIndex]
             let keyName = keyCodeMap[keyUpDown.keyCode]
             if (keyUpDown.isDown) {
                 if (keyName === keyNameToCheck) {
@@ -436,19 +436,19 @@ function hasKeyGoneDown(keyNameToCheck) {
 }
 
 // Window
-let windowState = {
+ZUI.windowState = {
     windowHasBeenResized : false,
     windowStateHasChanged : false
 }
 
 function resetWindowEventData() {
-    windowState.windowHasBeenResized = false
-    windowState.windowStateHasChanged = false
+    ZUI.windowState.windowHasBeenResized = false
+    ZUI.windowState.windowStateHasChanged = false
 }
 
 function windowResized() {
-    windowState.windowHasBeenResized = true
-    windowState.windowStateHasChanged = true
+    ZUI.windowState.windowHasBeenResized = true
+    ZUI.windowState.windowStateHasChanged = true
 }
 
 
@@ -459,31 +459,31 @@ function contextMenuDown (e) {
 }
     
 function addInputListeners () {
-    canvasElement.addEventListener("mousedown", mouseButtonDown, false)
+    ZUI.canvasElement.addEventListener("mousedown", mouseButtonDown, false)
     // We want to know if the mouse goes up OUTSIDE the canvas, so we attach the eventlistener to the 'window' instead
     window.addEventListener("mouseup", mouseButtonUp, false)
-    canvasElement.addEventListener("mousemove", mouseMoved, false)
+    ZUI.canvasElement.addEventListener("mousemove", mouseMoved, false)
     // TODO: the mouseenter is not triggered on *page load* for Chrome. It is for FF.
     //       See this link *why* we want to use it: 
     //       https://stackoverflow.com/questions/2601097/how-to-get-the-mouse-position-without-events-without-moving-the-mouse
-    canvasElement.addEventListener("mouseenter", mouseEntered, false)
-    canvasElement.addEventListener("mouseleave", mouseExited, false)
+    ZUI.canvasElement.addEventListener("mouseenter", mouseEntered, false)
+    ZUI.canvasElement.addEventListener("mouseleave", mouseExited, false)
     // IE9, Chrome, Safari, Opera
-    canvasElement.addEventListener("mousewheel", mouseWheelMoved, false)
+    ZUI.canvasElement.addEventListener("mousewheel", mouseWheelMoved, false)
     // Firefox
-    canvasElement.addEventListener("DOMMouseScroll", mouseWheelMoved, false)
+    ZUI.canvasElement.addEventListener("DOMMouseScroll", mouseWheelMoved, false)
     
-    canvasElement.addEventListener("touchstart", touchStarted, false)
-    canvasElement.addEventListener("touchend", touchEnded, false)
-    canvasElement.addEventListener("touchcancel", touchCanceled, false)
-    canvasElement.addEventListener("touchmove", touchMoved, false)
+    ZUI.canvasElement.addEventListener("touchstart", touchStarted, false)
+    ZUI.canvasElement.addEventListener("touchend", touchEnded, false)
+    ZUI.canvasElement.addEventListener("touchcancel", touchCanceled, false)
+    ZUI.canvasElement.addEventListener("touchmove", touchMoved, false)
         
     document.addEventListener("keydown", keyDown, false)
     document.addEventListener("keyup", keyUp, false)
         
     window.addEventListener("resize", windowResized, false)
     
-    canvasElement.addEventListener('contextmenu', contextMenuDown, false)
+    ZUI.canvasElement.addEventListener('contextmenu', contextMenuDown, false)
 }
 
 // From here: https://stackoverflow.com/questions/1772179/get-character-value-from-keycode-in-javascript-then-trim/5829387#5829387

@@ -20,9 +20,9 @@ function fromWorldPositionToScreenPosition(worldPosition) {
     
     let screenPosition = {}
     
-    if (interaction.percentageIsoMetric === 0) {
-        let scaledWorldPosition = scalePosition(interaction.viewScale, worldPosition)
-        screenPosition = addOffsetToPosition(interaction.viewOffset, scaledWorldPosition)
+    if (ZUI.interaction.percentageIsoMetric === 0) {
+        let scaledWorldPosition = scalePosition(ZUI.interaction.viewScale, worldPosition)
+        screenPosition = addOffsetToPosition(ZUI.interaction.viewOffset, scaledWorldPosition)
     }
     else {
         // TODO: currently we let the canvas itself do the translation, scaling and rotating
@@ -30,18 +30,18 @@ function fromWorldPositionToScreenPosition(worldPosition) {
         //       so screenPosition isn't realy filled with a screen-coordinate here
         
         // Rotate
-        let angleToRotate = currentIsoMetricSettings.rotate * Math.PI / 180
+        let angleToRotate = ZUI.currentIsoMetricSettings.rotate * Math.PI / 180
         screenPosition.x = worldPosition.x * Math.cos(angleToRotate) - worldPosition.y * Math.sin(angleToRotate);
         screenPosition.y = worldPosition.y * Math.cos(angleToRotate) + worldPosition.x * Math.sin(angleToRotate);
         
         // Scale vertically
-        screenPosition.y = screenPosition.y * currentIsoMetricSettings.scale
+        screenPosition.y = screenPosition.y * ZUI.currentIsoMetricSettings.scale
         
         // Translate (in screen-space)
-        screenPosition.y = screenPosition.y + currentIsoMetricSettings.translate * canvasElement.height
+        screenPosition.y = screenPosition.y + ZUI.currentIsoMetricSettings.translate * ZUI.canvasElement.height
         
-        let scaledWorldPosition = scalePosition(interaction.viewScale, screenPosition)
-        screenPosition = addOffsetToPosition(interaction.viewOffset, scaledWorldPosition)
+        let scaledWorldPosition = scalePosition(ZUI.interaction.viewScale, screenPosition)
+        screenPosition = addOffsetToPosition(ZUI.interaction.viewOffset, scaledWorldPosition)
         
     }
     
@@ -162,22 +162,22 @@ function fromScreenPositionToWorldPosition(screenPosition) {
     
     let worldPosition = {}
     
-    if (interaction.percentageIsoMetric === 0) {
-        let scaledWorldPosition = substractOffsetFromPosition(interaction.viewOffset, screenPosition)
-        worldPosition = unscalePosition(interaction.viewScale, scaledWorldPosition)
+    if (ZUI.interaction.percentageIsoMetric === 0) {
+        let scaledWorldPosition = substractOffsetFromPosition(ZUI.interaction.viewOffset, screenPosition)
+        worldPosition = unscalePosition(ZUI.interaction.viewScale, scaledWorldPosition)
     }
     else {
-        let scaledWorldPosition = substractOffsetFromPosition(interaction.viewOffset, screenPosition)
-        worldPosition = unscalePosition(interaction.viewScale, scaledWorldPosition)
+        let scaledWorldPosition = substractOffsetFromPosition(ZUI.interaction.viewOffset, screenPosition)
+        worldPosition = unscalePosition(ZUI.interaction.viewScale, scaledWorldPosition)
         
         // Translate (in screen-space)
-        worldPosition.y = worldPosition.y - currentIsoMetricSettings.translate * canvasElement.height
+        worldPosition.y = worldPosition.y - ZUI.currentIsoMetricSettings.translate * ZUI.canvasElement.height
         
         // Scale vertically
-        worldPosition.y = worldPosition.y / currentIsoMetricSettings.scale
+        worldPosition.y = worldPosition.y / ZUI.currentIsoMetricSettings.scale
         
         // Rotate
-        let angleToRotate = - currentIsoMetricSettings.rotate * Math.PI / 180
+        let angleToRotate = - ZUI.currentIsoMetricSettings.rotate * Math.PI / 180
         let oldPosition = { x: worldPosition.x, y: worldPosition.y}
         worldPosition.x = oldPosition.x * Math.cos(angleToRotate) - oldPosition.y * Math.sin(angleToRotate);
         worldPosition.y = oldPosition.y * Math.cos(angleToRotate) + oldPosition.x * Math.sin(angleToRotate);
@@ -280,7 +280,7 @@ function getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, container,
 
 
 function findMenuButtonAtScreenPosition(screenPosition) {
-    let buttonFound = findButtonInButtonListAtScreenPosition(screenPosition, menuButtons)
+    let buttonFound = findButtonInButtonListAtScreenPosition(screenPosition, ZUI.menuButtons)
     if (buttonFound != null) {
         return buttonFound
     }
@@ -313,7 +313,7 @@ function getCenterPointOfRectangle (rectangle) {
 
 function getRectangleAroundWorld() {
 
-    let rootContainer = containersAndConnections.containers['root']
+    let rootContainer = ZUI.containersAndConnections.containers['root']
         
     let minX = null
     let minY = null
@@ -322,7 +322,7 @@ function getRectangleAroundWorld() {
     
     for (let containerIndex = 0; containerIndex < rootContainer.children.length; containerIndex++) {
         let childContainerIdentifier = rootContainer.children[containerIndex]
-        let childContainer = containersAndConnections.containers[childContainerIdentifier]
+        let childContainer = ZUI.containersAndConnections.containers[childContainerIdentifier]
         
         if (minX == null || childContainer.worldPosition.x < minX) {
             minX = childContainer.worldPosition.x
@@ -403,7 +403,7 @@ function recalculateWorldPoints(container) {
     container.worldPoints['left-bottom'] = { x: container.worldPosition.x, y: container.worldPosition.y + container.worldSize.height } 
 
     // TODO: check if type exists!
-    let containerShape = containerShapes[container.shapeType]
+    let containerShape = ZUI.containerShapes[container.shapeType]
     
     if (!containerShape) {
         console.log("ERROR: no containershape found for container:")
@@ -474,11 +474,11 @@ function getPositionFromAnglePointAndDistance(position, angle, distance) {
 function recalculateWorldPositionsAndSizes(container) {
 
     if (container == null) {
-        container = containersAndConnections.containers['root'] // = root container
+        container = ZUI.containersAndConnections.containers['root'] // = root container
         container.worldScale = container.localScale
     }
     else {
-        parentContainer = containersAndConnections.containers[container.parentContainerIdentifier]
+        parentContainer = ZUI.containersAndConnections.containers[container.parentContainerIdentifier]
         
         let scaledLocalPosition = scalePosition(parentContainer.worldScale, container.localPosition)
         container.worldPosition = addOffsetToPosition(scaledLocalPosition, parentContainer.worldPosition)
@@ -491,7 +491,7 @@ function recalculateWorldPositionsAndSizes(container) {
     // First check the children (since they are 'on-top' of the parent)
     for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
         let childContainerIdentifier = container.children[containerIndex]
-        let childContainer = containersAndConnections.containers[childContainerIdentifier]
+        let childContainer = ZUI.containersAndConnections.containers[childContainerIdentifier]
         
         recalculateWorldPositionsAndSizes(childContainer)
     }
@@ -501,13 +501,13 @@ function findContainerEncompassingWorldRectangle(worldRectangle, container) {
     
     if (container == null) {
         // start with the root container, if no starting container has been supplied
-        container = containersAndConnections.containers['root'] 
+        container = ZUI.containersAndConnections.containers['root'] 
     }
     
     // First check the children (since they are 'on-top' of the parent)
     for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
         let childContainerIdentifier = container.children[containerIndex]
-        let childContainer = containersAndConnections.containers[childContainerIdentifier]
+        let childContainer = ZUI.containersAndConnections.containers[childContainerIdentifier]
         let containerEncompassingWorldRectangle = findContainerEncompassingWorldRectangle(worldRectangle, childContainer)
         if (containerEncompassingWorldRectangle != null) {
             return containerEncompassingWorldRectangle
@@ -527,7 +527,7 @@ function findContainerEncompassingWorldRectangle(worldRectangle, container) {
 function findContainerAtWorldPosition(worldPosition, container, excludeSelectedContainers) {
     
     if (container == null) {
-        container = containersAndConnections.containers['root'] // = root container
+        container = ZUI.containersAndConnections.containers['root'] // = root container
     }
     
     // TODO: for performance, we probably want to check if the mousepointer is above the parent, and only
@@ -538,7 +538,7 @@ function findContainerAtWorldPosition(worldPosition, container, excludeSelectedC
         // First check the children (since they are 'on-top' of the parent)
         for (let containerIndex = 0; containerIndex < container.children.length; containerIndex++) {
             let childContainerIdentifier = container.children[containerIndex]
-            let childContainer = containersAndConnections.containers[childContainerIdentifier]
+            let childContainer = ZUI.containersAndConnections.containers[childContainerIdentifier]
             
             let containerAtWorldPosition = findContainerAtWorldPosition(worldPosition, childContainer, excludeSelectedContainers)
             if (containerAtWorldPosition != null) {
@@ -547,7 +547,7 @@ function findContainerAtWorldPosition(worldPosition, container, excludeSelectedC
         }
     }
     
-    if (excludeSelectedContainers && interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
+    if (excludeSelectedContainers && ZUI.interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
         return null
     }
     
@@ -563,13 +563,13 @@ function findContainerAtWorldPosition(worldPosition, container, excludeSelectedC
 FIXME: deprecated
 function findConnectionAtWorldPosition(worldPosition) {
     // TODO: this is quite expensive! We might want to use spatial partitioning here
-     for (let fromFirstVisibleContainerIdentifier in groupedConnections) {
-        for (let toFirstVisibleContainerIdentifier in groupedConnections[fromFirstVisibleContainerIdentifier]) {
-            for (let connectionType in groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier]) {
-                let connectionGroup = groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]
+     for (let fromFirstVisibleContainerIdentifier in ZUI.groupedConnections) {
+        for (let toFirstVisibleContainerIdentifier in ZUI.groupedConnections[fromFirstVisibleContainerIdentifier]) {
+            for (let connectionType in ZUI.groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier]) {
+                let connectionGroup = ZUI.groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]
 
                 let distance = distanceBetweenTwoPoints(worldPosition, connectionGroup.worldMiddlePoint)
-                if (distance < 10 / interaction.viewScale) {
+                if (distance < 10 / ZUI.interaction.viewScale) {
                     if (connectionGroup.nrOfConnections === 1) {
                         let foundConnection = connectionGroup.connections[Object.keys(connectionGroup.connections)[0]]
                         return foundConnection
@@ -592,7 +592,7 @@ function whichSideIsPositionFromContainer(worldPosition, container) {
     
     // FIXME: maybe if container is (very) small, we should make the margin smaller?
     // TODO: what we really should be doing is measure the margin in *screen* space instead
-    let margin = 10 / interaction.viewScale
+    let margin = 10 / ZUI.interaction.viewScale
     
     if (worldPosition.x < container.worldPosition.x + margin) {
         side.x = -1

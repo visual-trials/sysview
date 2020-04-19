@@ -17,13 +17,15 @@
  */
 
 // TODO: we need to be able to set this (probably via a function)
-let colorAndShapeMappings = {
+let ZUI = {}
+
+ZUI.colorAndShapeMappings = {
     "containerTypeToContainerShapeAndColor" : {},
     "dataTypeToColor" : {}
 }
 
  // TODO: what about brown? Or is that too close to orange?
-let basicColors = {
+ZUI.basicColors = {
     transparent: {r:255, g:255,  b:255,   a:0},
     white   : {r:255, g:255, b:255, a:1},
     grey    : {r:127, g:127, b:127, a:1},
@@ -40,7 +42,7 @@ let basicColors = {
 }
  
 // TODO: make this available as data
-let containerShapes = {
+ZUI.containerShapes = {
     'rectangle4points' : {
         'points' : {
             'top-middle' : {

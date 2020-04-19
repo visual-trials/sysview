@@ -16,7 +16,7 @@
 
  */
  
-let interaction = {
+ZUI.interaction = {
     viewScale : 1,
     viewOffset : { x: 0, y: 0},
     viewIsBeingDraggedByMouse : false,
@@ -62,82 +62,82 @@ let interaction = {
 }
 
 // FIXME: put this somewhere else! (and finetune it)
-let minimumDistanceFromConnectionToDetectMouseHover = 8
+ZUI.minimumDistanceFromConnectionToDetectMouseHover = 8
 
 function handleInputStateChange () {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
-    let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(mouseState.position)
+    let containerAtMousePosition = findContainerAtWorldPosition(ZUI.mouseState.worldPosition, null, false)
+    let menuButtonAtMousePosition = findMenuButtonAtScreenPosition(ZUI.mouseState.position)
     
     if (menuButtonAtMousePosition != null) {
-        interaction.currentlyHoveredContainerIdentifier = null
-        interaction.currentlyHoveredMenuButton = menuButtonAtMousePosition
+        ZUI.interaction.currentlyHoveredContainerIdentifier = null
+        ZUI.interaction.currentlyHoveredMenuButton = menuButtonAtMousePosition
     }
     else {
-        if (interaction.currentlySelectedMode === 'connect') {
-            if (interaction.closestConnectionIdentifier != null && interaction.closestConnectionDistance < minimumDistanceFromConnectionToDetectMouseHover) {
-                interaction.currentlyHoveredConnectionIdentifier = interaction.closestConnectionIdentifier
+        if (ZUI.interaction.currentlySelectedMode === 'connect') {
+            if (ZUI.interaction.closestConnectionIdentifier != null && ZUI.interaction.closestConnectionDistance < ZUI.minimumDistanceFromConnectionToDetectMouseHover) {
+                ZUI.interaction.currentlyHoveredConnectionIdentifier = ZUI.interaction.closestConnectionIdentifier
             }
             else {
-                interaction.currentlyHoveredConnectionIdentifier = null
+                ZUI.interaction.currentlyHoveredConnectionIdentifier = null
             }
             
 /*            
-            let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
+            let connectionAtMousePosition = findConnectionAtWorldPosition(ZUI.mouseState.worldPosition)
             // FIXME: put this in a separate function (hoverconnectionbymouse or selectconnection by mouse)
             if (connectionAtMousePosition != null) {
-                interaction.currentlyHoveredConnectionIdentifier = connectionAtMousePosition.identifier
+                ZUI.interaction.currentlyHoveredConnectionIdentifier = connectionAtMousePosition.identifier
             }
             else {
-                interaction.currentlyHoveredConnectionIdentifier = null
+                ZUI.interaction.currentlyHoveredConnectionIdentifier = null
             }
 */
-            interaction.currentlyHoveredMenuButton = null
+            ZUI.interaction.currentlyHoveredMenuButton = null
         }
         else {
             
             // FIXME: put this in a separate function (hoverconnectionbymouse or something)
-            if (interaction.closestConnectionIdentifier != null && interaction.closestConnectionDistance < minimumDistanceFromConnectionToDetectMouseHover) {
-                interaction.currentlyHoveredConnectionIdentifier = interaction.closestConnectionIdentifier
+            if (ZUI.interaction.closestConnectionIdentifier != null && ZUI.interaction.closestConnectionDistance < ZUI.minimumDistanceFromConnectionToDetectMouseHover) {
+                ZUI.interaction.currentlyHoveredConnectionIdentifier = ZUI.interaction.closestConnectionIdentifier
             }
             else {
-                interaction.currentlyHoveredConnectionIdentifier = null
+                ZUI.interaction.currentlyHoveredConnectionIdentifier = null
                 
                 // FIXME: put this in a separate function (hovercontainerbymouse or selectcontainer by mouse)
                 if (containerAtMousePosition != null) {
-                    interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
+                    ZUI.interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
                 }
                 else {
-                    interaction.currentlyHoveredContainerIdentifier = null
+                    ZUI.interaction.currentlyHoveredContainerIdentifier = null
                 }
             }
             
-            interaction.currentlyHoveredMenuButton = null
+            ZUI.interaction.currentlyHoveredMenuButton = null
         }
     }
     
     // TODO: maybe we do not always want to disable dragging/editing/etc if we happen to move the mouse over a menu item?
-    if (interaction.currentlyHoveredMenuButton == null) { 
-        if (interaction.currentlySelectedMode === 'connect') {
+    if (ZUI.interaction.currentlyHoveredMenuButton == null) { 
+        if (ZUI.interaction.currentlySelectedMode === 'connect') {
             doAddNewConnection()
             
             doDeleteConnectionByKeyboard()
             doChangeContainerDataTypeSelectedConnectionByKeyboard()
             
-            if (interaction.newConnectionBeingAddedIdentifier == null) {
+            if (ZUI.interaction.newConnectionBeingAddedIdentifier == null) {
                 doConnectionSelectionByMouse()
             }
             // FIXME: check if no connections are selected!
-            if (interaction.newConnectionBeingAddedIdentifier == null) {
+            if (ZUI.interaction.newConnectionBeingAddedIdentifier == null) {
                 doViewDraggingByMouse()
             }
             doViewZoomingByMouse()
         }
-        else if (interaction.currentlySelectedMode === 'move') {
+        else if (ZUI.interaction.currentlySelectedMode === 'move') {
             doAddNewContainer()  // TODO: this should become a multi-step process, so we should check if its on-going after calling this function
             if (true) {  
                 doEditContainerText()
-                if (interaction.currentlyEditingContainerText == null) {
+                if (ZUI.interaction.currentlyEditingContainerText == null) {
                     
                     doDeleteContainerByKeyboard()
                     doSelectChildContainersByKeyboard()
@@ -147,26 +147,26 @@ function handleInputStateChange () {
                     doChangeContainerTypeSelectedContainersByKeyboard()
                     doChangeContainerDataTypeSelectedContainersByKeyboard()
                     
-                    if (!interaction.mouseIsNearSelectedContainerBorder && 
-                        !interaction.selectedContainerIsBeingResized &&
-                        !interaction.selectedContainersAreBeingDragged &&
-                        !interaction.viewIsBeingDraggedByMouse) {
+                    if (!ZUI.interaction.mouseIsNearSelectedContainerBorder && 
+                        !ZUI.interaction.selectedContainerIsBeingResized &&
+                        !ZUI.interaction.selectedContainersAreBeingDragged &&
+                        !ZUI.interaction.viewIsBeingDraggedByMouse) {
                         doContainerSelectionByMouse()
                     }
                     
-                    if (!interaction.mouseIsNearSelectedContainerBorder && 
-                        !interaction.selectedContainerIsBeingResized &&
-                        !interaction.viewIsBeingDraggedByMouse) {
+                    if (!ZUI.interaction.mouseIsNearSelectedContainerBorder && 
+                        !ZUI.interaction.selectedContainerIsBeingResized &&
+                        !ZUI.interaction.viewIsBeingDraggedByMouse) {
                         doContainerDraggingByMouse()
                     }
                     
-                    if (!interaction.selectedContainersAreBeingDragged && 
-                        !interaction.viewIsBeingDraggedByMouse) {
+                    if (!ZUI.interaction.selectedContainersAreBeingDragged && 
+                        !ZUI.interaction.viewIsBeingDraggedByMouse) {
                         doContainerResizingByMouse()
                     }
                     
                     
-                    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length == 0) {
+                    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length == 0) {
                         doViewDraggingByMouse()
                     }
                     
@@ -175,7 +175,7 @@ function handleInputStateChange () {
             
             doViewZoomingByMouse()
         }
-        else if (interaction.currentlySelectedMode === 'view') {
+        else if (ZUI.interaction.currentlySelectedMode === 'view') {
             doContainerSelectionByMouse()
             doConnectionSelectionByMouse()
             doViewDraggingByMouse()
@@ -184,7 +184,7 @@ function handleInputStateChange () {
     }
     else {
         // If we hover a menu button, we want to see a default mouse pointer
-        interaction.mousePointerStyle = 'default'
+        ZUI.interaction.mousePointerStyle = 'default'
         
         doMenuButtonModeSelect()
         doMenuButtonIsoMetricToggle()
@@ -200,39 +200,39 @@ function handleInputStateChange () {
 // ====== MENU ======
 
 function doMenuButtonModeSelect() {
-    if (mouseState.leftButtonHasGoneDown && interaction.currentlyHoveredMenuButton.mode) {
+    if (ZUI.mouseState.leftButtonHasGoneDown && ZUI.interaction.currentlyHoveredMenuButton.mode) {
         // If its a menu button with a 'mode', then we select that mode
-        interaction.currentlySelectedMode = interaction.currentlyHoveredMenuButton.mode
+        ZUI.interaction.currentlySelectedMode = ZUI.interaction.currentlyHoveredMenuButton.mode
         
-        if (interaction.currentlySelectedMode === 'view') {
+        if (ZUI.interaction.currentlySelectedMode === 'view') {
             // TODO: we currently do not allow containers to be selected in view-mode, so we de-select
             //       all selected containers here. But we might want to allow selecting of containers in
             //       view-mode
-            interaction.currentlySelectedContainerIdentifiers = {}
+            ZUI.interaction.currentlySelectedContainerIdentifiers = {}
             // We also disable all these states
-            interaction.selectedContainerIsBeingResized = false
-            interaction.selectedContainersAreBeingDragged = false
-            interaction.mouseIsNearSelectedContainerBorder = false
+            ZUI.interaction.selectedContainerIsBeingResized = false
+            ZUI.interaction.selectedContainersAreBeingDragged = false
+            ZUI.interaction.mouseIsNearSelectedContainerBorder = false
         }
     }
 }
 
 function doMenuButtonIsoMetricToggle() {
-    if (mouseState.leftButtonHasGoneDown && interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
-        if (interaction.viewAsIsoMetric) {
-            interaction.viewAsIsoMetric = false
-            interaction.isoMetricAnimationRunning = true
+    if (ZUI.mouseState.leftButtonHasGoneDown && ZUI.interaction.currentlyHoveredMenuButton.toggle === 'isoMetric') {
+        if (ZUI.interaction.viewAsIsoMetric) {
+            ZUI.interaction.viewAsIsoMetric = false
+            ZUI.interaction.isoMetricAnimationRunning = true
         }
         else {
-            interaction.viewAsIsoMetric = true
-            interaction.isoMetricAnimationRunning = true
+            ZUI.interaction.viewAsIsoMetric = true
+            ZUI.interaction.isoMetricAnimationRunning = true
         }
     }
 }
 
 function doMenuButtonGridToggle() {
-    if (mouseState.leftButtonHasGoneDown && interaction.currentlyHoveredMenuButton.toggle === 'grid') {
-        interaction.showGrid = !interaction.showGrid
+    if (ZUI.mouseState.leftButtonHasGoneDown && ZUI.interaction.currentlyHoveredMenuButton.toggle === 'grid') {
+        ZUI.interaction.showGrid = !ZUI.interaction.showGrid
     }
 }
 
@@ -242,28 +242,28 @@ function doConnectionSelectionByMouse() {
     
     // If escape is pressed, de-select the selected connection
     if (hasKeyGoneDown('ESCAPE')) {
-        interaction.currentlySelectedConnectionIdentifier = null
+        ZUI.interaction.currentlySelectedConnectionIdentifier = null
     }
     
-    if (!mouseState.leftButtonHasGoneDownTwice &&
-         mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+    if (!ZUI.mouseState.leftButtonHasGoneDownTwice &&
+         ZUI.mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         
-        if (interaction.closestConnectionIdentifier != null && interaction.closestConnectionDistance < minimumDistanceFromConnectionToDetectMouseHover) {
-            interaction.currentlySelectedConnectionIdentifier = interaction.closestConnectionIdentifier
+        if (ZUI.interaction.closestConnectionIdentifier != null && ZUI.interaction.closestConnectionDistance < ZUI.minimumDistanceFromConnectionToDetectMouseHover) {
+            ZUI.interaction.currentlySelectedConnectionIdentifier = ZUI.interaction.closestConnectionIdentifier
         }
         else {
-            interaction.currentlySelectedConnectionIdentifier = null
+            ZUI.interaction.currentlySelectedConnectionIdentifier = null
         }
         /*
-        let connectionAtMousePosition = findConnectionAtWorldPosition(mouseState.worldPosition)
+        let connectionAtMousePosition = findConnectionAtWorldPosition(ZUI.mouseState.worldPosition)
         
         if (connectionAtMousePosition != null) {
             // When we click on a connection it becomes the selected connection
-            interaction.currentlySelectedConnectionIdentifier = connectionAtMousePosition.identifier
+            ZUI.interaction.currentlySelectedConnectionIdentifier = connectionAtMousePosition.identifier
         }
         else {
             // When we click in the background, de-select the selected connection
-            interaction.currentlySelectedConnectionIdentifier = null
+            ZUI.interaction.currentlySelectedConnectionIdentifier = null
         }
         */
     }
@@ -271,64 +271,64 @@ function doConnectionSelectionByMouse() {
 
 function doAddNewConnection() {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
+    let containerAtMousePosition = findContainerAtWorldPosition(ZUI.mouseState.worldPosition, null, false)
     
     // TODO: is this always correct?
-    interaction.mousePointerStyle = 'default'
+    ZUI.interaction.mousePointerStyle = 'default'
         
-    if (!mouseState.rightButtonHasGoneDownTwice &&
-         mouseState.rightButtonHasGoneDown) {  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+    if (!ZUI.mouseState.rightButtonHasGoneDownTwice &&
+         ZUI.mouseState.rightButtonHasGoneDown) {  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
         
         let currentDateTime = new Date()
         
         if (containerAtMousePosition != null) {
-            interaction.newConnectionBeingAddedData = {
+            ZUI.interaction.newConnectionBeingAddedData = {
                 identifier: containerAtMousePosition.identifier + '->' + currentDateTime.getTime(), // Since we dont known the to-identifier yet, we put in a "random" number for now
                 name: 'Added connection',
                 fromContainerIdentifier: containerAtMousePosition.identifier,
                 toContainerIdentifier: null,
                 type: 'API2API' // FIXME: we need a better default connection type
             }
-            let newConnection = createConnection(interaction.newConnectionBeingAddedData)
-            interaction.newConnectionBeingAddedIdentifier = newConnection.identifier
+            let newConnection = createConnection(ZUI.interaction.newConnectionBeingAddedData)
+            ZUI.interaction.newConnectionBeingAddedIdentifier = newConnection.identifier
         }
     }
     
     // TODO: add a real connection if we are above a container! (or if the newConnectionBeingAdded.toContainerIdentifier is not null)
-    if (interaction.newConnectionBeingAddedIdentifier != null) {
-        let newConnectionBeingAdded = getConnectionByIdentifier(interaction.newConnectionBeingAddedIdentifier)
+    if (ZUI.interaction.newConnectionBeingAddedIdentifier != null) {
+        let newConnectionBeingAdded = getConnectionByIdentifier(ZUI.interaction.newConnectionBeingAddedIdentifier)
         if (containerAtMousePosition != null &&
             containerAtMousePosition.identifier !== newConnectionBeingAdded.fromContainerIdentifier) {
             // We are hovering over a different container than we started the connection from, so we should connect with it
             // TODO: we shouldn't do this twice, right?
             newConnectionBeingAdded.toContainerIdentifier = containerAtMousePosition.identifier
-            interaction.newConnectionBeingAddedData.toContainerIdentifier = containerAtMousePosition.identifier
+            ZUI.interaction.newConnectionBeingAddedData.toContainerIdentifier = containerAtMousePosition.identifier
 
             // TODO: this is not really what we want, we have to remove the connection, since we are changing its identifier
             removeConnection(newConnectionBeingAdded.identifier)
             // TODO: we shouldn't do this triple, right?
             let connectionIdentifier = newConnectionBeingAdded.fromContainerIdentifier + "->" + newConnectionBeingAdded.toContainerIdentifier
             newConnectionBeingAdded.identifier = connectionIdentifier
-            interaction.newConnectionBeingAddedData.identifier = connectionIdentifier
-            interaction.newConnectionBeingAddedIdentifier = connectionIdentifier
+            ZUI.interaction.newConnectionBeingAddedData.identifier = connectionIdentifier
+            ZUI.interaction.newConnectionBeingAddedIdentifier = connectionIdentifier
             
             // TODO: this is not really what we want, we have to rre-create the connection, since we are changing its identifier
-            newConnectionBeingAdded = createConnection(interaction.newConnectionBeingAddedData)
-            interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
+            newConnectionBeingAdded = createConnection(ZUI.interaction.newConnectionBeingAddedData)
+            ZUI.interaction.newConnectionBeingAddedIdentifier = newConnectionBeingAdded.identifier
             
         }
         else {
             // TODO: we shouldn't do this twice, right?
             newConnectionBeingAdded.toContainerIdentifier = null
-            interaction.newConnectionBeingAddedData.toContainerIdentifier = null
+            ZUI.interaction.newConnectionBeingAddedData.toContainerIdentifier = null
         }
         
-        if (mouseState.rightButtonHasGoneUp) {
-            if (interaction.newConnectionBeingAddedData.toContainerIdentifier != null) {
-                storeConnectionData(interaction.newConnectionBeingAddedData)
+        if (ZUI.mouseState.rightButtonHasGoneUp) {
+            if (ZUI.interaction.newConnectionBeingAddedData.toContainerIdentifier != null) {
+                storeConnectionData(ZUI.interaction.newConnectionBeingAddedData)
             }
-            interaction.newConnectionBeingAddedIdentifier = null
-            interaction.newConnectionBeingAddedData = null
+            ZUI.interaction.newConnectionBeingAddedIdentifier = null
+            ZUI.interaction.newConnectionBeingAddedData = null
         }
     }
     
@@ -339,11 +339,11 @@ function doDeleteConnectionByKeyboard() {
     // If delete is pressed, we delete the  selected connection
     if (hasKeyGoneDown('DELETE')) {
         
-        if (interaction.currentlySelectedConnectionIdentifier != null) {
-            deleteConnectionData(interaction.currentlySelectedConnectionIdentifier)
+        if (ZUI.interaction.currentlySelectedConnectionIdentifier != null) {
+            deleteConnectionData(ZUI.interaction.currentlySelectedConnectionIdentifier)
         }
-        interaction.currentlySelectedConnectionIdentifier = null
-        interaction.currentlyHoveredConnectionIdentifier = null // TODO: we might only want to do this if the hovered container is the deleted container
+        ZUI.interaction.currentlySelectedConnectionIdentifier = null
+        ZUI.interaction.currentlyHoveredConnectionIdentifier = null // TODO: we might only want to do this if the hovered container is the deleted container
     }
     
 }
@@ -353,21 +353,21 @@ function doSelectChildContainersByKeyboard() {
     // If 'C' is pressed, we select all its child containers
     if (hasKeyGoneDown('C')) {
         // For now, we only allow selecting children only when a single container has been selected
-        if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 1) {
+        if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length > 1) {
             return
         }
         
         let currentlySelectedContainerIdentifier = 'root' // If nothing is selected, we do as-if the root container has been selected (when selecting all children)
-        if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 0) {
-            currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+        if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 0) {
+            currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
         }
         
         let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
         
-        interaction.currentlySelectedContainerIdentifiers = {}
+        ZUI.interaction.currentlySelectedContainerIdentifiers = {}
         for (let childContainerIdentifierIndex = 0; childContainerIdentifierIndex < currentlySelectedContainer.children.length; childContainerIdentifierIndex++) {
             let childContainerIdentifier = currentlySelectedContainer.children[childContainerIdentifierIndex]
-            interaction.currentlySelectedContainerIdentifiers[childContainerIdentifier] = true
+            ZUI.interaction.currentlySelectedContainerIdentifiers[childContainerIdentifier] = true
         }
         
     }
@@ -378,18 +378,18 @@ function doDeleteContainerByKeyboard() {
     
     // If delete is pressed, we delete all selected containers
     if (hasKeyGoneDown('DELETE')) {
-        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
             deleteContainerData(selectedContainerIdentifier)
             // FIXME: if a container is fully delete (that is: it exists only in the visual-data, not in the source)
             //        AND it has connections from/to it, we should ALSO delete thos connections OR disallow it
             // FIXME: also take into account that containers that are fully delete can have children, for which its parent
             //        also has to be changed/reverted to the source
         }
-        interaction.currentlySelectedContainerIdentifiers = {}
-        interaction.selectedContainerIsBeingResized = false
-        interaction.selectedContainersAreBeingDragged = false
-        interaction.mouseIsNearSelectedContainerBorder = false
-        interaction.currentlyHoveredContainerIdentifier = null // TODO: we might only want to do this if the hovered container is the deleted container
+        ZUI.interaction.currentlySelectedContainerIdentifiers = {}
+        ZUI.interaction.selectedContainerIsBeingResized = false
+        ZUI.interaction.selectedContainersAreBeingDragged = false
+        ZUI.interaction.mouseIsNearSelectedContainerBorder = false
+        ZUI.interaction.currentlyHoveredContainerIdentifier = null // TODO: we might only want to do this if the hovered container is the deleted container
     }
     
 }
@@ -398,7 +398,7 @@ function doReScaleSelectedContainersByKeyboard() {
     
     // If "[" or "]" is pressed, we scale down or up all selected containers
     if (hasKeyGoneDown('OPEN_BRACKET')) {
-        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
             selectedContainer.localScale /= 2
             recalculateWorldPositionsAndSizes(selectedContainer)
@@ -406,7 +406,7 @@ function doReScaleSelectedContainersByKeyboard() {
         }
     }
     if (hasKeyGoneDown('CLOSE_BRACKET')) {
-        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
             selectedContainer.localScale *= 2
             recalculateWorldPositionsAndSizes(selectedContainer)
@@ -418,16 +418,16 @@ function doReScaleSelectedContainersByKeyboard() {
 
 function doChangeContainerTypeSelectedContainersByKeyboard() {
 
-    if (colorAndShapeMappings == null) {
+    if (ZUI.colorAndShapeMappings == null) {
         return
     }
-    let containerTypeToContainerShapeAndColor = colorAndShapeMappings.containerTypeToContainerShapeAndColor
+    let containerTypeToContainerShapeAndColor = ZUI.colorAndShapeMappings.containerTypeToContainerShapeAndColor
     
     // For now, we only allow changing container type only when a single container has been selected
-    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 1) {
+    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 1) {
         return
     }
-    let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+    let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
     let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
 
     let possibleContainerTypes = Object.keys(containerTypeToContainerShapeAndColor)
@@ -465,16 +465,16 @@ function doChangeContainerTypeSelectedContainersByKeyboard() {
 
 function doChangeContainerDataTypeSelectedContainersByKeyboard() {
 
-    if (colorAndShapeMappings == null) {
+    if (ZUI.colorAndShapeMappings == null) {
         return
     }
-    let dataTypeToColor = colorAndShapeMappings.dataTypeToColor
+    let dataTypeToColor = ZUI.colorAndShapeMappings.dataTypeToColor
     
     // For now, we only allow changing data type only when a single container has been selected
-    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 1) {
+    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 1) {
         return
     }
-    let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+    let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
     let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
 
     let possibleDataTypes = Object.keys(dataTypeToColor)
@@ -513,15 +513,15 @@ function doChangeContainerDataTypeSelectedContainersByKeyboard() {
 
 function doChangeContainerDataTypeSelectedConnectionByKeyboard() {
 
-    if (colorAndShapeMappings == null) {
+    if (ZUI.colorAndShapeMappings == null) {
         return
     }
-    let dataTypeToColor = colorAndShapeMappings.dataTypeToColor
+    let dataTypeToColor = ZUI.colorAndShapeMappings.dataTypeToColor
     
-    if (interaction.currentlySelectedConnectionIdentifier == null) {
+    if (ZUI.interaction.currentlySelectedConnectionIdentifier == null) {
         return
     }
-    let currentlySelectedConnection = getConnectionByIdentifier(interaction.currentlySelectedConnectionIdentifier)
+    let currentlySelectedConnection = getConnectionByIdentifier(ZUI.interaction.currentlySelectedConnectionIdentifier)
 
     let possibleDataTypes = Object.keys(dataTypeToColor)
     possibleDataTypes.unshift(null) // Note: the first item is null (meaning: no dataType)
@@ -560,7 +560,7 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
     
     // If "[" or "]" is pressed, we scale down or up all selected containers
     if (hasKeyGoneDown('RIGHT')) {
-        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
             if (selectedContainer.localFontSize == null) {
                 // FIXME: hardcoded default fontsize!
@@ -571,7 +571,7 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
         }
     }
     if (hasKeyGoneDown('LEFT')) {
-        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
             if (selectedContainer.localFontSize == null) {
                 // FIXME: hardcoded default fontsize!
@@ -586,31 +586,31 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
 
 function doContainerSelectionByMouse() {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
+    let containerAtMousePosition = findContainerAtWorldPosition(ZUI.mouseState.worldPosition, null, false)
     
     // If escape is pressed, de-select all containers    
     if (hasKeyGoneDown('ESCAPE')) {
-        interaction.currentlySelectedContainerIdentifiers = {}
+        ZUI.interaction.currentlySelectedContainerIdentifiers = {}
     }
     
-    if (!mouseState.leftButtonHasGoneDownTwice &&
-         mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+    if (!ZUI.mouseState.leftButtonHasGoneDownTwice &&
+         ZUI.mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
          
-        if (keyboardState.ctrlIsDown) {
+        if (ZUI.keyboardState.ctrlIsDown) {
             if (containerAtMousePosition != null) {
-                if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
+                if (ZUI.interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
                     // If a container was already selected and clicked again (with ctrl down), its de-selected
-                    delete interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier]
+                    delete ZUI.interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier]
                 }
                 else {
-                    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length > 0) {
-                        let firstSelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+                    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length > 0) {
+                        let firstSelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
                         let firstSelectedContainer = getContainerByIdentifier(firstSelectedContainerIdentifier)
                         
                         // Note that it is only allowed to select mutliple containers if they have *same* parent
                         if (firstSelectedContainer.parentContainerIdentifier === containerAtMousePosition.parentContainerIdentifier) {
                             // If a container was not selected yet and clicked (with ctrl down), its also selected
-                            interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                            ZUI.interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
                         }
                         else {
                             // When a container is clicked (with ctrl down) and it doesnt have the same parent as the container(s)
@@ -619,7 +619,7 @@ function doContainerSelectionByMouse() {
                     }
                     else {
                         // If a container was not selected yet and clicked (with ctrl down), its also selected
-                        interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                        ZUI.interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
                     }
                 }
             }
@@ -629,19 +629,19 @@ function doContainerSelectionByMouse() {
         }
         else {
             if (containerAtMousePosition != null) {
-                if (interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
+                if (ZUI.interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
                     // if a container is clicked and was selected already (when ctrl is not down) we do not de-select it, 
                     // we do nothing (the selected contains need to be kept selected and are about to be dragged)
                 }
                 else {
                     // if a container is clicked and wasn't selected already (when ctrl is not down) it becomes the (only) selected container
-                    interaction.currentlySelectedContainerIdentifiers = {}
-                    interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                    ZUI.interaction.currentlySelectedContainerIdentifiers = {}
+                    ZUI.interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
                 }
             }
             else {
                 // When we click in the background, de-select all selected containers (when ctrl is not down)
-                interaction.currentlySelectedContainerIdentifiers = {}
+                ZUI.interaction.currentlySelectedContainerIdentifiers = {}
             }
         }
     }
@@ -651,29 +651,29 @@ function doContainerDraggingByMouse() {
   
     // Note: we can assume then all selected containers have the *same* parent
     
-    if (interaction.currentlyHoveredContainerIdentifier != null) {
-        interaction.mousePointerStyle = 'move'
+    if (ZUI.interaction.currentlyHoveredContainerIdentifier != null) {
+        ZUI.interaction.mousePointerStyle = 'move'
     }
     else {
-        interaction.mousePointerStyle = 'default'
+        ZUI.interaction.mousePointerStyle = 'default'
     }
     
-    if (interaction.selectedContainersAreBeingDragged) {
-        if (mouseState.hasMoved) {
+    if (ZUI.interaction.selectedContainersAreBeingDragged) {
+        if (ZUI.mouseState.hasMoved) {
 
-            for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+            for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
                 
                 let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
                 let parentWorldScale = selectedContainer.worldScale / selectedContainer.localScale
                 
-                selectedContainer.localPosition.x += (mouseState.worldPosition.x - mouseState.previousWorldPosition.x) / parentWorldScale
-                selectedContainer.localPosition.y += (mouseState.worldPosition.y - mouseState.previousWorldPosition.y) / parentWorldScale
+                selectedContainer.localPosition.x += (ZUI.mouseState.worldPosition.x - ZUI.mouseState.previousWorldPosition.x) / parentWorldScale
+                selectedContainer.localPosition.y += (ZUI.mouseState.worldPosition.y - ZUI.mouseState.previousWorldPosition.y) / parentWorldScale
                 recalculateWorldPositionsAndSizes(selectedContainer)
             }
         }
         
         let firstSelectedContainer = null
-        for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
             firstSelectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
         }
         
@@ -695,22 +695,22 @@ function doContainerDraggingByMouse() {
         //       we do NOT use the mouse pointer since we might be dragging a container at its right-bottom position and dropping
         //       this container inside another container can be very confusing: its size might get much smaller, but its position is at the same
         //       world position, meaning it is going to be dropped far outside the new parent container.
-        // let encompassingContainer = findContainerAtWorldPosition(mouseState.worldPosition, null, excludeSelectedContainers)
+        // let encompassingContainer = findContainerAtWorldPosition(ZUI.mouseState.worldPosition, null, excludeSelectedContainers)
         let encompassingContainer = findContainerAtWorldPosition(firstSelectedContainer.worldPosition, null, excludeSelectedContainers)
         if (encompassingContainer != null) {
-            interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
+            ZUI.interaction.emcompassingContainerIdentifier = encompassingContainer.identifier
         }
         else {
             // TODO: We set parent to 'root' if emcompassingContainerIdentifier == null, but shouldnt findContainerEncompassingWorldRectangle already return 'root'?
-            interaction.emcompassingContainerIdentifier = 'root'
+            ZUI.interaction.emcompassingContainerIdentifier = 'root'
         }
         
         // FIXME: since we draw depth-first it can occur the when we drag a container over another parent, the parent is draw *over* the container we try to drag on top of it!
         //        A possible solution would be to draw a dragged container (and its children) in a *second pass* and not draw it in the first pass.
         
-        if (mouseState.leftButtonHasGoneUp) {
+        if (ZUI.mouseState.leftButtonHasGoneUp) {
             
-            for (let selectedContainerIdentifier in interaction.currentlySelectedContainerIdentifiers) {
+            for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
                 
                 let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
                 
@@ -721,14 +721,14 @@ function doContainerDraggingByMouse() {
                     // TODO: we probably want to *restore* the positions in this case! Better to prevent this from ever happening though
                     console.log('WARNING: Somehow the selectedContainer is the parent of the emcompassingContainer!')
                 }
-                if (selectedContainer.parentContainerIdentifier != interaction.emcompassingContainerIdentifier &&
+                if (selectedContainer.parentContainerIdentifier != ZUI.interaction.emcompassingContainerIdentifier &&
                     !containerIsSomeParentOfChild(selectedContainer, encompassingContainer)) {
 
                     // Get the worldPosition of the current container
                     let currentContainerWorldPosition = selectedContainer.worldPosition
                     
                      // Get the worldPosition of the encompassingContainer (the new parent)
-                    let newParentContainer = getContainerByIdentifier(interaction.emcompassingContainerIdentifier)
+                    let newParentContainer = getContainerByIdentifier(ZUI.interaction.emcompassingContainerIdentifier)
                     let newParentContainerWorldPosition = newParentContainer.worldPosition
                     
                     // Substract these two worldPositions: take into account the (world and local)scale of the parent
@@ -737,7 +737,7 @@ function doContainerDraggingByMouse() {
                     selectedContainer.localPosition.y = (currentContainerWorldPosition.y - newParentContainerWorldPosition.y) / newParentContainer.worldScale
                     recalculateWorldPositionsAndSizes(selectedContainer)
                     
-                    selectedContainer.parentContainerIdentifier = interaction.emcompassingContainerIdentifier
+                    selectedContainer.parentContainerIdentifier = ZUI.interaction.emcompassingContainerIdentifier
                     
                     // TODO: implicitly (and indirectly) this will call integrateContainerAndConnectionData, which removes the child from the old parent
                     //       and adds the child to the new parent. Can we do this more explicitly?
@@ -749,21 +749,21 @@ function doContainerDraggingByMouse() {
                     storeContainerLocalPosition(selectedContainer.identifier, selectedContainer.localPosition)
                 }
             }
-            interaction.selectedContainersAreBeingDragged = false
+            ZUI.interaction.selectedContainersAreBeingDragged = false
         }
     }
 
-    if (!mouseState.leftButtonHasGoneDownTwice &&
-         mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+    if (!ZUI.mouseState.leftButtonHasGoneDownTwice &&
+         ZUI.mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
          
-        let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
+        let containerAtMousePosition = findContainerAtWorldPosition(ZUI.mouseState.worldPosition, null, false)
         if (containerAtMousePosition != null/* && currentlySelectedContainerIdentifier != null &&
             containerAtMousePosition.identifier === currentlySelectedContainerIdentifier */) {
 // FIXME: what should be the logic here?
-            interaction.selectedContainersAreBeingDragged = true
+            ZUI.interaction.selectedContainersAreBeingDragged = true
         }
         else {
-            interaction.selectedContainersAreBeingDragged = false
+            ZUI.interaction.selectedContainersAreBeingDragged = false
         }
     }
     
@@ -772,116 +772,116 @@ function doContainerDraggingByMouse() {
 function doContainerResizingByMouse() {
 
     let currentlySelectedContainer = null
-    if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length === 1) {
+    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length === 1) {
         // For now, we only allow resizing when a single container has been selected
         // if not, we assume no containers are selected (for resizing)
-        let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+        let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
         currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
     }
     
-    if (interaction.selectedContainerIsBeingResized) {
-        if (mouseState.hasMoved) {
+    if (ZUI.interaction.selectedContainerIsBeingResized) {
+        if (ZUI.mouseState.hasMoved) {
             
             let mouseWorldMovement = {}
-            mouseWorldMovement.x = mouseState.worldPosition.x - mouseState.previousWorldPosition.x
-            mouseWorldMovement.y = mouseState.worldPosition.y - mouseState.previousWorldPosition.y
+            mouseWorldMovement.x = ZUI.mouseState.worldPosition.x - ZUI.mouseState.previousWorldPosition.x
+            mouseWorldMovement.y = ZUI.mouseState.worldPosition.y - ZUI.mouseState.previousWorldPosition.y
             
             let parentWorldScale = currentlySelectedContainer.worldScale / currentlySelectedContainer.localScale
-            if (interaction.selectedContainerResizeSide.x > 0) { // right side
+            if (ZUI.interaction.selectedContainerResizeSide.x > 0) { // right side
                 currentlySelectedContainer.localSize.width += mouseWorldMovement.x / currentlySelectedContainer.worldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
-            if (interaction.selectedContainerResizeSide.y > 0) { // bottom side
+            if (ZUI.interaction.selectedContainerResizeSide.y > 0) { // bottom side
                 currentlySelectedContainer.localSize.height += mouseWorldMovement.y / currentlySelectedContainer.worldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
-            if (interaction.selectedContainerResizeSide.x < 0) { // left side
+            if (ZUI.interaction.selectedContainerResizeSide.x < 0) { // left side
                 currentlySelectedContainer.localSize.width -= mouseWorldMovement.x / currentlySelectedContainer.worldScale
                 currentlySelectedContainer.localPosition.x += mouseWorldMovement.x / parentWorldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
-            if (interaction.selectedContainerResizeSide.y < 0) { // top side
+            if (ZUI.interaction.selectedContainerResizeSide.y < 0) { // top side
                 currentlySelectedContainer.localSize.height -= mouseWorldMovement.y / currentlySelectedContainer.worldScale
                 currentlySelectedContainer.localPosition.y += mouseWorldMovement.y / parentWorldScale
                 recalculateWorldPositionsAndSizes(currentlySelectedContainer)
             }
         }
         
-        if (mouseState.leftButtonHasGoneUp) {
+        if (ZUI.mouseState.leftButtonHasGoneUp) {
             // We stopped resizing the selected container, so we store its position and size
             storeContainerLocalPosition(currentlySelectedContainer.identifier, currentlySelectedContainer.localPosition)
             storeContainerLocalSize(currentlySelectedContainer.identifier, currentlySelectedContainer.localSize)
-            interaction.selectedContainerIsBeingResized = false
-            interaction.selectedContainerResizeSide = null
+            ZUI.interaction.selectedContainerIsBeingResized = false
+            ZUI.interaction.selectedContainerResizeSide = null
         }
     }
     
     
     // Check if we are near the border of a container (and if it is clicked)
     
-    let selectedContainerNearness = whichSideIsPositionFromContainer(mouseState.worldPosition, currentlySelectedContainer)
+    let selectedContainerNearness = whichSideIsPositionFromContainer(ZUI.mouseState.worldPosition, currentlySelectedContainer)
     
     if (currentlySelectedContainer != null && selectedContainerNearness.isNearContainer) {
         
-        interaction.mouseIsNearSelectedContainerBorder = false
+        ZUI.interaction.mouseIsNearSelectedContainerBorder = false
         
         if (selectedContainerNearness.x === 0 && selectedContainerNearness.y === 0) {
-            interaction.mousePointerStyle = 'move'
+            ZUI.interaction.mousePointerStyle = 'move'
         }
         else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y > 0) ||
                  (selectedContainerNearness.x < 0 && selectedContainerNearness.y < 0))
         {
-            if (interaction.viewAsIsoMetric) {
-                interaction.mousePointerStyle = 'e-resize'
+            if (ZUI.interaction.viewAsIsoMetric) {
+                ZUI.interaction.mousePointerStyle = 'e-resize'
             }
             else {
-                interaction.mousePointerStyle = 'nw-resize'
+                ZUI.interaction.mousePointerStyle = 'nw-resize'
             }
-            interaction.mouseIsNearSelectedContainerBorder = true
+            ZUI.interaction.mouseIsNearSelectedContainerBorder = true
         }
         else if ((selectedContainerNearness.x > 0 && selectedContainerNearness.y < 0) ||
                  (selectedContainerNearness.x < 0 && selectedContainerNearness.y > 0))
         {
-            if (interaction.viewAsIsoMetric) {
-                interaction.mousePointerStyle = 'n-resize'
+            if (ZUI.interaction.viewAsIsoMetric) {
+                ZUI.interaction.mousePointerStyle = 'n-resize'
             }
             else {
-                interaction.mousePointerStyle = 'ne-resize'
+                ZUI.interaction.mousePointerStyle = 'ne-resize'
             }
-            interaction.mouseIsNearSelectedContainerBorder = true
+            ZUI.interaction.mouseIsNearSelectedContainerBorder = true
         }
         else if (selectedContainerNearness.x !== 0) {
-            if (interaction.viewAsIsoMetric) {
-                interaction.mousePointerStyle = 'ne-resize'
+            if (ZUI.interaction.viewAsIsoMetric) {
+                ZUI.interaction.mousePointerStyle = 'ne-resize'
             }
             else {
-                interaction.mousePointerStyle = 'e-resize'
+                ZUI.interaction.mousePointerStyle = 'e-resize'
             }
-            interaction.mouseIsNearSelectedContainerBorder = true
+            ZUI.interaction.mouseIsNearSelectedContainerBorder = true
         }
         else if (selectedContainerNearness.y !== 0) {
-            if (interaction.viewAsIsoMetric) {
-                interaction.mousePointerStyle = 'nw-resize'
+            if (ZUI.interaction.viewAsIsoMetric) {
+                ZUI.interaction.mousePointerStyle = 'nw-resize'
             }
             else {
-                interaction.mousePointerStyle = 'n-resize'
+                ZUI.interaction.mousePointerStyle = 'n-resize'
             }
-            interaction.mouseIsNearSelectedContainerBorder = true
+            ZUI.interaction.mouseIsNearSelectedContainerBorder = true
         }
         
-        if (!mouseState.leftButtonHasGoneDownTwice &&
-             mouseState.leftButtonHasGoneDown &&  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-            interaction.mouseIsNearSelectedContainerBorder) {
+        if (!ZUI.mouseState.leftButtonHasGoneDownTwice &&
+             ZUI.mouseState.leftButtonHasGoneDown &&  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+            ZUI.interaction.mouseIsNearSelectedContainerBorder) {
                 
-            interaction.selectedContainerIsBeingResized = true
-            interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
+            ZUI.interaction.selectedContainerIsBeingResized = true
+            ZUI.interaction.selectedContainerResizeSide = { x: selectedContainerNearness.x, y: selectedContainerNearness.y }
         }
         
     }
     else {
         // If the mouse is outside the selected container (or if there is no selected container), 
         // we set mouseIsNearSelectedContainerBorder to false
-        interaction.mouseIsNearSelectedContainerBorder = false
+        ZUI.interaction.mouseIsNearSelectedContainerBorder = false
     }
     
 }
@@ -890,17 +890,17 @@ function doAddNewContainer() {
     
     // TODO: we should add new containers in a multi-step way (first choose its type, then draw a rectangle with the mouse (mouse down, move, up)
     
-    if (mouseState.rightButtonHasGoneDown) {
+    if (ZUI.mouseState.rightButtonHasGoneDown) {
         
         let parentContainerIdentifier = 'root'
-        if (interaction.currentlyHoveredContainerIdentifier != null) {
-            parentContainerIdentifier = interaction.currentlyHoveredContainerIdentifier
+        if (ZUI.interaction.currentlyHoveredContainerIdentifier != null) {
+            parentContainerIdentifier = ZUI.interaction.currentlyHoveredContainerIdentifier
         }
         let parentContainer = getContainerByIdentifier(parentContainerIdentifier)
         
         let localPosition = {
-            x: mouseState.worldPosition.x - parentContainer.worldPosition.x,
-            y: mouseState.worldPosition.y - parentContainer.worldPosition.y
+            x: ZUI.mouseState.worldPosition.x - parentContainer.worldPosition.x,
+            y: ZUI.mouseState.worldPosition.y - parentContainer.worldPosition.y
         }
         
         // FIXME: we might want to do this differently (maybe add localScale? maybe other values?) 
@@ -910,29 +910,29 @@ function doAddNewContainer() {
 
 function doEditContainerText() {
     
-    let containerAtMousePosition = findContainerAtWorldPosition(mouseState.worldPosition, null, false)
+    let containerAtMousePosition = findContainerAtWorldPosition(ZUI.mouseState.worldPosition, null, false)
     
-    if (mouseState.leftButtonHasGoneDownTwice) {
+    if (ZUI.mouseState.leftButtonHasGoneDownTwice) {
         // TODO: we might want to check if the container is selected and/or hovered
         if (containerAtMousePosition != null) {
-            interaction.currentlyEditingContainerText = containerAtMousePosition
+            ZUI.interaction.currentlyEditingContainerText = containerAtMousePosition
         }
     }
     
-    if (interaction.currentlyEditingContainerText != null) {
+    if (ZUI.interaction.currentlyEditingContainerText != null) {
         
-        if (keyboardState.sequenceKeysUpDown.length) {
+        if (ZUI.keyboardState.sequenceKeysUpDown.length) {
         
-            // TODO: create function: let resultingText = applyKeyboardEventToString(interaction.currentlyEditingContainerText.identifier)
-            let textToEdit = interaction.currentlyEditingContainerText.name
-            for (let sequenceIndex = 0; sequenceIndex < keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
-                let keyUpDown = keyboardState.sequenceKeysUpDown[sequenceIndex]
+            // TODO: create function: let resultingText = applyKeyboardEventToString(ZUI.interaction.currentlyEditingContainerText.identifier)
+            let textToEdit = ZUI.interaction.currentlyEditingContainerText.name
+            for (let sequenceIndex = 0; sequenceIndex < ZUI.keyboardState.sequenceKeysUpDown.length; sequenceIndex++) {
+                let keyUpDown = ZUI.keyboardState.sequenceKeysUpDown[sequenceIndex]
                 let keyName = keyCodeMap[keyUpDown.keyCode]
                 if (keyUpDown.isDown) {
                     
                     // Checking if shift (or CAPS-LOCK) is down/active
-                    let shiftIsDown = keyboardState.shiftIsDown
-                    if (keyboardState.capsLockIsActive) {
+                    let shiftIsDown = ZUI.keyboardState.shiftIsDown
+                    if (ZUI.keyboardState.capsLockIsActive) {
                         shiftIsDown = !shiftIsDown // TODO: now putting the effective shift-ness in shiftIsDown.
                     }
                     
@@ -957,12 +957,12 @@ function doEditContainerText() {
                             textToEdit = textToEdit.substring(0, textToEdit.length - 1);
                         }
                         else if (keyName === 'ENTER') {
-                            storeContainerName(interaction.currentlyEditingContainerText.identifier, textToEdit)
-                            interaction.currentlyEditingContainerText = null
+                            storeContainerName(ZUI.interaction.currentlyEditingContainerText.identifier, textToEdit)
+                            ZUI.interaction.currentlyEditingContainerText = null
                         }
                         else if (keyName === 'ESCAPE') {
                             // FIXME: undo the editing and dont store
-                            interaction.currentlyEditingContainerText = null
+                            ZUI.interaction.currentlyEditingContainerText = null
                         }
                         else {
                             console.log(keyName)
@@ -971,8 +971,8 @@ function doEditContainerText() {
                 }
             }
 
-            if (interaction.currentlyEditingContainerText != null) {
-                interaction.currentlyEditingContainerText.name = textToEdit
+            if (ZUI.interaction.currentlyEditingContainerText != null) {
+                ZUI.interaction.currentlyEditingContainerText.name = textToEdit
             }
             
             // FIXME: save text each character?! or when we leave the edit of the text? Or when we press enter?
@@ -991,34 +991,34 @@ function doViewDraggingAndZoomingByTouch () {
     let secondOfDoubleTouch = null
     
     // TODO: when a touch has just ended, this number is not the nrOfActiveTouches (should we count those instead?)
-    let nrOfTouches = Object.keys(touchesState).length
+    let nrOfTouches = Object.keys(ZUI.touchesState).length
     if (nrOfTouches === 1) {
-        singleTouch = touchesState[Object.keys(touchesState)[0]]
+        singleTouch = ZUI.touchesState[Object.keys(ZUI.touchesState)[0]]
     }
     else if (nrOfTouches === 2) {
-        firstOfDoubleTouch = touchesState[Object.keys(touchesState)[0]]
-        secondOfDoubleTouch = touchesState[Object.keys(touchesState)[1]]
+        firstOfDoubleTouch = ZUI.touchesState[Object.keys(ZUI.touchesState)[0]]
+        secondOfDoubleTouch = ZUI.touchesState[Object.keys(ZUI.touchesState)[1]]
     }
     
     
     // Dragging by a single touch
     if (singleTouch != null && singleTouch.hasStarted) {
         // TODO: for simplicity we are ignoring the position of this touch! (so we always draw the view if we start a single touch!)
-        interaction.viewIsBeingDraggedByTouch = true
+        ZUI.interaction.viewIsBeingDraggedByTouch = true
     }
     
-    if (interaction.viewIsBeingDraggedByTouch) {
+    if (ZUI.interaction.viewIsBeingDraggedByTouch) {
         if (singleTouch == null || singleTouch.hasEnded) {
             // The touch has ended
-            interaction.viewIsBeingDraggedByTouch = false
+            ZUI.interaction.viewIsBeingDraggedByTouch = false
         }
         else {
             // The touch is active (and hasn't ended)
             
             if (singleTouch.hasMoved) {
                 // The touch has moved
-                interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
-                interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
+                ZUI.interaction.viewOffset.x += singleTouch.position.x - singleTouch.previousPosition.x
+                ZUI.interaction.viewOffset.y += singleTouch.position.y - singleTouch.previousPosition.y
             }
             else {
                 // The single (active) touch hasn't moved
@@ -1036,7 +1036,7 @@ function doViewDraggingAndZoomingByTouch () {
             let currentDistanceBetweenTouches = distanceBetweenTwoPoints(firstOfDoubleTouch.position, secondOfDoubleTouch.position)
             
             let relativeZoomChange = currentDistanceBetweenTouches / previousDistanceBetweenTouches
-            interaction.viewScale = interaction.viewScale * relativeZoomChange
+            ZUI.interaction.viewScale = ZUI.interaction.viewScale * relativeZoomChange
          
             // We want the position below (one of) the two touches to stay still (or in the middle of them, if they both moved).
             // This means the touch-zoom-point in world position has to stay on the same touch-zoom-point screen position.
@@ -1061,8 +1061,8 @@ function doViewDraggingAndZoomingByTouch () {
             
             // Take the difference between the zoom-point position (after just the scale) and the real zoom-point position and 
             // adjust the viewOffset accordingly
-            interaction.viewOffset.x += touchZoomPointScreenPosition.x - touchZoomPointScreenPositionAfterScale.x
-            interaction.viewOffset.y += touchZoomPointScreenPosition.y - touchZoomPointScreenPositionAfterScale.y
+            ZUI.interaction.viewOffset.x += touchZoomPointScreenPosition.x - touchZoomPointScreenPositionAfterScale.x
+            ZUI.interaction.viewOffset.y += touchZoomPointScreenPosition.y - touchZoomPointScreenPositionAfterScale.y
             
             firstOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(firstOfDoubleTouch.position)
             secondOfDoubleTouch.worldPosition = fromScreenPositionToWorldPosition(secondOfDoubleTouch.position)
@@ -1075,46 +1075,46 @@ function doViewDraggingAndZoomingByTouch () {
 function doViewDraggingByMouse () {
     
     // View dragging by mouse
-    if (interaction.viewIsBeingDraggedByMouse) {
-        if (mouseState.hasMoved) {
-            interaction.viewOffset.x += mouseState.position.x - mouseState.previousPosition.x
-            interaction.viewOffset.y += mouseState.position.y - mouseState.previousPosition.y
+    if (ZUI.interaction.viewIsBeingDraggedByMouse) {
+        if (ZUI.mouseState.hasMoved) {
+            ZUI.interaction.viewOffset.x += ZUI.mouseState.position.x - ZUI.mouseState.previousPosition.x
+            ZUI.interaction.viewOffset.y += ZUI.mouseState.position.y - ZUI.mouseState.previousPosition.y
         }
-        if (mouseState.leftButtonHasGoneUp) {
-            interaction.viewIsBeingDraggedByMouse = false
+        if (ZUI.mouseState.leftButtonHasGoneUp) {
+            ZUI.interaction.viewIsBeingDraggedByMouse = false
         }
     }
     
-    if (!mouseState.leftButtonHasGoneDownTwice &&  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-         mouseState.leftButtonHasGoneDown) {
-            interaction.viewIsBeingDraggedByMouse = true
+    if (!ZUI.mouseState.leftButtonHasGoneDownTwice &&  // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
+         ZUI.mouseState.leftButtonHasGoneDown) {
+            ZUI.interaction.viewIsBeingDraggedByMouse = true
     }
 }
 
 function doViewZoomingByMouse () {
     
     // View zooming by mouse
-    if (mouseState.mouseWheelHasMoved) {
+    if (ZUI.mouseState.mouseWheelHasMoved) {
         let scrollSensitivity = 0.1
-        let relativeZoomChange = 1 + Math.abs(mouseState.mouseWheelDelta) * scrollSensitivity
-        if (mouseState.mouseWheelDelta < 0) {
+        let relativeZoomChange = 1 + Math.abs(ZUI.mouseState.mouseWheelDelta) * scrollSensitivity
+        if (ZUI.mouseState.mouseWheelDelta < 0) {
             relativeZoomChange = 1 / relativeZoomChange
         }
-        interaction.viewScale = interaction.viewScale * relativeZoomChange
+        ZUI.interaction.viewScale = ZUI.interaction.viewScale * relativeZoomChange
         
         // We want the position below the mouse pointer to stay still.
         // This means the mouse-point in world position has to stay on the same mouse screen position.
         // We changed the viewScale, so we have to adjust the viewOffset to make this the case.
         
         // We first determine the screen position of the mouse pointer if we don't change the viewOffset
-        let mouseScreenPositionAfterScale = fromWorldPositionToScreenPosition(mouseState.worldPosition)
+        let mouseScreenPositionAfterScale = fromWorldPositionToScreenPosition(ZUI.mouseState.worldPosition)
         
         // Take the difference between the mouse position (after just the scale) and the real mouse position and 
         // adjust the viewOffset accordingly
-        interaction.viewOffset.x += mouseState.position.x - mouseScreenPositionAfterScale.x
-        interaction.viewOffset.y += mouseState.position.y - mouseScreenPositionAfterScale.y
+        ZUI.interaction.viewOffset.x += ZUI.mouseState.position.x - mouseScreenPositionAfterScale.x
+        ZUI.interaction.viewOffset.y += ZUI.mouseState.position.y - mouseScreenPositionAfterScale.y
         
-        mouseState.worldPosition = fromScreenPositionToWorldPosition(mouseState.position)
+        ZUI.mouseState.worldPosition = fromScreenPositionToWorldPosition(ZUI.mouseState.position)
         
     }
 
@@ -1131,8 +1131,8 @@ function updateWorld() {
             let middlePointOfWorld = getCenterPointOfRectangle(rectangleAroundWorld)
             
             // For now we are resetting to the default
-            interaction.viewScale = 1
-            interaction.viewOffset = { x: 0, y: 0 }
+            ZUI.interaction.viewScale = 1
+            ZUI.interaction.viewOffset = { x: 0, y: 0 }
             
             // We first set the viewScale
             let leftTopOfWorldOnScreen = fromWorldPositionToScreenPosition(rectangleAroundWorld.position)
@@ -1141,39 +1141,39 @@ function updateWorld() {
             let worldHeightOnScreen = rightBottomOfWorldOnScreen.y - leftTopOfWorldOnScreen.y
             
             // We check if the height or the width is the constraint and choose that one
-            let scaleToFitWidth = canvasElement.width * 0.8 / worldWidthOnScreen
-            let scaleToFitHeight = canvasElement.height * 0.8 / worldHeightOnScreen
+            let scaleToFitWidth = ZUI.canvasElement.width * 0.8 / worldWidthOnScreen
+            let scaleToFitHeight = ZUI.canvasElement.height * 0.8 / worldHeightOnScreen
             if (scaleToFitWidth < scaleToFitHeight) {
-                interaction.viewScale = scaleToFitWidth
+                ZUI.interaction.viewScale = scaleToFitWidth
             }
             else {
-                interaction.viewScale = scaleToFitHeight
+                ZUI.interaction.viewScale = scaleToFitHeight
             }
             
             // After setting the scale we can calculate the viewOffset
             let middleOfWorldOnScreen = fromWorldPositionToScreenPosition(middlePointOfWorld)
-            let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
-            interaction.viewOffset = { x: middleOfScreen.x - middleOfWorldOnScreen.x, y: middleOfScreen.y - middleOfWorldOnScreen.y } 
+            let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
+            ZUI.interaction.viewOffset = { x: middleOfScreen.x - middleOfWorldOnScreen.x, y: middleOfScreen.y - middleOfWorldOnScreen.y } 
         }
         
         centerViewOnWorldCenter = false
     }
     else if (centerViewOnFirstSelectedContainer)  {
-        if (Object.keys(interaction.currentlySelectedContainerIdentifiers).length !== 0) {
-            let currentlySelectedContainerIdentifier = Object.keys(interaction.currentlySelectedContainerIdentifiers)[0]
+        if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 0) {
+            let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
             let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
             
             if (currentlySelectedContainer != null) {
                 // For now we are resetting to the default
-                interaction.viewScale = 0.8 // FIXME: hardcoded!
-                interaction.viewOffset = { x: 0, y: 0 }
+                ZUI.interaction.viewScale = 0.8 // FIXME: hardcoded!
+                ZUI.interaction.viewOffset = { x: 0, y: 0 }
                 
                 // After setting the scale we can calculate the viewOffset
                 let containerPositionOnScreen = fromWorldPositionToScreenPosition(currentlySelectedContainer.worldPosition)
                 
-                let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
+                let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
                 // TODO: this is probably not correct: for the size we have to take into account the viewScale, right? And what about (local)scale?
-                interaction.viewOffset = { x: middleOfScreen.x - containerPositionOnScreen.x - currentlySelectedContainer.localSize.width / 2, 
+                ZUI.interaction.viewOffset = { x: middleOfScreen.x - containerPositionOnScreen.x - currentlySelectedContainer.localSize.width / 2, 
                                            y: middleOfScreen.y - containerPositionOnScreen.y - currentlySelectedContainer.localSize.height / 2} 
             }
             else {
@@ -1184,8 +1184,8 @@ function updateWorld() {
         centerViewOnFirstSelectedContainer = false
     }
     else if (centerViewOnSelectedConnection)  {
-        if (interaction.currentlySelectedConnectionIdentifier != null) {
-            let currentlySelectedConnection = getConnectionByIdentifier(interaction.currentlySelectedConnectionIdentifier)
+        if (ZUI.interaction.currentlySelectedConnectionIdentifier != null) {
+            let currentlySelectedConnection = getConnectionByIdentifier(ZUI.interaction.currentlySelectedConnectionIdentifier)
             
             if (currentlySelectedConnection != null) {
                 let fromContainer = getContainerByIdentifier(currentlySelectedConnection.fromContainerIdentifier)
@@ -1193,16 +1193,16 @@ function updateWorld() {
                 
                 if (fromContainer != null && toContainer != null) {
                     // For now we are resetting to the default
-                    interaction.viewScale = 0.8 // FIXME: hardcoded!
-                    interaction.viewOffset = { x: 0, y: 0 }
+                    ZUI.interaction.viewScale = 0.8 // FIXME: hardcoded!
+                    ZUI.interaction.viewOffset = { x: 0, y: 0 }
                     
                     // FIXME: this is not accurate at all! We should store the end-points of the connection itself and take the middle of THAT (not of the centers/positions of the containers!)
                     let middleWorldPointBetweenContainers = middleOfTwoPoints(fromContainer.worldPosition, toContainer.worldPosition)
                     // After setting the scale we can calculate the viewOffset
                     let middlePointBetweenContainersOnScreen = fromWorldPositionToScreenPosition(middleWorldPointBetweenContainers)
                     
-                    let middleOfScreen = { x: canvasElement.width / 2, y: canvasElement.height / 2 }
-                    interaction.viewOffset = { x: middleOfScreen.x - middlePointBetweenContainersOnScreen.x, 
+                    let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
+                    ZUI.interaction.viewOffset = { x: middleOfScreen.x - middlePointBetweenContainersOnScreen.x, 
                                                y: middleOfScreen.y - middlePointBetweenContainersOnScreen.y} 
                 }
             }
@@ -1214,30 +1214,30 @@ function updateWorld() {
         centerViewOnSelectedConnection = false
     }
     
-    if (interaction.viewAsIsoMetric) {
-        if (interaction.percentageIsoMetric < 1) {
-            interaction.percentageIsoMetric += 0.03
+    if (ZUI.interaction.viewAsIsoMetric) {
+        if (ZUI.interaction.percentageIsoMetric < 1) {
+            ZUI.interaction.percentageIsoMetric += 0.03
         }
         else {
-            interaction.percentageIsoMetric = 1
-            if (interaction.isoMetricAnimationRunning) {
-                interaction.isoMetricAnimationRunning = false
+            ZUI.interaction.percentageIsoMetric = 1
+            if (ZUI.interaction.isoMetricAnimationRunning) {
+                ZUI.interaction.isoMetricAnimationRunning = false
             }
         }
     }
     else {
-        if (interaction.percentageIsoMetric > 0) {
-            interaction.percentageIsoMetric -= 0.03
+        if (ZUI.interaction.percentageIsoMetric > 0) {
+            ZUI.interaction.percentageIsoMetric -= 0.03
         }
         else {
-            interaction.percentageIsoMetric = 0
-            if (interaction.isoMetricAnimationRunning) {
-                interaction.isoMetricAnimationRunning = false
+            ZUI.interaction.percentageIsoMetric = 0
+            if (ZUI.interaction.isoMetricAnimationRunning) {
+                ZUI.interaction.isoMetricAnimationRunning = false
             }
         }
     }
 
-    currentIsoMetricSettings.translate = lerp(nonIsoMetricSettings.translate, isoMetricSettings.translate, interaction.percentageIsoMetric)
-    currentIsoMetricSettings.scale     = lerp(nonIsoMetricSettings.scale, isoMetricSettings.scale, interaction.percentageIsoMetric)
-    currentIsoMetricSettings.rotate    = lerp(nonIsoMetricSettings.rotate, isoMetricSettings.rotate, interaction.percentageIsoMetric)
+    ZUI.currentIsoMetricSettings.translate = lerp(ZUI.nonIsoMetricSettings.translate, ZUI.isoMetricSettings.translate, ZUI.interaction.percentageIsoMetric)
+    ZUI.currentIsoMetricSettings.scale     = lerp(ZUI.nonIsoMetricSettings.scale, ZUI.isoMetricSettings.scale, ZUI.interaction.percentageIsoMetric)
+    ZUI.currentIsoMetricSettings.rotate    = lerp(ZUI.nonIsoMetricSettings.rotate, ZUI.isoMetricSettings.rotate, ZUI.interaction.percentageIsoMetric)
 }
