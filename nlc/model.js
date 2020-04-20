@@ -440,6 +440,10 @@ function addNodeToDiagram(node, diagramIdentifier) {
 
 // == Combining with ZUI ==
 
+// FIXME: hardcoded!
+ZUI.levelOfDetail = "high"
+// FIMXE: ZUI.levelOfDetailFading (for fading-in or fading-out)
+// FIXME: allowedLevelsOfDetail (for example: only-high, or: high and medium)
 
 function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
     
@@ -451,25 +455,35 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
         let node = nodes[nodeIndex]
         
-        let position = { x: 100, y: 100}
-        // TODO: check if key exists instead of checking for the value to be "true"
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {
-            position = node.diagramSpecificVisualData[diagramIdentifier].position
-        }
-        else {
+        let nodeIsInDiagram = node.hasOwnProperty('diagramSpecificVisualData') && 
+                              node.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)
+        if (!nodeIsInDiagram) {
             // The node does not have diagramSpecificVisualData for the selectedDiagram, so we are not going to show/add the node
             continue
+        }
+        
+        let nodeHasLevelOfDetailProperties = node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('lod')
+        let nodeIsInCurrentLevelOfDetail = nodeHasLevelOfDetailProperties && node.diagramSpecificVisualData[diagramIdentifier].lod[ZUI.levelOfDetail]
+        if (nodeHasLevelOfDetailProperties && !nodeIsInCurrentLevelOfDetail) {
+            // TODO: we sometimes want to show a node *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
+            // The node is not in the current levelOfDetail detail, so we are not going to show/add the node
+            continue
+        }
+        
+        let position = { 
+            x: 100, // FIXME: use a default position? Or determine where there is room?? Or set to null?
+            y: 100  // FIXME: use a default position? Or determine where there is room?? Or set to null?
+        }
+        if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("position")) {
+            position = node.diagramSpecificVisualData[diagramIdentifier].position
         }
         
         let size = { 
             width: 100, // FIXME: change to width of text!
             height: 100 // FIXME: get from visualInfo or part of shape?
         }
-        // TODO: check if key exists instead of checking for the value to be "true"
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {
-            if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("size")) {
-                size = node.diagramSpecificVisualData[diagramIdentifier].size
-            }
+        if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("size")) {
+            size = node.diagramSpecificVisualData[diagramIdentifier].size
         }
         
         let containerInfo = {
@@ -499,24 +513,43 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
     for (let linkId in NLC.nodesAndLinksData.linksById) {
         let link = NLC.nodesAndLinksData.linksById[linkId]
         
-        if (nodeIdsAddedToContainers.hasOwnProperty(link.fromNodeId) &&
-            nodeIdsAddedToContainers.hasOwnProperty(link.toNodeId)) {
-            // link.dataType = sourceDataType
-            let connectionInfo = {
-                // TODO: forcing a string here
-                "identifier": '' + link.id,
-                "type": "??->??", // FIXME
-                "dataType": "unknown", // FIXME
-                "fromContainerIdentifier": link.fromNodeId,
-                "toContainerIdentifier": link.toNodeId
-            }
-            
-            createConnection(connectionInfo)
-        }
-        else {
+        let fromAndToNodesAreAddedToDiagram = nodeIdsAddedToContainers.hasOwnProperty(link.fromNodeId) &&
+                                              nodeIdsAddedToContainers.hasOwnProperty(link.toNodeId)
+        
+        if (!fromAndToNodesAreAddedToDiagram) {
             // TODO: better handling
             console.log("WARNING: link found but connected node(s) not found!")
+            continue
         }
+        
+        let linkIsInDiagram = link.hasOwnProperty('diagramSpecificVisualData') && 
+                              link.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)
+        if (!linkIsInDiagram) {
+            // The link does not have diagramSpecificVisualData for the selectedDiagram, so we SHOULD not show/add the node
+            // FIXME: we should 'continue' here, but the DEFAULT right now is to add it anyway!
+            // FIXME: continue
+        }
+        
+        let linkIsInLevelOfDetail = linkIsInDiagram && // FIXME: we have to add this condition, otheriwse checking the following conditions may crash
+                                    link.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('lod') && 
+                                    link.diagramSpecificVisualData[diagramIdentifier].lod[ZUI.levelOfDetail]
+        if (linkIsInDiagram && !linkIsInLevelOfDetail) { // FIXME: only IF we have diagramInfo do we check for levelOfDetail right now!
+            // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
+            // The link is not in the current levelOfDetail detail, so we are not going to show/add the node
+            continue
+        }
+
+        // link.dataType = sourceDataType
+        let connectionInfo = {
+            // TODO: forcing a string here
+            "identifier": '' + link.id,
+            "type": "??->??", // FIXME
+            "dataType": "unknown", // FIXME
+            "fromContainerIdentifier": link.fromNodeId,
+            "toContainerIdentifier": link.toNodeId
+        }
+        
+        createConnection(connectionInfo)
     }
     
 }
