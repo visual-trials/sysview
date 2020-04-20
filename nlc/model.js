@@ -434,3 +434,89 @@ function addNodeToDiagram(node, diagramIdentifier) {
     // TODO: maybe its better to call this: visualDataHasChanged ?
     NLC.dataHasChanged = true
 }
+
+
+
+
+// == Combining with ZUI ==
+
+
+function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
+    
+    // Removing all connections and containers
+    initContainersAndConnections()
+
+    let nodeIdsAddedToContainers = {}
+    let nodes = NLC.nodesAndLinksData.nodes
+    for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
+        let node = nodes[nodeIndex]
+        
+        let position = { x: 100, y: 100}
+        // TODO: check if key exists instead of checking for the value to be "true"
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {
+            position = node.diagramSpecificVisualData[diagramIdentifier].position
+        }
+        else {
+            // The node does not have diagramSpecificVisualData for the selectedDiagram, so we are not going to show/add the node
+            continue
+        }
+        
+        let size = { 
+            width: 100, // FIXME: change to width of text!
+            height: 100 // FIXME: get from visualInfo or part of shape?
+        }
+        // TODO: check if key exists instead of checking for the value to be "true"
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {
+            if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("size")) {
+                size = node.diagramSpecificVisualData[diagramIdentifier].size
+            }
+        }
+        
+        let containerInfo = {
+            type: node.type,
+            // TODO: forcing a string here
+            identifier: '' + node.id,
+            parentContainerIdentifier: 'root', // FIXME: hardcodes for now
+            // FIXME; we cannot be sure commonDate.name exists!
+            name: node.commonData.name,
+            localPosition: {
+                x: position.x,
+                y: position.y
+            },
+            localScale: 1,
+            localSize: size
+        }
+
+        createContainer(containerInfo)
+        nodeIdsAddedToContainers[node.id] = true
+    }
+
+    // TODO: we currently set the absolute positions of the container before we add the connections. Is this required? Of should/can we do this after adding the connections?
+    setContainerChildren()
+    recalculateWorldPositionsAndSizes(null)
+
+
+    for (let linkId in NLC.nodesAndLinksData.linksById) {
+        let link = NLC.nodesAndLinksData.linksById[linkId]
+        
+        if (nodeIdsAddedToContainers.hasOwnProperty(link.fromNodeId) &&
+            nodeIdsAddedToContainers.hasOwnProperty(link.toNodeId)) {
+            // link.dataType = sourceDataType
+            let connectionInfo = {
+                // TODO: forcing a string here
+                "identifier": '' + link.id,
+                "type": "??->??", // FIXME
+                "dataType": "unknown", // FIXME
+                "fromContainerIdentifier": link.fromNodeId,
+                "toContainerIdentifier": link.toNodeId
+            }
+            
+            createConnection(connectionInfo)
+        }
+        else {
+            // TODO: better handling
+            console.log("WARNING: link found but connected node(s) not found!")
+        }
+    }
+    
+}
