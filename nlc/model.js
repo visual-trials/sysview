@@ -251,7 +251,7 @@ function removeNodeFromDiagram(nodeId, diagramIdentifier) {
             // We are removing the node from the diagram (or actually: the diagram info from the node)
             delete node.diagramSpecificVisualData[diagramIdentifier]
             
-            // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)
+            // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)
             let nlcDataChange = {
                 "method" : "delete",
                 "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier],
@@ -264,6 +264,39 @@ function removeNodeFromDiagram(nodeId, diagramIdentifier) {
         NLC.dataHasChanged = true
     }
 }
+
+function removeDiagram (diagramToBeRemoved) {
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+
+    let diagramIndexToDelete = null
+    for (let diagramIndex = 0; diagramIndex < NLC.nodesAndLinksData.diagrams.length; diagramIndex++) {
+        let diagram = NLC.nodesAndLinksData.diagrams[diagramIndex]
+        if (diagram.id === diagramToBeRemoved.id) {
+            diagramIndexToDelete = diagramIndex
+        }
+    }
+    if (diagramIndexToDelete != null) {
+        NLC.nodesAndLinksData.diagrams.splice(diagramIndexToDelete)
+        delete diagramsById[diagramToBeRemoved.id]
+    }
+    else {
+        console.log("ERROR: could not find diagram to be deleted!")
+    }
+    
+    // FIXME: remove all visualData from nodes and links pointing to this diagram!
+    
+
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)
+    let nlcDataChange = {
+        "method" : "delete",
+        "path" : [ "diagrams", diagramToBeRemoved.id],
+        "data" : diagramToBeRemoved
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)
+    
+    NLC.dataHasChanged = true
+}
+
 
 function removeLink (linkToBeRemoved) {
     let linksById = NLC.nodesAndLinksData.linksById
@@ -342,6 +375,24 @@ function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
     NLC.dataHasChanged = true
 }
 
+
+function createNewDiagram() {
+    
+    // FIXME: we should take into account default values and required fields!
+    
+    // Create the diagram locally
+    
+    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)
+    
+    let newDiagram = {
+        "id" : null,
+        "name" : newName,
+        "identifier" : null
+    }
+    
+    return newDiagram
+}
+
 function createNewNode(nodeTypeIdentifier) {
     
     // FIXME: we should take into account default values and required fields!
@@ -371,6 +422,22 @@ function createNewNode(nodeTypeIdentifier) {
     
     return newNode
     
+}
+
+function storeNewDiagram(newDiagram) {
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+
+    diagramsById[newDiagram.id] = newDiagram
+    NLC.nodesAndLinksData.diagrams.push(newDiagram)
+
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)
+    let nlcDataChange = {
+        "method" : "insert",
+        "path" : [ "diagrams"],
+        "data" : newDiagram
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)
+    NLC.dataHasChanged = true
 }
 
 function storeNewNode(newNode) {
