@@ -24,6 +24,8 @@ NLC.nodesAndLinksData = {}
 
 function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
     let diagramChanges = []
+    
+    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused
 
     if (changedDiagram.name !== originalDiagram.name) {
         let nlcDataChange = {
