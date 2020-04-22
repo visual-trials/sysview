@@ -22,6 +22,29 @@ NLC.dataHasChanged = false
 NLC.dataChangesToStore = []
 NLC.nodesAndLinksData = {}
 
+function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
+    let diagramChanges = []
+
+    if (changedDiagram.name !== originalDiagram.name) {
+        let nlcDataChange = {
+            "method" : "update",
+            "path" : [ "diagrams", originalDiagram.id, "name" ],
+            "data" : changedDiagram.name
+        }
+        diagramChanges.push(nlcDataChange)
+    }
+
+    if (diagramChanges.length > 0) {
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(diagramChanges)
+        
+        NLC.dataHasChanged = true
+        
+        // TODO: we should only do this if we accept the changes
+        originalDiagram.name = changedDiagram.name
+        originalDiagram.identifier = changedDiagram.identifier  // FIXME: we should get rid of this!
+    }
+}
+
 function storeChangesBetweenNodes(originalNode, changedNode) {
     let nodeChanges = []
 
