@@ -1166,10 +1166,11 @@ function updateWorld() {
             let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
             let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
             
+            // For now we are resetting to the default
+            ZUI.interaction.viewScale = 0.8 // FIXME: hardcoded!
+            ZUI.interaction.viewOffset = { x: 0, y: 0 }
+            
             if (currentlySelectedContainer != null) {
-                // For now we are resetting to the default
-                ZUI.interaction.viewScale = 0.8 // FIXME: hardcoded!
-                ZUI.interaction.viewOffset = { x: 0, y: 0 }
                 
                 // After setting the scale we can calculate the viewOffset
                 let containerPositionOnScreen = fromWorldPositionToScreenPosition(currentlySelectedContainer.worldPosition)
