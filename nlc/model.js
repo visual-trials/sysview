@@ -537,6 +537,13 @@ ZUI.levelOfDetail = "high"
 // FIMXE: ZUI.levelOfDetailFading (for fading-in or fading-out)
 // FIXME: allowedLevelsOfDetail (for example: only-high, or: high and medium)
 
+
+function nodeIsInDiagram(node, diagramIdentifier) {
+    let nodeIsInDiagram = node.hasOwnProperty('diagramSpecificVisualData') && 
+                          node.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)
+    return nodeIsInDiagram
+}
+
 function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
     
     // Removing all connections and containers
@@ -547,9 +554,8 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
         let node = nodes[nodeIndex]
         
-        let nodeIsInDiagram = node.hasOwnProperty('diagramSpecificVisualData') && 
-                              node.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)
-        if (!nodeIsInDiagram) {
+        let nodeInDiagram = nodeIsInDiagram(node, diagramIdentifier)
+        if (!nodeInDiagram) {
             // The node does not have diagramSpecificVisualData for the selectedDiagram, so we are not going to show/add the node
             continue
         }
