@@ -77,7 +77,7 @@ function initMenu() {
 }
 
 function deselectContainers() {
-    ZUI.interaction.currentlySelectedContainerIdentifiers = {}
+    ZUI.interaction.currentlySelectedContainerIdentifiers = []
 }
 function init() {
     

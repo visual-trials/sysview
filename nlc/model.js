@@ -586,8 +586,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
         
         let containerInfo = {
             type: node.type,
-            // TODO: forcing a string here
-            identifier: '' + node.id,
+            identifier: node.id,
             parentContainerIdentifier: 'root', // FIXME: hardcodes for now
             // FIXME; we cannot be sure commonDate.name exists!
             name: node.commonData.name,
@@ -639,8 +638,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
 
         // link.dataType = sourceDataType
         let connectionInfo = {
-            // TODO: forcing a string here
-            "identifier": '' + link.id,
+            "identifier": link.id,
             "type": "??->??", // FIXME
             "dataType": "unknown", // FIXME
             "fromContainerIdentifier": link.fromNodeId,

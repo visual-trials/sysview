@@ -1068,8 +1068,8 @@ function drawContainer(container, alpha, textAlpha) {
             ZUI.ctx.fill()
         }
         
-        if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length > 0) {
-            if (ZUI.interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
+        if (ZUI.interaction.currentlySelectedContainerIdentifiers.length > 0) {
+            if (ZUI.interaction.currentlySelectedContainerIdentifiers.includes(container.identifier)) {
                 ZUI.ctx.lineWidth = 2 // TODO: do we want to scale this too?
                 ZUI.ctx.strokeStyle = "#FF0000"
                 

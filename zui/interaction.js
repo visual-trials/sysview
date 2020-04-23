@@ -44,7 +44,7 @@ ZUI.interaction = {
     
 
     currentlyHoveredContainerIdentifier : null,
-    currentlySelectedContainerIdentifiers : {},
+    currentlySelectedContainerIdentifiers : [],
     
     selectedContainersAreBeingDragged : false,
     emcompassingContainerIdentifier : null,
@@ -169,7 +169,7 @@ function handleInputStateChange () {
                     }
                     
                     
-                    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length == 0) {
+                    if (ZUI.interaction.currentlySelectedContainerIdentifiers.length == 0) {
                         doViewDraggingByMouse()
                     }
                     
@@ -211,7 +211,7 @@ function doMenuButtonModeSelect() {
             // TODO: we currently do not allow containers to be selected in view-mode, so we de-select
             //       all selected containers here. But we might want to allow selecting of containers in
             //       view-mode
-            ZUI.interaction.currentlySelectedContainerIdentifiers = {}
+            ZUI.interaction.currentlySelectedContainerIdentifiers = []
             // We also disable all these states
             ZUI.interaction.selectedContainerIsBeingResized = false
             ZUI.interaction.selectedContainersAreBeingDragged = false
@@ -356,21 +356,23 @@ function doSelectChildContainersByKeyboard() {
     // If 'C' is pressed, we select all its child containers
     if (hasKeyGoneDown('C')) {
         // For now, we only allow selecting children only when a single container has been selected
-        if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length > 1) {
+        if (ZUI.interaction.currentlySelectedContainerIdentifiers.length > 1) {
             return
         }
         
         let currentlySelectedContainerIdentifier = 'root' // If nothing is selected, we do as-if the root container has been selected (when selecting all children)
-        if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 0) {
-            currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
+        if (ZUI.interaction.currentlySelectedContainerIdentifiers.length !== 0) {
+            currentlySelectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
         }
         
         let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
         
-        ZUI.interaction.currentlySelectedContainerIdentifiers = {}
+        ZUI.interaction.currentlySelectedContainerIdentifiers = []
         for (let childContainerIdentifierIndex = 0; childContainerIdentifierIndex < currentlySelectedContainer.children.length; childContainerIdentifierIndex++) {
             let childContainerIdentifier = currentlySelectedContainer.children[childContainerIdentifierIndex]
-            ZUI.interaction.currentlySelectedContainerIdentifiers[childContainerIdentifier] = true
+            if (!ZUI.interaction.currentlySelectedContainerIdentifiers.includes(childContainerIdentifier)) {
+                ZUI.interaction.currentlySelectedContainerIdentifiers.push(childContainerIdentifier)
+            }
         }
         
     }
@@ -381,14 +383,15 @@ function doDeleteContainerByKeyboard() {
     
     // If delete is pressed, we delete all selected containers
     if (hasKeyGoneDown('DELETE')) {
-        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
+            let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
             deleteContainerData(selectedContainerIdentifier)
             // FIXME: if a container is fully delete (that is: it exists only in the visual-data, not in the source)
             //        AND it has connections from/to it, we should ALSO delete thos connections OR disallow it
             // FIXME: also take into account that containers that are fully delete can have children, for which its parent
             //        also has to be changed/reverted to the source
         }
-        ZUI.interaction.currentlySelectedContainerIdentifiers = {}
+        ZUI.interaction.currentlySelectedContainerIdentifiers = []
         ZUI.interaction.selectedContainerIsBeingResized = false
         ZUI.interaction.selectedContainersAreBeingDragged = false
         ZUI.interaction.mouseIsNearSelectedContainerBorder = false
@@ -401,7 +404,8 @@ function doReScaleSelectedContainersByKeyboard() {
     
     // If "[" or "]" is pressed, we scale down or up all selected containers
     if (hasKeyGoneDown('OPEN_BRACKET')) {
-        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
+            let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
             selectedContainer.localScale /= 2
             recalculateWorldPositionsAndSizes(selectedContainer)
@@ -409,7 +413,8 @@ function doReScaleSelectedContainersByKeyboard() {
         }
     }
     if (hasKeyGoneDown('CLOSE_BRACKET')) {
-        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
+            let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
             selectedContainer.localScale *= 2
             recalculateWorldPositionsAndSizes(selectedContainer)
@@ -427,10 +432,10 @@ function doChangeContainerTypeSelectedContainersByKeyboard() {
     let containerTypeToContainerShapeAndColor = ZUI.colorAndShapeMappings.containerTypeToContainerShapeAndColor
     
     // For now, we only allow changing container type only when a single container has been selected
-    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 1) {
+    if (ZUI.interaction.currentlySelectedContainerIdentifiers.length !== 1) {
         return
     }
-    let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
+    let currentlySelectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
     let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
 
     let possibleContainerTypes = Object.keys(containerTypeToContainerShapeAndColor)
@@ -474,10 +479,10 @@ function doChangeContainerDataTypeSelectedContainersByKeyboard() {
     let dataTypeToColor = ZUI.colorAndShapeMappings.dataTypeToColor
     
     // For now, we only allow changing data type only when a single container has been selected
-    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 1) {
+    if (ZUI.interaction.currentlySelectedContainerIdentifiers.length !== 1) {
         return
     }
-    let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
+    let currentlySelectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
     let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
 
     let possibleDataTypes = Object.keys(dataTypeToColor)
@@ -563,7 +568,8 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
     
     // If "[" or "]" is pressed, we scale down or up all selected containers
     if (hasKeyGoneDown('RIGHT')) {
-        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
+            let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
             if (selectedContainer.localFontSize == null) {
                 // FIXME: hardcoded default fontsize!
@@ -574,7 +580,8 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
         }
     }
     if (hasKeyGoneDown('LEFT')) {
-        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
+            let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
             if (selectedContainer.localFontSize == null) {
                 // FIXME: hardcoded default fontsize!
@@ -593,7 +600,7 @@ function doContainerSelectionByMouse() {
     
     // If escape is pressed, de-select all containers    
     if (hasKeyGoneDown('ESCAPE')) {
-        ZUI.interaction.currentlySelectedContainerIdentifiers = {}
+        ZUI.interaction.currentlySelectedContainerIdentifiers = []
     }
     
     if (!ZUI.mouseState.leftButtonHasGoneDownTwice &&
@@ -601,19 +608,24 @@ function doContainerSelectionByMouse() {
          
         if (ZUI.keyboardState.ctrlIsDown) {
             if (containerAtMousePosition != null) {
-                if (ZUI.interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
+                if (ZUI.interaction.currentlySelectedContainerIdentifiers.includes(containerAtMousePosition.identifier)) {
                     // If a container was already selected and clicked again (with ctrl down), its de-selected
-                    delete ZUI.interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier]
+                    let selectedContainerIdentifierIndex = ZUI.interaction.currentlySelectedContainerIdentifiers.indexOf(containerAtMousePosition.identifier)
+                    if (selectedContainerIdentifierIndex !== -1) {
+                        ZUI.interaction.currentlySelectedContainerIdentifiers.splice(selectedContainerIdentifierIndex, 1)
+                    }
                 }
                 else {
-                    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length > 0) {
-                        let firstSelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
+                    if (ZUI.interaction.currentlySelectedContainerIdentifiers.length > 0) {
+                        let firstSelectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
                         let firstSelectedContainer = getContainerByIdentifier(firstSelectedContainerIdentifier)
                         
                         // Note that it is only allowed to select mutliple containers if they have *same* parent
                         if (firstSelectedContainer.parentContainerIdentifier === containerAtMousePosition.parentContainerIdentifier) {
                             // If a container was not selected yet and clicked (with ctrl down), its also selected
-                            ZUI.interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                            if (!ZUI.interaction.currentlySelectedContainerIdentifiers.includes(containerAtMousePosition.identifier)) {
+                                ZUI.interaction.currentlySelectedContainerIdentifiers.push(containerAtMousePosition.identifier)
+                            }
                         }
                         else {
                             // When a container is clicked (with ctrl down) and it doesnt have the same parent as the container(s)
@@ -622,7 +634,9 @@ function doContainerSelectionByMouse() {
                     }
                     else {
                         // If a container was not selected yet and clicked (with ctrl down), its also selected
-                        ZUI.interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                        if (!ZUI.interaction.currentlySelectedContainerIdentifiers.includes(containerAtMousePosition.identifier)) {
+                            ZUI.interaction.currentlySelectedContainerIdentifiers.push(containerAtMousePosition.identifier)
+                        }
                     }
                 }
             }
@@ -632,19 +646,18 @@ function doContainerSelectionByMouse() {
         }
         else {
             if (containerAtMousePosition != null) {
-                if (ZUI.interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(containerAtMousePosition.identifier)) {
+                if (ZUI.interaction.currentlySelectedContainerIdentifiers.includes(containerAtMousePosition.identifier)) {
                     // if a container is clicked and was selected already (when ctrl is not down) we do not de-select it, 
                     // we do nothing (the selected contains need to be kept selected and are about to be dragged)
                 }
                 else {
                     // if a container is clicked and wasn't selected already (when ctrl is not down) it becomes the (only) selected container
-                    ZUI.interaction.currentlySelectedContainerIdentifiers = {}
-                    ZUI.interaction.currentlySelectedContainerIdentifiers[containerAtMousePosition.identifier] = true
+                    ZUI.interaction.currentlySelectedContainerIdentifiers = [containerAtMousePosition.identifier]
                 }
             }
             else {
                 // When we click in the background, de-select all selected containers (when ctrl is not down)
-                ZUI.interaction.currentlySelectedContainerIdentifiers = {}
+                ZUI.interaction.currentlySelectedContainerIdentifiers = []
             }
         }
     }
@@ -664,7 +677,8 @@ function doContainerDraggingByMouse() {
     if (ZUI.interaction.selectedContainersAreBeingDragged) {
         if (ZUI.mouseState.hasMoved) {
 
-            for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+            for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
+                let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
                 
                 let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
                 let parentWorldScale = selectedContainer.worldScale / selectedContainer.localScale
@@ -676,7 +690,8 @@ function doContainerDraggingByMouse() {
         }
         
         let firstSelectedContainer = null
-        for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+        for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
+            let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
             firstSelectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
         }
         
@@ -713,7 +728,8 @@ function doContainerDraggingByMouse() {
         
         if (ZUI.mouseState.leftButtonHasGoneUp) {
             
-            for (let selectedContainerIdentifier in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+            for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
+                let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
                 
                 let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
                 
@@ -775,10 +791,10 @@ function doContainerDraggingByMouse() {
 function doContainerResizingByMouse() {
 
     let currentlySelectedContainer = null
-    if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length === 1) {
+    if (ZUI.interaction.currentlySelectedContainerIdentifiers.length === 1) {
         // For now, we only allow resizing when a single container has been selected
         // if not, we assume no containers are selected (for resizing)
-        let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
+        let currentlySelectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
         currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
     }
     
@@ -1162,8 +1178,8 @@ function updateWorld() {
         ZUI.interaction.centerViewOnWorldCenter = false
     }
     else if (ZUI.interaction.centerViewOnFirstSelectedContainer)  {
-        if (Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers).length !== 0) {
-            let currentlySelectedContainerIdentifier = Object.keys(ZUI.interaction.currentlySelectedContainerIdentifiers)[0]
+        if (ZUI.interaction.currentlySelectedContainerIdentifiers.length !== 0) {
+            let currentlySelectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
             let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
             
             // For now we are resetting to the default

@@ -547,7 +547,7 @@ function findContainerAtWorldPosition(worldPosition, container, excludeSelectedC
         }
     }
     
-    if (excludeSelectedContainers && ZUI.interaction.currentlySelectedContainerIdentifiers.hasOwnProperty(container.identifier)) {
+    if (excludeSelectedContainers && ZUI.interaction.currentlySelectedContainerIdentifiers.includes(container.identifier)) {
         return null
     }
     
