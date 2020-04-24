@@ -630,7 +630,7 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
     let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
     
     // The point where the line attaches to the arrow-head
-    let arrowWorldSize = 20
+    let arrowWorldSize = 25 * nrOfConnections * averageContainersWorldScale // TODO: we apply the viewScale on a world size which is technically not correct I guess
     let toArrowAttachPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, arrowWorldSize)
     let screenToArrowAttachPosition = fromWorldPositionToScreenPosition(toArrowAttachPosition)
 
