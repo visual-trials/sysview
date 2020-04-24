@@ -628,16 +628,39 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
 
     let worldDistanceBetweenFromAndTo = distanceBetweenTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
     let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
+    
+    // The point where the line attaches to the arrow-head
+    let arrowWorldSize = 20
+    let toArrowAttachPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, arrowWorldSize)
+    let screenToArrowAttachPosition = fromWorldPositionToScreenPosition(toArrowAttachPosition)
+
+    // Left and right point of the arrow-head
+    // TODO: will this work on all browsers? Since we might get out-of-bounds here (less than -PI or more than +PI)
+    let angleToLeft = toContainerBorderPoint.rightAngle - Math.PI / 2
+    let angleToRight = toContainerBorderPoint.rightAngle + Math.PI / 2
+    let toArrowLeftPosition = getPositionFromAnglePointAndDistance(toArrowAttachPosition, angleToLeft, arrowWorldSize / 2)
+    let toArrowRightPosition = getPositionFromAnglePointAndDistance(toArrowAttachPosition, angleToRight, arrowWorldSize / 2)
+    let screenToArrowLeftPosition = fromWorldPositionToScreenPosition(toArrowLeftPosition)
+    let screenToArrowRightPosition = fromWorldPositionToScreenPosition(toArrowRightPosition)
+    
+    // The tip of the arrow-head (where you connect to the toContainer)
     let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
-
-
+    
+    // The helper-points to make the bezier curve
+    // TODO: techically we need the to-point here to be the attachment point of the arrow-head (so instead of using toContainerBorderPoint.position we use toArrowAttachPosition)
     let bendingDistance = worldDistanceBetweenFromAndTo / 2
     let fromBendPosition = getPositionFromAnglePointAndDistance(fromContainerBorderPoint.position, fromContainerBorderPoint.rightAngle, bendingDistance)
-    let toBendPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, bendingDistance)
+    let toBendPosition = getPositionFromAnglePointAndDistance(toArrowAttachPosition, toContainerBorderPoint.rightAngle, bendingDistance)
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
 
-    
+    /*
+let size = 5
+ZUI.ctx.fillStyle = "#FFFF00"
+ZUI.ctx.fillRect(screenToArrowLeftPosition.x - size/2, screenToArrowLeftPosition.y - size/2, size, size)
+ZUI.ctx.fillStyle = "#00FF00"
+ZUI.ctx.fillRect(screenToArrowRightPosition.x - size/2, screenToArrowRightPosition.y - size/2, size, size)
+    */
     
     let screenRectangleAroundConnection = getRectangleAroundPoints([screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition])
     let screenRectangle = { 
@@ -717,11 +740,21 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlySelectedConnectionIdentifier) {
             ZUI.ctx.strokeStyle = rgba({ r:255, g:0, b:0, a:1 })
         }
+        
+        // TODO: we might want a different color for the arrow-head?
+        ZUI.ctx.fillStyle = ZUI.ctx.strokeStyle
+        ZUI.ctx.beginPath()
+        ZUI.ctx.moveTo(screenToContainerPosition.x, screenToContainerPosition.y)
+        ZUI.ctx.lineTo(screenToArrowLeftPosition.x, screenToArrowLeftPosition.y)
+        ZUI.ctx.lineTo(screenToArrowRightPosition.x, screenToArrowRightPosition.y)
+        ZUI.ctx.closePath()
+        ZUI.ctx.fill()
+        
         ZUI.ctx.beginPath()
         ZUI.ctx.moveTo(       screenFromContainerPosition.x, screenFromContainerPosition.y)
         ZUI.ctx.bezierCurveTo(screenFromBendPosition.x, screenFromBendPosition.y, 
                           screenToBendPosition.x, screenToBendPosition.y, 
-                          screenToContainerPosition.x, screenToContainerPosition.y)
+                          screenToArrowAttachPosition.x, screenToArrowAttachPosition.y)
         ZUI.ctx.stroke()        
         
         
