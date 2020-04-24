@@ -29,6 +29,14 @@ ZUI.interaction = {
     showGrid : false,
     isoMetricAnimationRunning : false,
     highlightHoveredContainer : false,
+    
+    panningAnimationIsActive : false,
+    startPanningViewOffset: null,
+    startPanningViewScale : null,
+    targetPanningViewOffset: null,
+    targetPanningViewScale : null,
+    timePanned : 0, // seconds
+    totalPanningTime : 0.5, // seconds
    
     currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',
@@ -1139,7 +1147,33 @@ function doViewZoomingByMouse () {
 
 }
 
-function updateWorld() {
+function animatePanning(timeElapsed) {
+    if (ZUI.interaction.panningAnimationIsActive) {
+        ZUI.interaction.timePanned += timeElapsed
+        if (ZUI.interaction.timePanned >= ZUI.interaction.totalPanningTime) {
+            ZUI.interaction.viewScale = ZUI.interaction.targetPanningViewScale
+            ZUI.interaction.viewOffset = {
+                x: ZUI.interaction.targetPanningViewOffset.x,
+                y: ZUI.interaction.targetPanningViewOffset.y
+            }
+            ZUI.interaction.panningAnimationIsActive = false
+            ZUI.interaction.timePanned = 0
+            // TODO: maybe reset all other variables too? (like startScrollTop, targetScrollTop, timePanned, divToBeScrolledTo)
+        }
+        else {
+            let sineMultiplier = Math.sin((ZUI.interaction.timePanned / ZUI.interaction.totalPanningTime) * (Math.PI / 2))
+            ZUI.interaction.viewScale = ZUI.interaction.startPanningViewScale + (ZUI.interaction.targetPanningViewScale - ZUI.interaction.startPanningViewScale) * sineMultiplier
+            ZUI.interaction.startScrollTop + (ZUI.interaction.targetScrollTop - ZUI.interaction.startScrollTop) * sineMultiplier
+            ZUI.interaction.viewOffset = {
+                x: ZUI.interaction.startPanningViewOffset.x + (ZUI.interaction.targetPanningViewOffset.x - ZUI.interaction.startPanningViewOffset.x) * sineMultiplier,
+                y: ZUI.interaction.startPanningViewOffset.y + (ZUI.interaction.targetPanningViewOffset.y - ZUI.interaction.startPanningViewOffset.y) * sineMultiplier
+            }
+        }
+    }
+}
+
+
+function updateWorld(timeElapsed = 0.016) {
     
     if (ZUI.interaction.centerViewOnWorldCenter) {
 
@@ -1183,9 +1217,21 @@ function updateWorld() {
             let currentlySelectedContainer = getContainerByIdentifier(currentlySelectedContainerIdentifier)
             
             // For now we are resetting to the default
-            ZUI.interaction.viewScale = 0.8 // FIXME: hardcoded!
-            ZUI.interaction.viewOffset = { x: 0, y: 0 }
-            
+            let targetViewScale = 0.8 // FIXME: hardcoded!
+            let targetViewOffset = { x: 0, y: 0 }
+
+            // FIXME: since fromWorldPositionToScreenPosition uses ZUI.interaction.viewScale and ZUI.interaction.viewOffset, we first have to copy the originals
+            // We then calculate our target viewScale and viewOffset and restore them. After that we can animate towards them!
+            let originalViewScale = ZUI.interaction.viewScale
+            let originalViewOffset = {
+                x: ZUI.interaction.viewOffset.x,
+                y: ZUI.interaction.viewOffset.y
+            }
+            ZUI.interaction.viewScale = targetViewScale
+            ZUI.interaction.viewOffset = {
+                x: targetViewOffset.x, 
+                y: targetViewOffset.y 
+            }
             if (currentlySelectedContainer != null) {
                 
                 // After setting the scale we can calculate the viewOffset
@@ -1193,12 +1239,30 @@ function updateWorld() {
                 
                 let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
                 // TODO: this is probably not correct: for the size we have to take into account the viewScale, right? And what about (local)scale?
-                ZUI.interaction.viewOffset = { x: middleOfScreen.x - containerPositionOnScreen.x - currentlySelectedContainer.localSize.width / 2, 
-                                           y: middleOfScreen.y - containerPositionOnScreen.y - currentlySelectedContainer.localSize.height / 2} 
+                targetViewOffset = { x: middleOfScreen.x - containerPositionOnScreen.x - currentlySelectedContainer.localSize.width / 2, 
+                                     y: middleOfScreen.y - containerPositionOnScreen.y - currentlySelectedContainer.localSize.height / 2} 
             }
             else {
                 console.log("WARNING: trying to center on a container that does not exist!")
             }
+            
+            // FIXME: here we restore them
+            ZUI.interaction.viewOffset = {
+                x: originalViewOffset.x, 
+                y: originalViewOffset.y 
+            }
+            ZUI.interaction.viewScale = originalViewScale
+            
+            ZUI.interaction.timeScrolled = 0
+            ZUI.interaction.panningAnimationIsActive = true
+    
+            ZUI.interaction.startPanningViewOffset = {
+                x: ZUI.interaction.viewOffset.x,
+                y: ZUI.interaction.viewOffset.y
+            }
+            ZUI.interaction.startPanningViewScale = ZUI.interaction.viewScale
+            ZUI.interaction.targetPanningViewOffset = targetViewOffset
+            ZUI.interaction.targetPanningViewScale = targetViewScale
         }
         
         ZUI.interaction.centerViewOnFirstSelectedContainer = false
@@ -1213,8 +1277,21 @@ function updateWorld() {
                 
                 if (fromContainer != null && toContainer != null) {
                     // For now we are resetting to the default
-                    ZUI.interaction.viewScale = 0.8 // FIXME: hardcoded!
-                    ZUI.interaction.viewOffset = { x: 0, y: 0 }
+                    let targetViewScale = 0.8 // FIXME: hardcoded!
+                    let targetViewOffset = { x: 0, y: 0 }
+
+                    // FIXME: since fromWorldPositionToScreenPosition uses ZUI.interaction.viewScale and ZUI.interaction.viewOffset, we first have to copy the originals
+                    // We then calculate our target viewScale and viewOffset and restore them. After that we can animate towards them!
+                    let originalViewScale = ZUI.interaction.viewScale
+                    let originalViewOffset = {
+                        x: ZUI.interaction.viewOffset.x,
+                        y: ZUI.interaction.viewOffset.y
+                    }
+                    ZUI.interaction.viewScale = targetViewScale
+                    ZUI.interaction.viewOffset = {
+                        x: targetViewOffset.x, 
+                        y: targetViewOffset.y 
+                    }
                     
                     // FIXME: this is not accurate at all! We should store the end-points of the connection itself and take the middle of THAT (not of the centers/positions of the containers!)
                     let middleWorldPointBetweenContainers = middleOfTwoPoints(fromContainer.worldPosition, toContainer.worldPosition)
@@ -1222,8 +1299,26 @@ function updateWorld() {
                     let middlePointBetweenContainersOnScreen = fromWorldPositionToScreenPosition(middleWorldPointBetweenContainers)
                     
                     let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
-                    ZUI.interaction.viewOffset = { x: middleOfScreen.x - middlePointBetweenContainersOnScreen.x, 
-                                               y: middleOfScreen.y - middlePointBetweenContainersOnScreen.y} 
+                    targetViewOffset = { x: middleOfScreen.x - middlePointBetweenContainersOnScreen.x, 
+                                         y: middleOfScreen.y - middlePointBetweenContainersOnScreen.y} 
+                                               
+                    // FIXME: here we restore them
+                    ZUI.interaction.viewOffset = {
+                        x: originalViewOffset.x, 
+                        y: originalViewOffset.y 
+                    }
+                    ZUI.interaction.viewScale = originalViewScale
+                    
+                    ZUI.interaction.timeScrolled = 0
+                    ZUI.interaction.panningAnimationIsActive = true
+            
+                    ZUI.interaction.startPanningViewOffset = {
+                        x: ZUI.interaction.viewOffset.x,
+                        y: ZUI.interaction.viewOffset.y
+                    }
+                    ZUI.interaction.startPanningViewScale = ZUI.interaction.viewScale
+                    ZUI.interaction.targetPanningViewOffset = targetViewOffset
+                    ZUI.interaction.targetPanningViewScale = targetViewScale
                 }
             }
             else {
@@ -1233,6 +1328,8 @@ function updateWorld() {
         
         ZUI.interaction.centerViewOnSelectedConnection = false
     }
+    
+    animatePanning(timeElapsed)
     
     if (ZUI.interaction.viewAsIsoMetric) {
         if (ZUI.interaction.percentageIsoMetric < 1) {
