@@ -559,29 +559,6 @@ function findContainerAtWorldPosition(worldPosition, container, excludeSelectedC
     return null
 }
 
-/* 
-FIXME: deprecated
-function findConnectionAtWorldPosition(worldPosition) {
-    // TODO: this is quite expensive! We might want to use spatial partitioning here
-     for (let fromFirstVisibleContainerIdentifier in ZUI.groupedConnections) {
-        for (let toFirstVisibleContainerIdentifier in ZUI.groupedConnections[fromFirstVisibleContainerIdentifier]) {
-            for (let connectionType in ZUI.groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier]) {
-                let connectionGroup = ZUI.groupedConnections[fromFirstVisibleContainerIdentifier][toFirstVisibleContainerIdentifier][connectionType]
-
-                let distance = distanceBetweenTwoPoints(worldPosition, connectionGroup.worldMiddlePoint)
-                if (distance < 10 / ZUI.interaction.viewScale) {
-                    if (connectionGroup.nrOfConnections === 1) {
-                        let foundConnection = connectionGroup.connections[Object.keys(connectionGroup.connections)[0]]
-                        return foundConnection
-                    }
-                }
-            }
-        }
-     }
-     return null
-}
-*/
-
 function whichSideIsPositionFromContainer(worldPosition, container) {
     
     let side = { x: 0, y: 0, isNearContainer: true }
