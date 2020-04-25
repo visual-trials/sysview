@@ -419,23 +419,17 @@ function drawNewConnection () {
             }
         }
 
-        let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
-        let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
+        let fromCenterPosition = getCenterPositonOfContainer(fromContainer)
+        let toCenterPosition = getCenterPositonOfContainer(toContainer)
         
         let nrOfConnections = 1  // FIXME: hardcoded
         let stroke = "#0000FF" // FIXME: hardcoded
         
-        let connectionGroup = { }
-        connectionGroup.connectionType = newConnectionBeingAdded.type
-        connectionGroup.nrOfConnections = nrOfConnections
-        connectionGroup['connections'] = {}
-        connectionGroup['connections'][ZUI.interaction.newConnectionBeingAddedIdentifier] = newConnectionBeingAdded
-        connectionGroup.averageFromPosition = fromContainerCenterPosition
-        connectionGroup.averageToPosition = toContainerCenterPosition
-        connectionGroup.stroke = stroke
+        let connectionType = newConnectionBeingAdded.type
         
-        drawConnection(fromContainer, toContainer, connectionGroup);
-//        drawConnection(newConnectionBeingAdded, fromContainer, toContainer)
+        let singleConnectionIdentifier = ZUI.interaction.newConnectionBeingAddedIdentifier
+        
+        drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier)   
     }
 }
 
@@ -609,18 +603,45 @@ function drawConnectionGroup(connectionGroup) {
     drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier)   
 }
 
+function drawConnections() {
+    
+    // TODO: is this the right place to reset this?
+    ZUI.interaction.closestConnectionDistance = null
+    ZUI.interaction.closestConnectionIdentifier = null
+    
+    for (let connectionIdentifier in ZUI.containersAndConnections.connections) {
+        let connection = ZUI.containersAndConnections.connections[connectionIdentifier]
+
+        // Draw all connections here, but not the new connection-being-added
+        if (ZUI.interaction.newConnectionBeingAddedIdentifier == null || 
+            connection.identifier !== ZUI.interaction.newConnectionBeingAddedIdentifier) {
+
+            let fromContainer = ZUI.containersAndConnections.containers[connection.fromContainerIdentifier]
+            let toContainer = ZUI.containersAndConnections.containers[connection.toContainerIdentifier]
+            
+            let connectionType = '_none_'
+            if (connection.dataType != null) {
+                connectionType = connection.dataType
+            }
+            let nrOfConnections = 1
+            
+            let stroke = connection.stroke
+            let singleConnectionIdentifier = connection.identifier
+            
+            let fromCenterPosition = getCenterPositonOfContainer(fromContainer)
+            let toCenterPosition = getCenterPositonOfContainer(toContainer)
+            
+            drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier)
+        }
+    }
+}
+
 function drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier) {
 
     // TODO: add comment explaining why To and From are "mixed" here per line:
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromCenterPosition, toCenterPosition)
     let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromContainer, toCenterPosition, worldDistanceBetweenFromAndToCenters)
     let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toContainer, fromCenterPosition, worldDistanceBetweenFromAndToCenters)
-
-    // TODO: check if the rectangle (formed by the two border-points) is on screen, if not don't draw the connection
-
-    // let angleBetweenPoints = getAngleBetweenPoints(fromCenterPosition, toCenterPosition)
-    // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromContainer, false, fromContainerCenterPosition)
-    // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toContainer, true, toContainerCenterPosition)
 
     let averageContainersWorldScale = (fromContainer.worldScale + toContainer.worldScale) / 2
 
@@ -652,14 +673,6 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
 
-    /*
-let size = 5
-ZUI.ctx.fillStyle = "#FFFF00"
-ZUI.ctx.fillRect(screenToArrowLeftPosition.x - size/2, screenToArrowLeftPosition.y - size/2, size, size)
-ZUI.ctx.fillStyle = "#00FF00"
-ZUI.ctx.fillRect(screenToArrowRightPosition.x - size/2, screenToArrowRightPosition.y - size/2, size, size)
-    */
-    
     let screenRectangleAroundConnection = getRectangleAroundPoints([screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition])
     let screenRectangle = { 
         position : {
@@ -678,12 +691,12 @@ ZUI.ctx.fillRect(screenToArrowRightPosition.x - size/2, screenToArrowRightPositi
     
     let percentageOfCurve = 0.5 // FIXME: hardcoded!
     let screenMiddlePoint = getPointOnBezierCurve(percentageOfCurve, screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition)
-    
+
     if (singleConnectionIdentifier != null) {
         let screenPointToFindClosestDistanceTo = ZUI.mouseState.position
         // Only check the distance if the mouse pointer is somewhere inside the rectangle surrounding the 4 points of the bezier curve
         
-// FIXME: using ZUI.minimumDistanceFromConnectionToDetectMouseHover here! But it is defined elsewhere!
+        // TODO: using ZUI.minimumDistanceFromConnectionToDetectMouseHover here! But it is defined elsewhere!
 
         let screenRectangleAroundConnectionWithMargin = addMarginToRectangle(screenRectangleAroundConnection, ZUI.minimumDistanceFromConnectionToDetectMouseHover)
         if (positionIsInsideRectangle(screenPointToFindClosestDistanceTo, screenRectangleAroundConnectionWithMargin)) {
@@ -714,13 +727,6 @@ ZUI.ctx.fillRect(screenToArrowRightPosition.x - size/2, screenToArrowRightPositi
         // Draw line 
         ZUI.ctx.lineWidth = 4 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
         ZUI.ctx.strokeStyle = rgba(stroke)
-        
-        /*
-        ZUI.ctx.beginPath()
-        ZUI.ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
-        ZUI.ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
-        ZUI.ctx.stroke()
-        */
         
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier) {
             ZUI.ctx.lineWidth = 6 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
@@ -789,103 +795,6 @@ ZUI.ctx.fillRect(screenToArrowRightPosition.x - size/2, screenToArrowRightPositi
     }
 
 }
-
-/*
-function drawConnections() {
-    for (let connectionIdentifier in ZUI.containersAndConnections.connections) {
-        let connection = ZUI.containersAndConnections.connections[connectionIdentifier]
-
-        // Draw all connections here, but not the new connection-being-added
-        if (ZUI.interaction.newConnectionBeingAddedIdentifier == null || 
-            connection.identifier !== ZUI.interaction.newConnectionBeingAddedIdentifier) {
-
-            let fromContainer = ZUI.containersAndConnections.containers[connection.fromContainerIdentifier]
-            let toContainer = ZUI.containersAndConnections.containers[connection.toContainerIdentifier]
-            drawConnection(connection, fromContainer, toContainer)
-        }
-    }
-}
-
-function drawConnection(connection, fromContainer, toContainer) {
-    
-    let fromContainerCenterPosition = getCenterPositonOfContainer(fromContainer)
-    let toContainerCenterPosition = getCenterPositonOfContainer(toContainer)
-    
-    let angleBetweenPoints = getAngleBetweenPoints(fromContainerCenterPosition, toContainerCenterPosition)
-    
-    let fromFirstVisibleContainer = getFirstVisibleContainer(fromContainer)
-    let toFirstVisibleContainer = getFirstVisibleContainer(toContainer)
-    if (fromFirstVisibleContainer.identifier === toFirstVisibleContainer.identifier) {
-        // Not drawing a connection if it effectively connects one container with itself
-        return
-    }
-    let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromContainerCenterPosition, toContainerCenterPosition)
-    let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, toContainerCenterPosition, worldDistanceBetweenFromAndToCenters)
-    let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toFirstVisibleContainer, fromContainerCenterPosition, worldDistanceBetweenFromAndToCenters)
-    // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
-    // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
-    
-    let worldDistanceBetweenFromAndTo = distanceBetweenTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
-    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
-    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
-    
-    let bendingDistance = worldDistanceBetweenFromAndTo / 2
-    let fromBendPosition = getPositionFromAnglePointAndDistance(fromContainerBorderPoint.position, fromContainerBorderPoint.rightAngle, bendingDistance)
-    let toBendPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, bendingDistance)
-    let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
-    let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
-    
-    let averageContainersWorldScale = (fromFirstVisibleContainer.worldScale + toFirstVisibleContainer.worldScale) / 2
-    
-    {
-        /*
-        let size = 5
-        ZUI.ctx.fillStyle = "#FF00FF"
-        ZUI.ctx.fillRect(screenFromContainerPosition.x - size/2, screenFromContainerPosition.y - size/2, size, size)
-        ZUI.ctx.fillStyle = "#FF0000"
-        ZUI.ctx.fillRect(screenFromBendPosition.x - size/2, screenFromBendPosition.y - size/2, size, size)
-        
-        ZUI.ctx.fillStyle = "#FFFF00"
-        ZUI.ctx.fillRect(screenToContainerPosition.x - size/2, screenToContainerPosition.y - size/2, size, size)
-        ZUI.ctx.fillStyle = "#00FF00"
-        ZUI.ctx.fillRect(screenToBendPosition.x - size/2, screenToBendPosition.y - size/2, size, size)
-        */
-/*        
-        // Draw line 
-        ZUI.ctx.lineWidth = 2 * ZUI.interaction.viewScale * averageContainersWorldScale
-        ZUI.ctx.strokeStyle = rgba(connection.stroke)
-        */
-/*        
-        ZUI.ctx.beginPath()
-        ZUI.ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
-        ZUI.ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
-        ZUI.ctx.stroke()
-        */
-        /*
-        ZUI.ctx.beginPath()
-        ZUI.ctx.moveTo(       screenFromContainerPosition.x, screenFromContainerPosition.y)
-        ZUI.ctx.bezierCurveTo(screenFromBendPosition.x, screenFromBendPosition.y, 
-                          screenToBendPosition.x, screenToBendPosition.y, 
-                          screenToContainerPosition.x, screenToContainerPosition.y)
-        ZUI.ctx.stroke()        
-        
-        if (ZUI.interaction.currentlySelectedConnection != null) {
-            if (connection.identifier === ZUI.interaction.currentlySelectedConnection.identifier) {
-                
-                ZUI.ctx.lineWidth = 4 * ZUI.interaction.viewScale * averageContainersWorldScale
-                ZUI.ctx.strokeStyle = "#FF0000"
-                
-                ZUI.ctx.beginPath()
-                ZUI.ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
-                ZUI.ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
-                ZUI.ctx.stroke()
-            }
-
-        }
-    }
-    
-}
-*/
 
 function showContainerChildren(container) {
     if (container.identifier === 'root') return 1
