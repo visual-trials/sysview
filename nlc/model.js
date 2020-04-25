@@ -265,6 +265,64 @@ function removeNodeFromDiagram(nodeId, diagramIdentifier) {
     }
 }
 
+function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramIdentifier, fromOrTo, connectionPointIdentifier) {
+  
+    let linksById = NLC.nodesAndLinksData.linksById
+    
+    if (linksById.hasOwnProperty(linkId)) {
+        let link = linksById[linkId]
+
+        if (!link.hasOwnProperty('diagramSpecificVisualData')) {
+            link.diagramSpecificVisualData = {}
+            
+// FIXME: this is a very roundabout way of creating a map in the db!
+            let dummyValue = {}
+            dummyValue[diagramIdentifier] = {}
+            dummyValue[diagramIdentifier]['DUMMY'] = true
+            let nlcDataChange = {
+                "method" : "update",
+                "path" : [ "links", linkId, "diagramSpecificVisualData"],
+                "data" : dummyValue
+            }
+            NLC.dataChangesToStore.push(nlcDataChange)
+        }
+        if (!link.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)) {
+            link.diagramSpecificVisualData[diagramIdentifier] = {}
+            
+// FIXME: this is a very roundabout way of creating a map in the db!
+            let dummyValue = {}
+            dummyValue['DUMMY'] = true
+            let nlcDataChange = {
+                "method" : "update",
+                "path" : [ "links", linkId, "diagramSpecificVisualData", diagramIdentifier],
+                "data" : dummyValue
+            }
+            NLC.dataChangesToStore.push(nlcDataChange)
+        }
+            
+        let keyToStore = 'fromConnectionPointIdentifier'
+        if (fromOrTo === 'to') {
+            keyToStore = 'toConnectionPointIdentifier'
+        }
+        link.diagramSpecificVisualData[diagramIdentifier][keyToStore] = connectionPointIdentifier
+        
+        // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)
+        let nlcDataChange = {
+            "method" : "update",
+            "path" : [ "links", linkId, "diagramSpecificVisualData", diagramIdentifier, keyToStore],
+            "data" : connectionPointIdentifier
+        }
+        NLC.dataChangesToStore.push(nlcDataChange)
+    
+        // TODO: maybe its better to call this: visualDataHasChanged ?
+        NLC.dataHasChanged = true
+    }
+    else {
+        console.log("ERROR: cannot store link: unknown linkId:" + linkId)
+    }
+}
+
+
 function removeDiagram (diagramToBeRemoved) {
     let diagramsById = NLC.nodesAndLinksData.diagramsById
 
@@ -619,21 +677,21 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
             continue
         }
         
-        let linkIsInDiagram = link.hasOwnProperty('diagramSpecificVisualData') && 
+        let linkHasDiagramSpecificVisualData = link.hasOwnProperty('diagramSpecificVisualData') && 
                               link.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)
-        if (!linkIsInDiagram) {
+        if (!linkHasDiagramSpecificVisualData) {
             // The link does not have diagramSpecificVisualData for the selectedDiagram, so we SHOULD not show/add the node
             // FIXME: we should 'continue' here, but the DEFAULT right now is to add it anyway!
             // FIXME: continue
         }
         
-        let linkIsInLevelOfDetail = linkIsInDiagram && // FIXME: we have to add this condition, otheriwse checking the following conditions may crash
-                                    link.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('lod') && 
-                                    link.diagramSpecificVisualData[diagramIdentifier].lod[ZUI.levelOfDetail]
-        if (linkIsInDiagram && !linkIsInLevelOfDetail) { // FIXME: only IF we have diagramInfo do we check for levelOfDetail right now!
-            // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
-            // The link is not in the current levelOfDetail detail, so we are not going to show/add the node
-            continue
+        // FIXME: only IF we have diagramInfo AND we have 'lod' do we check for levelOfDetail right now!
+        if (linkHasDiagramSpecificVisualData && link.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('lod')) { 
+            if (!link.diagramSpecificVisualData[diagramIdentifier].lod[ZUI.levelOfDetail]) {
+                // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
+                // The link is not in the current levelOfDetail detail, so we are not going to show/add the node
+                continue
+            }
         }
 
         // link.dataType = sourceDataType
@@ -643,6 +701,15 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
             "dataType": "unknown", // FIXME
             "fromContainerIdentifier": link.fromNodeId,
             "toContainerIdentifier": link.toNodeId
+        }
+        
+        if (linkHasDiagramSpecificVisualData) {
+            if (link.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('fromConnectionPointIdentifier')) {
+                connectionInfo['fromConnectionPointIdentifier'] = link.diagramSpecificVisualData[diagramIdentifier]['fromConnectionPointIdentifier']
+            }
+            if (link.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('toConnectionPointIdentifier')) {
+                connectionInfo['toConnectionPointIdentifier'] = link.diagramSpecificVisualData[diagramIdentifier]['toConnectionPointIdentifier']
+            }
         }
         
         createConnection(connectionInfo)
