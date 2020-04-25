@@ -602,6 +602,22 @@ function nodeIsInDiagram(node, diagramIdentifier) {
     return nodeIsInDiagram
 }
 
+function linkIsInDiagram(link, diagramIdentifier) {
+    // FIXME: should we not explicitily store links as being in a diagram?
+    
+    // FIXME: what about LOD? Should we chech that too?
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    let fromNode = nodesById[link.fromNodeId]
+    let toNode = nodesById[link.toNodeId]
+    
+    let linkIsInDiagram = fromNode != null && 
+                          toNode != null &&
+                          nodeIsInDiagram(fromNode, diagramIdentifier) &&
+                          nodeIsInDiagram(toNode, diagramIdentifier)
+    return linkIsInDiagram
+}
+
 function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
     
     // Removing all connections and containers
