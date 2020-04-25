@@ -678,16 +678,8 @@ ZUI.ctx.fillRect(screenToArrowRightPosition.x - size/2, screenToArrowRightPositi
         return
     }
     
-    // FIXME: remove this (old way):     
-    // let screenMiddlePoint = fromWorldPositionToScreenPosition(connectionGroup.worldMiddlePoint)
-    // connectionGroup.worldMiddlePoint = middleOfTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
-
-// FIXME: remove this!    
     let percentageOfCurve = 0.5 // FIXME: hardcoded!
     let screenMiddlePoint = getPointOnBezierCurve(percentageOfCurve, screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition)
-    connectionGroup.worldMiddlePoint = fromScreenPositionToWorldPosition(screenMiddlePoint)
-
-    
     
     if (singleConnectionIdentifier != null) {
         let screenPointToFindClosestDistanceTo = ZUI.mouseState.position
