@@ -187,6 +187,8 @@ function handleInputStateChange () {
             doViewZoomingByMouse()
         }
         else if (ZUI.interaction.currentlySelectedMode === 'view') {
+// FIXME
+doChangeConnectionPointSelectedConnectionByKeyboard()            
             doContainerSelectionByMouse()
             doConnectionSelectionByMouse()
             doViewDraggingByMouse()
@@ -569,6 +571,122 @@ function doChangeContainerDataTypeSelectedConnectionByKeyboard() {
         storeConnectionDataType(currentlySelectedConnection.identifier, possibleDataTypes[dataTypeIndex])
     }
  
+}
+
+function doChangeConnectionPointSelectedConnectionByKeyboard() {
+
+    if (ZUI.containerShapes == null) {
+        return
+    }
+    
+    if (ZUI.interaction.currentlySelectedConnectionIdentifier == null) {
+        return
+    }
+    let currentlySelectedConnection = getConnectionByIdentifier(ZUI.interaction.currentlySelectedConnectionIdentifier)
+
+    // From
+    let fromContainerIdentifier = currentlySelectedConnection.fromContainerIdentifier
+    let fromContainer = getContainerByIdentifier(fromContainerIdentifier)
+    if (fromContainer == null) {
+        return
+    }
+    let fromContainerShape = ZUI.containerShapes[fromContainer.shapeType]
+    if (!fromContainerShape) {
+        return
+    }
+    
+    // To
+    let toContainerIdentifier = currentlySelectedConnection.toContainerIdentifier
+    let toContainer = getContainerByIdentifier(toContainerIdentifier)
+    if (toContainer == null) {
+        return
+    }
+    let toContainerShape = ZUI.containerShapes[toContainer.shapeType]
+    if (!toContainerShape) {
+        return
+    }
+    
+    // From
+    let possibleConnectionPointsFrom = []
+    let sortedPointIdentifiersFrom = Object.keys(fromContainerShape.points).sort()
+    for (let pointIdentifierIndex = 0; pointIdentifierIndex < sortedPointIdentifiersFrom.length; pointIdentifierIndex++)  {
+        let pointIdentifier = sortedPointIdentifiersFrom[pointIdentifierIndex]
+        let point = fromContainerShape.points[pointIdentifier]
+    
+        if (point.isConnectionPoint) {
+            possibleConnectionPointsFrom.push(pointIdentifier)
+        }
+    }
+    possibleConnectionPointsFrom.unshift(null) // Note: the first item is null (meaning: no pointIdentifier)
+    let nrOfpossibleConnectionPointsFrom = possibleConnectionPointsFrom.length
+    
+    let fromConnectionPointIndex = 0
+    if (currentlySelectedConnection.fromConnectionPointIdentifier != null) { // so, if fromConnectionPointIdentifier == null, fromConnectionPointIndex will be 0
+        for (fromConnectionPointIndex = 1; fromConnectionPointIndex < nrOfpossibleConnectionPointsFrom; fromConnectionPointIndex++) {
+            let possibleconnectionPointIdentifier = possibleConnectionPointsFrom[fromConnectionPointIndex]
+            if (currentlySelectedConnection.fromConnectionPointIdentifier === possibleconnectionPointIdentifier) {
+                // We found the connection point in the list of possible connection points, so we keep fromConnectionPointIndex
+                break;
+            }
+        }
+    }
+
+    // To
+    let possibleConnectionPointsTo = []
+    let sortedPointIdentifiersTo = Object.keys(toContainerShape.points).sort()
+    for (let pointIdentifierIndex = 0; pointIdentifierIndex < sortedPointIdentifiersTo.length; pointIdentifierIndex++)  {
+        let pointIdentifier = sortedPointIdentifiersTo[pointIdentifierIndex]
+        let point = toContainerShape.points[pointIdentifier]
+    
+        if (point.isConnectionPoint) {
+            possibleConnectionPointsTo.push(pointIdentifier)
+        }
+    }
+    possibleConnectionPointsTo.unshift(null) // Note: the first item is null (meaning: no pointIdentifier)
+    let nrOfpossibleConnectionPointsTo = possibleConnectionPointsTo.length
+    
+    let toConnectionPointIndex = 0
+    if (currentlySelectedConnection.toConnectionPointIdentifier != null) { // so, if toConnectionPointIdentifier == null, toConnectionPointIndex will be 0
+        for (toConnectionPointIndex = 1; toConnectionPointIndex < nrOfpossibleConnectionPointsTo; toConnectionPointIndex++) {
+            let possibleconnectionPointIdentifier = possibleConnectionPointsTo[toConnectionPointIndex]
+            if (currentlySelectedConnection.toConnectionPointIdentifier === possibleconnectionPointIdentifier) {
+                // We found the connection point in the list of possible connection points, so we keep toConnectionPointIndex
+                break;
+            }
+        }
+    }
+    
+    // If "1" or "2" is pressed, we change the connection points of the from container
+    let fromHasChanged = false
+    if (hasKeyGoneDown('2')) {
+        fromConnectionPointIndex++
+        fromHasChanged = true
+    }
+    if (hasKeyGoneDown('1')) {
+        fromConnectionPointIndex--
+        fromHasChanged = true
+    }
+    
+    if (fromHasChanged) {
+        fromConnectionPointIndex = fromConnectionPointIndex % nrOfpossibleConnectionPointsFrom
+        storeConnectionConnectionPoint(currentlySelectedConnection.identifier, 'from', possibleConnectionPointsFrom[fromConnectionPointIndex])
+    }
+ 
+    // If "3" or "4" is pressed, we change the connection points of the from container
+    let toHasChanged = false
+    if (hasKeyGoneDown('4')) {
+        toConnectionPointIndex++
+        toHasChanged = true
+    }
+    if (hasKeyGoneDown('3')) {
+        toConnectionPointIndex--
+        toHasChanged = true
+    }
+    
+    if (toHasChanged) {
+        toConnectionPointIndex = toConnectionPointIndex % nrOfpossibleConnectionPointsTo
+        storeConnectionConnectionPoint(currentlySelectedConnection.identifier, 'to', possibleConnectionPointsTo[toConnectionPointIndex])
+    }
 }
 
 

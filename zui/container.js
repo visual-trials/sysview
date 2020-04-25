@@ -311,6 +311,10 @@ function createConnection(connectionData) {
         
         fromContainerIdentifier: connectionData.fromContainerIdentifier,
         toContainerIdentifier: connectionData.toContainerIdentifier,
+        
+        fromConnectionPointIdentifier : connectionData.fromConnectionPointIdentifier,
+        toConnectionPointIdentifier : connectionData.toConnectionPointIdentifier,
+        
         stroke: fill, // TODO: now using fill as line color!
     }
     
