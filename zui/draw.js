@@ -429,7 +429,7 @@ function drawNewConnection () {
         
         let singleConnectionIdentifier = ZUI.interaction.newConnectionBeingAddedIdentifier
         
-        drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier)   
+        drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
     }
 }
 
@@ -600,7 +600,7 @@ function drawConnectionGroup(connectionGroup) {
         singleConnectionIdentifier = singleConnection.identifier
     }
     
-    drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier)   
+    drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
 }
 
 function drawConnections() {
@@ -631,17 +631,34 @@ function drawConnections() {
             let fromCenterPosition = getCenterPositonOfContainer(fromContainer)
             let toCenterPosition = getCenterPositonOfContainer(toContainer)
             
-            drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier)
+            let fromConnectionPointIdentifier = connection.fromConnectionPointIdentifier
+            let toConnectionPointIdentifier = connection.toConnectionPointIdentifier
+            
+            drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
         }
     }
 }
 
-function drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier) {
+function drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier) {
 
-    // TODO: add comment explaining why To and From are "mixed" here per line:
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromCenterPosition, toCenterPosition)
-    let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromContainer, toCenterPosition, worldDistanceBetweenFromAndToCenters)
-    let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toContainer, fromCenterPosition, worldDistanceBetweenFromAndToCenters)
+    
+    let fromContainerBorderPoint = null
+    if (fromConnectionPointIdentifier != null && fromContainer.worldConnectionPoints.hasOwnProperty(fromConnectionPointIdentifier)) {
+        fromContainerBorderPoint = fromContainer.worldConnectionPoints[fromConnectionPointIdentifier]
+    }
+    else {
+        // TODO: add comment explaining why To and From are "mixed" here per line:
+        fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromContainer, toCenterPosition, worldDistanceBetweenFromAndToCenters)
+    }
+    let toContainerBorderPoint = null
+    if (toConnectionPointIdentifier != null && toContainer.worldConnectionPoints.hasOwnProperty(toConnectionPointIdentifier)) {
+        toContainerBorderPoint = toContainer.worldConnectionPoints[toConnectionPointIdentifier]
+    }
+    else {
+        // TODO: add comment explaining why To and From are "mixed" here per line:
+        toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toContainer, fromCenterPosition, worldDistanceBetweenFromAndToCenters)
+    }
 
     let averageContainersWorldScale = (fromContainer.worldScale + toContainer.worldScale) / 2
 
