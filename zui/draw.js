@@ -590,21 +590,14 @@ function drawConnectionGroups() {
 let alreadyLogged = false
 function drawConnectionGroup(connectionGroup) {
 
-    let fromFirstVisibleContainer = getContainerByIdentifier(connectionGroup.fromFirstVisibleContainerIdentifier)
-    let toFirstVisibleContainer = getContainerByIdentifier(connectionGroup.toFirstVisibleContainerIdentifier)
+    let fromContainer = getContainerByIdentifier(connectionGroup.fromFirstVisibleContainerIdentifier)
+    let toContainer = getContainerByIdentifier(connectionGroup.toFirstVisibleContainerIdentifier)
     
-    drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionGroup);
-    
-}
-
-
-function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, connectionGroup) {
-
     // TODO: do something (color wise) with the connectionType?
     let connectionType = connectionGroup.connectionType
     let nrOfConnections = connectionGroup.nrOfConnections
-    let averageFromPosition = connectionGroup.averageFromPosition
-    let averageToPosition = connectionGroup.averageToPosition
+    let fromCenterPosition = connectionGroup.averageFromPosition
+    let toCenterPosition = connectionGroup.averageToPosition
     let stroke = connectionGroup.stroke
     
     let singleConnectionIdentifier = null
@@ -613,18 +606,23 @@ function drawConnection(fromFirstVisibleContainer, toFirstVisibleContainer, conn
         singleConnectionIdentifier = singleConnection.identifier
     }
     
+    drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier)   
+}
+
+function drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier) {
+
     // TODO: add comment explaining why To and From are "mixed" here per line:
-    let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(averageFromPosition, averageToPosition)
-    let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromFirstVisibleContainer, averageToPosition, worldDistanceBetweenFromAndToCenters)
-    let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toFirstVisibleContainer, averageFromPosition, worldDistanceBetweenFromAndToCenters)
+    let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromCenterPosition, toCenterPosition)
+    let fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromContainer, toCenterPosition, worldDistanceBetweenFromAndToCenters)
+    let toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toContainer, fromCenterPosition, worldDistanceBetweenFromAndToCenters)
 
     // TODO: check if the rectangle (formed by the two border-points) is on screen, if not don't draw the connection
 
-    // let angleBetweenPoints = getAngleBetweenPoints(averageFromPosition, averageToPosition)
-    // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromFirstVisibleContainer, false, fromContainerCenterPosition)
-    // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toFirstVisibleContainer, true, toContainerCenterPosition)
+    // let angleBetweenPoints = getAngleBetweenPoints(fromCenterPosition, toCenterPosition)
+    // let fromContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, fromContainer, false, fromContainerCenterPosition)
+    // let toContainerBorderPoint = getContainerBorderPointFromAngleAndPoint(angleBetweenPoints, toContainer, true, toContainerCenterPosition)
 
-    let averageContainersWorldScale = (fromFirstVisibleContainer.worldScale + toFirstVisibleContainer.worldScale) / 2
+    let averageContainersWorldScale = (fromContainer.worldScale + toContainer.worldScale) / 2
 
     let worldDistanceBetweenFromAndTo = distanceBetweenTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
     let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
