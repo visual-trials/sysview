@@ -643,6 +643,8 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
 
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromCenterPosition, toCenterPosition)
     
+    // From Point
+    
     let fromContainerBorderPoint = null
     if (fromConnectionPointIdentifier != null && fromContainer.worldConnectionPoints.hasOwnProperty(fromConnectionPointIdentifier)) {
         fromContainerBorderPoint = fromContainer.worldConnectionPoints[fromConnectionPointIdentifier]
@@ -651,6 +653,10 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
         // TODO: add comment explaining why To and From are "mixed" here per line:
         fromContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(fromContainer, toCenterPosition, worldDistanceBetweenFromAndToCenters)
     }
+    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
+    
+    // To Point
+    
     let toContainerBorderPoint = null
     if (toConnectionPointIdentifier != null && toContainer.worldConnectionPoints.hasOwnProperty(toConnectionPointIdentifier)) {
         toContainerBorderPoint = toContainer.worldConnectionPoints[toConnectionPointIdentifier]
@@ -659,11 +665,12 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
         // TODO: add comment explaining why To and From are "mixed" here per line:
         toContainerBorderPoint = getClosestConnectionPointToThisPointUsingDistance(toContainer, fromCenterPosition, worldDistanceBetweenFromAndToCenters)
     }
+    // The tip of the arrow-head (where you connect to the toContainer)
+    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
 
     let averageContainersWorldScale = (fromContainer.worldScale + toContainer.worldScale) / 2
-
-    let worldDistanceBetweenFromAndTo = distanceBetweenTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
-    let screenFromContainerPosition = fromWorldPositionToScreenPosition(fromContainerBorderPoint.position)
+    
+    // Arrowhead
     
     // The point where the line attaches to the arrow-head
     let arrowWorldSize = 25 * nrOfConnections * averageContainersWorldScale // TODO: we apply the viewScale on a world size which is technically not correct I guess
@@ -679,17 +686,19 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
     let screenToArrowLeftPosition = fromWorldPositionToScreenPosition(toArrowLeftPosition)
     let screenToArrowRightPosition = fromWorldPositionToScreenPosition(toArrowRightPosition)
     
-    // The tip of the arrow-head (where you connect to the toContainer)
-    let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
+    // Bezier curve
     
     // The helper-points to make the bezier curve
     // TODO: techically we need the to-point here to be the attachment point of the arrow-head (so instead of using toContainerBorderPoint.position we use toArrowAttachPosition)
+    let worldDistanceBetweenFromAndTo = distanceBetweenTwoPoints(fromContainerBorderPoint.position, toContainerBorderPoint.position)
     let bendingDistance = worldDistanceBetweenFromAndTo / 2
     let fromBendPosition = getPositionFromAnglePointAndDistance(fromContainerBorderPoint.position, fromContainerBorderPoint.rightAngle, bendingDistance)
     let toBendPosition = getPositionFromAnglePointAndDistance(toArrowAttachPosition, toContainerBorderPoint.rightAngle, bendingDistance)
     let screenFromBendPosition = fromWorldPositionToScreenPosition(fromBendPosition)
     let screenToBendPosition = fromWorldPositionToScreenPosition(toBendPosition)
 
+    // Rectangle around connection
+    
     let screenRectangleAroundConnection = getRectangleAroundPoints([screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition])
     let screenRectangle = { 
         position : {
@@ -706,8 +715,12 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
         return
     }
     
+    // Middle point
+    
     let percentageOfCurve = 0.5 // FIXME: hardcoded!
     let screenMiddlePoint = getPointOnBezierCurve(percentageOfCurve, screenFromContainerPosition, screenFromBendPosition, screenToBendPosition, screenToContainerPosition)
+    
+    // Mouse hover over connection
 
     if (singleConnectionIdentifier != null) {
         let screenPointToFindClosestDistanceTo = ZUI.mouseState.position
@@ -726,6 +739,7 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
         }
     }
 
+    // Drawing
         
     {
         /*
