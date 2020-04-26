@@ -742,19 +742,6 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
     // Drawing
         
     {
-        /*
-        let size = 5
-        ZUI.ctx.fillStyle = "#FF00FF"
-        ZUI.ctx.fillRect(screenPointToFindClosestDistanceTo.x - size/2, screenPointToFindClosestDistanceTo.y - size/2, size, size)
-        ZUI.ctx.fillStyle = "#FF0000"
-        ZUI.ctx.fillRect(closestPoint.x - size/2, closestPoint.y - size/2, size, size)
-        
-        ZUI.ctx.fillStyle = "#FFFF00"
-        ZUI.ctx.fillRect(screenToContainerPosition.x - size/2, screenToContainerPosition.y - size/2, size, size)
-        ZUI.ctx.fillStyle = "#00FF00"
-        ZUI.ctx.fillRect(screenToBendPosition.x - size/2, screenToBendPosition.y - size/2, size, size)
-        */
-        
         // Draw line 
         ZUI.ctx.lineWidth = 4 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
         ZUI.ctx.strokeStyle = rgba(stroke)
@@ -767,6 +754,8 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlySelectedConnectionIdentifier) {
             ZUI.ctx.strokeStyle = rgba({ r:255, g:0, b:0, a:1 })
         }
+        
+        // Draw arrow head
         
         // TODO: we might want a different color for the arrow-head?
         ZUI.ctx.fillStyle = ZUI.ctx.strokeStyle
@@ -784,6 +773,7 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
                           screenToArrowAttachPosition.x, screenToArrowAttachPosition.y)
         ZUI.ctx.stroke()        
         
+        // Draw label
         
 /*
         if (ZUI.interaction.currentlySelectedMode === 'connect') {
@@ -806,23 +796,23 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
             
         }
 */        
-        
-        if (ZUI.interaction.currentlySelectedConnection != null) {
-            // TODO: how do we select grouped connections? And single connections when they are grouped?
-            /*
-            if (connection.identifier === ZUI.interaction.currentlySelectedConnection.identifier) {
-                
-                ZUI.ctx.lineWidth = 4 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
-                ZUI.ctx.strokeStyle = "#FF0000"
-                
-                ZUI.ctx.beginPath()
-                ZUI.ctx.moveTo(screenFromContainerPosition.x, screenFromContainerPosition.y)
-                ZUI.ctx.lineTo(screenToContainerPosition.x, screenToContainerPosition.y)
-                ZUI.ctx.stroke()
-            }
-            */
 
-        }
+
+        // Debug 
+        
+        /*
+        let size = 5
+        ZUI.ctx.fillStyle = "#FF00FF"
+        ZUI.ctx.fillRect(screenPointToFindClosestDistanceTo.x - size/2, screenPointToFindClosestDistanceTo.y - size/2, size, size)
+        ZUI.ctx.fillStyle = "#FF0000"
+        ZUI.ctx.fillRect(closestPoint.x - size/2, closestPoint.y - size/2, size, size)
+        
+        ZUI.ctx.fillStyle = "#FFFF00"
+        ZUI.ctx.fillRect(screenToContainerPosition.x - size/2, screenToContainerPosition.y - size/2, size, size)
+        ZUI.ctx.fillStyle = "#00FF00"
+        ZUI.ctx.fillRect(screenToBendPosition.x - size/2, screenToBendPosition.y - size/2, size, size)
+        */
+        
     }
 
 }
