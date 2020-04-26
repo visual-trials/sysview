@@ -155,6 +155,16 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
         linkChanges.push(nlcDataChange)
     }
 
+    // FIXME: you probably don't need the stringify right?
+    if (JSON.stringify(changedLink.type) !== JSON.stringify(originalLink.type) ) {
+        let nlcDataChange = {
+            "method" : "update",
+            "path" : [ "links", originalLink.id, "type" ],
+            "data" : changedLink.type
+        }
+        linkChanges.push(nlcDataChange)
+    }
+
     if (linkChanges.length > 0) {
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(linkChanges)
         
