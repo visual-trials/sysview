@@ -426,10 +426,11 @@ function drawNewConnection () {
         let stroke = "#0000FF" // FIXME: hardcoded
         
         let connectionType = newConnectionBeingAdded.type
+        let connectionName = newConnectionBeingAdded.name
         
         let singleConnectionIdentifier = ZUI.interaction.newConnectionBeingAddedIdentifier
         
-        drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
+        drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
     }
 }
 
@@ -589,6 +590,7 @@ function drawConnectionGroup(connectionGroup) {
     
     // TODO: do something (color wise) with the connectionType?
     let connectionType = connectionGroup.connectionType
+    let connectionName = '' // TODO: fill this with something?
     let nrOfConnections = connectionGroup.nrOfConnections
     let fromCenterPosition = connectionGroup.averageFromPosition
     let toCenterPosition = connectionGroup.averageToPosition
@@ -600,7 +602,7 @@ function drawConnectionGroup(connectionGroup) {
         singleConnectionIdentifier = singleConnection.identifier
     }
     
-    drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
+    drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
 }
 
 function drawConnections() {
@@ -634,7 +636,9 @@ function drawConnections() {
             let fromConnectionPointIdentifier = connection.fromConnectionPointIdentifier
             let toConnectionPointIdentifier = connection.toConnectionPointIdentifier
             
-            drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
+            let connectionName = connection.name
+            
+            drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
         }
     }
 }
@@ -653,7 +657,7 @@ function pathRoundRect (x, y, width, height, radius) {
     ZUI.ctx.closePath()
 }
 
-function drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier) {
+function drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier) {
 
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromCenterPosition, toCenterPosition)
     
@@ -799,9 +803,9 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
             let borderWidth = 1
             let borderRadius = 4
             
+            let textToDraw = connectionName
+            
             // Determine positions and sizes (of text and textBox)
-// FIXME            
-            let textToDraw = 'Datatype'
             
             let textSize = {}
             let fontSize = 14
