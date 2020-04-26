@@ -796,7 +796,10 @@ function drawConnection(fromContainer, toContainer, connectionType, connectionNa
         
         // Draw label
         
-        if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier) {
+        if (singleConnectionIdentifier != null && 
+                (singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier || 
+                 singleConnectionIdentifier === ZUI.interaction.currentlySelectedConnectionIdentifier)
+           ) {
             let backgroundColor = { r:250, g:250, b:250, a:0.8 }
             let borderColor = { r:100, g:100, b:100, a:0.8 }
             let textColor = { r:50, g:50, b:50, a:1 }
