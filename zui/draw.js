@@ -639,6 +639,20 @@ function drawConnections() {
     }
 }
 
+// TODO: put this somewhere else
+function pathRoundRect (x, y, width, height, radius) {
+    if (width < 2 * radius) radius = width / 2
+    if (height < 2 * radius) radius = height / 2
+    
+    ZUI.ctx.beginPath()
+    ZUI.ctx.moveTo(x + radius, y)
+    ZUI.ctx.arcTo(x + width, y,          x + width, y + height, radius)
+    ZUI.ctx.arcTo(x + width, y + height, x,         y + height, radius)
+    ZUI.ctx.arcTo(x,         y + height, x,         y,          radius)
+    ZUI.ctx.arcTo(x,         y,     x + width,      y,          radius)
+    ZUI.ctx.closePath()
+}
+
 function drawConnection(fromContainer, toContainer, connectionType, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier) {
 
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromCenterPosition, toCenterPosition)
@@ -670,7 +684,7 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
 
     let averageContainersWorldScale = (fromContainer.worldScale + toContainer.worldScale) / 2
     
-    // Arrowhead
+    // Arrow head
     
     // The point where the line attaches to the arrow-head
     let arrowWorldSize = 25 * nrOfConnections * averageContainersWorldScale // TODO: we apply the viewScale on a world size which is technically not correct I guess
@@ -742,18 +756,21 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
     // Drawing
         
     {
-        // Draw line 
-        ZUI.ctx.lineWidth = 4 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
-        ZUI.ctx.strokeStyle = rgba(stroke)
+        // TODO: stroke is already set here! (look at parameters of drawConnection)
+        let lineWidth = 4 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
         
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier) {
             ZUI.ctx.lineWidth = 6 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
-            ZUI.ctx.strokeStyle = "#FFAA00" // rgba({ r:250, g:150, b:150, a:0.8 })
+            stroke = { r:255, g:170, b:0, a:1 }
         }
         
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlySelectedConnectionIdentifier) {
-            ZUI.ctx.strokeStyle = rgba({ r:255, g:0, b:0, a:1 })
+            stroke = { r:255, g:0, b:0, a:1 }
         }
+        
+        // Draw line 
+        ZUI.ctx.lineWidth = lineWidth
+        ZUI.ctx.strokeStyle = rgba(stroke)
         
         // Draw arrow head
         
@@ -775,28 +792,62 @@ function drawConnection(fromContainer, toContainer, connectionType, nrOfConnecti
         
         // Draw label
         
-/*
-        if (ZUI.interaction.currentlySelectedMode === 'connect') {
-            let fill = { r:250, g:200, b:200, a:0.5 }
-            ZUI.ctx.fillStyle = rgba(fill)
+        if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier) {
+            let backgroundColor = { r:250, g:250, b:250, a:0.8 }
+            let borderColor = { r:100, g:100, b:100, a:0.8 }
+            let textColor = { r:50, g:50, b:50, a:1 }
+            let borderWidth = 1
+            let borderRadius = 4
             
-            ZUI.ctx.beginPath()
-            ZUI.ctx.arc(screenMiddlePoint.x, screenMiddlePoint.y, 10, 0, 2 * Math.PI)
-            if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier) {
-                let stroke = { r:250, g:150, b:150, a:0.8 }
-                fill = { r:250, g:200, b:0, a:0.8 }
-                ZUI.ctx.strokeStyle = rgba(stroke)
-                ZUI.ctx.fillStyle = rgba(fill)
-                ZUI.ctx.stroke()
-                ZUI.ctx.fill()
+            // Determine positions and sizes (of text and textBox)
+// FIXME            
+            let textToDraw = 'Datatype'
+            
+            let textSize = {}
+            let fontSize = 14
+            let heightBottomWhiteArea = fontSize / 6
+            let textHeightToFontSizeRatioArial = 1.1499023
+            
+            let horizontalPadding = 12
+            let verticalPadding = 6
+            
+            textSize.width = ZUI.ctx.measureText(textToDraw).width
+            textSize.height = textHeightToFontSizeRatioArial * fontSize
+            
+            let textBox = {}
+            textBox.size = {
+                width: textSize.width + horizontalPadding,
+                height: textSize.height + verticalPadding
             }
-            else {
-                ZUI.ctx.fill()
+            // TODO: maybe put the textBox above the line if the line is horizontal, otherwise on top of it?
+            textBox.position = {
+                x: screenMiddlePoint.x - textBox.size.width / 2,
+                y: screenMiddlePoint.y - textBox.size.height - 2 // TODO: where should we put the textBox vertically?
             }
             
-        }
-*/        
+            let textPosition = {}
+            textPosition.x = textBox.position.x + (textBox.size.width / 2) - (textSize.width / 2)
+            textPosition.y = textBox.position.y + (textBox.size.height / 2) - (textSize.height / 2) + heightBottomWhiteArea
 
+            // Draw text box
+            
+            ZUI.ctx.lineWidth = borderWidth
+            ZUI.ctx.strokeStyle = rgba(borderColor)
+            ZUI.ctx.fillStyle = rgba(backgroundColor)
+            
+            pathRoundRect (textBox.position.x, textBox.position.y, textBox.size.width, textBox.size.height, borderRadius)
+            ZUI.ctx.fill()
+            ZUI.ctx.stroke()
+        
+            // Draw text
+            
+            ZUI.ctx.font = fontSize + "px Arial"
+            ZUI.ctx.textBaseline = "top"
+            ZUI.ctx.fillStyle = rgba(textColor)
+            ZUI.ctx.fillText(textToDraw, textPosition.x, textPosition.y)
+
+        }
+        
 
         // Debug 
         
