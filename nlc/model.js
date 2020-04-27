@@ -641,16 +641,27 @@ function getColorsForNode (node, selectedLegendaId) {
     let selectedLegenda = NLC.nodesAndLinksData.legendasById[selectedLegendaId]
     let colorMapping = selectedLegenda.colorMapping
     
-    let colorNameAndLighten = null
+    let colorsWithLight = null
     if (selectedLegenda.field === 'type') {
         if (colorMapping.hasOwnProperty(node.type)) {
-            colorNameAndLighten = colorMapping[node.type]
+            colorsWithLight = colorMapping[node.type]
         }
     }
     else if (selectedLegenda.field === 'dataType') {
-        if (colorMapping.hasOwnProperty(node.commonData.dataType)) {
-            colorNameAndLighten = colorMapping[node.commonData.dataType]
+        for (let colorMappingIndex = 0; colorMappingIndex < selectedLegenda.colorMappings.length; colorMappingIndex++) {
+            let colorMap = selectedLegenda.colorMappings[colorMappingIndex]
+            let shouldMatchWith = colorMap.shouldMatchWith
+            // FIXME: workaround!
+            if (node.commonData.name.toUpperCase().includes(shouldMatchWith.toUpperCase())) {
+                colorsWithLight = colorMap
+                break
+            }
         }
+        
+        if (colorsWithLight == null && selectedLegenda.defaultColor) {
+            colorsWithLight = selectedLegenda.defaultColor
+        }
+        
     }
     else if (selectedLegenda.field === 'T_vs_P') {
         let colorKey = null
@@ -673,14 +684,14 @@ function getColorsForNode (node, selectedLegendaId) {
         }
             
         if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {
-            colorNameAndLighten = colorMapping[colorKey]
+            colorsWithLight = colorMapping[colorKey]
         }
     }
     
-    if (colorNameAndLighten != null) {
+    if (colorsWithLight != null) {
         let colors = {}
-        colors.stroke = getColorByColorNameAndLighten(colorNameAndLighten.stroke)
-        colors.fill = getColorByColorNameAndLighten(colorNameAndLighten.fill)
+        colors.stroke = getColorByColorNameAndLighten(colorsWithLight.stroke)
+        colors.fill = getColorByColorNameAndLighten(colorsWithLight.fill)
         return colors
     }
     else {
