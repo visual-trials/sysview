@@ -632,7 +632,7 @@ function linkIsInDiagram(link, diagramIdentifier) {
 
 // FIXME: make this more generic!
 
-function getColorsForNode (node, selectedLegendaId) {
+function getColorNamesWithLightForNode (node, selectedLegendaId) {
     
     if (selectedLegendaId == null) {
         return null
@@ -641,10 +641,10 @@ function getColorsForNode (node, selectedLegendaId) {
     let selectedLegenda = NLC.nodesAndLinksData.legendasById[selectedLegendaId]
     let colorMapping = selectedLegenda.colorMapping
     
-    let colorsWithLight = null
+    let colorNamesWithLight = null
     if (selectedLegenda.field === 'type') {
         if (colorMapping.hasOwnProperty(node.type)) {
-            colorsWithLight = colorMapping[node.type]
+            colorNamesWithLight = colorMapping[node.type]
         }
     }
     else if (selectedLegenda.field === 'dataType') {
@@ -653,13 +653,13 @@ function getColorsForNode (node, selectedLegendaId) {
             let shouldMatchWith = colorMap.shouldMatchWith
             // FIXME: workaround!
             if (node.commonData.name.toUpperCase().includes(shouldMatchWith.toUpperCase())) {
-                colorsWithLight = colorMap
+                colorNamesWithLight = colorMap
                 break
             }
         }
         
-        if (colorsWithLight == null && selectedLegenda.defaultColor) {
-            colorsWithLight = selectedLegenda.defaultColor
+        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {
+            colorNamesWithLight = selectedLegenda.defaultColor
         }
         
     }
@@ -684,19 +684,10 @@ function getColorsForNode (node, selectedLegendaId) {
         }
             
         if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {
-            colorsWithLight = colorMapping[colorKey]
+            colorNamesWithLight = colorMapping[colorKey]
         }
     }
-    
-    if (colorsWithLight != null) {
-        let colors = {}
-        colors.stroke = getColorByColorNameAndLighten(colorsWithLight.stroke)
-        colors.fill = getColorByColorNameAndLighten(colorsWithLight.fill)
-        return colors
-    }
-    else {
-        return null
-    }
+    return colorNamesWithLight
 }
 
 // FIXME: THIS WONT WORK IN IE11!!!
@@ -756,11 +747,12 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             localSize: size
         }
         
-        // FIXME: we are reaching back into 
-        let colorsForNode = getColorsForNode(node, selectedLegendaId)
-        if (colorsForNode != null) {
-            containerInfo.stroke = colorsForNode.stroke
-            containerInfo.fill = colorsForNode.fill
+        let colorsForNode = null
+        let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId)
+        if (colorNamesWithLight != null) {
+            let colors = {}
+            containerInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)
+            containerInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)
         }
         
         createContainer(containerInfo)
