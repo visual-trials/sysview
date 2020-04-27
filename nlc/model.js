@@ -628,8 +628,71 @@ function linkIsInDiagram(link, diagramIdentifier) {
     return linkIsInDiagram
 }
 
-function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
+
+
+// FIXME: make this more generic!
+
+function getColorsForNode (node, selectedLegendaId) {
     
+    if (selectedLegendaId == null) {
+        return null
+    }
+    
+    let selectedLegenda = NLC.nodesAndLinksData.legendasById[selectedLegendaId]
+    let colorMapping = selectedLegenda.colorMapping
+    
+    let colorNameAndLighten = null
+    if (selectedLegenda.field === 'type') {
+        if (colorMapping.hasOwnProperty(node.type)) {
+            colorNameAndLighten = colorMapping[node.type]
+        }
+    }
+    else if (selectedLegenda.field === 'dataType') {
+        if (colorMapping.hasOwnProperty(node.commonData.dataType)) {
+            colorNameAndLighten = colorMapping[node.commonData.dataType]
+        }
+    }
+    else if (selectedLegenda.field === 'T_vs_P') {
+        let colorKey = null
+        if (node.environmentVersions.P == null && node.environmentVersions.T != null) {
+            // We have a node in T, but not in P
+            colorKey = 'in_T_but_not_in_P'
+        }
+        else if (node.environmentVersions.P != null && node.environmentVersions.T == null) {
+            colorKey = 'in_P_but_not_in_T'
+        }
+        else if (node.environmentVersions.P == null && node.environmentVersions.T == null) {
+            // not in T and not in P, we do nothing (= default color)
+        }
+        else if (node.environmentVersions.P === node.environmentVersions.T) {
+            colorKey = 'same_in_T_and_P'
+        }
+        else {
+            // TODO: we could still check if the version in P is higher or lower than in T
+            colorKey = 'different_in_T_and_P'
+        }
+            
+        if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {
+            colorNameAndLighten = colorMapping[colorKey]
+        }
+    }
+    
+    if (colorNameAndLighten != null) {
+        let colors = {}
+        colors.stroke = getColorByColorNameAndLighten(colorNameAndLighten.stroke)
+        colors.fill = getColorByColorNameAndLighten(colorNameAndLighten.fill)
+        return colors
+    }
+    else {
+        return null
+    }
+}
+
+// FIXME: THIS WONT WORK IN IE11!!!
+// FIXME: THIS WONT WORK IN IE11!!!
+// FIXME: THIS WONT WORK IN IE11!!!
+function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedLegendaId = null) {
+
     // Removing all connections and containers
     initContainersAndConnections()
 
@@ -681,7 +744,14 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
             localScale: 1,
             localSize: size
         }
-
+        
+        // FIXME: we are reaching back into 
+        let colorsForNode = getColorsForNode(node, selectedLegendaId)
+        if (colorsForNode != null) {
+            containerInfo.stroke = colorsForNode.stroke
+            containerInfo.fill = colorsForNode.fill
+        }
+        
         createContainer(containerInfo)
         nodeIdsAddedToContainers[node.id] = true
     }
@@ -739,6 +809,13 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier) {
             }
         }
         
+        if (link.stroke != null) {
+            connectionInfo.stroke = link.stroke
+        }
+        if (link.fill != null) {
+            connectionInfo.fill = link.fill
+        }
+
         createConnection(connectionInfo)
     }
     
