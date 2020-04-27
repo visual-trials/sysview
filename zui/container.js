@@ -111,6 +111,13 @@ function createContainer(containerData) {
         }
     }
     
+    if (containerData.fill != null) {
+        fill = containerData.fill
+    }
+    if (containerData.stroke != null) {
+        stroke = containerData.stroke
+    }
+    
     let newContainer = {
         identifier: containerIdentifier,
         name: containerData.name,
@@ -300,6 +307,13 @@ function createConnection(connectionData) {
         else {
             console.log("ERROR: unknown connection data type: " + connectionData.dataType)
         }
+    }
+    
+    if (connectionData.fill != null) {
+        fill = connectionData.fill
+    }
+    if (connectionData.stroke != null) {
+        stroke = connectionData.stroke
     }
     
     let newConnection = {
