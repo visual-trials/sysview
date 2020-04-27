@@ -690,6 +690,66 @@ function getColorNamesWithLightForNode (node, selectedLegendaId) {
     return colorNamesWithLight
 }
 
+function getColorNamesWithLightForLink (link, selectedLegendaId) {
+    
+    if (selectedLegendaId == null) {
+        return null
+    }
+    
+    let selectedLegenda = NLC.nodesAndLinksData.legendasById[selectedLegendaId]
+    let colorMapping = selectedLegenda.colorMapping
+    
+    let colorNamesWithLight = null
+    if (selectedLegenda.field === 'type') {
+        if (colorMapping.hasOwnProperty(link.type)) {
+            colorNamesWithLight = colorMapping[link.type]
+        }
+    }
+    else if (selectedLegenda.field === 'dataType') {
+        for (let colorMappingIndex = 0; colorMappingIndex < selectedLegenda.colorMappings.length; colorMappingIndex++) {
+            let colorMap = selectedLegenda.colorMappings[colorMappingIndex]
+            let shouldMatchWith = colorMap.shouldMatchWith
+            // FIXME: workaround!
+            if (link.commonData.name.toUpperCase().includes(shouldMatchWith.toUpperCase())) {
+                colorNamesWithLight = colorMap
+                break
+            }
+        }
+        
+        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {
+            colorNamesWithLight = selectedLegenda.defaultColor
+        }
+        
+    }
+    else if (selectedLegenda.field === 'T_vs_P') {
+/* FIXME: as long as we don't have versions for links this wont work!
+        let colorKey = null
+        if (link.environmentVersions.P == null && link.environmentVersions.T != null) {
+            // We have a link in T, but not in P
+            colorKey = 'in_T_but_not_in_P'
+        }
+        else if (link.environmentVersions.P != null && link.environmentVersions.T == null) {
+            colorKey = 'in_P_but_not_in_T'
+        }
+        else if (link.environmentVersions.P == null && link.environmentVersions.T == null) {
+            // not in T and not in P, we do nothing (= default color)
+        }
+        else if (link.environmentVersions.P === link.environmentVersions.T) {
+            colorKey = 'same_in_T_and_P'
+        }
+        else {
+            // TODO: we could still check if the version in P is higher or lower than in T
+            colorKey = 'different_in_T_and_P'
+        }
+            
+        if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {
+            colorNamesWithLight = colorMapping[colorKey]
+        }
+        */
+    }
+    return colorNamesWithLight
+}
+
 // FIXME: THIS WONT WORK IN IE11!!!
 // FIXME: THIS WONT WORK IN IE11!!!
 // FIXME: THIS WONT WORK IN IE11!!!
@@ -812,11 +872,12 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             }
         }
         
-        if (link.stroke != null) {
-            connectionInfo.stroke = link.stroke
-        }
-        if (link.fill != null) {
-            connectionInfo.fill = link.fill
+        let colorsForLink = null
+        let colorNamesWithLight = getColorNamesWithLightForLink(link, selectedLegendaId)
+        if (colorNamesWithLight != null) {
+            let colors = {}
+            connectionInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)
+            connectionInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)
         }
 
         createConnection(connectionInfo)
