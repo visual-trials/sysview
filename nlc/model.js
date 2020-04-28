@@ -750,6 +750,30 @@ function getColorNamesWithLightForLink (link, selectedLegendaId) {
     return colorNamesWithLight
 }
 
+function getNodeTypeByIdentifier(nodeTypeIdentifier) {
+    // FIXME: this is a kinda slow: we should use nodeTypesById
+    for (let nodeTypeId = 0; nodeTypeId < NLC.nodesAndLinksData.nodeTypes.length; nodeTypeId++) {
+        let nodeType = NLC.nodesAndLinksData.nodeTypes[nodeTypeId]
+        if (nodeType.identifier === nodeTypeIdentifier) {
+            // FIXME: this is a workaround: we return an array with one element, since we want to mis-use a v-for as an assigment
+            return nodeType
+        }
+    }
+    return null
+}
+
+function getLinkTypeByIdentifier(linkTypeIdentifier) {
+    // FIXME: this is a kinda slow: we should use linkTypesById
+    for (let linkTypeId = 0; linkTypeId < NLC.nodesAndLinksData.linkTypes.length; linkTypeId++) {
+        let linkType = NLC.nodesAndLinksData.linkTypes[linkTypeId]
+        if (linkType.identifier === linkTypeIdentifier) {
+            // FIXME: this is a workaround: we return an array with one element, since we want to mis-use a v-for as an assigment
+            return linkType
+        }
+    }
+    return null
+}
+
 // FIXME: THIS WONT WORK IN IE11!!!
 // FIXME: THIS WONT WORK IN IE11!!!
 // FIXME: THIS WONT WORK IN IE11!!!
@@ -769,12 +793,15 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             continue
         }
         
-        let nodeHasLevelOfDetailProperties = node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('lod')
-        let nodeIsInCurrentLevelOfDetail = nodeHasLevelOfDetailProperties && node.diagramSpecificVisualData[diagramIdentifier].lod[ZUI.levelOfDetail]
-        if (nodeHasLevelOfDetailProperties && !nodeIsInCurrentLevelOfDetail) {
-            // TODO: we sometimes want to show a node *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
-            // The node is not in the current levelOfDetail detail, so we are not going to show/add the node
-            continue
+        let nodeType = getNodeTypeByIdentifier(node.type)
+        if (nodeType != null) {
+            let nodeTypeHasLevelOfDetailProperties = nodeType.hasOwnProperty('lod')
+            let nodeTypeIsInCurrentLevelOfDetail = nodeTypeHasLevelOfDetailProperties && nodeType.lod[ZUI.levelOfDetail]
+            if (nodeTypeHasLevelOfDetailProperties && !nodeTypeIsInCurrentLevelOfDetail) {
+                // TODO: we sometimes want to show a node *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
+                // The node is not in the current levelOfDetail detail, so we are not going to show/add the node
+                continue
+            }
         }
         
         let position = { 
@@ -844,13 +871,17 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             // FIXME: continue
         }
         
-        // FIXME: only IF we have diagramInfo AND we have 'lod' do we check for levelOfDetail right now!
-        if (linkHasDiagramSpecificVisualData && link.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('lod')) { 
-            if (!link.diagramSpecificVisualData[diagramIdentifier].lod[ZUI.levelOfDetail]) {
+        let linkType = getLinkTypeByIdentifier(link.type)
+        if (linkType != null) {
+            
+            let linkTypeHasLevelOfDetailProperties = linkType.hasOwnProperty('lod')
+            let linkTypeIsInCurrentLevelOfDetail = linkTypeHasLevelOfDetailProperties && linkType.lod[ZUI.levelOfDetail]
+            if (linkTypeHasLevelOfDetailProperties && !linkTypeIsInCurrentLevelOfDetail) {
                 // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
-                // The link is not in the current levelOfDetail detail, so we are not going to show/add the node
+                // The link is not in the current levelOfDetail detail, so we are not going to show/add the link
                 continue
             }
+            
         }
 
         // link.dataType = sourceDataType
