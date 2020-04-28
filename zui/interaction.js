@@ -36,7 +36,7 @@ ZUI.interaction = {
     targetPanningViewOffset: null,
     targetPanningViewScale : null,
     timePanned : 0, // seconds
-    totalPanningTime : 0.5, // seconds
+    totalPanningTime : 0.8, // seconds
    
     currentlyHoveredMenuButton : null,
     currentlySelectedMode : 'view',
