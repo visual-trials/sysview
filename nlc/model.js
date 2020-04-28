@@ -793,6 +793,14 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             continue
         }
         
+        let localScale = 1
+        /*
+        // TODO: this is an intereting idea!
+        if (ZUI.levelOfDetail === 'medium') {
+            localScale = 2
+        }
+        */
+        
         let nodeType = getNodeTypeByIdentifier(node.type)
         if (nodeType != null) {
             let nodeTypeHasLevelOfDetailProperties = nodeType.hasOwnProperty('lod')
@@ -830,7 +838,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
                 x: position.x,
                 y: position.y
             },
-            localScale: 1,
+            localScale: localScale,
             localSize: size
         }
         
