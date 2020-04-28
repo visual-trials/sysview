@@ -621,9 +621,9 @@ function drawConnections() {
             let fromContainer = ZUI.containersAndConnections.containers[connection.fromContainerIdentifier]
             let toContainer = ZUI.containersAndConnections.containers[connection.toContainerIdentifier]
             
-            let connectionType = '_none_'
-            if (connection.dataType != null) {
-                connectionType = connection.dataType
+            let connectionType = null
+            if (connection.type != null) {
+                connectionType = connection.type
             }
             let nrOfConnections = 1
             
@@ -687,6 +687,11 @@ function drawConnection(fromContainer, toContainer, connectionType, connectionNa
     let screenToContainerPosition = fromWorldPositionToScreenPosition(toContainerBorderPoint.position)
 
     let averageContainersWorldScale = (fromContainer.worldScale + toContainer.worldScale) / 2
+    
+// FIXME: dirty HACK!
+if (connectionType === 'common') {
+    averageContainersWorldScale = averageContainersWorldScale * 2
+}
     
     // Arrow head
     
