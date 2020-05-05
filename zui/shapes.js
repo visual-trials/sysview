@@ -652,6 +652,106 @@ ZUI.containerShapes = {
             { toPoint : 'left-middle', controlPoint1: '~ctrl-bottom-half-left', controlPoint2: '~ctrl-left-half-bottom', type : 'bezierCurve' },
         ]
     },
+    
+    'edgedRectangle' : {
+        'points' : {
+            'left-top-r' : {
+                positioning : 'absolute',
+                fromPoint : 'left-top',
+                offset : { x: 20, y: 0 },
+                isConnectionPoint : false,
+            },
+            'left-top-b' : {
+                positioning : 'absolute',
+                fromPoint : 'left-top',
+                offset : { x: 0, y: 20 },
+                isConnectionPoint : false,
+            },
+            'right-top-l' : {
+                positioning : 'absolute',
+                fromPoint : 'right-top',
+                offset : { x: -20, y: 0 },
+                isConnectionPoint : false,
+            },
+            'right-top-b' : {
+                positioning : 'absolute',
+                fromPoint : 'right-top',
+                offset : { x: 0, y: 20 },
+                isConnectionPoint : false,
+            },
+            'right-bottom-t' : {
+                positioning : 'absolute',
+                fromPoint : 'right-bottom',
+                offset : { x: 0, y: -20 },
+                isConnectionPoint : false,
+            },
+            'right-bottom-l' : {
+                positioning : 'absolute',
+                fromPoint : 'right-bottom',
+                offset : { x: -20, y: 0 },
+                isConnectionPoint : false,
+            },
+            'left-bottom-r' : {
+                positioning : 'absolute',
+                fromPoint : 'left-bottom',
+                offset : { x: 20, y: 0 },
+                isConnectionPoint : false,
+            },
+            'left-bottom-t' : {
+                positioning : 'absolute',
+                fromPoint : 'left-bottom',
+                offset : { x: 0, y: -20 },
+                isConnectionPoint : false,
+            },
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-top-r', type : 'move' },
+            { toPoint : 'right-top-l', type : 'line' },
+            { toPoint : 'right-top-b', type : 'line' },
+            { toPoint : 'right-bottom-t', type : 'line' },
+            { toPoint : 'right-bottom-l', type : 'line' },
+            { toPoint : 'left-bottom-r', type : 'line' },
+            { toPoint : 'left-bottom-t', type : 'line' },
+            { toPoint : 'left-top-b', type : 'line' },
+            { toPoint : 'left-top-r', type : 'line' },
+        ]
+    },
+    
+    
+    
     'roundedRectangleManyConnections' : {
         'points' : {
             'left-top-r' : {
