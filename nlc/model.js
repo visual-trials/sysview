@@ -530,7 +530,7 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
     
     // Create the link locally
     
-    let newNode = {
+    let newLink = {
         "id" : null,
         "type" : linkTypeIdentifier,
         "fromNodeId" : fromNodeId,
@@ -552,7 +552,7 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
         }
     }
     
-    return newNode
+    return newLink
     
 }
 
