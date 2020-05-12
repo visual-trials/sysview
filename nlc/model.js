@@ -813,16 +813,16 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         }
         
         let position = { 
-            x: 100, // FIXME: use a default position? Or determine where there is room?? Or set to null?
-            y: 100  // FIXME: use a default position? Or determine where there is room?? Or set to null?
+            x: 96, // FIXME: use a default position? Or determine where there is room?? Or set to null?
+            y: 96  // FIXME: use a default position? Or determine where there is room?? Or set to null?
         }
         if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("position")) {
             position = node.diagramSpecificVisualData[diagramIdentifier].position
         }
         
         let size = { 
-            width: 100, // FIXME: change to width of text!
-            height: 100 // FIXME: get from visualInfo or part of shape?
+            width: 96, // FIXME: change to width of text!
+            height: 96 // FIXME: get from visualInfo or part of shape?
         }
         if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("size")) {
             size = node.diagramSpecificVisualData[diagramIdentifier].size
