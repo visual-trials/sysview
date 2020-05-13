@@ -692,8 +692,8 @@ function doChangeConnectionPointSelectedConnectionByKeyboard() {
 
 function doChangeFontSizeSelectedContainersByKeyboard() {
     
-    // If "[" or "]" is pressed, we scale down or up all selected containers
-    if (hasKeyGoneDown('RIGHT')) {
+    // If "9" or "0" is pressed, we scale down or up the font size of all selected containers
+    if (hasKeyGoneDown('0')) {
         for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
             let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)
@@ -705,7 +705,7 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
             storeContainerLocalFontSize(selectedContainer.identifier, selectedContainer.localFontSize)
         }
     }
-    if (hasKeyGoneDown('LEFT')) {
+    if (hasKeyGoneDown('9')) {
         for (let selectedContainerIdentifierIndex = 0;  selectedContainerIdentifierIndex < ZUI.interaction.currentlySelectedContainerIdentifiers.length; selectedContainerIdentifierIndex++) {
             let selectedContainerIdentifier = ZUI.interaction.currentlySelectedContainerIdentifiers[selectedContainerIdentifierIndex]
             let selectedContainer = getContainerByIdentifier(selectedContainerIdentifier)

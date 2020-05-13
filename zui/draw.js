@@ -1108,6 +1108,10 @@ function drawContainer(container, alpha, textAlpha) {
     ZUI.ctx.restore()
     
     let textColor = { r:0, g:0, b:0, a:1 * textAlpha }
+// FIXME: do this more properly (also see above in this function)
+if (container.stroke) {
+    textColor = darken(container.stroke, 0.4)
+}
     {
         // Draw text
         let textToDraw = container.name ? container.name : ''

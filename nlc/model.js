@@ -181,6 +181,35 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
     }
 }
 
+function storeNodeLocalFontSizeInDiagram(nodeId, diagramIdentifier, localFontSize) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    if (nodesById.hasOwnProperty(nodeId)) {
+        let node = nodesById[nodeId]
+        
+        // TODO: check if key exists instead of checking for the value to be "true"
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {
+            
+            node.diagramSpecificVisualData[diagramIdentifier].localFontSize = localFontSize
+
+            // TODO: you probably want to apply this change in javascript to (on the node in nodesAndLinksData.nodes)
+            let nlcDataChange = {
+                "method" : "update",
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier, "localFontSize"],
+                "data" : localFontSize
+            }
+            NLC.dataChangesToStore.push(nlcDataChange)
+        }
+    
+        // TODO: maybe its better to call this: visualDataHasChanged ?
+        NLC.dataHasChanged = true
+    }
+    else {
+        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)
+    }
+}
+
 function storeNodeLocalPositionInDiagram (nodeId, diagramIdentifier, localPosition) {
     
     let nodesById = NLC.nodesAndLinksData.nodesById
@@ -828,6 +857,11 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             size = node.diagramSpecificVisualData[diagramIdentifier].size
         }
         
+        let localFontSize = 14
+        if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("localFontSize")) {
+            localFontSize = node.diagramSpecificVisualData[diagramIdentifier].localFontSize
+        }
+        
         let containerInfo = {
             type: node.type,
             identifier: node.id,
@@ -839,7 +873,8 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
                 y: position.y
             },
             localScale: localScale,
-            localSize: size
+            localSize: size,
+            localFontSize : localFontSize
         }
         
         let colorsForNode = null
