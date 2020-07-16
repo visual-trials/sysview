@@ -160,65 +160,6 @@ function createContainer(containerData) {
     return newContainer
 }
 
-function getExistingField(fieldName, firstObject, secondObject) {
-    return getExistingFieldOrDefault(fieldName, firstObject, secondObject, null)
-}
-
-function getExistingFieldOrDefault(fieldName, firstObject, secondObject, defaultValue) {
-    if (firstObject != null && firstObject.hasOwnProperty(fieldName)) {
-        return firstObject[fieldName]
-    }
-    else if (secondObject != null && secondObject.hasOwnProperty(fieldName)) {
-        return secondObject[fieldName]
-    }
-    else {
-        return defaultValue
-    }
-}
-
-function mergeSourceAndVisualContainerData (sourceContainerData, visualContainerData) {
-    
-    let containerData = {
-        identifier : getExistingField('identifier', visualContainerData, sourceContainerData),
-        name : getExistingField('name', visualContainerData, sourceContainerData),
-        type : getExistingField('type', visualContainerData, sourceContainerData),
-        parentContainerIdentifier : getExistingField('parentContainerIdentifier', visualContainerData, sourceContainerData),
-        localPosition : { 
-            x: parseFloat(getExistingFieldOrDefault(
-                'x', 
-                visualContainerData == null ? null : visualContainerData.localPosition, 
-                sourceContainerData == null ? null : sourceContainerData.localPosition, 
-                0)
-            ),
-            y: parseFloat(getExistingFieldOrDefault(
-                'y', 
-                visualContainerData == null ? null : visualContainerData.localPosition, 
-                sourceContainerData == null ? null : sourceContainerData.localPosition, 
-                0)
-            )
-        },
-        localSize : { 
-            width: parseFloat(getExistingFieldOrDefault(
-                'width', 
-                visualContainerData == null ? null : visualContainerData.localSize, 
-                sourceContainerData == null ? null : sourceContainerData.localSize, 
-                0)
-            ),
-            height: parseFloat(getExistingFieldOrDefault(
-                'height', 
-                visualContainerData == null ? null : visualContainerData.localSize, 
-                sourceContainerData == null ? null : sourceContainerData.localSize, 
-                0)
-            )
-        },
-        localScale : getExistingField('localScale', visualContainerData, sourceContainerData),
-        localFontSize : getExistingField('localFontSize', visualContainerData, sourceContainerData),
-        dataType : getExistingField('dataType', visualContainerData, sourceContainerData),
-    }
-    
-    return containerData
-}
-
 function setContainerChildren() {
 
     for (let containerIdentifier in ZUI.containersAndConnections.containers) {
@@ -339,20 +280,6 @@ function createConnection(connectionData) {
 
 function removeConnection(connectionIdentifier) {
     delete ZUI.containersAndConnections.connections[connectionIdentifier]
-}
-
-function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnectionData) {
-    
-    let connectionData = {
-        identifier : getExistingField('identifier', visualConnectionData, sourceConnectionData),
-        name : getExistingField('name', visualConnectionData, sourceConnectionData),
-        type : getExistingField('type', visualConnectionData, sourceConnectionData),
-        dataType : getExistingField('dataType', visualConnectionData, sourceConnectionData),
-        fromContainerIdentifier : getExistingField('fromContainerIdentifier', visualConnectionData, sourceConnectionData),
-        toContainerIdentifier : getExistingField('toContainerIdentifier', visualConnectionData, sourceConnectionData),
-    }
-    
-    return connectionData
 }
 
 function getConnectionByIdentifier(connectionIdentifier) {
