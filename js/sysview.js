@@ -189,7 +189,146 @@ function drawCanvas(desiredCanvasSize, doMenu) {
     
 }
 
+function getExistingField(fieldName, firstObject, secondObject) {
+    return getExistingFieldOrDefault(fieldName, firstObject, secondObject, null)
+}
 
+function getExistingFieldOrDefault(fieldName, firstObject, secondObject, defaultValue) {
+    if (firstObject != null && firstObject.hasOwnProperty(fieldName)) {
+        return firstObject[fieldName]
+    }
+    else if (secondObject != null && secondObject.hasOwnProperty(fieldName)) {
+        return secondObject[fieldName]
+    }
+    else {
+        return defaultValue
+    }
+}
+
+function mergeSourceAndVisualConnectionData (sourceConnectionData, visualConnectionData) {
+    
+    let connectionData = {
+        identifier : getExistingField('identifier', visualConnectionData, sourceConnectionData),
+        name : getExistingField('name', visualConnectionData, sourceConnectionData),
+        type : getExistingField('type', visualConnectionData, sourceConnectionData),
+        dataType : getExistingField('dataType', visualConnectionData, sourceConnectionData),
+        fromContainerIdentifier : getExistingField('fromContainerIdentifier', visualConnectionData, sourceConnectionData),
+        toContainerIdentifier : getExistingField('toContainerIdentifier', visualConnectionData, sourceConnectionData),
+    }
+    
+    return connectionData
+}
+
+function mergeSourceAndVisualContainerData (sourceContainerData, visualContainerData) {
+    
+    let containerData = {
+        identifier : getExistingField('identifier', visualContainerData, sourceContainerData),
+        name : getExistingField('name', visualContainerData, sourceContainerData),
+        type : getExistingField('type', visualContainerData, sourceContainerData),
+        parentContainerIdentifier : getExistingField('parentContainerIdentifier', visualContainerData, sourceContainerData),
+        localPosition : { 
+            x: parseFloat(getExistingFieldOrDefault(
+                'x', 
+                visualContainerData == null ? null : visualContainerData.localPosition, 
+                sourceContainerData == null ? null : sourceContainerData.localPosition, 
+                0)
+            ),
+            y: parseFloat(getExistingFieldOrDefault(
+                'y', 
+                visualContainerData == null ? null : visualContainerData.localPosition, 
+                sourceContainerData == null ? null : sourceContainerData.localPosition, 
+                0)
+            )
+        },
+        localSize : { 
+            width: parseFloat(getExistingFieldOrDefault(
+                'width', 
+                visualContainerData == null ? null : visualContainerData.localSize, 
+                sourceContainerData == null ? null : sourceContainerData.localSize, 
+                0)
+            ),
+            height: parseFloat(getExistingFieldOrDefault(
+                'height', 
+                visualContainerData == null ? null : visualContainerData.localSize, 
+                sourceContainerData == null ? null : sourceContainerData.localSize, 
+                0)
+            )
+        },
+        localScale : getExistingField('localScale', visualContainerData, sourceContainerData),
+        localFontSize : getExistingField('localFontSize', visualContainerData, sourceContainerData),
+        dataType : getExistingField('dataType', visualContainerData, sourceContainerData),
+    }
+    
+    return containerData
+}
+
+function extendContainerDataWithShapeAndColor (containerData) {
+    
+    let containerTypeToContainerShapeAndColor = {}
+    let dataTypeToColor = {}
+    
+    if (databaseData.colorAndShapeMappings != null) {
+        containerTypeToContainerShapeAndColor = databaseData.colorAndShapeMappings.containerTypeToContainerShapeAndColor
+        dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    }
+    
+    if (containerData.type != null) {
+        if (containerTypeToContainerShapeAndColor.hasOwnProperty(containerData.type)) {
+            containerData.shape = containerTypeToContainerShapeAndColor[containerData.type].shape
+            containerData.stroke = getColorByColorNameAndLighten(containerTypeToContainerShapeAndColor[containerData.type].stroke)
+            containerData.fill = getColorByColorNameAndLighten(containerTypeToContainerShapeAndColor[containerData.type].fill)
+            if (containerTypeToContainerShapeAndColor[containerData.type].hasOwnProperty('textBelowContainer')) {
+                containerData.textBelowContainer = containerTypeToContainerShapeAndColor[containerData.type].textBelowContainer
+            }
+        }
+        else {
+            console.log("ERROR: unknown container type: " + containerData.type)
+        }
+    }
+    
+    if (containerData.dataType != null) {
+        if (dataTypeToColor.hasOwnProperty(containerData.dataType)) {
+            containerData.stroke = getColorByColorNameAndLighten(dataTypeToColor[containerData.dataType].stroke)
+            containerData.fill = getColorByColorNameAndLighten(dataTypeToColor[containerData.dataType].fill)
+        }
+        else {
+            console.log("ERROR: unknown container data type: " + containerData.dataType)
+        }
+    }
+}
+
+function extendConnectionDataWithShapeAndColor (connectionData) {
+    
+    let connectionTypeToConnectionShapeAndColor = {}
+    let dataTypeToColor = {}
+    
+    if (databaseData.colorAndShapeMappings != null) {
+        connectionTypeToConnectionShapeAndColor = {} // FIXME: turned this off: databaseData.colorAndShapeMappings.connectionTypeToConnectionShapeAndColor
+        dataTypeToColor = databaseData.colorAndShapeMappings.dataTypeToColor
+    }
+    
+    if (connectionData.type != null) {
+        if (connectionTypeToConnectionShapeAndColor.hasOwnProperty(connectionData.type)) {
+            connectionData.shape = connectionTypeToConnectionShapeAndColor[connectionData.type].shape
+            connectionData.stroke = getColorByColorNameAndLighten(connectionTypeToConnectionShapeAndColor[connectionData.type].stroke)
+            connectionData.fill = getColorByColorNameAndLighten(connectionTypeToConnectionShapeAndColor[connectionData.type].fill)
+        }
+        else {
+            // FIXME: turned off: console.log("ERROR: unknown connection type: " + connectionData.type)
+        }
+    }
+    
+    if (connectionData.dataType != null) {
+        if (dataTypeToColor.hasOwnProperty(connectionData.dataType)) {
+            connectionData.stroke = getColorByColorNameAndLighten(dataTypeToColor[connectionData.dataType].stroke)
+            connectionData.fill = getColorByColorNameAndLighten(dataTypeToColor[connectionData.dataType].fill)
+        }
+        else {
+            console.log("ERROR: unknown connection data type: " + connectionData.dataType)
+        }
+    }
+}
+    
 function integrateContainerAndConnectionData () {
     
     // TODO: should we also reset the interaction-info? Or at least check if its still valid?
@@ -212,6 +351,7 @@ function integrateContainerAndConnectionData () {
             sourceContainerData = databaseData.source.containers[containerIdentifier]
         }
         let containerData = mergeSourceAndVisualContainerData(sourceContainerData, visualContainerData)
+        extendContainerDataWithShapeAndColor(containerData)
         createContainer(containerData)
     }
     
@@ -221,6 +361,7 @@ function integrateContainerAndConnectionData () {
         if (!databaseData.visual.containers.hasOwnProperty(containerIdentifier)) {
             let sourceContainerData = databaseData.source.containers[containerIdentifier]
             let containerData = mergeSourceAndVisualContainerData(sourceContainerData, visualContainerData)
+            extendContainerDataWithShapeAndColor(containerData)
             createContainer(containerData)
         }
     }
@@ -236,7 +377,7 @@ function integrateContainerAndConnectionData () {
             sourceConnectionData = databaseData.source.connections[connectionIdentifier]
         }
         let connectionData = mergeSourceAndVisualConnectionData(sourceConnectionData, visualConnectionData)
-        
+        extendConnectionDataWithShapeAndColor(connectionData)
         createConnection(connectionData)
     }
     
@@ -246,6 +387,7 @@ function integrateContainerAndConnectionData () {
         if (!databaseData.visual.connections.hasOwnProperty(connectionIdentifier)) {
             let sourceConnectionData = databaseData.source.connections[connectionIdentifier]
             let connectionData = mergeSourceAndVisualConnectionData(sourceConnectionData, visualConnectionData)
+            extendConnectionDataWithShapeAndColor(connectionData)
             createConnection(connectionData)
         }
     }
@@ -262,8 +404,7 @@ function loadContainerAndConnectionData() {
 
             databaseData.visual = projectData.visual
             databaseData.source = projectData.source
-            // FIXME: this should not be a gloval like this (probably put it into a ZUI global)
-            ZUI.colorAndShapeMappings = projectData.colorAndShapeMappings
+            databaseData.colorAndShapeMappings = projectData.colorAndShapeMappings
             databaseDataHasChanged = true
             
             ZUI.interaction.centerViewOnWorldCenter = true
