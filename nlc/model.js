@@ -901,8 +901,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
                                               nodeIdsAddedToContainers.hasOwnProperty(link.toNodeId)
         
         if (!fromAndToNodesAreAddedToDiagram) {
-            // TODO: better handling
-            console.log("WARNING: link found but connected node(s) not found!")
+            // If either the fromNode or the toNode is not added to the diagram, we do not add the link connecting them
             continue
         }
         
