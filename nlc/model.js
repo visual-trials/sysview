@@ -21,6 +21,7 @@ let NLC = {}
 NLC.dataHasChanged = false
 NLC.dataChangesToStore = []
 NLC.nodesAndLinksData = {}
+NLC.nodeTypeToContainerShape = {}
 
 function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
     let diagramChanges = []
@@ -862,6 +863,22 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             localFontSize = node.diagramSpecificVisualData[diagramIdentifier].localFontSize
         }
         
+        let shape = null
+        let textBelowContainer = null
+        if (node.type != null) {
+            if (nodeTypeToContainerShape.hasOwnProperty(node.type)) {
+                if (nodeTypeToContainerShape[node.type].hasOwnProperty('shape')) {
+                    shape = nodeTypeToContainerShape[node.type].shape
+                }
+                if (nodeTypeToContainerShape[node.type].hasOwnProperty('textBelowContainer')) {
+                    textBelowContainer = nodeTypeToContainerShape[node.type].textBelowContainer
+                }
+            }
+            else {
+                console.log("ERROR: unknown node type: " + node.type)
+            }
+        }
+        
         let containerInfo = {
             type: node.type,
             identifier: node.id,
@@ -874,7 +891,9 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             },
             localScale: localScale,
             localSize: size,
-            localFontSize : localFontSize
+            localFontSize : localFontSize,
+            shape : shape,
+            textBelowContainer : textBelowContainer
         }
         
         let colorsForNode = null
