@@ -40,34 +40,6 @@ function initContainersAndConnections () {
     ZUI.containersAndConnections.containers['root'] = rootContainer
 }
 
-// TODO: put this in a more general place. Maybe in shapes.js?
-function getColorByColorNameAndLighten(colorNameAndLighten) {
-
-    let color = { r:0, g:0, b:0, a:1 }
-    
-    let colorName = colorNameAndLighten.color
-    let light = colorNameAndLighten.light
-    
-    if (ZUI.basicColors.hasOwnProperty(colorName)) {
-        let basicColor = ZUI.basicColors[colorName]
-        
-        if (light > 0) {
-            color = lighten(basicColor, light)
-        }
-        else if (light < 0) {
-            color = darken(basicColor, -light)
-        }
-        else {
-            color = basicColor // TODO: shouldnt we make a copy?
-        }
-    }
-    else {
-        console.log("ERROR: unknown colorname: " + colorName)
-    }
-    
-    return color
-}
-
 function createContainer(containerData) {
     
     let containerIdentifier = containerData.identifier
@@ -76,46 +48,20 @@ function createContainer(containerData) {
     
     let fill = { r:255, g:0, b:255, a:1 }
     let stroke = { r:255, g:255, b:0, a:1 }
-    let shapeType = 'rectangle4points'
+    let shape = 'rectangle4points'
     let textBelowContainer = false
 
-    let containerTypeToContainerShapeAndColor = {}
-    let dataTypeToColor = {}
-    
-    if (ZUI.colorAndShapeMappings != null) {
-        containerTypeToContainerShapeAndColor = ZUI.colorAndShapeMappings.containerTypeToContainerShapeAndColor
-        dataTypeToColor = ZUI.colorAndShapeMappings.dataTypeToColor
-    }
-    
-    if (containerData.type != null) {
-        if (containerTypeToContainerShapeAndColor.hasOwnProperty(containerData.type)) {
-            shapeType = containerTypeToContainerShapeAndColor[containerData.type].shape
-            stroke = getColorByColorNameAndLighten(containerTypeToContainerShapeAndColor[containerData.type].stroke)
-            fill = getColorByColorNameAndLighten(containerTypeToContainerShapeAndColor[containerData.type].fill)
-            if (containerTypeToContainerShapeAndColor[containerData.type].hasOwnProperty('textBelowContainer')) {
-                textBelowContainer = containerTypeToContainerShapeAndColor[containerData.type].textBelowContainer
-            }
-        }
-        else {
-            console.log("ERROR: unknown container type: " + containerData.type)
-        }
-    }
-    
-    if (containerData.dataType != null) {
-        if (dataTypeToColor.hasOwnProperty(containerData.dataType)) {
-            stroke = getColorByColorNameAndLighten(dataTypeToColor[containerData.dataType].stroke)
-            fill = getColorByColorNameAndLighten(dataTypeToColor[containerData.dataType].fill)
-        }
-        else {
-            console.log("ERROR: unknown container data type: " + containerData.dataType)
-        }
-    }
-    
     if (containerData.fill != null) {
         fill = containerData.fill
     }
     if (containerData.stroke != null) {
         stroke = containerData.stroke
+    }
+    if (containerData.shape != null) {
+        shape = containerData.shape
+    }
+    if (containerData.textBelowContainer != null) {
+        textBelowContainer = containerData.textBelowContainer
     }
     
     let newContainer = {
@@ -123,6 +69,7 @@ function createContainer(containerData) {
         name: containerData.name,
         
         type: containerData.type,  // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
+        // FIXME: remove dataType completely here! It should not be a property of a container!
         dataType: containerData.dataType, // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
         
         parentContainerIdentifier: parentContainerIdentifier != null ? parentContainerIdentifier : 'root',
@@ -137,7 +84,7 @@ function createContainer(containerData) {
         localScale: containerData.localScale,
         localFontSize: containerData.localFontSize,
         
-        shapeType : shapeType, 
+        shapeType : shape,  // TODO: we should rename shapeType to shape
         textBelowContainer : textBelowContainer,
         
         worldPosition: {},
@@ -215,41 +162,10 @@ function getContainerByIdentifier(containerIdentifier) {
 
 function createConnection(connectionData) {
     
-    // FIXME: old: let stroke = { r:0, g:0, b:0, a:1 }
-    
     let shapeType = 'default'
     let fill = { r:170, g:170, b:170, a:1 }
     let stroke = { r:100, g:100, b:100, a:1 }
 
-    let connectionTypeToConnectionShapeAndColor = {}
-    let dataTypeToColor = {}
-    
-    if (ZUI.colorAndShapeMappings != null) {
-        connectionTypeToConnectionShapeAndColor = {} // FIXME: turned this off: ZUI.colorAndShapeMappings.connectionTypeToConnectionShapeAndColor
-        dataTypeToColor = ZUI.colorAndShapeMappings.dataTypeToColor
-    }
-    
-    if (connectionData.type != null) {
-        if (connectionTypeToConnectionShapeAndColor.hasOwnProperty(connectionData.type)) {
-            shapeType = connectionTypeToConnectionShapeAndColor[connectionData.type].shape
-            stroke = getColorByColorNameAndLighten(connectionTypeToConnectionShapeAndColor[connectionData.type].stroke)
-            fill = getColorByColorNameAndLighten(connectionTypeToConnectionShapeAndColor[connectionData.type].fill)
-        }
-        else {
-            // FIXME: turned off: console.log("ERROR: unknown connection type: " + connectionData.type)
-        }
-    }
-    
-    if (connectionData.dataType != null) {
-        if (dataTypeToColor.hasOwnProperty(connectionData.dataType)) {
-            stroke = getColorByColorNameAndLighten(dataTypeToColor[connectionData.dataType].stroke)
-            fill = getColorByColorNameAndLighten(dataTypeToColor[connectionData.dataType].fill)
-        }
-        else {
-            console.log("ERROR: unknown connection data type: " + connectionData.dataType)
-        }
-    }
-    
     if (connectionData.fill != null) {
         fill = connectionData.fill
     }

@@ -19,12 +19,33 @@
 // TODO: we need to be able to set this (probably via a function)
 let ZUI = {}
 
-ZUI.colorAndShapeMappings = {
-    "containerTypeToContainerShapeAndColor" : {},
-    "dataTypeToColor" : {}
+function getColorByColorNameAndLighten(colorNameAndLighten) {
+
+    let color = { r:0, g:0, b:0, a:1 }
+    
+    let colorName = colorNameAndLighten.color
+    let light = colorNameAndLighten.light
+    
+    if (ZUI.basicColors.hasOwnProperty(colorName)) {
+        let basicColor = ZUI.basicColors[colorName]
+        
+        if (light > 0) {
+            color = lighten(basicColor, light)
+        }
+        else if (light < 0) {
+            color = darken(basicColor, -light)
+        }
+        else {
+            color = basicColor // TODO: shouldnt we make a copy?
+        }
+    }
+    else {
+        console.log("ERROR: unknown colorname: " + colorName)
+    }
+    
+    return color
 }
 
- // TODO: what about brown? Or is that too close to orange?
 ZUI.basicColors = {
     transparent: {r:255, g:255,  b:255,   a:0},
     white   : {r:255, g:255, b:255, a:1},
