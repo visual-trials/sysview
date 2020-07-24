@@ -674,6 +674,160 @@ ZUI.containerShapes = {
         ]
     },
     
+    'octagonal' : {
+        'points' : {
+            'left-top-on-circle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-bottom',
+                fraction : (1 - 0.707) / 2,
+                isConnectionPoint : false,
+            },
+            'right-top-on-circle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'left-bottom',
+                fraction : (1 - 0.707) / 2,
+                isConnectionPoint : false,
+            },
+            'left-bottom-on-circle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-top',
+                fraction : (1 - 0.707) / 2,
+                isConnectionPoint : false,
+            },
+            'right-bottom-on-circle' : {
+                positioning : 'relative',
+                fromPoint : 'right-bottom',
+                toPoint : 'left-top',
+                fraction : (1 - 0.707) / 2,
+                isConnectionPoint : false,
+            },
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'top-middle', type : 'move' },
+            { toPoint : 'right-top-on-circle', type : 'line' },
+            { toPoint : 'right-middle', type : 'line' },
+            { toPoint : 'right-bottom-on-circle', type : 'line' },
+            { toPoint : 'bottom-middle', type : 'line' },
+            { toPoint : 'left-bottom-on-circle', type : 'line' },
+            { toPoint : 'left-middle', type : 'line' },
+            { toPoint : 'left-top-on-circle', type : 'line' },
+            { toPoint : 'top-middle', type : 'line' },
+        ]
+    },
+
+    'star' : {
+        'points' : {
+            'left-top-on-circle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-bottom',
+                fraction : 0.707 / 2,
+                isConnectionPoint : false,
+            },
+            'right-top-on-circle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'left-bottom',
+                fraction : 0.707 / 2,
+                isConnectionPoint : false,
+            },
+            'left-bottom-on-circle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-top',
+                fraction : 0.707 / 2,
+                isConnectionPoint : false,
+            },
+            'right-bottom-on-circle' : {
+                positioning : 'relative',
+                fromPoint : 'right-bottom',
+                toPoint : 'left-top',
+                fraction : 0.707 / 2,
+                isConnectionPoint : false,
+            },
+            'top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'right-top',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            'left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            'bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            'right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'top-middle', type : 'move' },
+            { toPoint : 'right-top-on-circle', type : 'line' },
+            { toPoint : 'right-middle', type : 'line' },
+            { toPoint : 'right-bottom-on-circle', type : 'line' },
+            { toPoint : 'bottom-middle', type : 'line' },
+            { toPoint : 'left-bottom-on-circle', type : 'line' },
+            { toPoint : 'left-middle', type : 'line' },
+            { toPoint : 'left-top-on-circle', type : 'line' },
+            { toPoint : 'top-middle', type : 'line' },
+        ]
+    },
+
     'edgedRectangle' : {
         'points' : {
             'left-top-r' : {
