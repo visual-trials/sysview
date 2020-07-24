@@ -661,7 +661,8 @@ function linkIsInDiagram(link, diagramIdentifier) {
 
 
 // FIXME: make this more generic!
-
+//   OR
+// FIXME: move this function out of model.js (into a more specific file)
 function getColorNamesWithLightForNode (node, selectedLegendaId) {
     
     if (selectedLegendaId == null) {
@@ -681,8 +682,7 @@ function getColorNamesWithLightForNode (node, selectedLegendaId) {
         for (let colorMappingIndex = 0; colorMappingIndex < selectedLegenda.colorMappings.length; colorMappingIndex++) {
             let colorMap = selectedLegenda.colorMappings[colorMappingIndex]
             let shouldMatchWith = colorMap.shouldMatchWith
-            // FIXME: workaround!
-            if (node.commonData.name.toUpperCase().includes(shouldMatchWith.toUpperCase())) {
+            if (node.commonData.hasOwnProperty('dataType') && node.commonData.dataType.toUpperCase() === shouldMatchWith.toUpperCase()) {
                 colorNamesWithLight = colorMap
                 break
             }
@@ -720,6 +720,7 @@ function getColorNamesWithLightForNode (node, selectedLegendaId) {
     return colorNamesWithLight
 }
 
+// FIXME: move this function out of model.js (into a more specific file)
 function getColorNamesWithLightForLink (link, selectedLegendaId) {
     
     if (selectedLegendaId == null) {
@@ -739,8 +740,7 @@ function getColorNamesWithLightForLink (link, selectedLegendaId) {
         for (let colorMappingIndex = 0; colorMappingIndex < selectedLegenda.colorMappings.length; colorMappingIndex++) {
             let colorMap = selectedLegenda.colorMappings[colorMappingIndex]
             let shouldMatchWith = colorMap.shouldMatchWith
-            // FIXME: workaround!
-            if (link.commonData.name.toUpperCase().includes(shouldMatchWith.toUpperCase())) {
+            if (link.commonData.hasOwnProperty('dataType') && link.commonData.dataType.toUpperCase() === shouldMatchWith.toUpperCase()) {
                 colorNamesWithLight = colorMap
                 break
             }
