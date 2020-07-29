@@ -948,7 +948,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         // link.dataType = sourceDataType
         let connectionInfo = {
             "identifier": link.id,
-            "name": link.commonData.name,  // FIXME: we want link.dataType.name here!
+            "name": link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!
             "type": link.type,
             "dataType": link.dataType,
             "fromContainerIdentifier": link.fromNodeId,
