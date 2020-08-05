@@ -66,21 +66,39 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         nodeChanges.push(nlcDataChange)
     }
 
-    // TODO: compare each version individually!
-    if (JSON.stringify(changedNode.versions) !== JSON.stringify(originalNode.versions) ) {
+    // TODO: compare each codeVersion individually!
+    if (JSON.stringify(changedNode.codeVersions) !== JSON.stringify(originalNode.codeVersions) ) {
         let nlcDataChange = {
             "method" : "update",
-            "path" : [ "nodes", originalNode.id, "versions" ],
-            "data" : changedNode.versions
+            "path" : [ "nodes", originalNode.id, "codeVersions" ],
+            "data" : changedNode.codeVersions
+        }
+        nodeChanges.push(nlcDataChange)
+    }
+    // TODO: compare each functionalDocumentVersion individually!
+    if (JSON.stringify(changedNode.functionalDocumentVersions) !== JSON.stringify(originalNode.functionalDocumentVersions) ) {
+        let nlcDataChange = {
+            "method" : "update",
+            "path" : [ "nodes", originalNode.id, "functionalDocumentVersions" ],
+            "data" : changedNode.functionalDocumentVersions
+        }
+        nodeChanges.push(nlcDataChange)
+    }
+    // TODO: compare each technicalDocumentVersion individually!
+    if (JSON.stringify(changedNode.technicalDocumentVersions) !== JSON.stringify(originalNode.technicalDocumentVersions) ) {
+        let nlcDataChange = {
+            "method" : "update",
+            "path" : [ "nodes", originalNode.id, "technicalDocumentVersions" ],
+            "data" : changedNode.technicalDocumentVersions
         }
         nodeChanges.push(nlcDataChange)
     }
     
-    if (JSON.stringify(changedNode.environmentVersions) !== JSON.stringify(originalNode.environmentVersions) ) {
+    if (JSON.stringify(changedNode.environmentSpecificData) !== JSON.stringify(originalNode.environmentSpecificData) ) {
         let nlcDataChange = {
             "method" : "update",
-            "path" : [ "nodes", originalNode.id, "environmentVersions" ],
-            "data" : changedNode.environmentVersions
+            "path" : [ "nodes", originalNode.id, "environmentSpecificData" ],
+            "data" : changedNode.environmentSpecificData
         }
         nodeChanges.push(nlcDataChange)
     }
@@ -94,8 +112,10 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         // TODO: we should only do this if we accept the changes
         // FIXME: We should copy all object-attributes BACK to the selectedNode (see above where we do the same for comparisons)
         originalNode.commonData = changedNode.commonData
-        originalNode.versions = changedNode.versions
-        originalNode.environmentVersions = changedNode.environmentVersions
+        originalNode.codeVersions = changedNode.codeVersions
+        originalNode.functionalDocumentVersions = changedNode.functionalDocumentVersions
+        originalNode.technicalDocumentVersions = changedNode.technicalDocumentVersions
+        originalNode.environmentSpecificData = changedNode.environmentSpecificData
     }
 }
 
@@ -117,21 +137,11 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
         linkChanges.push(nlcDataChange)
     }
 
-    // TODO: compare each version individually!
-    if (JSON.stringify(changedLink.versions) !== JSON.stringify(originalLink.versions) ) {
+    if (JSON.stringify(changedLink.environmentSpecificData) !== JSON.stringify(originalLink.environmentSpecificData) ) {
         let nlcDataChange = {
             "method" : "update",
-            "path" : [ "links", originalLink.id, "versions" ],
-            "data" : changedLink.versions
-        }
-        linkChanges.push(nlcDataChange)
-    }
-    
-    if (JSON.stringify(changedLink.environmentVersions) !== JSON.stringify(originalLink.environmentVersions) ) {
-        let nlcDataChange = {
-            "method" : "update",
-            "path" : [ "links", originalLink.id, "environmentVersions" ],
-            "data" : changedLink.environmentVersions
+            "path" : [ "links", originalLink.id, "environmentSpecificData" ],
+            "data" : changedLink.environmentSpecificData
         }
         linkChanges.push(nlcDataChange)
     }
@@ -175,8 +185,7 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
         // TODO: we should only do this if we accept the changes
         // FIXME: We should copy all object-attributes BACK to the originalLink (see above where we do the same for comparisons)
         originalLink.commonData = changedLink.commonData
-        originalLink.versions = changedLink.versions
-        originalLink.environmentVersions = changedLink.environmentVersions
+        originalLink.environmentSpecificData = changedLink.environmentSpecificData
         originalLink.fromNodeId = changedLink.fromNodeId
         originalLink.toNodeId = changedLink.toNodeId
     }
@@ -506,11 +515,19 @@ function createNewNode(nodeTypeIdentifier) {
             "name" : newName,
             // FIXME; add more required fields (probably by using a pop-up/modal of sorts
         },
-        "versions" : [
-            // FIXME: what should we put in here?
-        ],
-        "environmentVersions" : {
-            // FIXME: what should we put in here?
+        "codeVersions" : [],
+        "functionalDocumentVersions" : [],
+        "technicalDocumentVersions" : [],
+        "environmentSpecificData" : {
+            "T" : {
+                "DUMMY" : true,
+            },
+            "A" : {
+                "DUMMY" : true,
+            },
+            "P" : {
+                "DUMMY" : true,
+            }
         },
         "diagramSpecificVisualData" : {
 // FIXME: WORKAROUND! (api.php doesnt know this is/should be an associative array, so we force it this way!
@@ -570,11 +587,17 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
             "DUMMY" : true,
             // FIXME; add more required fields (probably by using a pop-up/modal of sorts
         },
-        "versions" : [
+        "environmentSpecificData" : {
             // FIXME: what should we put in here?
-        ],
-        "environmentVersions" : {
-            // FIXME: what should we put in here?
+            "T" : {
+                "DUMMY" : true,
+            },
+            "A" : {
+                "DUMMY" : true,
+            },
+            "P" : {
+                "DUMMY" : true,
+            }
         },
         "diagramSpecificVisualData" : {
 // FIXME: WORKAROUND! (api.php doesnt know this is/should be an associative array, so we force it this way!
@@ -695,22 +718,32 @@ function getColorNamesWithLightForNode (node, selectedLegendaId) {
     }
     else if (selectedLegenda.field === 'T_vs_P') {
         let colorKey = null
-        if (node.environmentVersions.P == null && node.environmentVersions.T != null) {
-            // We have a node in T, but not in P
+        if ((!node.environmentSpecificData.P || node.environmentSpecificData.P.codeVersionId == null) && 
+            (node.environmentSpecificData.T && node.environmentSpecificData.T.codeVersionId != null)) {
+            // We have a code version in T, but not in P
             colorKey = 'in_T_but_not_in_P'
         }
-        else if (node.environmentVersions.P != null && node.environmentVersions.T == null) {
+        else if ((!node.environmentSpecificData.T || node.environmentSpecificData.T.codeVersionId == null) && 
+                 (node.environmentSpecificData.P && node.environmentSpecificData.P.codeVersionId != null)) {
             colorKey = 'in_P_but_not_in_T'
         }
-        else if (node.environmentVersions.P == null && node.environmentVersions.T == null) {
+        else if ((!node.environmentSpecificData.T || node.environmentSpecificData.T.codeVersionId == null) && 
+                 (!node.environmentSpecificData.P || node.environmentSpecificData.P.codeVersionId == null)) {
             // not in T and not in P, we do nothing (= default color)
         }
-        else if (node.environmentVersions.P === node.environmentVersions.T) {
+        else if ((node.environmentSpecificData.T && node.environmentSpecificData.T.codeVersionId != null) &&
+                 (node.environmentSpecificData.P && node.environmentSpecificData.P.codeVersionId != null) &&
+                  node.environmentSpecificData.P.codeVersionId === node.environmentSpecificData.T.codeVersionId) {
             colorKey = 'same_in_T_and_P'
         }
-        else {
+        else if ((node.environmentSpecificData.T && node.environmentSpecificData.T.codeVersionId != null) &&
+                 (node.environmentSpecificData.P && node.environmentSpecificData.P.codeVersionId != null) &&
+                  node.environmentSpecificData.P.codeVersionId === node.environmentSpecificData.T.codeVersionId) {
             // TODO: we could still check if the version in P is higher or lower than in T
             colorKey = 'different_in_T_and_P'
+        }
+        else {
+            console.log("ERROR: when determining the colors for T_vs_P we cane to a combination of environmentSpecificData that was not forseen!")
         }
             
         if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {
@@ -752,25 +785,10 @@ function getColorNamesWithLightForLink (link, selectedLegendaId) {
         
     }
     else if (selectedLegenda.field === 'T_vs_P') {
-/* FIXME: as long as we don't have versions for links this wont work!
+        /* 
         let colorKey = null
-        if (link.environmentVersions.P == null && link.environmentVersions.T != null) {
-            // We have a link in T, but not in P
-            colorKey = 'in_T_but_not_in_P'
-        }
-        else if (link.environmentVersions.P != null && link.environmentVersions.T == null) {
-            colorKey = 'in_P_but_not_in_T'
-        }
-        else if (link.environmentVersions.P == null && link.environmentVersions.T == null) {
-            // not in T and not in P, we do nothing (= default color)
-        }
-        else if (link.environmentVersions.P === link.environmentVersions.T) {
-            colorKey = 'same_in_T_and_P'
-        }
-        else {
-            // TODO: we could still check if the version in P is higher or lower than in T
-            colorKey = 'different_in_T_and_P'
-        }
+        
+        // FIXME: as long as we don't have versions for links this wont work!
             
         if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {
             colorNamesWithLight = colorMapping[colorKey]
