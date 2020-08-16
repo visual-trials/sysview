@@ -799,11 +799,27 @@ function getColorNamesWithLightForLink (link, selectedLegendaId) {
 
 function getNodeTypeInfo(node) {
     let nodeTypeIdentifier = node.type
-    // FIXME: this is a kinda slow: we should use nodeTypesById
+
+    // FIXME: looping through all nodesTypes is a kinda slow: we should use nodeTypesById
     for (let nodeTypeId = 0; nodeTypeId < NLC.nodesAndLinksData.nodeTypes.length; nodeTypeId++) {
-        let nodeType = NLC.nodesAndLinksData.nodeTypes[nodeTypeId]
-        if (nodeType.identifier === nodeTypeIdentifier) {
-            return nodeType
+        let nodeTypeInfo = NLC.nodesAndLinksData.nodeTypes[nodeTypeId]
+        if (nodeTypeInfo.identifier === nodeTypeIdentifier) {
+            if ("_overridesBasedOnCommonDataValue" in nodeTypeInfo) {
+                // TODO: can we make a faster deep-copy of nodeTypeInfo?
+                nodeTypeInfo = JSON.parse(JSON.stringify(nodeTypeInfo))
+                for (let overrideIndex = 0; overrideIndex < nodeTypeInfo._overridesBasedOnCommonDataValue.length; overrideIndex++) {
+                    let overrideBasedOnCommonDataValue = nodeTypeInfo._overridesBasedOnCommonDataValue[overrideIndex]
+                    let keyToMatch = overrideBasedOnCommonDataValue["keyToMatch"]
+                    let valueToMatch = overrideBasedOnCommonDataValue["valueToMatch"]
+                    if (keyToMatch in node.commonData && node.commonData[keyToMatch] === valueToMatch) {
+                        for (let keyToOverride in overrideBasedOnCommonDataValue.overrides) {
+                            nodeTypeInfo[keyToOverride] = overrideBasedOnCommonDataValue.overrides[keyToOverride]
+                        }
+                    }
+                    // TODO: we can probably break here if we want the first match to override. (now it continues to find matches)
+                }
+            }
+            return nodeTypeInfo
         }
     }
     return null
@@ -813,9 +829,24 @@ function getLinkTypeInfo(link) {
     let linkTypeIdentifier = link.type
     // FIXME: this is a kinda slow: we should use linkTypesById
     for (let linkTypeId = 0; linkTypeId < NLC.nodesAndLinksData.linkTypes.length; linkTypeId++) {
-        let linkType = NLC.nodesAndLinksData.linkTypes[linkTypeId]
-        if (linkType.identifier === linkTypeIdentifier) {
-            return linkType
+        let linkTypeInfo = NLC.nodesAndLinksData.linkTypes[linkTypeId]
+        if (linkTypeInfo.identifier === linkTypeIdentifier) {
+            if ("_overridesBasedOnCommonDataValue" in linkTypeInfo) {
+                // TODO: can we make a faster deep-copy of nodeTypeInfo?
+                linkTypeInfo = JSON.parse(JSON.stringify(linkTypeInfo))
+                for (let overrideIndex = 0; overrideIndex < linkTypeInfo._overridesBasedOnCommonDataValue.length; overrideIndex++) {
+                    let overrideBasedOnCommonDataValue = linkTypeInfo._overridesBasedOnCommonDataValue[overrideIndex]
+                    let keyToMatch = overrideBasedOnCommonDataValue["keyToMatch"]
+                    let valueToMatch = overrideBasedOnCommonDataValue["valueToMatch"]
+                    if (keyToMatch in link.commonData && link.commonData[keyToMatch] === valueToMatch) {
+                        for (let keyToOverride in overrideBasedOnCommonDataValue.overrides) {
+                            linkTypeInfo[keyToOverride] = overrideBasedOnCommonDataValue.overrides[keyToOverride]
+                        }
+                    }
+                    // TODO: we can probably break here if we want the first match to override. (now it continues to find matches)
+                }
+            }
+            return linkTypeInfo
         }
     }
     return null
