@@ -1291,7 +1291,7 @@ function animatePanning(timeElapsed) {
 }
 
 
-function updateWorld(timeElapsed = 0.016) {
+function updateWorld(timeElapsed) {
     
     if (ZUI.interaction.centerViewOnWorldCenter) {
 

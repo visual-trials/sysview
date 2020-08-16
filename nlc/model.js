@@ -21,7 +21,6 @@ let NLC = {}
 NLC.dataHasChanged = false
 NLC.dataChangesToStore = []
 NLC.nodesAndLinksData = {}
-NLC.nodeTypeToContainerShape = {}
 
 function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
     let diagramChanges = []
@@ -798,34 +797,31 @@ function getColorNamesWithLightForLink (link, selectedLegendaId) {
     return colorNamesWithLight
 }
 
-function getNodeTypeByIdentifier(nodeTypeIdentifier) {
+function getNodeTypeInfo(node) {
+    let nodeTypeIdentifier = node.type
     // FIXME: this is a kinda slow: we should use nodeTypesById
     for (let nodeTypeId = 0; nodeTypeId < NLC.nodesAndLinksData.nodeTypes.length; nodeTypeId++) {
         let nodeType = NLC.nodesAndLinksData.nodeTypes[nodeTypeId]
         if (nodeType.identifier === nodeTypeIdentifier) {
-            // FIXME: this is a workaround: we return an array with one element, since we want to mis-use a v-for as an assigment
             return nodeType
         }
     }
     return null
 }
 
-function getLinkTypeByIdentifier(linkTypeIdentifier) {
+function getLinkTypeInfo(link) {
+    let linkTypeIdentifier = link.type
     // FIXME: this is a kinda slow: we should use linkTypesById
     for (let linkTypeId = 0; linkTypeId < NLC.nodesAndLinksData.linkTypes.length; linkTypeId++) {
         let linkType = NLC.nodesAndLinksData.linkTypes[linkTypeId]
         if (linkType.identifier === linkTypeIdentifier) {
-            // FIXME: this is a workaround: we return an array with one element, since we want to mis-use a v-for as an assigment
             return linkType
         }
     }
     return null
 }
 
-// FIXME: THIS WONT WORK IN IE11!!!
-// FIXME: THIS WONT WORK IN IE11!!!
-// FIXME: THIS WONT WORK IN IE11!!!
-function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedLegendaId = null) {
+function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedLegendaId) {
 
     // Removing all connections and containers
     initContainersAndConnections()
@@ -849,10 +845,10 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         }
         */
         
-        let nodeType = getNodeTypeByIdentifier(node.type)
-        if (nodeType != null) {
-            let nodeTypeHasLevelOfDetailProperties = nodeType.hasOwnProperty('lod')
-            let nodeTypeIsInCurrentLevelOfDetail = nodeTypeHasLevelOfDetailProperties && nodeType.lod[ZUI.levelOfDetail]
+        let nodeTypeInfo = getNodeTypeInfo(node)
+        if (nodeTypeInfo != null) {
+            let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')
+            let nodeTypeIsInCurrentLevelOfDetail = nodeTypeHasLevelOfDetailProperties && nodeTypeInfo.lod[ZUI.levelOfDetail]
             if (nodeTypeHasLevelOfDetailProperties && !nodeTypeIsInCurrentLevelOfDetail) {
                 // TODO: we sometimes want to show a node *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
                 // The node is not in the current levelOfDetail detail, so we are not going to show/add the node
@@ -883,17 +879,17 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         
         let shape = null
         let textBelowContainer = null
-        if (node.type != null) {
-            if (nodeTypeToContainerShape.hasOwnProperty(node.type)) {
-                if (nodeTypeToContainerShape[node.type].hasOwnProperty('shape')) {
-                    shape = nodeTypeToContainerShape[node.type].shape
+        if (nodeTypeInfo != null) {
+            if ('shapeAndColor' in nodeTypeInfo) {
+                if ('shape' in nodeTypeInfo.shapeAndColor) {
+                    shape = nodeTypeInfo.shapeAndColor.shape
                 }
-                if (nodeTypeToContainerShape[node.type].hasOwnProperty('textBelowContainer')) {
-                    textBelowContainer = nodeTypeToContainerShape[node.type].textBelowContainer
+                if ('textBelowContainer' in nodeTypeInfo.shapeAndColor) {
+                    textBelowContainer = nodeTypeInfo.shapeAndColor.textBelowContainer
                 }
             }
             else {
-                console.log("ERROR: unknown node type: " + node.type)
+                console.log("ERROR: no shape and color info : " + node)
             }
         }
         
@@ -950,11 +946,11 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             // FIXME: continue
         }
         
-        let linkType = getLinkTypeByIdentifier(link.type)
-        if (linkType != null) {
+        let linkTypeInfo = getLinkTypeInfo(link)
+        if (linkTypeInfo != null) {
             
-            let linkTypeHasLevelOfDetailProperties = linkType.hasOwnProperty('lod')
-            let linkTypeIsInCurrentLevelOfDetail = linkTypeHasLevelOfDetailProperties && linkType.lod[ZUI.levelOfDetail]
+            let linkTypeHasLevelOfDetailProperties = linkTypeInfo.hasOwnProperty('lod')
+            let linkTypeIsInCurrentLevelOfDetail = linkTypeHasLevelOfDetailProperties && linkTypeInfo.lod[ZUI.levelOfDetail]
             if (linkTypeHasLevelOfDetailProperties && !linkTypeIsInCurrentLevelOfDetail) {
                 // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed
                 // The link is not in the current levelOfDetail detail, so we are not going to show/add the link
