@@ -722,36 +722,46 @@ function getColorNamesWithLightForNode (node, selectedLegendaId) {
     }
     else if (selectedLegenda.field === 'T_vs_P') {
         let colorKey = null
-        if ((!node.environmentSpecificData.P || node.environmentSpecificData.P.codeVersionId == null) && 
-            (node.environmentSpecificData.T && node.environmentSpecificData.T.codeVersionId != null)) {
-            // We have a code version in T, but not in P
-            colorKey = 'in_T_but_not_in_P'
-        }
-        else if ((!node.environmentSpecificData.T || node.environmentSpecificData.T.codeVersionId == null) && 
-                 (node.environmentSpecificData.P && node.environmentSpecificData.P.codeVersionId != null)) {
-            colorKey = 'in_P_but_not_in_T'
-        }
-        else if ((!node.environmentSpecificData.T || node.environmentSpecificData.T.codeVersionId == null) && 
-                 (!node.environmentSpecificData.P || node.environmentSpecificData.P.codeVersionId == null)) {
-            // not in T and not in P, we do nothing (= default color)
-        }
-        else if ((node.environmentSpecificData.T && node.environmentSpecificData.T.codeVersionId != null) &&
-                 (node.environmentSpecificData.P && node.environmentSpecificData.P.codeVersionId != null) &&
-                  node.environmentSpecificData.P.codeVersionId === node.environmentSpecificData.T.codeVersionId) {
-            colorKey = 'same_in_T_and_P'
-        }
-        else if ((node.environmentSpecificData.T && node.environmentSpecificData.T.codeVersionId != null) &&
-                 (node.environmentSpecificData.P && node.environmentSpecificData.P.codeVersionId != null) &&
-                  node.environmentSpecificData.P.codeVersionId === node.environmentSpecificData.T.codeVersionId) {
-            // TODO: we could still check if the version in P is higher or lower than in T
-            colorKey = 'different_in_T_and_P'
-        }
-        else {
-            console.log("ERROR: when determining the colors for T_vs_P we cane to a combination of environmentSpecificData that was not forseen!")
+        
+        if ('environmentSpecificData' in node) {
+            
+            let deployedP = ('P' in node.environmentSpecificData) && node.environmentSpecificData.P.deployedTAB === 'Ja'
+            let deployedT = ('T' in node.environmentSpecificData) && node.environmentSpecificData.T.deployedTAB === 'Ja'
+            let versionTKnown = ('T' in node.environmentSpecificData) && ('codeVersionId' in node.environmentSpecificData.T) && node.environmentSpecificData.T.codeVersionId
+            let versionPKnown = ('P' in node.environmentSpecificData) && ('codeVersionId' in node.environmentSpecificData.P) && node.environmentSpecificData.P.codeVersionId
+            
+            if (deployedT && !deployedP) {
+                // We have a code version in T, but not in P
+                colorKey = 'in_T_but_not_in_P'
+            }
+            else if (!deployedT && deployedP) {
+                colorKey = 'in_P_but_not_in_T'
+            }
+            else if (!deployedT && !deployedP) {
+                // not in T and not in P, we do nothing (= default color)
+            }
+            else if (!versionTKnown || !versionPKnown) {
+                // both T and P have been deployed, but we don't known both versions (so we cant compare them)
+                colorKey = 'in_T_and_in_P'
+            }
+            else if (versionTKnown &&  versionPKnown && node.environmentSpecificData.P.codeVersionId === node.environmentSpecificData.T.codeVersionId) {
+                // we know both versions and the are the same
+                colorKey = 'same_version_in_T_and_P'
+            }
+            else if (versionTKnown && versionPKnown && node.environmentSpecificData.P.codeVersionId !== node.environmentSpecificData.T.codeVersionId) {
+                // TODO: we could still check if the version in P is higher or lower than in T
+                colorKey = 'different_version_in_T_and_P'
+            }
+            else {
+                console.log("ERROR: when determining the colors for T_vs_P we cane to a combination of environmentSpecificData that was not forseen!")
+            }
         }
             
         if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {
             colorNamesWithLight = colorMapping[colorKey]
+        }
+        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {
+            colorNamesWithLight = selectedLegenda.defaultColor
         }
     }
     return colorNamesWithLight
