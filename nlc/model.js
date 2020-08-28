@@ -372,18 +372,18 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramIdentifier, 
 
 
 function removeDiagram (diagramToBeRemoved) {
-    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagramsByIdentifier = NLC.nodesAndLinksData.diagramsByIdentifier
 
     let diagramIndexToDelete = null
     for (let diagramIndex = 0; diagramIndex < NLC.nodesAndLinksData.diagrams.length; diagramIndex++) {
         let diagram = NLC.nodesAndLinksData.diagrams[diagramIndex]
-        if (diagram.id === diagramToBeRemoved.id) {
+        if (diagram.identifier === diagramToBeRemoved.identifier) {
             diagramIndexToDelete = diagramIndex
         }
     }
     if (diagramIndexToDelete != null) {
         NLC.nodesAndLinksData.diagrams.splice(diagramIndexToDelete)
-        delete diagramsById[diagramToBeRemoved.id]
+        delete diagramsByIdentifier[diagramToBeRemoved.identifier]
     }
     else {
         console.log("ERROR: could not find diagram to be deleted!")
@@ -392,7 +392,7 @@ function removeDiagram (diagramToBeRemoved) {
     // FIXME: remove all visualData from nodes and links pointing to this diagram!
     
 
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsByIdentifier)
     let nlcDataChange = {
         "method" : "delete",
         "path" : [ "diagrams", diagramToBeRemoved.id],
@@ -539,12 +539,12 @@ function createNewNode(nodeTypeIdentifier) {
 }
 
 function storeNewDiagram(newDiagram) {
-    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagramsByIdentifier = NLC.nodesAndLinksData.diagramsByIdentifier
 
-    diagramsById[newDiagram.id] = newDiagram
+    diagramsByIdentifier[newDiagram.identifier] = newDiagram
     NLC.nodesAndLinksData.diagrams.push(newDiagram)
 
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsByIdentifier)
     let nlcDataChange = {
         "method" : "insert",
         "path" : [ "diagrams"],
@@ -696,8 +696,13 @@ function getColorNamesWithLightForNode (node, selectedLegendaId) {
     
     let colorNamesWithLight = null
     if (selectedLegenda.field === 'type') {
-        if (colorMapping.hasOwnProperty(node.type)) {
-            colorNamesWithLight = colorMapping[node.type]
+        let nodeTypeIdentifier = node.type
+        // TODO: hardcoded exception!
+        if (nodeTypeIdentifier === 'Mediation' && 'iraType' in node.commonData && node.commonData['iraType'] === 'BS') {
+            nodeTypeIdentifier = 'Mediation|BS'
+        }
+        if (colorMapping.hasOwnProperty(nodeTypeIdentifier)) {
+            colorNamesWithLight = colorMapping[nodeTypeIdentifier]
         }
     }
     else if (selectedLegenda.field === 'dataType') {
