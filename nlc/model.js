@@ -35,6 +35,24 @@ function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
         }
         diagramChanges.push(nlcDataChange)
     }
+    
+    if (changedDiagram.level !== originalDiagram.level) {
+        let nlcDataChange = {
+            "method" : "update",
+            "path" : [ "diagrams", originalDiagram.id, "level" ],
+            "data" : changedDiagram.level
+        }
+        diagramChanges.push(nlcDataChange)
+    }
+
+    if (changedDiagram.projectUrl !== originalDiagram.projectUrl) {
+        let nlcDataChange = {
+            "method" : "update",
+            "path" : [ "diagrams", originalDiagram.id, "projectUrl" ],
+            "data" : changedDiagram.projectUrl
+        }
+        diagramChanges.push(nlcDataChange)
+    }
 
     if (diagramChanges.length > 0) {
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(diagramChanges)
