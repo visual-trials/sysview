@@ -108,6 +108,78 @@ ZUI.containerShapes = {
             // TODO: for now we always close the path. We might not (always) want to do that!
         ]
     },
+    'rectangleFlat4points' : {
+        'points' : {
+            'left-top-lower' : {
+                positioning : 'relative',
+                fromPoint : 'left-top',
+                toPoint : 'left-bottom',
+                fraction : 0.25,
+                isConnectionPoint : false
+            },
+            'left-bottom-higher' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom',
+                toPoint : 'left-top',
+                fraction : 0.25,
+                isConnectionPoint : false
+            },
+            'right-top-lower' : {
+                positioning : 'relative',
+                fromPoint : 'right-top',
+                toPoint : 'right-bottom',
+                fraction : 0.25,
+                isConnectionPoint : false
+            },
+            'right-bottom-higher' : {
+                positioning : 'relative',
+                fromPoint : 'right-bottom',
+                toPoint : 'right-top',
+                fraction : 0.25,
+                isConnectionPoint : false
+            },
+            '~top-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top-lower',
+                toPoint : 'right-top-lower',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1.5 * Math.PI,
+                // TODO: add something like data/arrow-direction : 'input' / 'output' / 'intput+output'
+            },
+            '~left-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-top-lower',
+                toPoint : 'left-bottom-higher',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 1 * Math.PI,
+            },
+            '~bottom-middle' : {
+                positioning : 'relative',
+                fromPoint : 'left-bottom-higher',
+                toPoint : 'right-bottom-higher',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.5 * Math.PI,
+            },
+            '~right-middle' : {
+                positioning : 'relative',
+                fromPoint : 'right-top-lower',
+                toPoint : 'right-bottom-higher',
+                fraction : 0.5,
+                isConnectionPoint : true,
+                rightAngle : 0.0 * Math.PI,
+            },
+        },
+        'strokeAndFillPath' : [
+            { toPoint : 'left-top-lower', type : 'move' },
+            { toPoint : 'right-top-lower', type : 'line' },
+            { toPoint : 'right-bottom-higher', type : 'line' },
+            { toPoint : 'left-bottom-higher', type : 'line' },
+            // TODO: for now we always close the path. We might not (always) want to do that!
+        ]
+    },
     'rectangle2pointsLR' : {
         'points' : {
             'top-middle' : {
