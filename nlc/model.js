@@ -22,6 +22,42 @@ NLC.dataHasChanged = false
 NLC.dataChangesToStore = []
 NLC.nodesAndLinksData = {}
 
+
+function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
+    let knownUsersChanges = []
+    
+    originalKnownUsersById = groupById(originalKnownUsers)
+    
+    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused
+    
+    for (let knownUserIndex = 0; knownUserIndex < changedKnownUsers.length; knownUserIndex++) {
+        let changedKnownUser = changedKnownUsers[knownUserIndex]
+        // FIXME: we should check if the id exists!
+        let originalKnownUser = originalKnownUsersById[changedKnownUser.id]
+        
+        if (JSON.stringify(changedKnownUser.userPermissions) !== JSON.stringify(originalKnownUser.userPermissions) ) {
+            let nlcDataChange = {
+                "method" : "update",
+                "path" : [ "knownUsers", originalKnownUser.id, "userPermissions" ],
+                "data" : changedKnownUser.userPermissions
+            }
+            knownUsersChanges.push(nlcDataChange)
+            
+            // FIXME: we do this here, but we normally do this below!
+            originalKnownUsersById[changedKnownUser.id].userPermissions = changedKnownUser.userPermissions
+        }
+        
+    }
+
+    if (knownUsersChanges.length > 0) {
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(knownUsersChanges)
+        
+        NLC.dataHasChanged = true
+        
+        // FIXME: we now change the originals above!
+    }
+}
+
 function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
     let diagramChanges = []
     
@@ -1053,4 +1089,13 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         createConnection(connectionInfo)
     }
     
+}
+
+function groupById (listWithIds) {
+    let elementsById = {}
+    for (let index = 0; index < listWithIds.length; index++) {
+        let listElement = listWithIds[index]
+        elementsById[listElement.id] = listElement
+    }
+    return elementsById
 }
