@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="nl" xml:lang="nl">
+    <head>
+        <title>Wiki termen</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" >
+    </head>
+    <body onload="init()">
+        <br>
+        <br>
+        <div id="wiki" v-cloak class="container" style="width: 100vw; height: 100vh;">
+            <h5>{{ currentQuestion.term }}</h5>
+            <ul class="list-group">
+              <li class="list-group-item" v-bind:class="{ 'list-group-item-success': possibleDefinition.isCorrectAnswer && showAnswer }" v-for="possibleDefinition in currentQuestion.possibleDefinitions">
+                {{ possibleDefinition.text }} <span v-if="showAnswer">- <b>{{ possibleDefinition.correctTerm }}</b></span>
+              </li>
+            </ul>        
+            <br>
+            <button type="button" v-on:click="turnOnShowAnswer()" class="btn btn-success">Toon antwoord</button>
+            <button type="button" v-on:click="createNewQuestion()" class="btn btn-primary">Nieuwe vraag</button>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="js/wiki2.js?date=20201023"></script>
+        
+    </body>
+</html>
