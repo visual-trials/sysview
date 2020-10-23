@@ -22,18 +22,52 @@ const wikiApp = new Vue({
     }
 })
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
 function init() {
     
     loadWikiData() // ASYNC!
 }
 
 function generateNewQuestion() {
+    
+    let nrOfTerms = wikiApp.wikiTerms.length
+    
+    // TODO: the incorrect ones might be correct!
+    let correctTerm = wikiApp.wikiTerms[getRandomInt(nrOfTerms)]
+    
+    let incorrectTerms = []
+    incorrectTerms.push(wikiApp.wikiTerms[getRandomInt(nrOfTerms)])
+    incorrectTerms.push(wikiApp.wikiTerms[getRandomInt(nrOfTerms)])
+    incorrectTerms.push(wikiApp.wikiTerms[getRandomInt(nrOfTerms)])
+
+    let correctDefinitionIndex = getRandomInt(2)
+    let correctDefinition = correctTerm['definitions'][correctDefinitionIndex]
+    let correctQuestionIndex = getRandomInt(4)
+    
     let newQuestion = {
-        definition: "Definitie 2",
-        possibleTerms: [
-            { "text" : "TermA", "isCorrectAnswer" : true }, 
-            { "text" : "TermB", "isCorrectAnswer" : false }
-        ],
+        definition: correctDefinition,
+        possibleTerms: []
+    }
+    
+    let nrOfIncorrectTermsAdded = 0
+    for (let questionIndex = 0 ; questionIndex < 4; questionIndex++) {
+        let possibleAnswer = { 'text' : null , "isCorrectAnswer" : false }
+        if (questionIndex === correctQuestionIndex) {
+            possibleAnswer = {
+                'text' : correctTerm['term'] , "isCorrectAnswer" : true
+            }
+        }
+        else {
+            let incorrectTerm = incorrectTerms[nrOfIncorrectTermsAdded]
+            possibleAnswer = {
+                'text' : incorrectTerm['term'] , "isCorrectAnswer" : false
+            }
+            nrOfIncorrectTermsAdded++
+        }
+        newQuestion.possibleTerms.push(possibleAnswer)
     }
     
     return newQuestion

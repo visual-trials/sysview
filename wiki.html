@@ -9,7 +9,7 @@
         <br>
         <br>
         <div id="wiki" v-cloak class="container" style="width: 100vw; height: 100vh;">
-            <h1>{{ currentQuestion.definition }}</h1>
+            <h3>{{ currentQuestion.definition }}</h3>
             <ul class="list-group">
               <li class="list-group-item" v-bind:class="{ 'list-group-item-success': possibleTerm.isCorrectAnswer && showAnswer }" v-for="possibleTerm in currentQuestion.possibleTerms">{{ possibleTerm.text }}</li>
             </ul>        
