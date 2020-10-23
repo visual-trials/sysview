@@ -81,8 +81,7 @@ function loadWikiData() {
             let wikiData = JSON.parse(xmlhttp.responseText)
             wikiApp.wikiTerms = wikiData.sourceData
             
-// FIXME: turn this on:            wikiApp.currentQuestion = generateNewQuestion()
-            // FIXME: choose a question/term and show it!
+            wikiApp.currentQuestion = generateNewQuestion()
         }
     }
     
