@@ -93,7 +93,10 @@ else if ($action === 'get_source_data') {
     $filenameSource = "projects/$projectDir/$sourceFile";
 
 	$pathInfo = pathinfo($filenameSource);
-	if ($pathInfo["extension"] == "csv") {
+	if ($pathInfo["extension"] == "txt") {
+	    $sourceData = file_get_contents($filenameSource);
+        }
+	else if ($pathInfo["extension"] == "csv") {
 		// TODO: make  $delimiter, $enclosure, $escape configurable
         $rows = [];
         if (($handle = fopen($filenameSource, "r")) !== false) {
