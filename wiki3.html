@@ -13,7 +13,7 @@
             <br>
             <ul class="list-group">
               <li class="list-group-item" v-bind:class="{ 'list-group-item-success': possibleExample.isCorrectAnswer && showAnswer }" v-for="possibleExample in currentQuestion.possibleExamples">
-                {{ possibleExample.text }} <span v-if="showAnswer">- <b>{{ possibleExample.correctTerm }}</b></span>
+                {{ possibleExample.text }} <span v-if="showAnswer">- <b>{{ possibleExample.correctTerm }}</b></span><br>
               </li>
             </ul>        
             <br>
@@ -22,9 +22,20 @@
             <br>
             <button type="button" v-on:click="turnOnShowAnswer()" class="btn btn-success">Toon antwoord</button>
             <button type="button" v-on:click="createNewQuestion()" class="btn btn-primary">Nieuwe vraag</button>
+            <br>
+            <br>
+            <div v-if="showAnswer" class="container px-5">
+                <span><b>Definities van '{{ currentQuestion.term }}'</b></span>
+                <br>
+                <ul class="list-group">
+                  <li class="list-group-item list-group-item-primary" v-for="definition in currentQuestion.definitions">
+                     {{ definition }}
+                  </li>
+                </ul>        
+            </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        <script src="js/wiki3.js?date=20201024"></script>
+        <script src="js/wiki3.js?date=20201024a"></script>
         
     </body>
 </html>

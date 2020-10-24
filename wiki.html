@@ -20,9 +20,20 @@
             <br>
             <button type="button" v-on:click="turnOnShowAnswer()" class="btn btn-success">Toon antwoord</button>
             <button type="button" v-on:click="createNewQuestion()" class="btn btn-primary">Nieuwe vraag</button>
+            <br>
+            <br>
+            <div v-if="showAnswer" class="container px-5">
+                <span><b>Voorbeelden van '{{ currentQuestion.correctTerm }}'</b></span>
+                <br>
+                <ul class="list-group">
+                  <li class="list-group-item list-group-item-primary" v-for="example in currentQuestion.examples">
+                     {{ example }}
+                  </li>
+                </ul>        
+            </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        <script src="js/wiki.js?date=20201024"></script>
+        <script src="js/wiki.js?date=20201024a"></script>
         
     </body>
 </html>

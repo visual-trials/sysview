@@ -5,6 +5,8 @@ const wikiApp = new Vue({
         showAnswer : false,
         currentQuestion : {
             definition: "Definitie",
+            examples: [],
+            correctTerm: 'ONBEKEND',
             possibleTerms: [
                 { "text" : "Term1", "isCorrectAnswer" : false }, 
                 { "text" : "Term2", "isCorrectAnswer" : true }
@@ -49,6 +51,8 @@ function generateNewQuestion() {
     
     let newQuestion = {
         definition: correctDefinition,
+        examples: correctTerm['examples'],
+        correctTerm: correctTerm['term'],
         possibleTerms: []
     }
     
