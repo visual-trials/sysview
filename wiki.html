@@ -10,15 +10,19 @@
         <br>
         <div id="wiki" v-cloak class="container" style="width: 100vw; height: 100vh;">
             <h5>{{ currentQuestion.definition }}</h5>
+            <br>
             <ul class="list-group">
               <li class="list-group-item" v-bind:class="{ 'list-group-item-success': possibleTerm.isCorrectAnswer && showAnswer }" v-for="possibleTerm in currentQuestion.possibleTerms">{{ possibleTerm.text }}</li>
             </ul>        
+            <br>
+            <span>Wat is de bijbehorende term?</span>
+            <br>
             <br>
             <button type="button" v-on:click="turnOnShowAnswer()" class="btn btn-success">Toon antwoord</button>
             <button type="button" v-on:click="createNewQuestion()" class="btn btn-primary">Nieuwe vraag</button>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        <script src="js/wiki.js?date=20201023"></script>
+        <script src="js/wiki.js?date=20201024"></script>
         
     </body>
 </html>
