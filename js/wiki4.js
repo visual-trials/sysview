@@ -13,14 +13,14 @@ const wikiApp = new Vue({
         previousTerm : function() {
             wikiApp.currentTermIndex--
             if (wikiApp.currentTermIndex < 0) {
-                wikiApp.currentTermIndex++
+                wikiApp.currentTermIndex = wikiApp.wikiTerms.length - 1
             }
             wikiApp.currentTerm = wikiApp.wikiTerms[wikiApp.currentTermIndex]
         },
         nextTerm : function() {
             wikiApp.currentTermIndex++
             if (wikiApp.currentTermIndex >= wikiApp.wikiTerms.length) {
-                wikiApp.currentTermIndex--
+                wikiApp.currentTermIndex = 0
             }
             wikiApp.currentTerm = wikiApp.wikiTerms[wikiApp.currentTermIndex]
         },

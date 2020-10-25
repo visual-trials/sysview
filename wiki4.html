@@ -9,6 +9,10 @@
         <br>
         <br>
         <div id="wiki" v-cloak class="container" style="width: 100vw; height: 100vh;">
+            <button type="button" v-on:click="nextTerm()" class="btn btn-primary float-right">Volgende term</button>
+            <span class="float-right">&nbsp;</span>
+            <button type="button" v-on:click="previousTerm()" class="btn btn-primary float-right">Vorige term</button>
+            <br>
             <h5>{{ currentTerm.term }}</h5>
             <br>
             <span><b>Definities</b></span>
@@ -26,9 +30,6 @@
                      {{ example }}
                   </li>
                 </ul>        
-            <br>
-            <button type="button" v-on:click="previousTerm()" class="btn btn-primary">Vorige term</button>
-            <button type="button" v-on:click="nextTerm()" class="btn btn-primary">Volgende term</button>
             <br>
             <br>
         </div>
