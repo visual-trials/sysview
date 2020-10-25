@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="nl" xml:lang="nl">
+    <head>
+        <title>Wiki - Bladeren</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" >
+    </head>
+    <body onload="init()">
+        <br>
+        <br>
+        <div id="wiki" v-cloak class="container" style="width: 100vw; height: 100vh;">
+            <h5>{{ currentTerm.term }}</h5>
+            <br>
+            <span><b>Definities</b></span>
+            <br>
+            <ul class="list-group">
+              <li class="list-group-item list-group-item-success" v-for="definition in currentTerm.definitions">
+                {{ definition }}
+              </li>
+            </ul>        
+            <br>
+                <span><b>Voorbeelden</b></span>
+                <br>
+                <ul class="list-group">
+                  <li class="list-group-item list-group-item-primary" v-for="example in currentTerm.examples">
+                     {{ example }}
+                  </li>
+                </ul>        
+            <br>
+            <button type="button" v-on:click="previousTerm()" class="btn btn-primary">Vorige term</button>
+            <button type="button" v-on:click="nextTerm()" class="btn btn-primary">Volgende term</button>
+            <br>
+            <br>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="js/wiki4.js?date=20201024a"></script>
+        
+    </body>
+</html>
