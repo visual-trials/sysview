@@ -818,6 +818,18 @@ function getColorNamesWithLightForNode (node, selectedLegendaId) {
             colorNamesWithLight = selectedLegenda.defaultColor
         }
     }
+    else {
+        // This is the generic case (no hardcoded exceptions)
+        if (selectedLegenda.field in node.commonData) {
+            let nodeTypeIdentifier = node.commonData[selectedLegenda.field]
+            if (colorMapping.hasOwnProperty(nodeTypeIdentifier)) {
+                colorNamesWithLight = colorMapping[nodeTypeIdentifier]
+            }
+        }
+        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {
+            colorNamesWithLight = selectedLegenda.defaultColor
+        }
+    }
     return colorNamesWithLight
 }
 
