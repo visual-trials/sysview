@@ -774,6 +774,42 @@ function getColorNamesWithLightForNode (node, selectedLegendaId) {
         }
         
     }
+    else if (selectedLegenda.field === 'migrationPlanning') {
+        let colorKey = null
+        
+        let selectedDate = new Date(ikbApp.selectedDateISO)
+        if (selectedDate) {
+            if ('plannedMigrationDate' in node.commonData) {
+                let daysToStart = 30
+                let daysToMigrate = 90
+                let plannedMigrationDate = new Date(node.commonData.plannedMigrationDate)
+                let startingMigrationDate = new Date(plannedMigrationDate)
+                let doingMigrationDate = new Date(plannedMigrationDate)
+                startingMigrationDate.setDate(plannedMigrationDate.getDate() - daysToMigrate - daysToStart)
+                doingMigrationDate.setDate(plannedMigrationDate.getDate() - daysToMigrate)
+                
+                if (selectedDate > plannedMigrationDate) {
+                    colorKey = 'migrated'
+                }
+                else if (selectedDate >= startingMigrationDate && selectedDate < doingMigrationDate) {
+                    colorKey = 'starting_to_migrate'
+                }
+                else if (selectedDate >= doingMigrationDate && selectedDate < plannedMigrationDate) {
+                    colorKey = 'migrating'
+                }
+            }
+        
+        
+        }
+        
+        
+        if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {
+            colorNamesWithLight = colorMapping[colorKey]
+        }
+        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {
+            colorNamesWithLight = selectedLegenda.defaultColor
+        }
+    }
     else if (selectedLegenda.field === 'T_vs_P') {
         let colorKey = null
         
