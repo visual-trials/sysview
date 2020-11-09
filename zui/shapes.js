@@ -36,7 +36,10 @@ function getColorByColorNameAndLighten(colorNameAndLighten) {
             color = darken(basicColor, -light)
         }
         else {
-            color = basicColor // TODO: shouldnt we make a copy?
+            color.r = basicColor.r
+            color.g = basicColor.g
+            color.b = basicColor.b
+            color.a = basicColor.a
         }
     }
     else {
