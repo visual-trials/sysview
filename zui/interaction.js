@@ -18,6 +18,7 @@
  
 ZUI.interaction = {
     centerViewOnWorldCenter : false,
+    centerViewOnWorldCenterWithPanning : false,
     centerViewOnFirstSelectedContainer :  false,
     centerViewOnSelectedConnection : false,
     viewScale : 1,
@@ -1293,41 +1294,85 @@ function animatePanning(timeElapsed) {
 
 function updateWorld(timeElapsed) {
     
-    if (ZUI.interaction.centerViewOnWorldCenter) {
+    if (ZUI.interaction.centerViewOnWorldCenter || ZUI.interaction.centerViewOnWorldCenterWithPanning) {
 
-        let rectangleAroundWorld = getRectangleAroundWorld()
+        let ignoreDimmedContainers = true
+        let rectangleAroundWorld = getRectangleAroundWorld(ignoreDimmedContainers)
+        // If we can't find a rectangle using non-dimmed containers, we try all containers
+        if (rectangleAroundWorld.position.x == null) { // FIXME: this is a bit ugly
+            rectangleAroundWorld = getRectangleAroundWorld(false)
+        }
         
         // TODO: put this in a function that centers the view on a world-rectangle
         {
-            let middlePointOfWorld = getCenterPointOfRectangle(rectangleAroundWorld)
-            
-            // For now we are resetting to the default
-            ZUI.interaction.viewScale = 1
-            ZUI.interaction.viewOffset = { x: 0, y: 0 }
-            
-            // We first set the viewScale
-            let leftTopOfWorldOnScreen = fromWorldPositionToScreenPosition(rectangleAroundWorld.position)
-            let rightBottomOfWorldOnScreen = fromWorldPositionToScreenPosition(addSizeToPosition(rectangleAroundWorld.size, rectangleAroundWorld.position))
-            let worldWidthOnScreen = rightBottomOfWorldOnScreen.x - leftTopOfWorldOnScreen.x
-            let worldHeightOnScreen = rightBottomOfWorldOnScreen.y - leftTopOfWorldOnScreen.y
-            
-            // We check if the height or the width is the constraint and choose that one
-            let scaleToFitWidth = ZUI.canvasElement.width * 0.8 / worldWidthOnScreen
-            let scaleToFitHeight = ZUI.canvasElement.height * 0.8 / worldHeightOnScreen
-            if (scaleToFitWidth < scaleToFitHeight) {
-                ZUI.interaction.viewScale = scaleToFitWidth
+            if (ZUI.interaction.centerViewOnWorldCenterWithPanning) {
+                // FIXME: since fromWorldPositionToScreenPosition uses ZUI.interaction.viewScale and ZUI.interaction.viewOffset, we first have to copy the originals
+                // We then calculate our target viewScale and viewOffset and restore them. After that we can animate towards them!
+                var originalViewScale = ZUI.interaction.viewScale
+                var originalViewOffset = {
+                    x: ZUI.interaction.viewOffset.x,
+                    y: ZUI.interaction.viewOffset.y
+                }
             }
-            else {
-                ZUI.interaction.viewScale = scaleToFitHeight
+
+            // We calculate everything and set it, as-if there is not animation
+            {
+                let middlePointOfWorld = getCenterPointOfRectangle(rectangleAroundWorld)
+                
+                // For now we are resetting to the default
+                ZUI.interaction.viewScale = 1
+                ZUI.interaction.viewOffset = { x: 0, y: 0 }
+                
+                // We first set the viewScale
+                let leftTopOfWorldOnScreen = fromWorldPositionToScreenPosition(rectangleAroundWorld.position)
+                let rightBottomOfWorldOnScreen = fromWorldPositionToScreenPosition(addSizeToPosition(rectangleAroundWorld.size, rectangleAroundWorld.position))
+                let worldWidthOnScreen = rightBottomOfWorldOnScreen.x - leftTopOfWorldOnScreen.x
+                let worldHeightOnScreen = rightBottomOfWorldOnScreen.y - leftTopOfWorldOnScreen.y
+                
+                // We check if the height or the width is the constraint and choose that one
+                let scaleToFitWidth = ZUI.canvasElement.width * 0.8 / worldWidthOnScreen
+                let scaleToFitHeight = ZUI.canvasElement.height * 0.8 / worldHeightOnScreen
+                if (scaleToFitWidth < scaleToFitHeight) {
+                    ZUI.interaction.viewScale = scaleToFitWidth
+                }
+                else {
+                    ZUI.interaction.viewScale = scaleToFitHeight
+                }
+                
+                // After setting the scale we can calculate the viewOffset
+                let middleOfWorldOnScreen = fromWorldPositionToScreenPosition(middlePointOfWorld)
+                let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
+                ZUI.interaction.viewOffset = { x: middleOfScreen.x - middleOfWorldOnScreen.x, y: middleOfScreen.y - middleOfWorldOnScreen.y } 
             }
             
-            // After setting the scale we can calculate the viewOffset
-            let middleOfWorldOnScreen = fromWorldPositionToScreenPosition(middlePointOfWorld)
-            let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
-            ZUI.interaction.viewOffset = { x: middleOfScreen.x - middleOfWorldOnScreen.x, y: middleOfScreen.y - middleOfWorldOnScreen.y } 
+            if (ZUI.interaction.centerViewOnWorldCenterWithPanning) {
+                // We use the result as our target
+                let targetViewScale = ZUI.interaction.viewScale
+                let targetViewOffset = { x: ZUI.interaction.viewOffset.x, y: ZUI.interaction.viewOffset.y }
+                
+                // FIXME: here we restore them
+                ZUI.interaction.viewOffset = {
+                    x: originalViewOffset.x, 
+                    y: originalViewOffset.y 
+                }
+                ZUI.interaction.viewScale = originalViewScale
+                
+                ZUI.interaction.timeScrolled = 0
+                ZUI.interaction.panningAnimationIsActive = true
+        
+                ZUI.interaction.startPanningViewOffset = {
+                    x: ZUI.interaction.viewOffset.x,
+                    y: ZUI.interaction.viewOffset.y
+                }
+                ZUI.interaction.startPanningViewScale = ZUI.interaction.viewScale
+                ZUI.interaction.targetPanningViewOffset = targetViewOffset
+                ZUI.interaction.targetPanningViewScale = targetViewScale
+            }
+            
         }
         
         ZUI.interaction.centerViewOnWorldCenter = false
+        ZUI.interaction.centerViewOnWorldCenterWithPanning = false
     }
     else if (ZUI.interaction.centerViewOnFirstSelectedContainer)  {
         if (ZUI.interaction.currentlySelectedContainerIdentifiers.length !== 0) {

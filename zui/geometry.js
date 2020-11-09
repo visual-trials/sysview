@@ -311,7 +311,7 @@ function getCenterPointOfRectangle (rectangle) {
     return { x: middleX, y: middleY }
 }
 
-function getRectangleAroundWorld() {
+function getRectangleAroundWorld(ignoreDimmedContainers) {
 
     let rootContainer = ZUI.containersAndConnections.containers['root']
         
@@ -323,6 +323,11 @@ function getRectangleAroundWorld() {
     for (let containerIndex = 0; containerIndex < rootContainer.children.length; containerIndex++) {
         let childContainerIdentifier = rootContainer.children[containerIndex]
         let childContainer = ZUI.containersAndConnections.containers[childContainerIdentifier]
+        
+        // FIXME: we should make a new attribute called 'doDim' and check it here instead!
+        if (ignoreDimmedContainers && childContainer.fill.a < 1.0) {
+            continue
+        }
         
         if (minX == null || childContainer.worldPosition.x < minX) {
             minX = childContainer.worldPosition.x
