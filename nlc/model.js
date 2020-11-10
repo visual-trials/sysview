@@ -739,7 +739,7 @@ function linkIsInDiagram(link, diagramIdentifier) {
 // FIXME: make this more generic!    
 //   OR    
 // FIXME: move this function out of model.js (into a more specific file)    
-function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninteresting) {    
+function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninteresting, teamId) {    
         
     if (selectedLegendaId == null) {    
         return null    
@@ -869,13 +869,9 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
         colorNamesWithLight.doDim = false
         if (dimUninteresting) {
             // FIXME: this is very specific and should be put into a more specific place!
-            // FIMXE: referring to ikbApp here!!
             colorNamesWithLight.doDim = true
             if ('responsibleTeamId' in node.commonData &&
-                'userData' in ikbApp &&
-                'permissions' in ikbApp.userData &&
-                'teamId' in ikbApp.userData.permissions &&
-                node.commonData.responsibleTeamId === ikbApp.userData.permissions.teamId) {
+                teamId && node.commonData.responsibleTeamId === teamId) {
                 colorNamesWithLight.doDim = false
             }
         }
@@ -885,7 +881,7 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
 }    
     
 // FIXME: move this function out of model.js (into a more specific file)    
-function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninteresting) {    
+function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninteresting, teamId) {    
         
     if (selectedLegendaId == null) {    
         return null    
@@ -931,13 +927,9 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
         colorNamesWithLight.doDim = false
         if (dimUninteresting) {
             // FIXME: this is very specific and should be put into a more specific place!
-            // FIMXE: referring to ikbApp here!!
             colorNamesWithLight.doDim = true
             if ('responsibleTeamId' in link.commonData &&
-                'userData' in ikbApp &&
-                'permissions' in ikbApp.userData &&
-                'teamId' in ikbApp.userData.permissions &&
-                link.commonData.responsibleTeamId === ikbApp.userData.permissions.teamId) {
+                teamId && link.commonData.responsibleTeamId === teamId) {
                 colorNamesWithLight.doDim = false
             }
         }
@@ -1001,7 +993,7 @@ function getLinkTypeInfo(link) {
     return null    
 }    
     
-function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedLegendaId, dimUninteresting) {    
+function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedLegendaId, dimUninteresting, teamId) {    
     
     // Removing all connections and containers    
     initContainersAndConnections()    
@@ -1091,7 +1083,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         }    
             
         let colorsForNode = null    
-        let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting)
+        let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting, teamId)
         if (colorNamesWithLight != null) {    
             let colors = {}    
             containerInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
@@ -1163,7 +1155,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         }    
             
         let colorsForLink = null    
-        let colorNamesWithLight = getColorNamesWithLightForLink(link, selectedLegendaId, dimUninteresting)    
+        let colorNamesWithLight = getColorNamesWithLightForLink(link, selectedLegendaId, dimUninteresting, teamId)    
         if (colorNamesWithLight != null) {    
             let colors = {}    
             connectionInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
