@@ -35,6 +35,18 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
         // FIXME: we should check if the id exists!    
         let originalKnownUser = originalKnownUsersById[changedKnownUser.id]    
             
+        if (changedKnownUser.teamId !== originalKnownUser.teamId) {    
+            let nlcDataChange = {    
+                "method" : "update",    
+                "path" : [ "knownUsers", originalKnownUser.id, "teamId" ],    
+                "data" : changedKnownUser.teamId
+            }    
+            knownUsersChanges.push(nlcDataChange)    
+            
+            // FIXME: we do this here, but we normally do this below!    
+            originalKnownUsersById[changedKnownUser.id].teamId = changedKnownUser.teamId
+        }    
+            
         if (JSON.stringify(changedKnownUser.userPermissions) !== JSON.stringify(originalKnownUser.userPermissions) ) {    
             let nlcDataChange = {    
                 "method" : "update",    
@@ -52,10 +64,10 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
     if (knownUsersChanges.length > 0) {    
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(knownUsersChanges)    
             
-        NLC.dataHasChanged = true    
-            
+        NLC.dataHasChanged = true
+        
         // FIXME: we now change the originals above!    
-    }    
+    }
 }    
     
 function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {    
