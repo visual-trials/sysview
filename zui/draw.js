@@ -1171,7 +1171,19 @@ if (container.stroke) {
         ZUI.ctx.fillText(textToDraw, 0, 0)
         
         ZUI.ctx.restore()
+        
+        /*
+        // TODO: we want to do something like this, but labels should be drawn at the end (not it is behind other containers and to the upper-left)
+        // Draw label
+        if (ZUI.interaction.highlightHoveredContainer &&
+            ZUI.interaction.currentlyHoveredContainerIdentifier != null &&
+            ZUI.interaction.currentlyHoveredContainerIdentifier === container.identifier) {
+            drawLabel(textToDraw, screenTextPosition)
+        }
+        */
     }
+    
+    
     
 }
 
