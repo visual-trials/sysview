@@ -800,64 +800,11 @@ if (connectionType === 'common') {
         ZUI.ctx.stroke()        
         
         // Draw label
-        
         if (singleConnectionIdentifier != null && 
                 (singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier || 
                  singleConnectionIdentifier === ZUI.interaction.currentlySelectedConnectionIdentifier)
            ) {
-            let backgroundColor = { r:250, g:250, b:250, a:0.8 }
-            let borderColor = { r:100, g:100, b:100, a:0.8 }
-            let textColor = { r:50, g:50, b:50, a:1 }
-            let borderWidth = 1
-            let borderRadius = 4
-            
-            let textToDraw = connectionName
-            
-            // Determine positions and sizes (of text and textBox)
-            
-            let textSize = {}
-            let fontSize = 14
-            let heightBottomWhiteArea = fontSize / 6
-            let textHeightToFontSizeRatioArial = 1.1499023
-            
-            let horizontalPadding = 12
-            let verticalPadding = 6
-            
-            textSize.width = ZUI.ctx.measureText(textToDraw).width
-            textSize.height = textHeightToFontSizeRatioArial * fontSize
-            
-            let textBox = {}
-            textBox.size = {
-                width: textSize.width + horizontalPadding,
-                height: textSize.height + verticalPadding
-            }
-            // TODO: maybe put the textBox above the line if the line is horizontal, otherwise on top of it?
-            textBox.position = {
-                x: screenMiddlePoint.x - textBox.size.width / 2,
-                y: screenMiddlePoint.y - textBox.size.height - 2 // TODO: where should we put the textBox vertically?
-            }
-            
-            let textPosition = {}
-            textPosition.x = textBox.position.x + (textBox.size.width / 2) - (textSize.width / 2)
-            textPosition.y = textBox.position.y + (textBox.size.height / 2) - (textSize.height / 2) + heightBottomWhiteArea
-
-            // Draw text box
-            
-            ZUI.ctx.lineWidth = borderWidth
-            ZUI.ctx.strokeStyle = rgba(borderColor)
-            ZUI.ctx.fillStyle = rgba(backgroundColor)
-            
-            pathRoundRect (textBox.position.x, textBox.position.y, textBox.size.width, textBox.size.height, borderRadius)
-            ZUI.ctx.fill()
-            ZUI.ctx.stroke()
-        
-            // Draw text
-            
-            ZUI.ctx.font = fontSize + "px Arial"
-            ZUI.ctx.textBaseline = "top"
-            ZUI.ctx.fillStyle = rgba(textColor)
-            ZUI.ctx.fillText(textToDraw, textPosition.x, textPosition.y)
-
+            drawLabel(connectionName, screenMiddlePoint)
         }
         
 
@@ -879,6 +826,63 @@ if (connectionType === 'common') {
     }
 
 }
+
+
+function drawLabel(textToDraw, screenMiddlePoint) {
+    let backgroundColor = { r:250, g:250, b:250, a:0.8 }
+    let borderColor = { r:100, g:100, b:100, a:0.8 }
+    let textColor = { r:50, g:50, b:50, a:1 }
+    let borderWidth = 1
+    let borderRadius = 4
+    
+    // let textToDraw = connectionName
+    
+    // Determine positions and sizes (of text and textBox)
+    
+    let textSize = {}
+    let fontSize = 14
+    let heightBottomWhiteArea = fontSize / 6
+    let textHeightToFontSizeRatioArial = 1.1499023
+    
+    let horizontalPadding = 12
+    let verticalPadding = 6
+    
+    textSize.width = ZUI.ctx.measureText(textToDraw).width
+    textSize.height = textHeightToFontSizeRatioArial * fontSize
+    
+    let textBox = {}
+    textBox.size = {
+        width: textSize.width + horizontalPadding,
+        height: textSize.height + verticalPadding
+    }
+    // TODO: maybe put the textBox above the line if the line is horizontal, otherwise on top of it?
+    textBox.position = {
+        x: screenMiddlePoint.x - textBox.size.width / 2,
+        y: screenMiddlePoint.y - textBox.size.height - 2 // TODO: where should we put the textBox vertically?
+    }
+    
+    let textPosition = {}
+    textPosition.x = textBox.position.x + (textBox.size.width / 2) - (textSize.width / 2)
+    textPosition.y = textBox.position.y + (textBox.size.height / 2) - (textSize.height / 2) + heightBottomWhiteArea
+
+    // Draw text box
+    
+    ZUI.ctx.lineWidth = borderWidth
+    ZUI.ctx.strokeStyle = rgba(borderColor)
+    ZUI.ctx.fillStyle = rgba(backgroundColor)
+    
+    pathRoundRect (textBox.position.x, textBox.position.y, textBox.size.width, textBox.size.height, borderRadius)
+    ZUI.ctx.fill()
+    ZUI.ctx.stroke()
+
+    // Draw text
+    
+    ZUI.ctx.font = fontSize + "px Arial"
+    ZUI.ctx.textBaseline = "top"
+    ZUI.ctx.fillStyle = rgba(textColor)
+    ZUI.ctx.fillText(textToDraw, textPosition.x, textPosition.y)
+}
+
 
 function showContainerChildren(container) {
     if (container.identifier === 'root') return 1
