@@ -1031,7 +1031,7 @@ function drawContainer(container, alpha, textAlpha) {
     ZUI.ctx.save()
     {
         // Draw shape
-        ZUI.ctx.lineWidth = 2 * ZUI.interaction.viewScale * container.worldScale * container.lineWidth
+        ZUI.ctx.lineWidth = 2 * ZUI.interaction.viewScale * container.worldScale // TODO: turned this of for the moment (don't understand why it has a weird effect in default mode):   * container.lineWidth 
         let stroke = container.stroke
         if (alpha == null) {
             ZUI.ctx.strokeStyle = rgba(container.stroke)
