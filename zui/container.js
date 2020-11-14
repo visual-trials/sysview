@@ -50,6 +50,7 @@ function createContainer(containerData) {
     let stroke = { r:255, g:255, b:0, a:1 }
     let shape = 'rectangle4points'
     let textBelowContainer = false
+    let lineWidth = 1
 
     if (containerData.fill != null) {
         fill = containerData.fill
@@ -59,6 +60,9 @@ function createContainer(containerData) {
     }
     if (containerData.shape != null) {
         shape = containerData.shape
+    }
+    if (containerData.lineWidth != null) {
+        lineWidth = containerData.lineWidth
     }
     if (containerData.textBelowContainer != null) {
         textBelowContainer = containerData.textBelowContainer
