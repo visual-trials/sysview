@@ -21,8 +21,28 @@ let NLC = {}
 NLC.dataHasChanged = false    
 NLC.dataChangesToStore = []    
 NLC.nodesAndLinksData = {}    
-    
-    
+
+
+function storeSourcePointLocalPosition(sourcePage, originalSourcePoint, localPosition) {    
+
+    let sourcePagesChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point position and the new position
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "position" ],    
+            "data" : localPosition
+        }    
+        originalSourcePoint.position = localPosition
+        sourcePagesChanges.push(nlcDataChange)    
+    }
+                
+    if (sourcePagesChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
+
 function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {    
     let knownUsersChanges = []    
         
