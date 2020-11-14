@@ -22,6 +22,43 @@ NLC.dataHasChanged = false
 NLC.dataChangesToStore = []    
 NLC.nodesAndLinksData = {}    
 
+function addSourcePointToSourcePage(sourcePage, sourcePoint) {    
+        
+    if (!('sourcePoints' in sourcePage)) {
+        sourcePage.sourcePoints = []
+    }
+    sourcePage.sourcePoints.push(sourcePoint)
+    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "sourcePages", sourcePage.id, "sourcePoints" ],
+        "data" : sourcePoint
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    
+    // TODO: maybe its better to call this: visualDataHasChanged ?    
+    NLC.dataHasChanged = true    
+}    
+
+function storeSourcePointNodeId(sourcePage, originalSourcePoint, nodeId) {    
+
+    let sourcePagesChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point position and the new position
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "nodeId" ],    
+            "data" : nodeId
+        }    
+        originalSourcePoint.nodeId = nodeId
+        sourcePagesChanges.push(nlcDataChange)    
+    }
+                
+    if (sourcePagesChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
 
 function storeSourcePointLocalPosition(sourcePage, originalSourcePoint, localPosition) {    
 
