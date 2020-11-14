@@ -43,7 +43,7 @@ function addSourcePointToSourcePage(sourcePage, sourcePoint) {
 function storeSourcePointNodeId(sourcePage, originalSourcePoint, nodeId) {    
 
     let sourcePagesChanges = []
-    if (true) { // FIXME: We should check here if there is a difference between the original point position and the new position
+    if (true) { // FIXME: We should check here if there is a difference between the original point nodeid and the new nodeid
         let nlcDataChange = {    
             "method" : "update",    
             "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "nodeId" ],    
@@ -70,6 +70,26 @@ function storeSourcePointLocalPosition(sourcePage, originalSourcePoint, localPos
             "data" : localPosition
         }    
         originalSourcePoint.position = localPosition
+        sourcePagesChanges.push(nlcDataChange)    
+    }
+                
+    if (sourcePagesChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
+
+function storeSourcePointLocalSize(sourcePage, originalSourcePoint, localSize) {    
+
+    let sourcePagesChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point size and the new size
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "size" ],    
+            "data" : localSize
+        }    
+        originalSourcePoint.size = localSize
         sourcePagesChanges.push(nlcDataChange)    
     }
                 
