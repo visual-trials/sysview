@@ -896,7 +896,26 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
         if (colorNamesWithLight == null && selectedLegenda.defaultColor) {    
             colorNamesWithLight = selectedLegenda.defaultColor    
         }    
-    }    
+    }
+    else if (selectedLegenda.field === 'isInSourcePage') {
+        let colorKey = null    
+        if ('isInSourcePages' in node) {
+            colorKey = 'isInAtLeastOneSourcePage'
+            
+            // FIMXE: referring to ikbApp here!!
+            if (ikbApp.currentlySelectedSourcePageId && 
+                ikbApp.currentlySelectedSourcePageId in node.isInSourcePages &&
+                node.isInSourcePages[ikbApp.currentlySelectedSourcePageId]) {
+                colorKey = 'isInCurrentSourcePage'
+            }
+        }
+        if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {    
+            colorNamesWithLight = colorMapping[colorKey]    
+        }    
+        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {    
+            colorNamesWithLight = selectedLegenda.defaultColor    
+        }    
+    }
     else if (selectedLegenda.field === 'T_vs_P') {    
         let colorKey = null    
             
