@@ -463,31 +463,29 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramIdentifier, 
     if (linksById.hasOwnProperty(linkId)) {    
         let link = linksById[linkId]    
     
+        // If there is no diagramSpecificVisualData, we create if and fill it with empy visualData for this diagram
         if (!link.hasOwnProperty('diagramSpecificVisualData')) {    
-            link.diagramSpecificVisualData = {}    
                 
-// FIXME: this is a very roundabout way of creating a map in the db!    
-            let dummyValue = {}    
-            dummyValue[diagramIdentifier] = {}    
-            dummyValue[diagramIdentifier]['DUMMY'] = true    
+            let diagramSpecificVisualData = {}    
+            diagramSpecificVisualData[diagramIdentifier] = {}    
             let nlcDataChange = {    
                 "method" : "update",    
                 "path" : [ "links", linkId, "diagramSpecificVisualData"],    
-                "data" : dummyValue    
+                "data" : diagramSpecificVisualData
             }    
+            link.diagramSpecificVisualData = diagramSpecificVisualData
             NLC.dataChangesToStore.push(nlcDataChange)    
         }    
+        // If there is diagramSpecificVisualData but not for this diagram, we fill it with empy visualData for this diagram
         if (!link.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)) {    
-            link.diagramSpecificVisualData[diagramIdentifier] = {}    
                 
-// FIXME: this is a very roundabout way of creating a map in the db!    
-            let dummyValue = {}    
-            dummyValue['DUMMY'] = true    
+            let visualData = {}    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "links", linkId, "diagramSpecificVisualData", diagramIdentifier],    
-                "data" : dummyValue    
+                "path" : [ "links", linkId, "diagramSpecificVisualData", diagramIdentifier],
+                "data" : visualData
             }    
+            link.diagramSpecificVisualData[diagramIdentifier] = visualData
             NLC.dataChangesToStore.push(nlcDataChange)    
         }    
                 
@@ -654,27 +652,17 @@ function createNewNode(nodeTypeIdentifier) {
         "id" : null,    
         "type" : nodeTypeIdentifier,    
         "commonData" : {    
-            "name" : newName,    
-            // FIXME; add more required fields (probably by using a pop-up/modal of sorts    
+            "name" : newName,
         },    
         "codeVersions" : [],    
         "functionalDocumentVersions" : [],    
         "technicalDocumentVersions" : [],    
         "environmentSpecificData" : {    
-            "T" : {    
-                "DUMMY" : true,    
-            },    
-            "A" : {    
-                "DUMMY" : true,    
-            },    
-            "P" : {    
-                "DUMMY" : true,    
-            }    
+            "T" : {},    
+            "A" : {},    
+            "P" : {}    
         },    
-        "diagramSpecificVisualData" : {    
-// FIXME: WORKAROUND! (api.php doesnt know this is/should be an associative array, so we force it this way!    
-            "DUMMY" : true    
-        }    
+        "diagramSpecificVisualData" : {}    
     }    
         
     return newNode    
@@ -724,27 +712,13 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
         "type" : linkTypeIdentifier,    
         "fromNodeId" : fromNodeId,    
         "toNodeId" : toNodeId,    
-        "commonData" : {    
-// FIXME: WORKAROUND! (api.php doesnt know this is/should be an associative array, so we force it this way!    
-            "DUMMY" : true,    
-            // FIXME; add more required fields (probably by using a pop-up/modal of sorts    
+        "commonData" : {},    
+        "environmentSpecificData" : {
+            "T" : {},    
+            "A" : {},    
+            "P" : {}    
         },    
-        "environmentSpecificData" : {    
-            // FIXME: what should we put in here?    
-            "T" : {    
-                "DUMMY" : true,    
-            },    
-            "A" : {    
-                "DUMMY" : true,    
-            },    
-            "P" : {    
-                "DUMMY" : true,    
-            }    
-        },    
-        "diagramSpecificVisualData" : {    
-// FIXME: WORKAROUND! (api.php doesnt know this is/should be an associative array, so we force it this way!    
-            "DUMMY" : true    
-        }    
+        "diagramSpecificVisualData" : {}    
     }    
         
     return newLink    
