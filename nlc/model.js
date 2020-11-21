@@ -595,6 +595,8 @@ function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
             removeLink(linkTobeRemoved)    
         }    
     }    
+    
+    // FIXME: also remove nodeIds from sourcePages/sourcePoints!!
         
     let nodeIndexToDelete = null    
     for (let nodeIndex = 0; nodeIndex < NLC.nodesAndLinksData.nodes.length; nodeIndex++) {    
