@@ -248,9 +248,6 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         
     if (nodeChanges.length > 0) {    
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(nodeChanges)    
-// FIXME: remove log!
-console.log(originalNode)
-console.log(changedNode)
 
         NLC.dataHasChanged = true    
             
