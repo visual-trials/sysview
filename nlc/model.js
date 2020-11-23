@@ -248,7 +248,10 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         
     if (nodeChanges.length > 0) {    
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(nodeChanges)    
-            
+// FIXME: remove log!
+console.log(originalNode)
+console.log(changedNode)
+
         NLC.dataHasChanged = true    
             
         // TODO: we should only do this if we accept the changes    
@@ -772,7 +775,7 @@ function addNodeToDiagram(node, diagramIdentifier) {
 // == Combining with ZUI ==    
     
 // FIXME: hardcoded!    
-ZUI.levelOfDetail = "high"    
+NLC.levelOfDetail = "high"    
 // FIMXE: ZUI.levelOfDetailFading (for fading-in or fading-out)    
 // FIXME: allowedLevelsOfDetail (for example: only-high, or: high and medium)    
     
@@ -1096,7 +1099,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         let localScale = 1    
         /*    
         // TODO: this is an intereting idea!    
-        if (ZUI.levelOfDetail === 'medium') {    
+        if (NLC.levelOfDetail === 'medium') {    
             localScale = 2    
         }    
         */    
@@ -1104,7 +1107,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         let nodeTypeInfo = getNodeTypeInfo(node)    
         if (nodeTypeInfo != null) {    
             let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
-            let nodeTypeIsInCurrentLevelOfDetail = nodeTypeHasLevelOfDetailProperties && nodeTypeInfo.lod[ZUI.levelOfDetail]    
+            let nodeTypeIsInCurrentLevelOfDetail = nodeTypeHasLevelOfDetailProperties && nodeTypeInfo.lod[NLC.levelOfDetail]    
             if (nodeTypeHasLevelOfDetailProperties && !nodeTypeIsInCurrentLevelOfDetail) {    
                 // TODO: we sometimes want to show a node *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed    
                 // The node is not in the current levelOfDetail detail, so we are not going to show/add the node    
@@ -1210,9 +1213,9 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         if (linkTypeInfo != null) {    
                 
             let linkTypeHasLevelOfDetailProperties = linkTypeInfo.hasOwnProperty('lod')    
-            let linkTypeIsInCurrentLevelOfDetail = linkTypeHasLevelOfDetailProperties && linkTypeInfo.lod[ZUI.levelOfDetail]    
+            let linkTypeIsInCurrentLevelOfDetail = linkTypeHasLevelOfDetailProperties && linkTypeInfo.lod[NLC.levelOfDetail]    
             if (linkTypeHasLevelOfDetailProperties && !linkTypeIsInCurrentLevelOfDetail) {    
-                // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed    
+                // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: NLC.levelOfDetailFading is needed    
                 // The link is not in the current levelOfDetail detail, so we are not going to show/add the link    
                 continue    
             }    
