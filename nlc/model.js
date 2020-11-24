@@ -333,7 +333,7 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
     }    
 }    
     
-function storeNodeLocalFontSizeInDiagram(nodeId, diagramIdentifier, localFontSize) {    
+function storeNodeLocalFontSizeInDiagram(nodeId, diagramId, localFontSize) {    
         
     let nodesById = NLC.nodesAndLinksData.nodesById    
         
@@ -341,14 +341,14 @@ function storeNodeLocalFontSizeInDiagram(nodeId, diagramIdentifier, localFontSiz
         let node = nodesById[nodeId]    
             
         // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {    
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
                 
-            node.diagramSpecificVisualData[diagramIdentifier].localFontSize = localFontSize    
+            node.diagramSpecificVisualData[diagramId].localFontSize = localFontSize    
     
             // TODO: you probably want to apply this change in javascript to (on the node in nodesAndLinksData.nodes)    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier, "localFontSize"],    
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "localFontSize"],    
                 "data" : localFontSize    
             }    
             NLC.dataChangesToStore.push(nlcDataChange)    
@@ -362,7 +362,7 @@ function storeNodeLocalFontSizeInDiagram(nodeId, diagramIdentifier, localFontSiz
     }    
 }    
     
-function storeNodeLocalPositionInDiagram (nodeId, diagramIdentifier, localPosition) {    
+function storeNodeLocalPositionInDiagram (nodeId, diagramId, localPosition) {    
         
     let nodesById = NLC.nodesAndLinksData.nodesById    
         
@@ -370,19 +370,19 @@ function storeNodeLocalPositionInDiagram (nodeId, diagramIdentifier, localPositi
         let node = nodesById[nodeId]    
             
         // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {    
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
             // TODO: do we really need to make a clone here?    
             let newLocalPosition = {    
                 "x" : localPosition.x,    
                 "y" : localPosition.y    
             }    
                 
-            node.diagramSpecificVisualData[diagramIdentifier].position = newLocalPosition    
+            node.diagramSpecificVisualData[diagramId].position = newLocalPosition    
     
             // TODO: you probably want to apply this change in javascript to (on the node in nodesAndLinksData.nodes)    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier, "position"],    
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "position"],    
                 "data" : newLocalPosition                    
             }    
             NLC.dataChangesToStore.push(nlcDataChange)    
@@ -396,7 +396,7 @@ function storeNodeLocalPositionInDiagram (nodeId, diagramIdentifier, localPositi
     }    
 }    
     
-function storeNodeLocalSizeInDiagram(nodeId, diagramIdentifier, localSize) {    
+function storeNodeLocalSizeInDiagram(nodeId, diagramId, localSize) {    
         
     let nodesById = NLC.nodesAndLinksData.nodesById    
         
@@ -404,19 +404,19 @@ function storeNodeLocalSizeInDiagram(nodeId, diagramIdentifier, localSize) {
         let node = nodesById[nodeId]    
             
         // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {    
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
             // TODO: do we really need to make a clone here?    
             let newLocalSize = {    
                 "width" : localSize.width,    
                 "height" : localSize.height    
             }    
                 
-            node.diagramSpecificVisualData[diagramIdentifier].size = newLocalSize    
+            node.diagramSpecificVisualData[diagramId].size = newLocalSize    
     
             // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier, "size"],    
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "size"],    
                 "data" : newLocalSize    
             }    
             NLC.dataChangesToStore.push(nlcDataChange)    
@@ -430,7 +430,7 @@ function storeNodeLocalSizeInDiagram(nodeId, diagramIdentifier, localSize) {
     }    
 }    
     
-function removeNodeFromDiagram(nodeId, diagramIdentifier) {    
+function removeNodeFromDiagram(nodeId, diagramId) {    
         
     let nodesById = NLC.nodesAndLinksData.nodesById    
         
@@ -438,14 +438,14 @@ function removeNodeFromDiagram(nodeId, diagramIdentifier) {
         let node = nodesById[nodeId]    
     
         // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramIdentifier]) {    
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
             // We are removing the node from the diagram (or actually: the diagram info from the node)    
-            delete node.diagramSpecificVisualData[diagramIdentifier]    
+            delete node.diagramSpecificVisualData[diagramId]    
                 
             // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
             let nlcDataChange = {    
                 "method" : "delete",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramIdentifier],    
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId],    
                 "data" : null    
             }    
             NLC.dataChangesToStore.push(nlcDataChange)    
@@ -456,7 +456,7 @@ function removeNodeFromDiagram(nodeId, diagramIdentifier) {
     }    
 }    
     
-function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramIdentifier, fromOrTo, connectionPointIdentifier) {    
+function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo, connectionPointIdentifier) {    
       
     let linksById = NLC.nodesAndLinksData.linksById    
         
@@ -467,7 +467,7 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramIdentifier, 
         if (!link.hasOwnProperty('diagramSpecificVisualData')) {    
                 
             let diagramSpecificVisualData = {}    
-            diagramSpecificVisualData[diagramIdentifier] = {}    
+            diagramSpecificVisualData[diagramId] = {}    
             let nlcDataChange = {    
                 "method" : "update",    
                 "path" : [ "links", linkId, "diagramSpecificVisualData"],    
@@ -477,15 +477,15 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramIdentifier, 
             NLC.dataChangesToStore.push(nlcDataChange)    
         }    
         // If there is diagramSpecificVisualData but not for this diagram, we fill it with empy visualData for this diagram
-        if (!link.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)) {    
+        if (!link.diagramSpecificVisualData.hasOwnProperty(diagramId)) {    
                 
             let visualData = {}    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "links", linkId, "diagramSpecificVisualData", diagramIdentifier],
+                "path" : [ "links", linkId, "diagramSpecificVisualData", diagramId],
                 "data" : visualData
             }    
-            link.diagramSpecificVisualData[diagramIdentifier] = visualData
+            link.diagramSpecificVisualData[diagramId] = visualData
             NLC.dataChangesToStore.push(nlcDataChange)    
         }    
                 
@@ -493,12 +493,12 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramIdentifier, 
         if (fromOrTo === 'to') {    
             keyToStore = 'toConnectionPointIdentifier'    
         }    
-        link.diagramSpecificVisualData[diagramIdentifier][keyToStore] = connectionPointIdentifier    
+        link.diagramSpecificVisualData[diagramId][keyToStore] = connectionPointIdentifier    
             
         // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "links", linkId, "diagramSpecificVisualData", diagramIdentifier, keyToStore],    
+            "path" : [ "links", linkId, "diagramSpecificVisualData", diagramId, keyToStore],    
             "data" : connectionPointIdentifier    
         }    
         NLC.dataChangesToStore.push(nlcDataChange)    
@@ -513,18 +513,18 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramIdentifier, 
     
     
 function removeDiagram (diagramToBeRemoved) {    
-    let diagramsByIdentifier = NLC.nodesAndLinksData.diagramsByIdentifier    
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
     
     let diagramIndexToDelete = null    
     for (let diagramIndex = 0; diagramIndex < NLC.nodesAndLinksData.diagrams.length; diagramIndex++) {    
         let diagram = NLC.nodesAndLinksData.diagrams[diagramIndex]    
-        if (diagram.identifier === diagramToBeRemoved.identifier) {    
+        if (diagram.id === diagramToBeRemoved.id) {    
             diagramIndexToDelete = diagramIndex    
         }    
     }    
     if (diagramIndexToDelete != null) {    
         NLC.nodesAndLinksData.diagrams.splice(diagramIndexToDelete)    
-        delete diagramsByIdentifier[diagramToBeRemoved.identifier]    
+        delete diagramsById[diagramToBeRemoved.id]    
     }    
     else {    
         console.log("ERROR: could not find diagram to be deleted!")    
@@ -533,7 +533,7 @@ function removeDiagram (diagramToBeRemoved) {
     // FIXME: remove all visualData from nodes and links pointing to this diagram!    
         
     
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsByIdentifier)    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)    
     let nlcDataChange = {    
         "method" : "delete",    
         "path" : [ "diagrams", diagramToBeRemoved.id],    
@@ -672,12 +672,12 @@ function createNewNode(nodeTypeIdentifier) {
 }    
     
 function storeNewDiagram(newDiagram) {    
-    let diagramsByIdentifier = NLC.nodesAndLinksData.diagramsByIdentifier    
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
     
-    diagramsByIdentifier[newDiagram.identifier] = newDiagram    
+    diagramsById[newDiagram.id] = newDiagram    
     NLC.nodesAndLinksData.diagrams.push(newDiagram)    
     
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsByIdentifier)    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)    
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "diagrams"],    
@@ -744,21 +744,21 @@ function storeNewLink(newLink) {
     NLC.dataHasChanged = true    
 }    
     
-function addNodeToDiagram(node, diagramIdentifier) {    
+function addNodeToDiagram(node, diagramId) {    
         
     // FIXME: create a more practival initial position!!    
     let newLocalPosition = {    
         "x" : 0,    
         "y" : 0    
     }    
-    node.diagramSpecificVisualData[diagramIdentifier] = {}    
-    node.diagramSpecificVisualData[diagramIdentifier].position = newLocalPosition    
+    node.diagramSpecificVisualData[diagramId] = {}    
+    node.diagramSpecificVisualData[diagramId].position = newLocalPosition    
         
     // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.nodes)    
     let nlcDataChange = {    
         "method" : "update",    
-        "path" : [ "nodes", node.id, "diagramSpecificVisualData", diagramIdentifier],    
-        "data" : node.diagramSpecificVisualData[diagramIdentifier]    
+        "path" : [ "nodes", node.id, "diagramSpecificVisualData", diagramId],    
+        "data" : node.diagramSpecificVisualData[diagramId]    
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     
@@ -777,13 +777,13 @@ NLC.levelOfDetail = "high"
 // FIXME: allowedLevelsOfDetail (for example: only-high, or: high and medium)    
     
     
-function nodeIsInDiagram(node, diagramIdentifier) {    
+function nodeIsInDiagram(node, diagramId) {    
     let nodeIsInDiagram = node.hasOwnProperty('diagramSpecificVisualData') &&     
-                          node.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)    
+                          node.diagramSpecificVisualData.hasOwnProperty(diagramId)    
     return nodeIsInDiagram    
 }    
     
-function linkIsInDiagram(link, diagramIdentifier) {    
+function linkIsInDiagram(link, diagramId) {    
     // FIXME: should we not explicitily store links as being in a diagram?    
         
     // FIXME: what about LOD? Should we chech that too?    
@@ -794,8 +794,8 @@ function linkIsInDiagram(link, diagramIdentifier) {
         
     let linkIsInDiagram = fromNode != null &&     
                           toNode != null &&    
-                          nodeIsInDiagram(fromNode, diagramIdentifier) &&    
-                          nodeIsInDiagram(toNode, diagramIdentifier)    
+                          nodeIsInDiagram(fromNode, diagramId) &&    
+                          nodeIsInDiagram(toNode, diagramId)    
     return linkIsInDiagram    
 }    
     
@@ -1077,7 +1077,7 @@ function getLinkTypeInfo(link) {
     return null    
 }    
     
-function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedLegendaId, dimUninteresting, teamId) {    
+function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId, dimUninteresting, teamId) {    
     
     // Removing all connections and containers    
     initContainersAndConnections()    
@@ -1087,7 +1087,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {    
         let node = nodes[nodeIndex]    
             
-        let nodeInDiagram = nodeIsInDiagram(node, diagramIdentifier)    
+        let nodeInDiagram = nodeIsInDiagram(node, diagramId)    
         if (!nodeInDiagram) {    
             // The node does not have diagramSpecificVisualData for the selectedDiagram, so we are not going to show/add the node    
             continue    
@@ -1116,21 +1116,21 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
             x: 96, // FIXME: use a default position? Or determine where there is room?? Or set to null?    
             y: 96  // FIXME: use a default position? Or determine where there is room?? Or set to null?    
         }    
-        if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("position")) {    
-            position = node.diagramSpecificVisualData[diagramIdentifier].position    
+        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("position")) {    
+            position = node.diagramSpecificVisualData[diagramId].position    
         }    
             
         let size = {     
             width: 96, // FIXME: change to width of text!    
             height: 96 // FIXME: get from visualInfo or part of shape?    
         }    
-        if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("size")) {    
-            size = node.diagramSpecificVisualData[diagramIdentifier].size    
+        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("size")) {    
+            size = node.diagramSpecificVisualData[diagramId].size    
         }    
             
         let localFontSize = 14    
-        if (node.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty("localFontSize")) {    
-            localFontSize = node.diagramSpecificVisualData[diagramIdentifier].localFontSize    
+        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("localFontSize")) {    
+            localFontSize = node.diagramSpecificVisualData[diagramId].localFontSize    
         }    
             
         let shape = null    
@@ -1199,7 +1199,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         }    
             
         let linkHasDiagramSpecificVisualData = link.hasOwnProperty('diagramSpecificVisualData') &&     
-                              link.diagramSpecificVisualData.hasOwnProperty(diagramIdentifier)    
+                              link.diagramSpecificVisualData.hasOwnProperty(diagramId)    
         if (!linkHasDiagramSpecificVisualData) {    
             // The link does not have diagramSpecificVisualData for the selectedDiagram, so we SHOULD not show/add the node    
             // FIXME: we should 'continue' here, but the DEFAULT right now is to add it anyway!    
@@ -1230,11 +1230,11 @@ function setNodesAndLinksAsContainersAndConnections(diagramIdentifier, selectedL
         }    
             
         if (linkHasDiagramSpecificVisualData) {    
-            if (link.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('fromConnectionPointIdentifier')) {    
-                connectionInfo['fromConnectionPointIdentifier'] = link.diagramSpecificVisualData[diagramIdentifier]['fromConnectionPointIdentifier']    
+            if (link.diagramSpecificVisualData[diagramId].hasOwnProperty('fromConnectionPointIdentifier')) {    
+                connectionInfo['fromConnectionPointIdentifier'] = link.diagramSpecificVisualData[diagramId]['fromConnectionPointIdentifier']    
             }    
-            if (link.diagramSpecificVisualData[diagramIdentifier].hasOwnProperty('toConnectionPointIdentifier')) {    
-                connectionInfo['toConnectionPointIdentifier'] = link.diagramSpecificVisualData[diagramIdentifier]['toConnectionPointIdentifier']    
+            if (link.diagramSpecificVisualData[diagramId].hasOwnProperty('toConnectionPointIdentifier')) {    
+                connectionInfo['toConnectionPointIdentifier'] = link.diagramSpecificVisualData[diagramId]['toConnectionPointIdentifier']    
             }    
         }    
             
