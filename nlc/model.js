@@ -843,7 +843,7 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
         let colorKey = null    
             
         // FIMXE: referring to ikbApp here!!
-        let selectedDate = new Date(ikbApp.selectedDateISO)
+        let selectedDate = new Date(ikbApp.dateSelector.selectedDateISO)
         if (selectedDate) {    
             if ('plannedMigrationDate' in node.commonData) {    
                 let daysToStart = 30    
