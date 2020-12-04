@@ -697,7 +697,8 @@ function storeNewNode(newNode) {
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "nodes"],    
-        "data" : newNode    
+        "data" : newNode    // FIXME: we should make a clone of the newNode, since other changes may be applied to it, which should not be included in the insert here
+                            //        in this specific case: the node is created and the node is (right after that) added to a diagram. But in the insert the diagram info is already included (which is incorrect)
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     NLC.dataHasChanged = true    
@@ -745,20 +746,24 @@ function storeNewLink(newLink) {
 }    
     
 function addNodeToDiagram(node, diagramId) {    
-        
+    
+    // FIXME: we now cast the diagramId to a string, since keys of type int are not allowed (in JSON/BSON). 
+    //        we should probably not use diagramIds as keys anyway but store the diagramSpecificVisualData inside the diagram instead and point towards the node/links.
+    let diagramIdString = '' + diagramId
+    
     // FIXME: create a more practival initial position!!    
     let newLocalPosition = {    
         "x" : 0,    
         "y" : 0    
     }    
-    node.diagramSpecificVisualData[diagramId] = {}    
-    node.diagramSpecificVisualData[diagramId].position = newLocalPosition    
+    node.diagramSpecificVisualData[diagramIdString] = {}    
+    node.diagramSpecificVisualData[diagramIdString].position = newLocalPosition    
         
     // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.nodes)    
     let nlcDataChange = {    
         "method" : "update",    
-        "path" : [ "nodes", node.id, "diagramSpecificVisualData", diagramId],    
-        "data" : node.diagramSpecificVisualData[diagramId]    
+        "path" : [ "nodes", node.id, "diagramSpecificVisualData", diagramIdString],    
+        "data" : node.diagramSpecificVisualData[diagramIdString]    
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     
