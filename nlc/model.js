@@ -195,7 +195,6 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
     
     // TODO: can we this function using a config of sorts? Which says what to ignore, compare and how?    
     
-    // TODO: compare 'type' aswell!    
     // TODO: ignoring 'diagramSpecificVisualData' for now! We should do this more explicitly!    
         
     // TODO: do a more precise comparision (instead of using JSON.stringify, which is not reliable)    
@@ -245,6 +244,15 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         nodeChanges.push(nlcDataChange)    
     }    
         
+    // FIXME: you probably don't need the stringify right?    
+    if (JSON.stringify(changedNode.type) !== JSON.stringify(originalNode.type) ) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "nodes", originalNode.id, "type" ],    
+            "data" : changedNode.type    
+        }    
+        nodeChanges.push(nlcDataChange)    
+    }    
         
     if (nodeChanges.length > 0) {    
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(nodeChanges)    
