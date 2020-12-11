@@ -324,8 +324,9 @@ function getRectangleAroundWorld(ignoreDimmedContainers) {
         let childContainerIdentifier = rootContainer.children[containerIndex]
         let childContainer = ZUI.containersAndConnections.containers[childContainerIdentifier]
         
-        // FIXME: we should make a new attribute called 'doDim' and check it here instead!
-        if (ignoreDimmedContainers && childContainer.fill.a < 1.0) {
+        // Note: the value .alpha is filled when a containner should be dimmed
+        // TODO: maybe rename ignoreDimmedContainers into ignoreAlphaContainers?
+        if (ignoreDimmedContainers && childContainer.alpha < 1.0) {
             continue
         }
         
