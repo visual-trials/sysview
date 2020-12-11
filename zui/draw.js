@@ -93,10 +93,19 @@ function clearCanvas() {
     ZUI.ctx.closePath()    
 }
 
-function resizeCanvasToDesiredSize (desiredCanvasSize) {
+function resizeCanvasToDesiredSize (desiredCanvasSize, doRecentering) {
     let desiredWidth = desiredCanvasSize.width
     let desiredHeight = desiredCanvasSize.height
     if ( ZUI.canvasElement.width != desiredWidth || ZUI.canvasElement.height != desiredHeight) {
+        if (doRecentering) {
+            let verticalDifference = desiredCanvasSize.height - ZUI.canvasElement.height
+            let horizontalDifference = desiredCanvasSize.width - ZUI.canvasElement.width
+            
+            // TODO: this does not take isometrics into account
+            ZUI.interaction.viewOffset.y += verticalDifference / 2
+            ZUI.interaction.viewOffset.x += horizontalDifference / 2
+        }
+        
         ZUI.canvasElement.style.width = desiredWidth
         ZUI.canvasElement.style.height = desiredHeight
         ZUI.canvasElement.width = desiredWidth
