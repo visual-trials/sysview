@@ -817,7 +817,7 @@ function linkIsInDiagram(link, diagramId) {
 // FIXME: make this more generic!    
 //   OR    
 // FIXME: move this function out of model.js (into a more specific file)    
-function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninteresting, teamId) {    
+function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninteresting) {    
 
     if (selectedLegendaId == null) {    
         return null    
@@ -966,10 +966,9 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
     if (colorNamesWithLight != null) {
         colorNamesWithLight.doDim = false
         if (dimUninteresting) {
-            // FIXME: this is very specific and should be put into a more specific place!
             colorNamesWithLight.doDim = true
-            if ('responsibleTeamId' in node.commonData &&
-                teamId && node.commonData.responsibleTeamId === teamId) {
+            // TODO: this is quite specific and should probably be put into a more specific place
+            if (NodeAndLinkScroller.nodeMatchesSearchAndFilter(node)) {
                 colorNamesWithLight.doDim = false
             }
         }
@@ -979,7 +978,7 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
 }    
     
 // FIXME: move this function out of model.js (into a more specific file)    
-function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninteresting, teamId) {    
+function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninteresting) {    
         
     if (selectedLegendaId == null) {    
         return null    
@@ -1024,10 +1023,9 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
     if (colorNamesWithLight != null) {
         colorNamesWithLight.doDim = false
         if (dimUninteresting) {
-            // FIXME: this is very specific and should be put into a more specific place!
             colorNamesWithLight.doDim = true
-            if ('responsibleTeamId' in link.commonData &&
-                teamId && link.commonData.responsibleTeamId === teamId) {
+            // TODO: this is quite specific and should probably be put into a more specific place
+            if (NodeAndLinkScroller.linkMatchesSearchAndFilter(link)) {
                 colorNamesWithLight.doDim = false
             }
         }
@@ -1091,7 +1089,7 @@ function getLinkTypeInfo(link) {
     return null    
 }    
     
-function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId, dimUninteresting, teamId) {    
+function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId, dimUninteresting) {    
     
     // Removing all connections and containers    
     initContainersAndConnections()    
@@ -1181,7 +1179,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         }    
 
         let colorsForNode = null    
-        let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting, teamId)
+        let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting)
         if (colorNamesWithLight != null) {    
             let colors = {}    
             containerInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
@@ -1252,7 +1250,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         }    
             
         let colorsForLink = null    
-        let colorNamesWithLight = getColorNamesWithLightForLink(link, selectedLegendaId, dimUninteresting, teamId)    
+        let colorNamesWithLight = getColorNamesWithLightForLink(link, selectedLegendaId, dimUninteresting)    
         if (colorNamesWithLight != null) {    
             let colors = {}    
             connectionInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
