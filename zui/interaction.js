@@ -108,19 +108,24 @@ function handleInputStateChange () {
         }
         else {
             
-            // FIXME: put this in a separate function (hoverconnectionbymouse or something)
-            if (ZUI.interaction.closestConnectionIdentifier != null && ZUI.interaction.closestConnectionDistance < ZUI.minimumDistanceFromConnectionToDetectMouseHover) {
-                ZUI.interaction.currentlyHoveredConnectionIdentifier = ZUI.interaction.closestConnectionIdentifier
+            // FIXME: put this in a separate function (hovercontainerbymouse or selectcontainer by mouse)
+            if (containerAtMousePosition != null) {
+                ZUI.interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
+                ZUI.interaction.currentlyHoveredConnectionIdentifier = null
             }
             else {
-                ZUI.interaction.currentlyHoveredConnectionIdentifier = null
-                
-                // FIXME: put this in a separate function (hovercontainerbymouse or selectcontainer by mouse)
-                if (containerAtMousePosition != null) {
-                    ZUI.interaction.currentlyHoveredContainerIdentifier = containerAtMousePosition.identifier
+                ZUI.interaction.currentlyHoveredContainerIdentifier = null
+            }
+
+            // We prefer container hovering over connection hovering, so only check hovering connections if no container is hovered
+            if (ZUI.interaction.currentlyHoveredContainerIdentifier == null) {
+                // FIXME: put this in a separate function (hoverconnectionbymouse or something)
+                if (ZUI.interaction.closestConnectionIdentifier != null && ZUI.interaction.closestConnectionDistance < ZUI.minimumDistanceFromConnectionToDetectMouseHover) {
+                    ZUI.interaction.currentlyHoveredConnectionIdentifier = ZUI.interaction.closestConnectionIdentifier
                 }
                 else {
-                    ZUI.interaction.currentlyHoveredContainerIdentifier = null
+                    ZUI.interaction.currentlyHoveredConnectionIdentifier = null
+                    
                 }
             }
             
@@ -163,7 +168,7 @@ function handleInputStateChange () {
                         !ZUI.interaction.selectedContainerIsBeingResized &&
                         !ZUI.interaction.selectedContainersAreBeingDragged &&
                         !ZUI.interaction.viewIsBeingDraggedByMouse) {
-                        doContainerSelectionByMouse()
+                        let containerWasClicked = doContainerSelectionByMouse()
                     }
                     
                     if (!ZUI.interaction.mouseIsNearSelectedContainerBorder && 
@@ -190,8 +195,8 @@ function handleInputStateChange () {
         else if (ZUI.interaction.currentlySelectedMode === 'view') {
 // FIXME
 doChangeConnectionPointSelectedConnectionByKeyboard()            
-            doContainerSelectionByMouse()
-            doConnectionSelectionByMouse()
+            let containerWasClicked = doContainerSelectionByMouse()
+            doConnectionSelectionByMouse(containerWasClicked)
             doViewDraggingByMouse()
             doViewZoomingByMouse()
         }
@@ -252,7 +257,7 @@ function doMenuButtonGridToggle() {
 
 // ====== CONNECTION ======
 
-function doConnectionSelectionByMouse() {
+function doConnectionSelectionByMouse(containerWasClicked) {
     
     // If escape is pressed, de-select the selected connection
     if (hasKeyGoneDown('ESCAPE')) {
@@ -261,7 +266,13 @@ function doConnectionSelectionByMouse() {
     
     if (!ZUI.mouseState.leftButtonHasGoneDownTwice &&
          ZUI.mouseState.leftButtonHasGoneDown) { // TODO: we regard double-clicking as overruling single clicking, which might not be desired (for example: quick clicking on menu buttons!)
-        
+
+        // TODO: right now we do not allow selecting multiple connections so we do not check the ctrl-key here. We now always deselect the connection when a container was clicked.
+        if (containerWasClicked) {
+            ZUI.interaction.currentlySelectedConnectionIdentifier = null
+            return
+        }
+
         if (ZUI.interaction.closestConnectionIdentifier != null && ZUI.interaction.closestConnectionDistance < ZUI.minimumDistanceFromConnectionToDetectMouseHover) {
             ZUI.interaction.currentlySelectedConnectionIdentifier = ZUI.interaction.closestConnectionIdentifier
         }
@@ -723,6 +734,8 @@ function doChangeFontSizeSelectedContainersByKeyboard() {
 
 function doContainerSelectionByMouse() {
     
+    let containerWasClicked = false
+    
     let containerAtMousePosition = findContainerAtWorldPosition(ZUI.mouseState.worldPosition, null, false)
     
     // If escape is pressed, de-select all containers    
@@ -735,6 +748,8 @@ function doContainerSelectionByMouse() {
          
         if (ZUI.keyboardState.ctrlIsDown) {
             if (containerAtMousePosition != null) {
+                containerWasClicked = true
+                
                 if (ZUI.interaction.currentlySelectedContainerIdentifiers.includes(containerAtMousePosition.identifier)) {
                     // If a container was already selected and clicked again (with ctrl down), its de-selected
                     let selectedContainerIdentifierIndex = ZUI.interaction.currentlySelectedContainerIdentifiers.indexOf(containerAtMousePosition.identifier)
@@ -773,6 +788,7 @@ function doContainerSelectionByMouse() {
         }
         else {
             if (containerAtMousePosition != null) {
+                containerWasClicked = true
                 if (ZUI.interaction.currentlySelectedContainerIdentifiers.includes(containerAtMousePosition.identifier)) {
                     // if a container is clicked and was selected already (when ctrl is not down) we do not de-select it, 
                     // we do nothing (the selected contains need to be kept selected and are about to be dragged)
@@ -788,6 +804,8 @@ function doContainerSelectionByMouse() {
             }
         }
     }
+    
+    return containerWasClicked
 }
 
 function doContainerDraggingByMouse() {
