@@ -595,6 +595,7 @@ function drawConnectionGroup(connectionGroup) {
     let fromCenterPosition = connectionGroup.averageFromPosition
     let toCenterPosition = connectionGroup.averageToPosition
     let stroke = connectionGroup.stroke
+    let alpha = 1.0 // TODO: do we want to do something with the avarageAlpha of the underlying connections?
     
     let singleConnectionIdentifier = null
     if (connectionGroup.nrOfConnections === 1) {
@@ -602,7 +603,7 @@ function drawConnectionGroup(connectionGroup) {
         singleConnectionIdentifier = singleConnection.identifier
     }
     
-    drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
+    drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, null, null)   
 }
 
 function drawConnections() {
@@ -628,6 +629,7 @@ function drawConnections() {
             let nrOfConnections = 1
             
             let stroke = connection.stroke
+            let alpha = connection.alpha
             let singleConnectionIdentifier = connection.identifier
             
             let fromCenterPosition = getCenterPositonOfContainer(fromContainer)
@@ -638,7 +640,7 @@ function drawConnections() {
             
             let connectionName = connection.name
             
-            drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
+            drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
         }
     }
 }
@@ -657,7 +659,7 @@ function pathRoundRect (x, y, width, height, radius) {
     ZUI.ctx.closePath()
 }
 
-function drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier) {
+function drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier) {
 
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromCenterPosition, toCenterPosition)
     
@@ -775,6 +777,11 @@ if (connectionType === 'common') {
         
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlySelectedConnectionIdentifier) {
             stroke = { r:255, g:0, b:0, a:1 }
+        }
+        
+        if (alpha < 1.0) {
+            // TODO: we want to do this, but we lower the stroke of the connection each draw: stroke.a = stroke.a * alpha
+            stroke.a = alpha
         }
         
         // Draw line 
@@ -924,7 +931,16 @@ function drawContainers(containerIdentifiers, alpha) {
             if (container.children.length > 0) {
                 fractionToShowText = 1 - fractionToShowContainerChildren
             }
-            drawContainer(container, alpha, fractionToShowText)
+            let alphaContainer = alpha
+            if (container.alpha < 1.0) {
+                if (alpha != null) {
+                    alphaContainer = alpha * container.alpha
+                }
+                else {
+                    alphaContainer = container.alpha
+                }
+            }
+            drawContainer(container, alphaContainer, fractionToShowText)
             if (fractionToShowContainerChildren > 0) {
                 drawContainers(container.children, fractionToShowContainerChildren)
             }

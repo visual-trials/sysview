@@ -818,11 +818,11 @@ function linkIsInDiagram(link, diagramId) {
 //   OR    
 // FIXME: move this function out of model.js (into a more specific file)    
 function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninteresting, teamId) {    
-        
+
     if (selectedLegendaId == null) {    
         return null    
     }    
-        
+
     let selectedLegenda = NLC.nodesAndLinksData.legendasById[selectedLegendaId]    
     let colorMapping = selectedLegenda.colorMapping    
         
@@ -961,7 +961,8 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
             colorNamesWithLight = selectedLegenda.defaultColor    
         }    
     }    
-    
+
+
     if (colorNamesWithLight != null) {
         colorNamesWithLight.doDim = false
         if (dimUninteresting) {
@@ -1178,7 +1179,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             shape : shape,    
             textBelowContainer : textBelowContainer    
         }    
-            
+
         let colorsForNode = null    
         let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting, teamId)
         if (colorNamesWithLight != null) {    
@@ -1186,8 +1187,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             containerInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
             containerInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)    
             if (colorNamesWithLight.doDim) {
-                containerInfo.stroke.a *= 0.2
-                containerInfo.fill.a *= 0.2
+                containerInfo.alpha = 0.3
             }
         }    
             
@@ -1258,8 +1258,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             connectionInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
             connectionInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)    
             if (colorNamesWithLight.doDim) {
-                connectionInfo.stroke.a *= 0.2
-                connectionInfo.fill.a *= 0.2
+                connectionInfo.alpha = 0.3
             }
         }    
     

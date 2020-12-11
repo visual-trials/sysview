@@ -48,6 +48,7 @@ function createContainer(containerData) {
     
     let fill = { r:255, g:0, b:255, a:1 }
     let stroke = { r:255, g:255, b:0, a:1 }
+    let alpha = 1.0
     let shape = 'rectangle4points'
     let textBelowContainer = false
     let lineWidth = 1
@@ -57,6 +58,9 @@ function createContainer(containerData) {
     }
     if (containerData.stroke != null) {
         stroke = containerData.stroke
+    }
+    if (containerData.alpha != null) {
+        alpha = containerData.alpha
     }
     if (containerData.shape != null) {
         shape = containerData.shape
@@ -99,6 +103,8 @@ function createContainer(containerData) {
         
         fill: fill,
         stroke: stroke,
+        
+        alpha : alpha,
         
         children: [],
     }
@@ -169,12 +175,16 @@ function createConnection(connectionData) {
     let shapeType = 'default'
     let fill = { r:170, g:170, b:170, a:1 }
     let stroke = { r:100, g:100, b:100, a:1 }
+    let alpha = 1.0
 
     if (connectionData.fill != null) {
         fill = connectionData.fill
     }
     if (connectionData.stroke != null) {
         stroke = connectionData.stroke
+    }
+    if (connectionData.alpha != null) {
+        alpha = connectionData.alpha
     }
     
     let newConnection = {
@@ -191,6 +201,8 @@ function createConnection(connectionData) {
         toConnectionPointIdentifier : connectionData.toConnectionPointIdentifier,
         
         stroke: fill, // TODO: now using fill as line color!
+        
+        alpha : alpha,
     }
     
     ZUI.containersAndConnections.connections[connectionData.identifier] = newConnection
