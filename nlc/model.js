@@ -22,83 +22,8 @@ NLC.dataHasChanged = false
 NLC.dataChangesToStore = []    
 NLC.nodesAndLinksData = {}    
 
-function addSourcePointToSourcePage(sourcePage, sourcePoint) {    
-        
-    if (!('sourcePoints' in sourcePage)) {
-        sourcePage.sourcePoints = []
-    }
-    sourcePage.sourcePoints.push(sourcePoint)
-    
-    let nlcDataChange = {    
-        "method" : "insert",    
-        "path" : [ "sourcePages", sourcePage.id, "sourcePoints" ],
-        "data" : sourcePoint
-    }
-    NLC.dataChangesToStore.push(nlcDataChange)    
-    
-    // TODO: maybe its better to call this: visualDataHasChanged ?    
-    NLC.dataHasChanged = true    
-}    
 
-function storeSourcePointNodeId(sourcePage, originalSourcePoint, nodeId) {    
-
-    let sourcePagesChanges = []
-    if (true) { // FIXME: We should check here if there is a difference between the original point nodeid and the new nodeid
-        let nlcDataChange = {    
-            "method" : "update",    
-            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "nodeId" ],    
-            "data" : nodeId
-        }    
-        originalSourcePoint.nodeId = nodeId
-        sourcePagesChanges.push(nlcDataChange)    
-    }
-                
-    if (sourcePagesChanges.length > 0) {    
-        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
-        NLC.dataHasChanged = true
-    }
-
-}    
-
-function storeSourcePointLocalPosition(sourcePage, originalSourcePoint, localPosition) {    
-
-    let sourcePagesChanges = []
-    if (true) { // FIXME: We should check here if there is a difference between the original point position and the new position
-        let nlcDataChange = {    
-            "method" : "update",    
-            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "position" ],    
-            "data" : localPosition
-        }    
-        originalSourcePoint.position = localPosition
-        sourcePagesChanges.push(nlcDataChange)    
-    }
-                
-    if (sourcePagesChanges.length > 0) {    
-        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
-        NLC.dataHasChanged = true
-    }
-
-}    
-
-function storeSourcePointLocalSize(sourcePage, originalSourcePoint, localSize) {    
-
-    let sourcePagesChanges = []
-    if (true) { // FIXME: We should check here if there is a difference between the original point size and the new size
-        let nlcDataChange = {    
-            "method" : "update",    
-            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "size" ],    
-            "data" : localSize
-        }    
-        originalSourcePoint.size = localSize
-        sourcePagesChanges.push(nlcDataChange)    
-    }
-                
-    if (sourcePagesChanges.length > 0) {    
-        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
-        NLC.dataHasChanged = true
-    }
-
-}    
+// Known users
 
 function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {    
     let knownUsersChanges = []    
@@ -145,6 +70,26 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
         
         // FIXME: we now change the originals above!    
     }
+}    
+
+
+
+// Teams
+    
+function createNewTeam() {    
+        
+    // FIXME: we should take into account default values and required fields!    
+        
+    // Create the team locally    
+        
+    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
+        
+    let newTeam = {    
+        "id" : null,    
+        "name" : newName,    
+    }    
+        
+    return newTeam
 }    
     
 function storeChangesBetweenTeams(originalTeams, changedTeams) {    
@@ -213,48 +158,104 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
     }
     
 }    
+
+function getNumberOfTeamMembers (teamId) {
+    let numberOfTeamMembers = 0
+    for (let knownUserIndex in NLC.nodesAndLinksData.knownUsers) {
+        let knownUser = NLC.nodesAndLinksData.knownUsers[knownUserIndex]
+
+        if (knownUser.teamId && knownUser.teamId == teamId) {
+            numberOfTeamMembers++
+        }
+    }
+    return numberOfTeamMembers
+}
+
+function removeTeam (teamToBeRemoved) {
+    if (getNumberOfTeamMembers(teamToBeRemoved.id) > 0) {
+        console.log("ERROR: this team cannot be removed since it still has members in it!")
+        return false
+    }
     
-function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {    
-    let diagramChanges = []    
+    let teamsById = groupById(NLC.nodesAndLinksData.teams)
+    
+    let teamIndexToDelete = null    
+    for (let teamIndex = 0; teamIndex < NLC.nodesAndLinksData.teams.length; teamIndex++) {    
+        let team = NLC.nodesAndLinksData.teams[teamIndex]    
+        if (team.id === teamToBeRemoved.id) {    
+            teamIndexToDelete = teamIndex    
+        }    
+    }    
+    if (teamIndexToDelete != null) {    
+        NLC.nodesAndLinksData.teams.splice(teamIndexToDelete)    
+        delete teamsById[teamToBeRemoved.id]     // This is not really needed, since teamsById is used only locally here
+    }    
+    else {    
+        console.log("ERROR: could not find team to be deleted!")    
+        return false
+    }    
         
-    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.teams and teamsById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "teams", teamToBeRemoved.id],    
+        "data" : teamToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)
+        
+    NLC.dataHasChanged = true    
     
-    if (changedDiagram.name !== originalDiagram.name) {    
-        let nlcDataChange = {    
-            "method" : "update",    
-            "path" : [ "diagrams", originalDiagram.id, "name" ],    
-            "data" : changedDiagram.name    
-        }    
-        diagramChanges.push(nlcDataChange)    
+    return true
+}    
+    
+    
+
+// Nodes
+    
+function createNewNode(nodeTypeIdentifier) {    
+        
+    // FIXME: we should take into account default values and required fields!    
+        
+    // Create the node locally    
+        
+    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
+        
+    let newNode = {    
+        "id" : null,    
+        "type" : nodeTypeIdentifier,    
+        "commonData" : {    
+            "name" : newName,
+        },    
+        "codeVersions" : [],    
+        "functionalDocumentVersions" : [],    
+        "technicalDocumentVersions" : [],    
+        "environmentSpecificData" : {    
+            "T" : {},    
+            "A" : {},    
+            "P" : {}    
+        },    
+        "diagramSpecificVisualData" : {}    
     }    
         
-    if (changedDiagram.level !== originalDiagram.level) {    
-        let nlcDataChange = {    
-            "method" : "update",    
-            "path" : [ "diagrams", originalDiagram.id, "level" ],    
-            "data" : changedDiagram.level    
-        }    
-        diagramChanges.push(nlcDataChange)    
-    }    
+    return newNode    
+        
+}    
     
-    if (changedDiagram.projectUrl !== originalDiagram.projectUrl) {    
-        let nlcDataChange = {    
-            "method" : "update",    
-            "path" : [ "diagrams", originalDiagram.id, "projectUrl" ],    
-            "data" : changedDiagram.projectUrl    
-        }    
-        diagramChanges.push(nlcDataChange)    
-    }    
+function storeNewNode(newNode) {    
+    let nodesById = NLC.nodesAndLinksData.nodesById    
     
-    if (diagramChanges.length > 0) {    
-        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(diagramChanges)    
-            
-        NLC.dataHasChanged = true    
-            
-        // TODO: we should only do this if we accept the changes    
-        originalDiagram.name = changedDiagram.name    
-        originalDiagram.identifier = changedDiagram.identifier  // FIXME: we should get rid of this!    
+    nodesById[newNode.id] = newNode    
+    NLC.nodesAndLinksData.nodes.push(newNode)    
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "nodes"],    
+        "data" : newNode    // FIXME: we should make a clone of the newNode, since other changes may be applied to it, which should not be included in the insert here
+                            //        in this specific case: the node is created and the node is (right after that) added to a diagram. But in the insert the diagram info is already included (which is incorrect)
     }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
 }    
     
 function storeChangesBetweenNodes(originalNode, changedNode) {    
@@ -335,7 +336,103 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         originalNode.environmentSpecificData = changedNode.environmentSpecificData    
     }    
 }    
+
+function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {    
+    let nodesById = NLC.nodesAndLinksData.nodesById    
     
+    if (removeLinksAttachedToNode) {    
+        let linksToBeRemoved = []    
+            
+        for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
+            let link = NLC.nodesAndLinksData.links[linkIndex]    
+            if (link.fromNodeId === nodeToBeRemoved.id) {    
+                linksToBeRemoved.push(link)    
+            }    
+            if (link.toNodeId === nodeToBeRemoved.id) {    
+                linksToBeRemoved.push(link)    
+            }    
+        }    
+            
+        for (let linkToBeRemovedIndex = 0; linkToBeRemovedIndex < linksToBeRemoved.length; linkToBeRemovedIndex++) {    
+            let linkTobeRemoved = linksToBeRemoved[linkToBeRemovedIndex]    
+            removeLink(linkTobeRemoved)    
+        }    
+    }    
+    
+    // FIXME: also remove nodeIds from sourcePages/sourcePoints!!
+        
+    let nodeIndexToDelete = null    
+    for (let nodeIndex = 0; nodeIndex < NLC.nodesAndLinksData.nodes.length; nodeIndex++) {    
+        let node = NLC.nodesAndLinksData.nodes[nodeIndex]    
+        if (node.id === nodeToBeRemoved.id) {    
+            nodeIndexToDelete = nodeIndex    
+        }    
+    }    
+    if (nodeIndexToDelete != null) {    
+        NLC.nodesAndLinksData.nodes.splice(nodeIndexToDelete)    
+        delete nodesById[nodeToBeRemoved.id]    
+    }    
+    else {    
+        console.log("ERROR: could not find node to be deleted!")    
+    }    
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "nodes", nodeToBeRemoved.id],    
+        "data" : nodeToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    
+    NLC.dataHasChanged = true    
+}    
+
+
+
+// Links
+    
+function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {    
+        
+    // FIXME: we should take into account default values and required fields!    
+        
+    // Create the link locally    
+        
+    let newLink = {    
+        "id" : null,    
+        "type" : linkTypeIdentifier,    
+        "fromNodeId" : fromNodeId,    
+        "toNodeId" : toNodeId,    
+        "commonData" : {},    
+        "environmentSpecificData" : {
+            "T" : {},    
+            "A" : {},    
+            "P" : {}    
+        },    
+        "diagramSpecificVisualData" : {}    
+    }    
+        
+    return newLink    
+        
+}    
+    
+function storeNewLink(newLink) {    
+        
+    let linksById = NLC.nodesAndLinksData.linksById    
+    
+    linksById[newLink.id] = newLink    
+    NLC.nodesAndLinksData.links.push(newLink)    
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "links"],    
+        "data" : newLink    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
+}    
+   
+
 function storeChangesBetweenLinks(originalLink, changedLink) {    
     let linkChanges = []    
     
@@ -407,6 +504,208 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
         originalLink.toNodeId = changedLink.toNodeId    
     }    
 }    
+
+function removeLink (linkToBeRemoved) {    
+    let linksById = NLC.nodesAndLinksData.linksById    
+    
+    let linkIndexToDelete = null    
+    for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
+        let link = NLC.nodesAndLinksData.links[linkIndex]    
+        if (link.id === linkToBeRemoved.id) {    
+            linkIndexToDelete = linkIndex    
+        }    
+    }    
+    if (linkIndexToDelete != null) {    
+        NLC.nodesAndLinksData.links.splice(linkIndexToDelete)    
+        delete linksById[linkToBeRemoved.id]    
+    }    
+    else {    
+        console.log("ERROR: could not find link to be deleted!")    
+    }    
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "links", linkToBeRemoved.id],    
+        "data" : linkToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+        
+    NLC.dataHasChanged = true    
+}    
+
+
+// Diagrams
+    
+function createNewDiagram() {    
+        
+    // FIXME: we should take into account default values and required fields!    
+        
+    // Create the diagram locally    
+        
+    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
+        
+    let newDiagram = {    
+        "id" : null,    
+        "name" : newName,    
+        "identifier" : null    
+    }    
+        
+    return newDiagram    
+}    
+    
+function storeNewDiagram(newDiagram) {    
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    
+    diagramsById[newDiagram.id] = newDiagram    
+    NLC.nodesAndLinksData.diagrams.push(newDiagram)    
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "diagrams"],    
+        "data" : newDiagram    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
+}    
+    
+function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {    
+    let diagramChanges = []    
+        
+    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused    
+    
+    if (changedDiagram.name !== originalDiagram.name) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "diagrams", originalDiagram.id, "name" ],    
+            "data" : changedDiagram.name    
+        }    
+        diagramChanges.push(nlcDataChange)    
+    }    
+        
+    if (changedDiagram.level !== originalDiagram.level) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "diagrams", originalDiagram.id, "level" ],    
+            "data" : changedDiagram.level    
+        }    
+        diagramChanges.push(nlcDataChange)    
+    }    
+    
+    if (changedDiagram.projectUrl !== originalDiagram.projectUrl) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "diagrams", originalDiagram.id, "projectUrl" ],    
+            "data" : changedDiagram.projectUrl    
+        }    
+        diagramChanges.push(nlcDataChange)    
+    }    
+    
+    if (diagramChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(diagramChanges)    
+            
+        NLC.dataHasChanged = true    
+            
+        // TODO: we should only do this if we accept the changes    
+        originalDiagram.name = changedDiagram.name    
+        originalDiagram.identifier = changedDiagram.identifier  // FIXME: we should get rid of this!    
+    }    
+}    
+
+function removeDiagram (diagramToBeRemoved) {    
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    
+    let diagramIndexToDelete = null    
+    for (let diagramIndex = 0; diagramIndex < NLC.nodesAndLinksData.diagrams.length; diagramIndex++) {    
+        let diagram = NLC.nodesAndLinksData.diagrams[diagramIndex]    
+        if (diagram.id === diagramToBeRemoved.id) {    
+            diagramIndexToDelete = diagramIndex    
+        }    
+    }    
+    if (diagramIndexToDelete != null) {    
+        NLC.nodesAndLinksData.diagrams.splice(diagramIndexToDelete)    
+        delete diagramsById[diagramToBeRemoved.id]    
+    }    
+    else {    
+        console.log("ERROR: could not find diagram to be deleted!")    
+    }    
+        
+    // FIXME: remove all visualData from nodes and links pointing to this diagram!    
+        
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "diagrams", diagramToBeRemoved.id],    
+        "data" : diagramToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+        
+    NLC.dataHasChanged = true    
+}    
+    
+// Nodes in Diagrams
+
+function addNodeToDiagram(node, diagramId) {    
+    
+    // FIXME: we now cast the diagramId to a string, since keys of type int are not allowed (in JSON/BSON). 
+    //        we should probably not use diagramIds as keys anyway but store the diagramSpecificVisualData inside the diagram instead and point towards the node/links.
+    let diagramIdString = '' + diagramId
+    
+    // FIXME: create a more practival initial position!!    
+    let newLocalPosition = {    
+        "x" : 0,    
+        "y" : 0    
+    }    
+    node.diagramSpecificVisualData[diagramIdString] = {}    
+    node.diagramSpecificVisualData[diagramIdString].position = newLocalPosition    
+        
+    // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.nodes)    
+    let nlcDataChange = {    
+        "method" : "update",    
+        "path" : [ "nodes", node.id, "diagramSpecificVisualData", diagramIdString],    
+        "data" : node.diagramSpecificVisualData[diagramIdString]    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    
+    // TODO: maybe its better to call this: visualDataHasChanged ?    
+    NLC.dataHasChanged = true    
+}    
+
+function storeNodeLocalSizeInDiagram(nodeId, diagramId, localSize) {    
+        
+    let nodesById = NLC.nodesAndLinksData.nodesById    
+        
+    if (nodesById.hasOwnProperty(nodeId)) {    
+        let node = nodesById[nodeId]    
+            
+        // TODO: check if key exists instead of checking for the value to be "true"    
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
+            // TODO: do we really need to make a clone here?    
+            let newLocalSize = {    
+                "width" : localSize.width,    
+                "height" : localSize.height    
+            }    
+                
+            node.diagramSpecificVisualData[diagramId].size = newLocalSize    
+    
+            // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)    
+            let nlcDataChange = {    
+                "method" : "update",    
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "size"],    
+                "data" : newLocalSize    
+            }    
+            NLC.dataChangesToStore.push(nlcDataChange)    
+        }    
+        
+        // TODO: maybe its better to call this: visualDataHasChanged ?    
+        NLC.dataHasChanged = true    
+    }    
+    else {    
+        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
+    }    
+}    
     
 function storeNodeLocalFontSizeInDiagram(nodeId, diagramId, localFontSize) {    
         
@@ -471,40 +770,6 @@ function storeNodeLocalPositionInDiagram (nodeId, diagramId, localPosition) {
     }    
 }    
     
-function storeNodeLocalSizeInDiagram(nodeId, diagramId, localSize) {    
-        
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-        
-    if (nodesById.hasOwnProperty(nodeId)) {    
-        let node = nodesById[nodeId]    
-            
-        // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
-            // TODO: do we really need to make a clone here?    
-            let newLocalSize = {    
-                "width" : localSize.width,    
-                "height" : localSize.height    
-            }    
-                
-            node.diagramSpecificVisualData[diagramId].size = newLocalSize    
-    
-            // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)    
-            let nlcDataChange = {    
-                "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "size"],    
-                "data" : newLocalSize    
-            }    
-            NLC.dataChangesToStore.push(nlcDataChange)    
-        }    
-        
-        // TODO: maybe its better to call this: visualDataHasChanged ?    
-        NLC.dataHasChanged = true    
-    }    
-    else {    
-        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
-    }    
-}    
-    
 function removeNodeFromDiagram(nodeId, diagramId) {    
         
     let nodesById = NLC.nodesAndLinksData.nodesById    
@@ -531,6 +796,9 @@ function removeNodeFromDiagram(nodeId, diagramId) {
     }    
 }    
     
+    
+// Links in Diagrams
+
 function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo, connectionPointIdentifier) {    
       
     let linksById = NLC.nodesAndLinksData.linksById    
@@ -587,330 +855,86 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo
 }    
     
     
-function removeDiagram (diagramToBeRemoved) {    
-    let diagramsById = NLC.nodesAndLinksData.diagramsById
-    
-    let diagramIndexToDelete = null    
-    for (let diagramIndex = 0; diagramIndex < NLC.nodesAndLinksData.diagrams.length; diagramIndex++) {    
-        let diagram = NLC.nodesAndLinksData.diagrams[diagramIndex]    
-        if (diagram.id === diagramToBeRemoved.id) {    
-            diagramIndexToDelete = diagramIndex    
-        }    
-    }    
-    if (diagramIndexToDelete != null) {    
-        NLC.nodesAndLinksData.diagrams.splice(diagramIndexToDelete)    
-        delete diagramsById[diagramToBeRemoved.id]    
-    }    
-    else {    
-        console.log("ERROR: could not find diagram to be deleted!")    
-    }    
-        
-    // FIXME: remove all visualData from nodes and links pointing to this diagram!    
-        
-    
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)    
-    let nlcDataChange = {    
-        "method" : "delete",    
-        "path" : [ "diagrams", diagramToBeRemoved.id],    
-        "data" : diagramToBeRemoved    
-    }    
-    NLC.dataChangesToStore.push(nlcDataChange)    
-        
-    NLC.dataHasChanged = true    
-}    
-    
-    
-function removeLink (linkToBeRemoved) {    
-    let linksById = NLC.nodesAndLinksData.linksById    
-    
-    let linkIndexToDelete = null    
-    for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
-        let link = NLC.nodesAndLinksData.links[linkIndex]    
-        if (link.id === linkToBeRemoved.id) {    
-            linkIndexToDelete = linkIndex    
-        }    
-    }    
-    if (linkIndexToDelete != null) {    
-        NLC.nodesAndLinksData.links.splice(linkIndexToDelete)    
-        delete linksById[linkToBeRemoved.id]    
-    }    
-    else {    
-        console.log("ERROR: could not find link to be deleted!")    
-    }    
-    
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
-    let nlcDataChange = {    
-        "method" : "delete",    
-        "path" : [ "links", linkToBeRemoved.id],    
-        "data" : linkToBeRemoved    
-    }    
-    NLC.dataChangesToStore.push(nlcDataChange)    
-        
-    NLC.dataHasChanged = true    
-}    
-    
-function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {    
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-    
-    if (removeLinksAttachedToNode) {    
-        let linksToBeRemoved = []    
-            
-        for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
-            let link = NLC.nodesAndLinksData.links[linkIndex]    
-            if (link.fromNodeId === nodeToBeRemoved.id) {    
-                linksToBeRemoved.push(link)    
-            }    
-            if (link.toNodeId === nodeToBeRemoved.id) {    
-                linksToBeRemoved.push(link)    
-            }    
-        }    
-            
-        for (let linkToBeRemovedIndex = 0; linkToBeRemovedIndex < linksToBeRemoved.length; linkToBeRemovedIndex++) {    
-            let linkTobeRemoved = linksToBeRemoved[linkToBeRemovedIndex]    
-            removeLink(linkTobeRemoved)    
-        }    
-    }    
-    
-    // FIXME: also remove nodeIds from sourcePages/sourcePoints!!
-        
-    let nodeIndexToDelete = null    
-    for (let nodeIndex = 0; nodeIndex < NLC.nodesAndLinksData.nodes.length; nodeIndex++) {    
-        let node = NLC.nodesAndLinksData.nodes[nodeIndex]    
-        if (node.id === nodeToBeRemoved.id) {    
-            nodeIndexToDelete = nodeIndex    
-        }    
-    }    
-    if (nodeIndexToDelete != null) {    
-        NLC.nodesAndLinksData.nodes.splice(nodeIndexToDelete)    
-        delete nodesById[nodeToBeRemoved.id]    
-    }    
-    else {    
-        console.log("ERROR: could not find node to be deleted!")    
-    }    
-    
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
-    let nlcDataChange = {    
-        "method" : "delete",    
-        "path" : [ "nodes", nodeToBeRemoved.id],    
-        "data" : nodeToBeRemoved    
-    }    
-    NLC.dataChangesToStore.push(nlcDataChange)    
-    
-    NLC.dataHasChanged = true    
-}    
+// Source points in source pages
 
-function getNumberOfTeamMembers (teamId) {
-    let numberOfTeamMembers = 0
-    for (let knownUserIndex in NLC.nodesAndLinksData.knownUsers) {
-        let knownUser = NLC.nodesAndLinksData.knownUsers[knownUserIndex]
-
-        if (knownUser.teamId && knownUser.teamId == teamId) {
-            numberOfTeamMembers++
-        }
+function addSourcePointToSourcePage(sourcePage, sourcePoint) {    
+        
+    if (!('sourcePoints' in sourcePage)) {
+        sourcePage.sourcePoints = []
     }
-    return numberOfTeamMembers
-}
-
-function removeTeam (teamToBeRemoved) {
-    if (getNumberOfTeamMembers(teamToBeRemoved.id) > 0) {
-        console.log("ERROR: this team cannot be removed since it still has members in it!")
-        return false
+    sourcePage.sourcePoints.push(sourcePoint)
+    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "sourcePages", sourcePage.id, "sourcePoints" ],
+        "data" : sourcePoint
     }
-    
-    let teamsById = groupById(NLC.nodesAndLinksData.teams)
-    
-    let teamIndexToDelete = null    
-    for (let teamIndex = 0; teamIndex < NLC.nodesAndLinksData.teams.length; teamIndex++) {    
-        let team = NLC.nodesAndLinksData.teams[teamIndex]    
-        if (team.id === teamToBeRemoved.id) {    
-            teamIndexToDelete = teamIndex    
-        }    
-    }    
-    if (teamIndexToDelete != null) {    
-        NLC.nodesAndLinksData.teams.splice(teamIndexToDelete)    
-        delete teamsById[teamToBeRemoved.id]     // This is not really needed, since teamsById is used only locally here
-    }    
-    else {    
-        console.log("ERROR: could not find team to be deleted!")    
-        return false
-    }    
-        
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.teams and teamsById)    
-    let nlcDataChange = {    
-        "method" : "delete",    
-        "path" : [ "teams", teamToBeRemoved.id],    
-        "data" : teamToBeRemoved    
-    }    
-    NLC.dataChangesToStore.push(nlcDataChange)
-        
-    NLC.dataHasChanged = true    
-    
-    return true
-}    
-    
-    
-function createNewTeam() {    
-        
-    // FIXME: we should take into account default values and required fields!    
-        
-    // Create the team locally    
-        
-    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
-        
-    let newTeam = {    
-        "id" : null,    
-        "name" : newName,    
-    }    
-        
-    return newTeam
-}    
-    
-function createNewDiagram() {    
-        
-    // FIXME: we should take into account default values and required fields!    
-        
-    // Create the diagram locally    
-        
-    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
-        
-    let newDiagram = {    
-        "id" : null,    
-        "name" : newName,    
-        "identifier" : null    
-    }    
-        
-    return newDiagram    
-}    
-    
-function createNewNode(nodeTypeIdentifier) {    
-        
-    // FIXME: we should take into account default values and required fields!    
-        
-    // Create the node locally    
-        
-    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
-        
-    let newNode = {    
-        "id" : null,    
-        "type" : nodeTypeIdentifier,    
-        "commonData" : {    
-            "name" : newName,
-        },    
-        "codeVersions" : [],    
-        "functionalDocumentVersions" : [],    
-        "technicalDocumentVersions" : [],    
-        "environmentSpecificData" : {    
-            "T" : {},    
-            "A" : {},    
-            "P" : {}    
-        },    
-        "diagramSpecificVisualData" : {}    
-    }    
-        
-    return newNode    
-        
-}    
-    
-function storeNewDiagram(newDiagram) {    
-    let diagramsById = NLC.nodesAndLinksData.diagramsById
-    
-    diagramsById[newDiagram.id] = newDiagram    
-    NLC.nodesAndLinksData.diagrams.push(newDiagram)    
-    
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)    
-    let nlcDataChange = {    
-        "method" : "insert",    
-        "path" : [ "diagrams"],    
-        "data" : newDiagram    
-    }    
-    NLC.dataChangesToStore.push(nlcDataChange)    
-    NLC.dataHasChanged = true    
-}    
-    
-function storeNewNode(newNode) {    
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-    
-    nodesById[newNode.id] = newNode    
-    NLC.nodesAndLinksData.nodes.push(newNode)    
-    
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
-    let nlcDataChange = {    
-        "method" : "insert",    
-        "path" : [ "nodes"],    
-        "data" : newNode    // FIXME: we should make a clone of the newNode, since other changes may be applied to it, which should not be included in the insert here
-                            //        in this specific case: the node is created and the node is (right after that) added to a diagram. But in the insert the diagram info is already included (which is incorrect)
-    }    
-    NLC.dataChangesToStore.push(nlcDataChange)    
-    NLC.dataHasChanged = true    
-}    
-    
-function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {    
-        
-    // FIXME: we should take into account default values and required fields!    
-        
-    // Create the link locally    
-        
-    let newLink = {    
-        "id" : null,    
-        "type" : linkTypeIdentifier,    
-        "fromNodeId" : fromNodeId,    
-        "toNodeId" : toNodeId,    
-        "commonData" : {},    
-        "environmentSpecificData" : {
-            "T" : {},    
-            "A" : {},    
-            "P" : {}    
-        },    
-        "diagramSpecificVisualData" : {}    
-    }    
-        
-    return newLink    
-        
-}    
-    
-function storeNewLink(newLink) {    
-        
-    let linksById = NLC.nodesAndLinksData.linksById    
-    
-    linksById[newLink.id] = newLink    
-    NLC.nodesAndLinksData.links.push(newLink)    
-    
-    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
-    let nlcDataChange = {    
-        "method" : "insert",    
-        "path" : [ "links"],    
-        "data" : newLink    
-    }    
-    NLC.dataChangesToStore.push(nlcDataChange)    
-    NLC.dataHasChanged = true    
-}    
-    
-function addNodeToDiagram(node, diagramId) {    
-    
-    // FIXME: we now cast the diagramId to a string, since keys of type int are not allowed (in JSON/BSON). 
-    //        we should probably not use diagramIds as keys anyway but store the diagramSpecificVisualData inside the diagram instead and point towards the node/links.
-    let diagramIdString = '' + diagramId
-    
-    // FIXME: create a more practival initial position!!    
-    let newLocalPosition = {    
-        "x" : 0,    
-        "y" : 0    
-    }    
-    node.diagramSpecificVisualData[diagramIdString] = {}    
-    node.diagramSpecificVisualData[diagramIdString].position = newLocalPosition    
-        
-    // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.nodes)    
-    let nlcDataChange = {    
-        "method" : "update",    
-        "path" : [ "nodes", node.id, "diagramSpecificVisualData", diagramIdString],    
-        "data" : node.diagramSpecificVisualData[diagramIdString]    
-    }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     
     // TODO: maybe its better to call this: visualDataHasChanged ?    
     NLC.dataHasChanged = true    
 }    
-    
+
+function storeSourcePointNodeId(sourcePage, originalSourcePoint, nodeId) {    
+
+    let sourcePagesChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point nodeid and the new nodeid
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "nodeId" ],    
+            "data" : nodeId
+        }    
+        originalSourcePoint.nodeId = nodeId
+        sourcePagesChanges.push(nlcDataChange)    
+    }
+                
+    if (sourcePagesChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
+
+function storeSourcePointLocalPosition(sourcePage, originalSourcePoint, localPosition) {    
+
+    let sourcePagesChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point position and the new position
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "position" ],    
+            "data" : localPosition
+        }    
+        originalSourcePoint.position = localPosition
+        sourcePagesChanges.push(nlcDataChange)    
+    }
+                
+    if (sourcePagesChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
+
+function storeSourcePointLocalSize(sourcePage, originalSourcePoint, localSize) {    
+
+    let sourcePagesChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point size and the new size
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "size" ],    
+            "data" : localSize
+        }    
+        originalSourcePoint.size = localSize
+        sourcePagesChanges.push(nlcDataChange)    
+    }
+                
+    if (sourcePagesChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
+
     
     
     
