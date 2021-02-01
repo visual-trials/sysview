@@ -681,6 +681,56 @@ function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
     
     NLC.dataHasChanged = true    
 }    
+
+function getNumberOfTeamMembers (teamId) {
+    let numberOfTeamMembers = 0
+    for (let knownUserIndex in NLC.nodesAndLinksData.knownUsers) {
+        let knownUser = NLC.nodesAndLinksData.knownUsers[knownUserIndex]
+
+        if (knownUser.teamId && knownUser.teamId == teamId) {
+            numberOfTeamMembers++
+        }
+    }
+    return numberOfTeamMembers
+}
+
+function removeTeam (teamToBeRemoved) {
+    if (getNumberOfTeamMembers(teamToBeRemoved.id) > 0) {
+        console.log("ERROR: this team cannot be removed since it still has members in it!")
+        return false
+    }
+    
+    let teamsById = groupById(NLC.nodesAndLinksData.teams)
+    
+    let teamIndexToDelete = null    
+    for (let teamIndex = 0; teamIndex < NLC.nodesAndLinksData.teams.length; teamIndex++) {    
+        let team = NLC.nodesAndLinksData.teams[teamIndex]    
+        if (team.id === teamToBeRemoved.id) {    
+            teamIndexToDelete = teamIndex    
+        }    
+    }    
+    if (teamIndexToDelete != null) {    
+        NLC.nodesAndLinksData.teams.splice(teamIndexToDelete)    
+        delete teamsById[teamToBeRemoved.id]     // This is not really needed, since teamsById is used only locally here
+    }    
+    else {    
+        console.log("ERROR: could not find team to be deleted!")    
+        return false
+    }    
+        
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.teams and teamsById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "teams", teamToBeRemoved.id],    
+        "data" : teamToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)
+        
+    NLC.dataHasChanged = true    
+    
+    return true
+}    
+    
     
 function createNewTeam() {    
         
