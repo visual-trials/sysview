@@ -186,7 +186,7 @@ function removeTeam (teamToBeRemoved) {
         }    
     }    
     if (teamIndexToDelete != null) {    
-        NLC.nodesAndLinksData.teams.splice(teamIndexToDelete)    
+        NLC.nodesAndLinksData.teams.splice(teamIndexToDelete, 1)
         delete teamsById[teamToBeRemoved.id]     // This is not really needed, since teamsById is used only locally here
     }    
     else {    
@@ -367,7 +367,7 @@ function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
         }    
     }    
     if (nodeIndexToDelete != null) {    
-        NLC.nodesAndLinksData.nodes.splice(nodeIndexToDelete)    
+        NLC.nodesAndLinksData.nodes.splice(nodeIndexToDelete, 1)
         delete nodesById[nodeToBeRemoved.id]    
     }    
     else {    
@@ -514,7 +514,7 @@ function removeLink (linkToBeRemoved) {
         }    
     }    
     if (linkIndexToDelete != null) {    
-        NLC.nodesAndLinksData.links.splice(linkIndexToDelete)    
+        NLC.nodesAndLinksData.links.splice(linkIndexToDelete, 1)
         delete linksById[linkToBeRemoved.id]    
     }    
     else {    
@@ -622,7 +622,7 @@ function removeDiagram (diagramToBeRemoved) {
         }    
     }    
     if (diagramIndexToDelete != null) {    
-        NLC.nodesAndLinksData.diagrams.splice(diagramIndexToDelete)    
+        NLC.nodesAndLinksData.diagrams.splice(diagramIndexToDelete, 1)
         delete diagramsById[diagramToBeRemoved.id]    
     }    
     else {    
