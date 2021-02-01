@@ -147,6 +147,55 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
     }
 }    
     
+function storeChangesBetweenTeams(originalTeams, changedTeams) {    
+    let teamsChanges = []
+    
+    originalTeamsById = groupById(originalTeams)    
+        
+    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused    
+        
+    for (let teamIndex = 0; teamIndex < changedTeams.length; teamIndex++) {    
+        let changedTeam = changedTeams[teamIndex]    
+        // FIXME: we should check if the id exists!    
+        
+        if (changedTeam.id in originalTeamsById) {
+            let originalTeam = originalTeamsById[changedTeam.id]    
+                
+            if (changedTeam.name !== originalTeam.name) {    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "teams", originalTeam.id, "name" ],    
+                    "data" : changedTeam.name
+                }    
+                teamsChanges.push(nlcDataChange)    
+                
+                // FIXME: we do this here, but we normally do this below!    
+                originalTeamsById[changedTeam.id].name = changedTeam.name
+            }    
+        }
+        else {
+            // The id of the changedTeam is not in the originalTeamsById. We are assuming this team was added, so we insert it
+        
+            let nlcDataChange = {    
+                "method" : "insert",    
+                "path" : [ "teams"],    
+                "data" : changedTeam
+            }
+            teamsChanges.push(nlcDataChange)
+            // FIXME: we probably only want to copy certain fields here
+            originalTeamsById[changedTeam.id] = changedTeam
+        }
+        
+    }    
+    if (teamsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(teamsChanges)    
+            
+        NLC.dataHasChanged = true
+        
+        // FIXME: we now change the originals above!    
+    }
+}    
+    
 function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {    
     let diagramChanges = []    
         
@@ -632,6 +681,21 @@ function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
     NLC.dataHasChanged = true    
 }    
     
+function createNewTeam() {    
+        
+    // FIXME: we should take into account default values and required fields!    
+        
+    // Create the team locally    
+        
+    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
+        
+    let newTeam = {    
+        "id" : null,    
+        "name" : newName,    
+    }    
+        
+    return newTeam
+}    
     
 function createNewDiagram() {    
         
