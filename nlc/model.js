@@ -184,6 +184,7 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
             teamsChanges.push(nlcDataChange)
             // FIXME: we probably only want to copy certain fields here
             originalTeamsById[changedTeam.id] = changedTeam
+            originalTeams.push(changedTeam)
         }
         
     }    
