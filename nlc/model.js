@@ -70,8 +70,7 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
         
         // FIXME: we now change the originals above!    
     }
-}    
-
+}
 
 
 // Teams
@@ -206,8 +205,7 @@ function removeTeam (teamToBeRemoved) {
     NLC.dataHasChanged = true    
     
     return true
-}    
-    
+}   
     
 
 // Nodes
