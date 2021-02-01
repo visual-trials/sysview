@@ -150,10 +150,11 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
 function storeChangesBetweenTeams(originalTeams, changedTeams) {    
     let teamsChanges = []
     
-    originalTeamsById = groupById(originalTeams)    
+    let originalTeamsById = groupById(originalTeams)
+    let changedTeamsById = groupById(changedTeams)
         
-    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused    
-        
+    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused
+    
     for (let teamIndex = 0; teamIndex < changedTeams.length; teamIndex++) {    
         let changedTeam = changedTeams[teamIndex]    
         // FIXME: we should check if the id exists!    
@@ -188,6 +189,7 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
         }
         
     }    
+    
     if (teamsChanges.length > 0) {    
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(teamsChanges)    
             
@@ -195,6 +197,21 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
         
         // FIXME: we now change the originals above!    
     }
+    
+    // Also removing teams that are not in changedTeams anyomre
+    for (let originalTeamIndex in originalTeams) {
+        let originalTeam = originalTeams[originalTeamIndex]
+        if (!(originalTeam.id in changedTeamsById)) {
+            // The original team is not in the changed teams anymore, so we remove it
+            if (removeTeam(originalTeam)) {
+                // Note that this will also have the effect extending NLC.dataChangesToStore and NLC.dataHasChanged = true
+            }
+            else {
+                console.log("ERROR: tried to remove team (due to not being in the changedTeams anymore), but could not remove it!")
+            }
+        }
+    }
+    
 }    
     
 function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {    
