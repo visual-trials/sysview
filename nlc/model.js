@@ -1258,6 +1258,11 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             // The node does not have diagramSpecificVisualData for the selectedDiagram, so we are not going to show/add the node    
             continue    
         }    
+        
+        let parentNodeId = 'root'
+        if ('parentNodeId' in node) {
+            parentNodeId = node.parentNodeId
+        }
             
         let localScale = 1    
         /*    
@@ -1266,6 +1271,9 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             localScale = 2    
         }    
         */    
+        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("scale")) {    
+            localScale = node.diagramSpecificVisualData[diagramId].scale
+        }    
             
         let nodeTypeInfo = getNodeTypeInfo(node)    
         if (nodeTypeInfo != null) {    
@@ -1318,7 +1326,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         let containerInfo = {    
             type: node.type,    
             identifier: node.id,    
-            parentContainerIdentifier: 'root', // FIXME: hardcodes for now    
+            parentContainerIdentifier: parentNodeId,
             // FIXME; we cannot be sure commonDate.name exists!    
             name: node.commonData.name,    
             localPosition: {    
