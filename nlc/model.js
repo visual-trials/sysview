@@ -1290,22 +1290,13 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             x: 96, // FIXME: use a default position? Or determine where there is room?? Or set to null?    
             y: 96  // FIXME: use a default position? Or determine where there is room?? Or set to null?    
         }    
-        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("position")) {    
-            position = node.diagramSpecificVisualData[diagramId].position    
-        }    
             
         let size = {     
             width: 96, // FIXME: change to width of text!    
             height: 96 // FIXME: get from visualInfo or part of shape?    
         }    
-        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("size")) {    
-            size = node.diagramSpecificVisualData[diagramId].size    
-        }    
             
         let localFontSize = 14    
-        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("localFontSize")) {    
-            localFontSize = node.diagramSpecificVisualData[diagramId].localFontSize    
-        }    
             
         let shape = null    
         let textBelowContainer = null    
@@ -1316,13 +1307,30 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
                 }    
                 if ('textBelowContainer' in nodeTypeInfo.shapeAndColor) {    
                     textBelowContainer = nodeTypeInfo.shapeAndColor.textBelowContainer    
-                }    
+                }
+                if ('defaultSize' in nodeTypeInfo.shapeAndColor) {
+                    size.width = nodeTypeInfo.shapeAndColor.defaultSize.width
+                    size.height = nodeTypeInfo.shapeAndColor.defaultSize.height
+                }
+                if ('defaultFontSize' in nodeTypeInfo.shapeAndColor) {
+                    localFontSize = nodeTypeInfo.shapeAndColor.defaultFontSize
+                }
             }    
             else {    
                 console.log("ERROR: no shape and color info : " + node)    
             }    
         }    
             
+        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("size")) {    
+            size = node.diagramSpecificVisualData[diagramId].size    
+        }
+        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("localFontSize")) {    
+            localFontSize = node.diagramSpecificVisualData[diagramId].localFontSize    
+        }    
+        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("position")) {    
+            position = node.diagramSpecificVisualData[diagramId].position    
+        }    
+        
         let containerInfo = {    
             type: node.type,    
             identifier: node.id,    
