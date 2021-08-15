@@ -1064,13 +1064,14 @@ function drawContainer(container, alpha, textAlpha) {
         // Draw shape
         ZUI.ctx.lineWidth = 2 * ZUI.interaction.viewScale * container.worldScale // TODO: turned this of for the moment (don't understand why it has a weird effect in default mode):   * container.lineWidth 
         let stroke = container.stroke
+        let fill = container.fill
         if (alpha == null) {
-            ZUI.ctx.strokeStyle = rgba(container.stroke)
-            ZUI.ctx.fillStyle = rgba(container.fill)
+            ZUI.ctx.strokeStyle = rgba(stroke)
+            ZUI.ctx.fillStyle = rgba(fill)
         }
         else {
-            let stroke = {r: container.stroke.r, g:container.stroke.g, b:container.stroke.b, a:container.stroke.a * alpha}
-            let fill = {r: container.fill.r, g:container.fill.g, b:container.fill.b, a:container.fill.a * alpha}
+            stroke = {r: stroke.r, g:stroke.g, b:stroke.b, a:stroke.a * alpha}
+            fill = {r: fill.r, g:fill.g, b:fill.b, a:fill.a * alpha}
             ZUI.ctx.strokeStyle = rgba(stroke)
             ZUI.ctx.fillStyle = rgba(fill)
         }
@@ -1112,11 +1113,13 @@ function drawContainer(container, alpha, textAlpha) {
             ZUI.interaction.currentlyHoveredContainerIdentifier === container.identifier) {
                 
             ZUI.ctx.lineWidth = 2 // TODO: do we want to scale this too?
-            ZUI.ctx.fillStyle = "#EECC00"
+            //ZUI.ctx.fillStyle = "#EECC00"
+            ZUI.ctx.fillStyle = rgba(darken(fill, 0.015))
             
             // FIXME: currently filling AFTER stroking, removed HALF of the stroke!
             drawContainerShape(container)
             ZUI.ctx.fill()
+            ZUI.ctx.stroke()
         }
         
         if (ZUI.interaction.currentlySelectedContainerIdentifiers.length > 0) {
