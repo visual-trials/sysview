@@ -901,7 +901,10 @@ function drawLabel(textToDraw, screenMiddlePoint) {
 
 
 function showContainerChildren(container) {
-    if (container.identifier === 'root') return 1
+    // OLD: if (container.identifier === 'root') return 1
+    if (container.worldScale >= 1) { // The root container (and its non-scaled children) should always be shown. Since they all have a worldScale of 1 (or higher) we can make sure they are always shown
+        return 1   
+    }
     
     let containerViewScale = ZUI.interaction.viewScale * container.worldScale
     
