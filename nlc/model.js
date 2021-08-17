@@ -968,9 +968,9 @@ function linkIsInDiagram(link, diagramId) {
     
     
     
-// FIXME: make this more generic!    
-//   OR    
-// FIXME: move this function out of model.js (into a more specific file)    
+// FIXME: only use mappingFunctionNode!   
+// FIXME: only use mappingFunctionNode!   
+// FIXME: only use mappingFunctionNode!   
 function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninteresting) {    
 
     if (selectedLegendaId == null) {    
@@ -981,7 +981,10 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
     let colorMapping = selectedLegenda.colorMapping    
         
     let colorNamesWithLight = null    
-    if (selectedLegenda.field === 'type') {    
+    if ('mappingFunctionNode' in selectedLegenda && selectedLegenda.mappingFunctionNode != null) {
+        colorNamesWithLight = selectedLegenda.mappingFunctionNode(node, selectedLegenda, colorMapping)
+    }
+    else if (selectedLegenda.field === 'type') {    
         let nodeTypeIdentifier = node.type    
         // TODO: hardcoded exception!    
         if (nodeTypeIdentifier === 'Mediation' && 'iraType' in node.commonData && node.commonData['iraType'] === 'BS') {    
@@ -1131,7 +1134,9 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
     return colorNamesWithLight    
 }    
     
-// FIXME: move this function out of model.js (into a more specific file)    
+// FIXME: only use mappingFunctionLink!   
+// FIXME: only use mappingFunctionLink!   
+// FIXME: only use mappingFunctionLink!   
 function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninteresting) {    
         
     if (selectedLegendaId == null) {    
@@ -1142,7 +1147,10 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
     let colorMapping = selectedLegenda.colorMapping    
         
     let colorNamesWithLight = null    
-    if (selectedLegenda.field === 'type') {    
+    if ('mappingFunctionLink' in selectedLegenda && selectedLegenda.mappingFunctionLink != null) {
+        colorNamesWithLight = selectedLegenda.mappingFunctionLink(link, selectedLegenda, colorMapping)
+    }
+    else if (selectedLegenda.field === 'type') {    
         if (colorMapping.hasOwnProperty(link.type)) {    
             colorNamesWithLight = colorMapping[link.type]    
         }    
