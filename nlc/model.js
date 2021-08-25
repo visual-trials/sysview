@@ -1359,11 +1359,25 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         let colorsForNode = null    
         let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting)
         if (colorNamesWithLight != null) {    
-            let colors = {}    
-            containerInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
-            containerInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)    
-            if (colorNamesWithLight.doDim) {
-                containerInfo.alpha = 0.3
+            // If we get a direct color (no translation needed) we simply copy all rgba values
+            if ('stroke' in colorNamesWithLight && 'r' in colorNamesWithLight.stroke) {
+                containerInfo.stroke = {}
+                containerInfo.stroke.r = colorNamesWithLight.stroke.r
+                containerInfo.stroke.g = colorNamesWithLight.stroke.g
+                containerInfo.stroke.b = colorNamesWithLight.stroke.b
+                containerInfo.stroke.a = colorNamesWithLight.stroke.a
+                containerInfo.fill = {}
+                containerInfo.fill.r = colorNamesWithLight.fill.r
+                containerInfo.fill.g = colorNamesWithLight.fill.g
+                containerInfo.fill.b = colorNamesWithLight.fill.b
+                containerInfo.fill.a = colorNamesWithLight.fill.a
+            }
+            else {
+                containerInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
+                containerInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)    
+                if (colorNamesWithLight.doDim) {
+                    containerInfo.alpha = 0.3
+                }
             }
         }    
             
@@ -1430,11 +1444,25 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         let colorsForLink = null    
         let colorNamesWithLight = getColorNamesWithLightForLink(link, selectedLegendaId, dimUninteresting)    
         if (colorNamesWithLight != null) {    
-            let colors = {}    
-            connectionInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
-            connectionInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)    
-            if (colorNamesWithLight.doDim) {
-                connectionInfo.alpha = 0.3
+            // If we get a direct color (no translation needed) we simply copy all rgba values
+            if ('stroke' in colorNamesWithLight && 'r' in colorNamesWithLight.stroke) {
+                connectionInfo.stroke = {}
+                connectionInfo.stroke.r = colorNamesWithLight.stroke.r
+                connectionInfo.stroke.g = colorNamesWithLight.stroke.g
+                connectionInfo.stroke.b = colorNamesWithLight.stroke.b
+                connectionInfo.stroke.a = colorNamesWithLight.stroke.a
+                connectionInfo.fill = {}
+                connectionInfo.fill.r = colorNamesWithLight.fill.r
+                connectionInfo.fill.g = colorNamesWithLight.fill.g
+                connectionInfo.fill.b = colorNamesWithLight.fill.b
+                connectionInfo.fill.a = colorNamesWithLight.fill.a
+            }
+            else {
+                connectionInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
+                connectionInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)    
+                if (colorNamesWithLight.doDim) {
+                    connectionInfo.alpha = 0.3
+                }
             }
         }    
     
