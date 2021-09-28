@@ -23,8 +23,8 @@ let connectionIdentifiersToBeStored = {}
 let databaseDataHasChanged = false
 let viewWasDrawnOnce = false
 
-let showTinyDebugDetail = true
-let showDebugDetail = true
+let showTinyDebugDetail = false
+let showDebugDetail = false
 
 let project = 'ClientLive'
 

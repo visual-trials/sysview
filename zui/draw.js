@@ -908,11 +908,11 @@ function showContainerChildren(container) {
     
     let containerViewScale = ZUI.interaction.viewScale * container.worldScale
     
-// FIXME: with these settings a form of "semantic zooming" will be visible
-//    let beginToShow = 0.2 // 0.001
-//    let fullyShow = 0.25
-    let beginToShow = 0.001
-    let fullyShow = 0.001
+    let beginToShow = 0.2 // 0.001
+    let fullyShow = 0.25
+// FIXME: with these settings a form of "semantic zooming" will NOT be visible
+//    let beginToShow = 0.001
+//    let fullyShow = 0.001
     if (containerViewScale > fullyShow) {
         return 1
     }
