@@ -207,7 +207,99 @@ function removeTeam (teamToBeRemoved) {
     return true
 }   
     
+// SourceLinks
 
+function storeNewSourceLink(newSourceLink) {    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "sourceLinks"],    
+        "data" : newSourceLink    // FIXME: we should make a clone of the newSourceLink, since other changes may be applied to it, which should not be included in the insert here
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
+}    
+
+function removeSourceLink (sourceLinkToBeRemoved) {    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "sourceLinks", sourceLinkToBeRemoved.id],    
+        "data" : sourceLinkToBeRemoved  
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
+}    
+
+function storeChangesBetweenSourceLinks(originalSourceLink, changedSourceLink) {
+    let sourceLinkChanges = []    
+    
+    // TODO: do a more precise comparision (instead of using JSON.stringify, which is not reliable)    
+    if (JSON.stringify(changedSourceLink) !== JSON.stringify(originalSourceLink) ) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourceLinks", originalSourceLink.id ],    
+            "data" : changedSourceLink
+        }    
+        sourceLinkChanges.push(nlcDataChange)    
+    }    
+    
+    if (sourceLinkChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourceLinkChanges)    
+        NLC.dataHasChanged = true    
+    }    
+}    
+
+function storeChangesBetweenListsOfSourceLinks(originalSourceLinks, editedSourceLinks) {
+
+    // Bases on the field of the sourceLinks we check if we have to DELETE, UPDATE or INSERT any sourceLinks
+    // Note that whenever we have to INSERT a new sourceLink, we first have to generate a new id for it
+
+    let originalSourceLinksByField = groupByField(originalSourceLinks)
+    let editedSourceLinksByField = groupByField(editedSourceLinks)
+
+    for (let field in editedSourceLinksByField) {
+        let editedSourceLink = editedSourceLinksByField[field]
+        if (field in originalSourceLinksByField) {
+            let originalSourceLink = originalSourceLinksByField[field]
+            // The sourceLink with this field exists if both the originalSourceLinks as the editedSourceLinks
+            // We need to check whether the id is present in the editedSourceLink
+            
+            if ('id' in editedSourceLink) {
+                // We have an id in the editedSourceLink, so we have to update it
+                if (editedSourceLink.id == originalSourceLink.id) {
+                    
+                    // FIXME: implement this!
+                    storeChangesBetweenSourceLinks(originalSourceLink, editedSourceLink)
+                }
+                else {
+                    // FIXME: allow for more than one sourceLink per field!
+                    console.log("ERROR: editedSourceLink.id is not the same as originalSourceLink. We currently only allow one sourceLink per field!")
+                }
+            }
+            else {
+                console.log("ERROR: editedSourceLink should have an id!")
+            }
+        }
+        else {
+            // The sourceLink with this field was not present in the originalSourceLinks, but it is in the editedSourceLinks
+            // So we have to store the new sourceLink
+            storeNewSourceLink(editedSourceLink)
+        }
+    }
+    
+    for (let field in originalSourceLinksByField) {
+        let originalSourceLink = originalSourceLinksByField[field]
+        if (field in editedSourceLinksByField) {
+            // Do nothing, already handled
+        }
+        else {
+            // The sourceLink with this field was present in the originalSourceLinks, but not in the editedSourceLinks
+            // So we have to remove the originalSourceLink
+            // FIXME: implement this!
+            removeSourceLink(originalSourceLink)
+        }
+    }
+}
+    
 // Nodes
     
 function createNewNode(nodeTypeIdentifier) {    
