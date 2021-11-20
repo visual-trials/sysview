@@ -266,8 +266,6 @@ function storeChangesBetweenListsOfSourceLinks(originalSourceLinks, editedSource
             if ('id' in editedSourceLink) {
                 // We have an id in the editedSourceLink, so we have to update it
                 if (editedSourceLink.id == originalSourceLink.id) {
-                    
-                    // FIXME: implement this!
                     storeChangesBetweenSourceLinks(originalSourceLink, editedSourceLink)
                 }
                 else {
@@ -294,7 +292,6 @@ function storeChangesBetweenListsOfSourceLinks(originalSourceLinks, editedSource
         else {
             // The sourceLink with this field was present in the originalSourceLinks, but not in the editedSourceLinks
             // So we have to remove the originalSourceLink
-            // FIXME: implement this!
             removeSourceLink(originalSourceLink)
         }
     }
