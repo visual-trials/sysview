@@ -321,7 +321,8 @@ function createNewNode(nodeTypeIdentifier) {
             "A" : {},    
             "P" : {}    
         },    
-        "diagramSpecificVisualData" : {}    
+        "diagramSpecificVisualData" : {},
+        "_sourceLinks" : []  // FIXME: should we always create this?
     }    
         
     return newNode    
@@ -495,7 +496,8 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
             "A" : {},    
             "P" : {}    
         },    
-        "diagramSpecificVisualData" : {}    
+        "diagramSpecificVisualData" : {},
+        "_sourceLinks" : [] // FIXME: should we always create this?
     }    
         
     return newLink    
