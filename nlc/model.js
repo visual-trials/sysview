@@ -1359,9 +1359,9 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         }    
         
         let parentNodeId = 'root'
-        if ('parentNodeId' in node) {
-            parentNodeId = node.parentNodeId
-        }
+        if ('parentNodeId' in node.diagramSpecificVisualData[diagramId]) {
+            parentNodeId = node.diagramSpecificVisualData[diagramId].parentNodeId
+        }    
             
         let localScale = 1    
         /*    
@@ -1370,7 +1370,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             localScale = 2    
         }    
         */    
-        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("scale")) {    
+        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("scale")) {
             localScale = node.diagramSpecificVisualData[diagramId].scale
         }    
             
