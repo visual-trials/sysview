@@ -795,6 +795,64 @@ function storeNodeLocalSizeInDiagram(nodeId, diagramId, localSize) {
         console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
     }    
 }    
+
+function storeNodeLocalScaleInDiagram(nodeId, diagramId, localScale) {    
+        
+    let nodesById = NLC.nodesAndLinksData.nodesById    
+        
+    if (nodesById.hasOwnProperty(nodeId)) {    
+        let node = nodesById[nodeId]    
+            
+        // TODO: check if key exists instead of checking for the value to be "true"    
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
+                
+            node.diagramSpecificVisualData[diagramId].scale = localScale
+    
+            // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)    
+            let nlcDataChange = {    
+                "method" : "update",    
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "scale"],    
+                "data" : localScale
+            }    
+            NLC.dataChangesToStore.push(nlcDataChange)    
+        }    
+        
+        // TODO: maybe its better to call this: visualDataHasChanged ?    
+        NLC.dataHasChanged = true    
+    }    
+    else {    
+        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
+    }    
+}    
+    
+function storeNodeParentNodeIdInDiagram(nodeId, diagramId, parentNodeId) {    
+        
+    let nodesById = NLC.nodesAndLinksData.nodesById    
+        
+    if (nodesById.hasOwnProperty(nodeId)) {    
+        let node = nodesById[nodeId]    
+            
+        // TODO: check if key exists instead of checking for the value to be "true"    
+        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
+                
+            node.diagramSpecificVisualData[diagramId].parentNodeId = parentNodeId
+    
+            // TODO: you probably want to apply this change in javascript to (on the node in nodesAndLinksData.nodes)    
+            let nlcDataChange = {    
+                "method" : "update",    
+                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "parentNodeId"],
+                "data" : parentNodeId
+            }    
+            NLC.dataChangesToStore.push(nlcDataChange)    
+        }    
+        
+        // TODO: maybe its better to call this: visualDataHasChanged ?    
+        NLC.dataHasChanged = true    
+    }    
+    else {    
+        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
+    }    
+}    
     
 function storeNodeLocalFontSizeInDiagram(nodeId, diagramId, localFontSize) {    
         
