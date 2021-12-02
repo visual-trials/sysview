@@ -207,6 +207,159 @@ function removeTeam (teamToBeRemoved) {
     return true
 }   
     
+// Source Documents
+    
+function createNewSourceDocument() {    
+        
+    // FIXME: we should take into account default values and required fields!    
+        
+    // Create the source document locally    
+        
+    let newSourceDocument = {
+        "id" : null,
+        "type" : "sharepointWordFile", // FIXME: hardcoded default type
+        "basicData" : {
+            "fileName" : null,
+            "url" : null
+        }
+    }    
+        
+    return newSourceDocument
+}    
+    
+function storeChangesBetweenSourceDocuments(originalSourceDocuments, changedSourceDocuments) {    
+    let sourceDocumentsChanges = []
+    
+    let originalSourceDocumentsById = groupById(originalSourceDocuments)
+    let changedSourceDocumentsById = groupById(changedSourceDocuments)
+        
+    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused
+    
+    for (let sourceDocumentIndex = 0; sourceDocumentIndex < changedSourceDocuments.length; sourceDocumentIndex++) {    
+        let changedSourceDocument = changedSourceDocuments[sourceDocumentIndex]    
+        // FIXME: we should check if the id exists!    
+        
+        if (changedSourceDocument.id in originalSourceDocumentsById) {
+            let originalSourceDocument = originalSourceDocumentsById[changedSourceDocument.id]    
+                
+            if (changedSourceDocument.basicData.type !== originalSourceDocument.basicData.type) {    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "sourceDocuments", originalSourceDocument.id, "type" ],    
+                    "data" : changedSourceDocument.type
+                }    
+                sourceDocumentsChanges.push(nlcDataChange)    
+                
+                // FIXME: we do this here, but we normally do this below!    
+                originalSourceDocumentsById[changedSourceDocument.id].type = changedSourceDocument.type
+            }    
+
+            if (JSON.stringify(changedSourceDocument.basicData) !== JSON.stringify(originalSourceDocument.basicData)) {    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "sourceDocuments", originalSourceDocument.id, "basicData" ],    
+                    "data" : changedSourceDocument.basicData
+                }    
+                sourceDocumentsChanges.push(nlcDataChange)    
+                
+                // FIXME: we do this here, but we normally do this below!    
+                originalSourceDocumentsById[changedSourceDocument.id].basicData = changedSourceDocument.basicData
+            }    
+        }
+        else {
+            // The id of the changedSourceDocument is not in the originalSourceDocumentsById. We are assuming this sourceDocument was added, so we insert it
+        
+            let nlcDataChange = {    
+                "method" : "insert",    
+                "path" : [ "sourceDocuments"],    
+                "data" : changedSourceDocument
+            }
+            sourceDocumentsChanges.push(nlcDataChange)
+            // FIXME: we probably only want to copy certain fields here
+            originalSourceDocumentsById[changedSourceDocument.id] = changedSourceDocument
+            originalSourceDocuments.push(changedSourceDocument)
+        }
+        
+    }    
+    
+    if (sourceDocumentsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourceDocumentsChanges)    
+            
+        NLC.dataHasChanged = true
+        
+        // FIXME: we now change the originals above!    
+    }
+    
+    // Also removing sourceDocuments that are not in changedSourceDocuments anyomre
+    for (let originalSourceDocumentIndex in originalSourceDocuments) {
+        let originalSourceDocument = originalSourceDocuments[originalSourceDocumentIndex]
+        if (!(originalSourceDocument.id in changedSourceDocumentsById)) {
+            // The original sourceDocument is not in the changed sourceDocuments anymore, so we remove it
+            if (removeSourceDocument(originalSourceDocument)) {
+                // Note that this will also have the effect extending NLC.dataChangesToStore and NLC.dataHasChanged = true
+            }
+            else {
+                console.log("ERROR: tried to remove sourceDocument (due to not being in the changedSourceDocuments anymore), but could not remove it!")
+            }
+        }
+    }
+    
+}    
+
+/*
+// FIXME: this is WAY to slow!
+function getNumberOfSourceLinks (sourceDocumentId) {
+    let numberOfSourceLinks = 0
+    for (let sourceLinkIndex in NLC.nodesAndLinksData.sourceLinks) {
+        let sourceLink = NLC.nodesAndLinksData.sourceLinks[sourceLinkIndex]
+
+        if (sourceLink.sourceDocumentId && sourceLink.sourceDocumentId == sourceDocumentId) {
+            numberOfSourceLinks++
+        }
+    }
+    return numberOfSourceLinks
+}
+*/
+
+function removeSourceDocument (sourceDocumentToBeRemoved) {
+    /*
+    if (getNumberOfSourceLinks(sourceDocumentToBeRemoved.id) > 0) {
+        console.log("ERROR: this sourceDocument cannot be removed since it still has sourceLinks pointing to it!")
+        return false
+    }
+    */
+    
+    let sourceDocumentsById = NLC.nodesAndLinksData.sourceDocumentsById
+    
+    let sourceDocumentIndexToDelete = null    
+    for (let sourceDocumentIndex = 0; sourceDocumentIndex < NLC.nodesAndLinksData.sourceDocuments.length; sourceDocumentIndex++) {    
+        let sourceDocument = NLC.nodesAndLinksData.sourceDocuments[sourceDocumentIndex]    
+        if (sourceDocument.id === sourceDocumentToBeRemoved.id) {    
+            sourceDocumentIndexToDelete = sourceDocumentIndex    
+        }    
+    }    
+    if (sourceDocumentIndexToDelete != null) {    
+        NLC.nodesAndLinksData.sourceDocuments.splice(sourceDocumentIndexToDelete, 1)
+        delete sourceDocumentsById[sourceDocumentToBeRemoved.id]
+    }    
+    else {    
+        console.log("ERROR: could not find sourceDocument to be deleted!")    
+        return false
+    }    
+        
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.sourceDocuments and sourceDocumentsById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "sourceDocuments", sourceDocumentToBeRemoved.id],    
+        "data" : sourceDocumentToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)
+        
+    NLC.dataHasChanged = true    
+    
+    return true
+}   
+
 // SourceLinks
 
 function storeNewSourceLink(newSourceLink) {    
