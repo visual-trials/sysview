@@ -242,7 +242,7 @@ function storeChangesBetweenSourceDocuments(originalSourceDocuments, changedSour
         if (changedSourceDocument.id in originalSourceDocumentsById) {
             let originalSourceDocument = originalSourceDocumentsById[changedSourceDocument.id]    
                 
-            if (changedSourceDocument.basicData.type !== originalSourceDocument.basicData.type) {    
+            if (changedSourceDocument.type !== originalSourceDocument.type) {    
                 let nlcDataChange = {    
                     "method" : "update",    
                     "path" : [ "sourceDocuments", originalSourceDocument.id, "type" ],    
