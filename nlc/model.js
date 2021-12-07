@@ -451,7 +451,7 @@ function storeChangesBetweenListsOfSourceLinks(originalSourceLinks, editedSource
 }
 
 function insertOrUpdateSourceLink(key, refData, fieldPath, sourceLinkToSet) {
-    let matchingSourceLink = findMatchingSourceLink(key, node, fieldPath)
+    let matchingSourceLink = findMatchingSourceLink(key, refData, fieldPath)
 
     let foundMatchingSourceLink = false
     if (refData != null && '_sourceLinks' in refData) {
