@@ -449,6 +449,71 @@ function storeChangesBetweenListsOfSourceLinks(originalSourceLinks, editedSource
         }
     }
 }
+
+function insertOrUpdateSourceLink(key, refData, fieldPath, sourceLinkToSet) {
+    let matchingSourceLink = findMatchingSourceLink(key, node, fieldPath)
+
+    let foundMatchingSourceLink = false
+    if (refData != null && '_sourceLinks' in refData) {
+        
+        if (fieldPath == null) {
+            console.log('ERROR: fieldPath is null for field "'+key+'" and id ' + refData.id)
+        }
+        else {
+            let field = getFullField(key, fieldPath)
+            
+            // FIXME: this is *slow* since we are looping through all sourceLinks. We should instead create a sourceLinksByField to make this quicker.
+            for (let sourceLinkIndex in refData._sourceLinks) {
+                let sourceLink = refData._sourceLinks[sourceLinkIndex]
+                
+                if (sourceLink.field == field) {
+                    //console.log('Found field "' + field + '" for id ' + refData.id)
+                    refData._sourceLinks[sourceLinkIndex] = sourceLinkToSet
+                    foundMatchingSourceLink = true
+                }
+            }
+        }
+    }
+    
+    if (!foundMatchingSourceLink) {
+        refData._sourceLinks.push(sourceLinkToSet)
+    }
+}
+
+function findMatchingSourceLink (key, refData, fieldPath) {
+
+    // TODO: what if there is more than one matching sourceLink?
+    
+    let matchingSourceLink = null
+    if (refData != null && '_sourceLinks' in refData) {
+        if (fieldPath == null) {
+            console.log('ERROR: fieldPath is null for field "'+key+'" and id ' + refData.id)
+        }
+        else {
+            let field = getFullField(key, fieldPath)
+            
+            // FIXME: this is *slow* since we are looping through all sourceLinks. We should instead create a sourceLinksByField to make this quicker.
+            for (let sourceLinkIndex in refData._sourceLinks) {
+                let sourceLink = refData._sourceLinks[sourceLinkIndex]
+                
+                if (sourceLink.field == field) {
+                    // console.log('Found field "' + field + '" for id ' + refData.id)
+                    matchingSourceLink = sourceLink
+                }
+            }
+        }
+    }
+    
+    return matchingSourceLink
+}
+
+function getFullField(key, fieldPath) {
+    let field = fieldPath + '.' + key
+    if (fieldPath == '') {
+        field = key
+    }
+    return field
+}
     
 // Nodes
     
