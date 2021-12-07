@@ -92,7 +92,7 @@ DiagramDetail.loadDiagramDetailsAndOpenDiagramDetail = function (diagramId) {
     }
     
     let dataDetailsToLoad = [ 'diagrams' , diagramId ]
-    loadIkbDataDetails(dataDetailsToLoad, openDiagramDetail) // ASYNC!
+    loadNLCDataDetails(dataDetailsToLoad, openDiagramDetail) // ASYNC!
 }
 
 DiagramDetail.generateNewDiagramIdAndOpenDetail = function (editedDiagram) {
