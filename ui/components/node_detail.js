@@ -193,8 +193,7 @@ NodeDetail.removeNodeAndCloseDetail = function (editedNode) {
     let removeLinksAttachedToNode = true
     removeNode(editedNode, removeLinksAttachedToNode)
         
-    // TODO: create function: unselectNode
-    NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId = null
+	NodeAndLinkScroller.unselectNode()
     NodeDetail.nodeEditor.editedNode = null
 
     NodeDetail.closeNodeDetailFunction()

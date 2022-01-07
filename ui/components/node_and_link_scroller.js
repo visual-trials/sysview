@@ -78,7 +78,10 @@ NodeAndLinkScroller.nodeAndLinkSelector = {
     containerOrConnectionHoveringHasChanged: false,
     
     selectedNodeId: null,
+	nodeIdsLinkedToSelectedNode: null, // this is used to show other nodes that are connected (via a link) to the selected node
+	linkIdsLinkedToSelectedNode: null, // this is used to show other links that are connected to the selected node
     selectedLinkId: null,
+	// TODO: maybe add nodeIdsLinkedToSelectedLink and linkIdsLinkedToSelectedLink (via a node)?
     containerOrConnectionSelectionHasChanged: false,
 }
 
@@ -91,12 +94,21 @@ NodeAndLinkScroller.hoverNode = function (node) {
     NodeAndLinkScroller.nodeAndLinkSelector.containerOrConnectionHoveringHasChanged = true
 }
 
+// TODO: should we updateSelectedContainers like we do in selectNode?
+NodeAndLinkScroller.unselectNode = function () {
+    NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId = null
+	NodeAndLinkScroller.nodeAndLinkSelector.nodeIdsLinkedToSelectedNode = null
+	NodeAndLinkScroller.nodeAndLinkSelector.linkIdsLinkedToSelectedNode = null
+}
+
 NodeAndLinkScroller.selectNode = function (nodeId, updateSelectedContainers) {
     let nodesById = NLC.nodesAndLinksData.nodesById
     if (nodesById.hasOwnProperty(nodeId)) {
         let selectedNode = nodesById[nodeId]
         
         NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId = nodeId
+		NodeAndLinkScroller.nodeAndLinkSelector.nodeIdsLinkedToSelectedNode = getLinkedNodeIds(nodeId)
+		NodeAndLinkScroller.nodeAndLinkSelector.linkIdsLinkedToSelectedNode = getLinkedLinkIds(nodeId)
         // TODO: we also do this when opening the NodeDetail-window. Can we get rid of this call here? (when we do this, we somehow can't close the NodeDetail window...)
         NodeDetail.setEditedNodeUsingOriginalNode(selectedNode)
                 
@@ -144,7 +156,7 @@ NodeAndLinkScroller.selectLink = function (linkId, updateSelectedConnections) {
         // TODO: we also do this when opening the LinkDetail-window. Can we get rid of this call here? (when we do this, we somehow can't close the LinkDetail window...)
         LinkDetail.setEditedLinkUsingOriginalLink(selectedLink)
     
-        NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId = null
+		NodeAndLinkScroller.unselectNode()
         NodeDetail.setEditedNodeUsingOriginalNode(null)
     
         // Since we always show the selected link (even when the search criteria doesn't match) we have to make sure the linkType is shown aswell. 
@@ -249,6 +261,7 @@ NodeAndLinkScroller.nodeAndLinkScroller = {
 
     searchText: '',
     filterOnDiagramContent : true,
+	filterOnConnectedElements : false,
     filterOnResponsibleTeam: false, 
     searchHitsPerNodeType : {},
     searchHitsPerLinkType : {},
@@ -303,6 +316,14 @@ NodeAndLinkScroller.nodeMatchesSearchAndFilter = function (node) {
         }
         
     }
+
+    if (NodeAndLinkScroller.nodeAndLinkScroller.filterOnConnectedElements) {
+		// We only show the nodes that are connected through a link with each other
+		if (NodeAndLinkScroller.nodeAndLinkSelector.nodeIdsLinkedToSelectedNode == null || !(node.id in NodeAndLinkScroller.nodeAndLinkSelector.nodeIdsLinkedToSelectedNode)) {
+			match = false
+		}
+	}
+
     // Always show the selected node
     // TODO: should we also do this when the selected node is not on the diagram? (and we are filtering on diagram content?)
     if (NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId === node.id) {
@@ -348,6 +369,13 @@ NodeAndLinkScroller.linkMatchesSearchAndFilter = function (link) {
         }
     }
     
+    if (NodeAndLinkScroller.nodeAndLinkScroller.filterOnConnectedElements) {
+		// We only show the nodes that are connected through a link with each other
+		if (NodeAndLinkScroller.nodeAndLinkSelector.linkIdsLinkedToSelectedNode == null || !(link.id in NodeAndLinkScroller.nodeAndLinkSelector.linkIdsLinkedToSelectedNode)) {
+			match = false
+		}
+	}
+
     // Always show the selected link
     // TODO: should we also do this when the selected link is not on the diagram? (and we are filtering on diagram content?)
     if (NodeAndLinkScroller.nodeAndLinkSelector.selectedLinkId === link.id) {
