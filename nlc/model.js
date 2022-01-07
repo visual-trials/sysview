@@ -1310,6 +1310,34 @@ NLC.levelOfDetail = "high"
 // FIMXE: ZUI.levelOfDetailFading (for fading-in or fading-out)    
 // FIXME: allowedLevelsOfDetail (for example: only-high, or: high and medium)    
     
+function getLinkedNodeIds(nodeId) {
+	let linkedNodeIds = {}
+
+	for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
+		let link = NLC.nodesAndLinksData.links[linkIndex]    
+		if (link.fromNodeId === nodeId) {
+			linkedNodeIds[link.toNodeId] = true
+		}    
+		if (link.toNodeId === nodeId) {    
+			linkedNodeIds[link.fromNodeId] = true
+		}    
+	}    
+	
+	return linkedNodeIds
+}
+
+function getLinkedLinkIds(nodeId) {
+	let linkedLinkIds = {}
+
+	for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
+		let link = NLC.nodesAndLinksData.links[linkIndex]    
+		if (link.fromNodeId === nodeId || link.toNodeId === nodeId) {
+			linkedLinkIds[link.id] = true
+		}
+	}    
+	
+	return linkedLinkIds
+}
     
 function nodeIsInDiagram(node, diagramId) {    
     let nodeIsInDiagram = node.hasOwnProperty('diagramSpecificVisualData') &&     
