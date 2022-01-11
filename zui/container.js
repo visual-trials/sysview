@@ -32,6 +32,8 @@ function initContainersAndConnections () {
         worldPosition : { x: 0, y: 0 },
         worldSize : { width: 0, height: 0 },
         localScale: 1,
+        fromLevelOfDetail: 0.0,
+        toLevelOfDetail: 1.0,
         points: {},
         connectionPoints: {},
         children: [],
@@ -52,6 +54,9 @@ function createContainer(containerData) {
     let shape = 'rectangle4points'
     let textBelowContainer = false
     let lineWidth = 1
+    
+    let fromLevelOfDetail = 0.0
+    let toLevelOfDetail = 1.0
 
     if (containerData.fill != null) {
         fill = containerData.fill
@@ -70,6 +75,13 @@ function createContainer(containerData) {
     }
     if (containerData.textBelowContainer != null) {
         textBelowContainer = containerData.textBelowContainer
+    }
+    
+    if ('fromLevelOfDetail' in containerData && containerData.fromLevelOfDetail != null) {
+        fromLevelOfDetail = containerData.fromLevelOfDetail
+    }
+    if ('toLevelOfDetail' in containerData && containerData.toLevelOfDetail != null) {
+        toLevelOfDetail = containerData.toLevelOfDetail
     }
     
     let newContainer = {
@@ -94,6 +106,9 @@ function createContainer(containerData) {
         
         shapeType : shape,  // TODO: we should rename shapeType to shape
         textBelowContainer : textBelowContainer,
+        
+        fromLevelOfDetail: fromLevelOfDetail,
+        toLevelOfDetail: toLevelOfDetail,
         
         worldPosition: {},
         worldSize: {},
@@ -176,6 +191,9 @@ function createConnection(connectionData) {
     let fill = { r:170, g:170, b:170, a:1 }
     let stroke = { r:100, g:100, b:100, a:1 }
     let alpha = 1.0
+    
+    let fromLevelOfDetail = 0.0
+    let toLevelOfDetail = 1.0
 
     if (connectionData.fill != null) {
         fill = connectionData.fill
@@ -187,12 +205,23 @@ function createConnection(connectionData) {
         alpha = connectionData.alpha
     }
     
+    if ('fromLevelOfDetail' in connectionData && connectionData.fromLevelOfDetail != null) {
+        fromLevelOfDetail = connectionData.fromLevelOfDetail
+    }
+    if ('toLevelOfDetail' in connectionData && connectionData.toLevelOfDetail != null) {
+        toLevelOfDetail = connectionData.toLevelOfDetail
+    }
+    
+    
     let newConnection = {
         identifier: connectionData.identifier,
         name: connectionData.name,
         
         type: connectionData.type,  // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
         dataType: connectionData.dataType, // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
+        
+        fromLevelOfDetail: fromLevelOfDetail,
+        toLevelOfDetail: toLevelOfDetail,
         
         fromContainerIdentifier: connectionData.fromContainerIdentifier,
         toContainerIdentifier: connectionData.toContainerIdentifier,
