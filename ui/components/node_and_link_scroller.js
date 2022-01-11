@@ -101,6 +101,17 @@ NodeAndLinkScroller.unselectNode = function () {
 	NodeAndLinkScroller.nodeAndLinkSelector.linkIdsLinkedToSelectedNode = null
 }
 
+NodeAndLinkScroller.nodeAndLinkSelector.getConnectedNodesForSelectedNode = function () {
+    let connectedNodes = []
+    if (NodeAndLinkScroller.nodeAndLinkSelector.nodeIdsLinkedToSelectedNode != null) {
+        for (let connectedNodeId in NodeAndLinkScroller.nodeAndLinkSelector.nodeIdsLinkedToSelectedNode) {
+            let connectedNode = NLC.nodesAndLinksData.nodesById[connectedNodeId]
+            connectedNodes.push(connectedNode)
+        }
+    }
+    return connectedNodes
+}
+
 NodeAndLinkScroller.selectNode = function (nodeId, updateSelectedContainers) {
     let nodesById = NLC.nodesAndLinksData.nodesById
     if (nodesById.hasOwnProperty(nodeId)) {
