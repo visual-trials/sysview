@@ -665,7 +665,7 @@ function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
         }    
     }    
     
-    // FIXME: also remove nodeIds from sourcePages/sourcePoints!!
+    // FIXME: also remove nodeIds from sourceDiagrams/sourcePoints!!
         
     let nodeIndexToDelete = null    
     for (let nodeIndex = 0; nodeIndex < NLC.nodesAndLinksData.nodes.length; nodeIndex++) {    
@@ -1220,18 +1220,18 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo
 }    
     
     
-// Source points in source pages
+// Source points in source diagrams
 
-function addSourcePointToSourcePage(sourcePage, sourcePoint) {    
+function addSourcePointToSourceDiagram(sourceDiagram, sourcePoint) {    
         
-    if (!('sourcePoints' in sourcePage)) {
-        sourcePage.sourcePoints = []
+    if (!('sourcePoints' in sourceDiagram)) {
+        sourceDiagram.sourcePoints = []
     }
-    sourcePage.sourcePoints.push(sourcePoint)
+    sourceDiagram.sourcePoints.push(sourcePoint)
     
     let nlcDataChange = {    
         "method" : "insert",    
-        "path" : [ "sourcePages", sourcePage.id, "sourcePoints" ],
+        "path" : [ "sourceDiagrams", sourceDiagram.id, "sourcePoints" ],
         "data" : sourcePoint
     }
     NLC.dataChangesToStore.push(nlcDataChange)    
@@ -1240,61 +1240,61 @@ function addSourcePointToSourcePage(sourcePage, sourcePoint) {
     NLC.dataHasChanged = true    
 }    
 
-function storeSourcePointNodeId(sourcePage, originalSourcePoint, nodeId) {    
+function storeSourcePointNodeId(sourceDiagram, originalSourcePoint, nodeId) {    
 
-    let sourcePagesChanges = []
+    let sourceDiagramsChanges = []
     if (true) { // FIXME: We should check here if there is a difference between the original point nodeid and the new nodeid
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "nodeId" ],    
+            "path" : [ "sourceDiagrams", sourceDiagram.id, "sourcePoints", originalSourcePoint.id, "nodeId" ],    
             "data" : nodeId
         }    
         originalSourcePoint.nodeId = nodeId
-        sourcePagesChanges.push(nlcDataChange)    
+        sourceDiagramsChanges.push(nlcDataChange)    
     }
                 
-    if (sourcePagesChanges.length > 0) {    
-        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+    if (sourceDiagramsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourceDiagramsChanges)    
         NLC.dataHasChanged = true
     }
 
 }    
 
-function storeSourcePointLocalPosition(sourcePage, originalSourcePoint, localPosition) {    
+function storeSourcePointLocalPosition(sourceDiagram, originalSourcePoint, localPosition) {    
 
-    let sourcePagesChanges = []
+    let sourceDiagramsChanges = []
     if (true) { // FIXME: We should check here if there is a difference between the original point position and the new position
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "position" ],    
+            "path" : [ "sourceDiagrams", sourceDiagram.id, "sourcePoints", originalSourcePoint.id, "position" ],    
             "data" : localPosition
         }    
         originalSourcePoint.position = localPosition
-        sourcePagesChanges.push(nlcDataChange)    
+        sourceDiagramsChanges.push(nlcDataChange)    
     }
                 
-    if (sourcePagesChanges.length > 0) {    
-        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+    if (sourceDiagramsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourceDiagramsChanges)    
         NLC.dataHasChanged = true
     }
 
 }    
 
-function storeSourcePointLocalSize(sourcePage, originalSourcePoint, localSize) {    
+function storeSourcePointLocalSize(sourceDiagram, originalSourcePoint, localSize) {    
 
-    let sourcePagesChanges = []
+    let sourceDiagramsChanges = []
     if (true) { // FIXME: We should check here if there is a difference between the original point size and the new size
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "sourcePages", sourcePage.id, "sourcePoints", originalSourcePoint.id, "size" ],    
+            "path" : [ "sourceDiagrams", sourceDiagram.id, "sourcePoints", originalSourcePoint.id, "size" ],    
             "data" : localSize
         }    
         originalSourcePoint.size = localSize
-        sourcePagesChanges.push(nlcDataChange)    
+        sourceDiagramsChanges.push(nlcDataChange)    
     }
                 
-    if (sourcePagesChanges.length > 0) {    
-        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourcePagesChanges)    
+    if (sourceDiagramsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourceDiagramsChanges)    
         NLC.dataHasChanged = true
     }
 
@@ -1438,16 +1438,16 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
             colorNamesWithLight = selectedLegenda.defaultColor    
         }    
     }
-    else if (selectedLegenda.field === 'isInSourcePage') {
+    else if (selectedLegenda.field === 'isInSourceDiagram') {
         let colorKey = null    
-        if ('isInSourcePages' in node) {
-            colorKey = 'isInAtLeastOneSourcePage'
+        if ('isInSourceDiagrams' in node) {
+            colorKey = 'isInAtLeastOneSourceDiagram'
             
             // FIMXE: referring to ikbApp here!!
-            if (ikbApp.currentlySelectedSourcePageId && 
-                ikbApp.currentlySelectedSourcePageId in node.isInSourcePages &&
-                node.isInSourcePages[ikbApp.currentlySelectedSourcePageId]) {
-                colorKey = 'isInCurrentSourcePage'
+            if (ikbApp.currentlySelectedSourceDiagramId && 
+                ikbApp.currentlySelectedSourceDiagramId in node.isInSourceDiagrams &&
+                node.isInSourceDiagrams[ikbApp.currentlySelectedSourceDiagramId]) {
+                colorKey = 'isInCurrentSourceDiagram'
             }
         }
         if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {    

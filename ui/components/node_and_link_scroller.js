@@ -3,17 +3,17 @@ let NodeAndLinkScroller = {
     scrollToSelectedLinkFunction: null,
 }
 
-// Source Page Selector
+// Source Diagram Selector
 
-NodeAndLinkScroller.sourcePageAndPointSelector = {
-    // TODO: we probably want the sourcePage to be half of the screen inside the ikb application.
-    currentlySelectedSourcePageId : null,
+NodeAndLinkScroller.sourceDiagramAndPointSelector = {
+    // TODO: we probably want the sourceDiagram to be half of the screen inside the ikb application.
+    currentlySelectedSourceDiagramId : null,
 }
 
-NodeAndLinkScroller.getNodeIdFromSourcePointId = function (sourcePage, sourcePointId) {
+NodeAndLinkScroller.getNodeIdFromSourcePointId = function (sourceDiagram, sourcePointId) {
     let nodeId = null
-    for (let sourcePointIndex in sourcePage.sourcePoints) {
-        let sourcePoint = sourcePage.sourcePoints[sourcePointIndex]
+    for (let sourcePointIndex in sourceDiagram.sourcePoints) {
+        let sourcePoint = sourceDiagram.sourcePoints[sourcePointIndex]
         if (sourcePoint.id === sourcePointId) {
             nodeId = sourcePoint.nodeId
             break
@@ -23,42 +23,42 @@ NodeAndLinkScroller.getNodeIdFromSourcePointId = function (sourcePage, sourcePoi
 }
 
 NodeAndLinkScroller.localStorageChange = function (ev) {
-    if (ev.key == 'currentlySelectedSourcePage') {
-        var currentlySelectedSourcePageData = JSON.parse(ev.newValue)
+    if (ev.key == 'currentlySelectedSourceDiagram') {
+        var currentlySelectedSourceDiagramData = JSON.parse(ev.newValue)
         
-        if ('sourcePageId' in currentlySelectedSourcePageData &&
-            currentlySelectedSourcePageData.sourcePageId in NLC.nodesAndLinksData.sourcePagesById) {
+        if ('sourceDiagramId' in currentlySelectedSourceDiagramData &&
+            currentlySelectedSourceDiagramData.sourceDiagramId in NLC.nodesAndLinksData.sourceDiagramsById) {
             
-            NodeAndLinkScroller.sourcePageAndPointSelector.currentlySelectedSourcePageId = currentlySelectedSourcePageData.sourcePageId
+            NodeAndLinkScroller.sourceDiagramAndPointSelector.currentlySelectedSourceDiagramId = currentlySelectedSourceDiagramData.sourceDiagramId
             NLC.dataHasChanged = true
         }
         else {
-            console.log("ERROR: could not find sourcePageId in database")
+            console.log("ERROR: could not find sourceDiagramId in database")
         }
         return
     }
     
     // TODO: we probably want to make this more generic
-    if (ev.key != 'currentlySelectedSourcePagePoint') return
+    if (ev.key != 'currentlySelectedSourceDiagramPoint') return
     
-    var currentlySelectedSourcePagePointData = JSON.parse(ev.newValue)
-    if (!currentlySelectedSourcePagePointData) return
+    var currentlySelectedSourceDiagramPointData = JSON.parse(ev.newValue)
+    if (!currentlySelectedSourceDiagramPointData) return
     
-    console.log(currentlySelectedSourcePagePointData)
+    console.log(currentlySelectedSourceDiagramPointData)
 
-    let sourcePage = null
-    if ('sourcePageId' in currentlySelectedSourcePagePointData && 
-        currentlySelectedSourcePagePointData.sourcePageId in NLC.nodesAndLinksData.sourcePagesById) {
-        sourcePage = NLC.nodesAndLinksData.sourcePagesById[currentlySelectedSourcePagePointData.sourcePageId]
+    let sourceDiagram = null
+    if ('sourceDiagramId' in currentlySelectedSourceDiagramPointData && 
+        currentlySelectedSourceDiagramPointData.sourceDiagramId in NLC.nodesAndLinksData.sourceDiagramsById) {
+        sourceDiagram = NLC.nodesAndLinksData.sourceDiagramsById[currentlySelectedSourceDiagramPointData.sourceDiagramId]
     }
     else {
-        console.log("ERROR: could not find sourcePageId in database")
+        console.log("ERROR: could not find sourceDiagramId in database")
         return 
     }
 
     let oldSelectedNodeId = NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId
     
-    let toBeSelectedNodeId = NodeAndLinkScroller.getNodeIdFromSourcePointId(sourcePage, currentlySelectedSourcePagePointData.sourcePointId)
+    let toBeSelectedNodeId = NodeAndLinkScroller.getNodeIdFromSourcePointId(sourceDiagram, currentlySelectedSourceDiagramPointData.sourcePointId)
     
     if (toBeSelectedNodeId != null) {
         NodeAndLinkScroller.selectNode(toBeSelectedNodeId, true)
