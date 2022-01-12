@@ -3,6 +3,7 @@ let SourceDiagramDetail = {
     closeSourceDiagramDetailFunction: null,
     sourceDiagramEditor : {
         editedSourceDiagram: null,
+        availableSourceDiagramImages: [],
     }
 }
 
@@ -15,6 +16,10 @@ SourceDiagramDetail.setEditedSourceDiagramUsingOriginalSourceDiagram = function 
         // TODO: right now, we clone the link! Only when we SAVE will it be copied back again!
         SourceDiagramDetail.sourceDiagramEditor.editedSourceDiagram = JSON.parse(JSON.stringify(originalSourceDiagram))
     }
+}
+
+SourceDiagramDetail.setAvailableSourceDiagramImages = function (availableSourceDiagramImages) {
+    SourceDiagramDetail.sourceDiagramEditor.availableSourceDiagramImages = availableSourceDiagramImages
 }
 
 SourceDiagramDetail.createNewSourceDiagramAndOpenDetail = function() {
