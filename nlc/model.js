@@ -1408,10 +1408,8 @@ function storeSourcePointLocalSize(sourceDiagram, originalSourcePoint, localSize
     
 // == Combining with ZUI ==    
     
-// FIXME: hardcoded!    
-NLC.levelOfDetail = "high"    
+NLC.levelOfDetail = "auto"
 // FIMXE: ZUI.levelOfDetailFading (for fading-in or fading-out)    
-// FIXME: allowedLevelsOfDetail (for example: only-high, or: high and medium)    
     
 function getLinkedNodeIds(nodeId) {
 	let linkedNodeIds = {}
@@ -1781,46 +1779,52 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             localScale = node.diagramSpecificVisualData[diagramId].scale
         }    
         
+        let nodeTypeInfo = getNodeTypeInfo(node)    
+        
         let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0?
         let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
         
-        let nodeTypeInfo = getNodeTypeInfo(node)    
-        if (nodeTypeInfo != null) {    
-            let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
-            
-            /* FIXME: remove this? 
-            let nodeTypeIsInCurrentLevelOfDetail = nodeTypeHasLevelOfDetailProperties && nodeTypeInfo.lod[NLC.levelOfDetail]
-            if (nodeTypeHasLevelOfDetailProperties && !nodeTypeIsInCurrentLevelOfDetail) {    
-                // TODO: we sometimes want to show a node *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed    
-                // The node is not in the current levelOfDetail detail, so we are not going to show/add the node    
-                continue    
-            }    
-            */
-            
-            // FIXME: PoC solution, clean this up: these two fractions should be in the nodeTypeInfo itself!
-            if (nodeTypeHasLevelOfDetailProperties) {
-                if (nodeTypeInfo.lod['high']) {
-                    toLevelOfDetail = 1.0
-                }
-                else if (nodeTypeInfo.lod['medium']) {
-                    toLevelOfDetail = 0.3
-                }
-                else if (nodeTypeInfo.lod['low']) {
-                    toLevelOfDetail = 0.15
-                }
+        if (NLC.levelOfDetail == "auto") {
+            if (nodeTypeInfo != null) {    
+                let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
+                
+                /* FIXME: remove this? 
+                let nodeTypeIsInCurrentLevelOfDetail = nodeTypeHasLevelOfDetailProperties && nodeTypeInfo.lod[NLC.levelOfDetail]
+                if (nodeTypeHasLevelOfDetailProperties && !nodeTypeIsInCurrentLevelOfDetail) {    
+                    // TODO: we sometimes want to show a node *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed    
+                    // The node is not in the current levelOfDetail detail, so we are not going to show/add the node    
+                    continue    
+                }    
+                */
+                
+                // FIXME: PoC solution, clean this up: these two fractions should be in the nodeTypeInfo itself!
+                if (nodeTypeHasLevelOfDetailProperties) {
+                    if (nodeTypeInfo.lod['high']) {
+                        toLevelOfDetail = 1.0
+                    }
+                    else if (nodeTypeInfo.lod['medium']) {
+                        toLevelOfDetail = 0.3
+                    }
+                    else if (nodeTypeInfo.lod['low']) {
+                        toLevelOfDetail = 0.15
+                    }
 
-                if (nodeTypeInfo.lod['low']) {
-                    fromLevelOfDetail = 0.0
+                    if (nodeTypeInfo.lod['low']) {
+                        fromLevelOfDetail = 0.0
+                    }
+                    else if (nodeTypeInfo.lod['medium']) {
+                        fromLevelOfDetail = 0.0 // FIXME: we only have medium and high for now, so we set fromLevelOfDetail to 0.0 for medium for now!
+                        // fromLevelOfDetail = 0.15
+                    }
+                    else if (nodeTypeInfo.lod['high']) {
+                        fromLevelOfDetail = 0.3
+                    }
                 }
-                else if (nodeTypeInfo.lod['medium']) {
-                    fromLevelOfDetail = 0.0 // FIXME: we only have medium and high for now, so we set fromLevelOfDetail to 0.0 for medium for now!
-                    // fromLevelOfDetail = 0.15
-                }
-                else if (nodeTypeInfo.lod['high']) {
-                    fromLevelOfDetail = 0.3
-                }
-            }
-        }    
+            }    
+        }
+        else {
+            // TODO: we now assume levelOfDetail == "all" here, so we show all details
+        }
             
         let position = {     
             x: 96, // FIXME: use a default position? Or determine where there is room?? Or set to null?    
@@ -1939,46 +1943,66 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             // FIXME: continue    
         }    
             
+        let linkTypeInfo = getLinkTypeInfo(link)    
+        
         let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0?
         let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
 
-        let linkTypeInfo = getLinkTypeInfo(link)    
-        if (linkTypeInfo != null) {    
-                
-            let linkTypeHasLevelOfDetailProperties = linkTypeInfo.hasOwnProperty('lod')    
-            /* FIXME: remove this? 
-            let linkTypeIsInCurrentLevelOfDetail = linkTypeHasLevelOfDetailProperties && linkTypeInfo.lod[NLC.levelOfDetail]    
-            if (linkTypeHasLevelOfDetailProperties && !linkTypeIsInCurrentLevelOfDetail) {    
-                // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: NLC.levelOfDetailFading is needed    
-                // The link is not in the current levelOfDetail detail, so we are not going to show/add the link    
-                continue    
-            }    
-            */
+        if (NLC.levelOfDetail == "auto") {
+            if (linkTypeInfo != null) {    
+                    
+                let linkTypeHasLevelOfDetailProperties = linkTypeInfo.hasOwnProperty('lod')    
+                /* FIXME: remove this? 
+                let linkTypeIsInCurrentLevelOfDetail = linkTypeHasLevelOfDetailProperties && linkTypeInfo.lod[NLC.levelOfDetail]    
+                if (linkTypeHasLevelOfDetailProperties && !linkTypeIsInCurrentLevelOfDetail) {    
+                    // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: NLC.levelOfDetailFading is needed    
+                    // The link is not in the current levelOfDetail detail, so we are not going to show/add the link    
+                    continue    
+                }    
+                */
 
-            // FIXME: PoC solution, clean this up: these two fractions should be in the linkTypeInfo itself!
-            if (linkTypeHasLevelOfDetailProperties) {
-                if (linkTypeInfo.lod['high']) {
-                    toLevelOfDetail = 1.0
-                }
-                else if (linkTypeInfo.lod['medium']) {
-                    toLevelOfDetail = 0.3
-                }
-                else if (linkTypeInfo.lod['low']) {
-                    toLevelOfDetail = 0.15
-                }
+                // FIXME: PoC solution, clean this up: these two fractions should be in the linkTypeInfo itself!
+                if (linkTypeHasLevelOfDetailProperties) {
+                    if (linkTypeInfo.lod['high']) {
+                        toLevelOfDetail = 1.0
+                    }
+                    else if (linkTypeInfo.lod['medium']) {
+                        toLevelOfDetail = 0.3
+                    }
+                    else if (linkTypeInfo.lod['low']) {
+                        toLevelOfDetail = 0.15
+                    }
 
-                if (linkTypeInfo.lod['low']) {
-                    fromLevelOfDetail = 0.0
-                }
-                else if (linkTypeInfo.lod['medium']) {
-                    fromLevelOfDetail = 0.0 // FIXME: we only have medium and high for now, so we set fromLevelOfDetail to 0.0 for medium for now!
-                    // fromLevelOfDetail = 0.15
-                }
-                else if (linkTypeInfo.lod['high']) {
-                    fromLevelOfDetail = 0.3
+                    if (linkTypeInfo.lod['low']) {
+                        fromLevelOfDetail = 0.0
+                    }
+                    else if (linkTypeInfo.lod['medium']) {
+                        fromLevelOfDetail = 0.0 // FIXME: we only have medium and high for now, so we set fromLevelOfDetail to 0.0 for medium for now!
+                        // fromLevelOfDetail = 0.15
+                    }
+                    else if (linkTypeInfo.lod['high']) {
+                        fromLevelOfDetail = 0.3
+                    }
                 }
             }
-        }    
+        }
+        else {
+            // TODO: we now assume levelOfDetail == "all" here, so we show all details
+            
+            // FIXME: as long as we havent removed all "medium links" we are now not showing them in this mode
+            // FIXME: as long as we havent removed all "medium links" we are now not showing them in this mode
+            // FIXME: as long as we havent removed all "medium links" we are now not showing them in this mode
+            
+            if (linkTypeInfo != null) {    
+                let linkTypeHasLevelOfDetailProperties = linkTypeInfo.hasOwnProperty('lod')    
+                if (linkTypeHasLevelOfDetailProperties) {
+                    if (!linkTypeInfo.lod['high']) {
+                        toLevelOfDetail = 0.0
+                    }
+                }
+            }
+            
+        }
     
         // link.dataType = sourceDataType    
         let connectionInfo = {    
