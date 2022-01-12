@@ -1218,6 +1218,109 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo
         console.log("ERROR: cannot store link: unknown linkId:" + linkId)    
     }    
 }    
+
+
+
+// Source diagrams
+    
+function createNewSourceDiagram() {    
+        
+    // FIXME: we should take into account default values and required fields!    
+        
+    // Create the sourceDiagram locally    
+        
+    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
+        
+    let newSourceDiagram = {    
+        "id" : null,    
+        "name" : newName,    
+        "imageUrl" : null,
+        "sourcePoints" : [],
+    }    
+        
+    return newSourceDiagram    
+}    
+    
+function storeNewSourceDiagram(newSourceDiagram) {    
+    let sourceDiagramsById = NLC.nodesAndLinksData.sourceDiagramsById
+    
+    sourceDiagramsById[newSourceDiagram.id] = newSourceDiagram    
+    NLC.nodesAndLinksData.sourceDiagrams.push(newSourceDiagram)    
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.sourceDiagrams and sourceDiagramsById)    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "sourceDiagrams"],    
+        "data" : newSourceDiagram    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
+}    
+    
+function storeChangesBetweenSourceDiagrams(originalSourceDiagram, changedSourceDiagram) {    
+    let sourceDiagramChanges = []    
+        
+    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused    
+    
+    if (changedSourceDiagram.name !== originalSourceDiagram.name) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourceDiagrams", originalSourceDiagram.id, "name" ],    
+            "data" : changedSourceDiagram.name    
+        }    
+        sourceDiagramChanges.push(nlcDataChange)    
+    }    
+        
+    if (changedSourceDiagram.imageUrl !== originalSourceDiagram.imageUrl) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "sourceDiagrams", originalSourceDiagram.id, "imageUrl" ],    
+            "data" : changedSourceDiagram.imageUrl    
+        }    
+        sourceDiagramChanges.push(nlcDataChange)    
+    }    
+    
+    if (sourceDiagramChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(sourceDiagramChanges)    
+            
+        NLC.dataHasChanged = true    
+            
+        // TODO: we should only do this if we accept the changes    
+        originalSourceDiagram.name = changedSourceDiagram.name    
+        originalSourceDiagram.imageUrl = changedSourceDiagram.imageUrl  // FIXME: we should get rid of this!    
+    }    
+}    
+
+function removeSourceDiagram (sourceDiagramToBeRemoved) {    
+    let sourceDiagramsById = NLC.nodesAndLinksData.sourceDiagramsById
+    
+    let sourceDiagramIndexToDelete = null    
+    for (let sourceDiagramIndex = 0; sourceDiagramIndex < NLC.nodesAndLinksData.sourceDiagrams.length; sourceDiagramIndex++) {    
+        let sourceDiagram = NLC.nodesAndLinksData.sourceDiagrams[sourceDiagramIndex]    
+        if (sourceDiagram.id === sourceDiagramToBeRemoved.id) {    
+            sourceDiagramIndexToDelete = sourceDiagramIndex    
+        }    
+    }    
+    if (sourceDiagramIndexToDelete != null) {    
+        NLC.nodesAndLinksData.sourceDiagrams.splice(sourceDiagramIndexToDelete, 1)
+        delete sourceDiagramsById[sourceDiagramToBeRemoved.id]    
+    }    
+    else {    
+        console.log("ERROR: could not find sourceDiagram to be deleted!")    
+    }    
+        
+    // FIXME: remove all visualData from nodes and links pointing to this sourceDiagram!    
+        
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.sourceDiagrams and sourceDiagramsById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "sourceDiagrams", sourceDiagramToBeRemoved.id],    
+        "data" : sourceDiagramToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)
+    NLC.dataHasChanged = true    
+}    
     
     
 // Source points in source diagrams
