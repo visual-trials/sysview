@@ -70,7 +70,7 @@ DiagramLegendaLodSelector.legendaSelector = {
 }
 
 DiagramLegendaLodSelector.lodSelector = {
-    selectedLevelOfDetail: "high",  // FIXME: HARDCODED! 
+    selectedLevelOfDetail: "auto",
 }
 
 
