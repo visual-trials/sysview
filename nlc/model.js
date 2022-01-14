@@ -1935,6 +1935,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
 // FIXME: remove this!
 // FIXME: remove this!
 if (link.type === 'common') {
+	console.log("WARNING: removing 'common' link on-the-fly. These should not be in the db anymore!")
 	continue
 }
 		
@@ -2082,7 +2083,7 @@ if (link.type === 'common') {
 			
 			if (node.id in linksByFromNodeId && node.id in linksByToNodeId) {
 				// There are links from AND to this node
-console.log(fromLevelOfDetail)
+// console.log(fromLevelOfDetail)
 
 // FIXME: also return the connectionPoint info for the nodes that should be connected to/from! So we can re-use those!
 				let toNodesWithLowerFromLevelOfDetail = findToNodesWithLowerFromLevelOfDetail(node, fromLevelOfDetail)
