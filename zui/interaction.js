@@ -22,6 +22,7 @@ ZUI.interaction = {
     centerViewOnFirstSelectedContainer :  false,
     centerViewOnSelectedConnection : false,
     viewScale : 1,
+	levelOfDetailToAlwaysShow : 0.0,
     viewOffset : { x: 0, y: 0},
     viewIsBeingDraggedByMouse : false,
     viewIsBeingDraggedByTouch : false,

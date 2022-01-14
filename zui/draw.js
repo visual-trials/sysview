@@ -649,7 +649,7 @@ function drawConnections() {
             
             let connectionName = connection.name
 
-            if ((ZUI.interaction.viewScale >= connection.fromLevelOfDetail && ZUI.interaction.viewScale <  connection.toLevelOfDetail) ||
+            if (((ZUI.interaction.viewScale >= connection.fromLevelOfDetail || ZUI.interaction.levelOfDetailToAlwaysShow >= connection.fromLevelOfDetail) && ZUI.interaction.viewScale <  connection.toLevelOfDetail) ||
                 (ZUI.interaction.viewScale >= 1.0                          && connection.toLevelOfDetail == 1.0)) {
                 drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
             }
@@ -959,7 +959,7 @@ function drawContainers(containerIdentifiers, alpha) {
                 }
             }
             
-            if ((ZUI.interaction.viewScale >= container.fromLevelOfDetail && ZUI.interaction.viewScale <  container.toLevelOfDetail) ||
+            if (((ZUI.interaction.viewScale >= container.fromLevelOfDetail || ZUI.interaction.levelOfDetailToAlwaysShow >= container.fromLevelOfDetail) && ZUI.interaction.viewScale <  container.toLevelOfDetail) ||
                 (ZUI.interaction.viewScale >= 1.0                         && container.toLevelOfDetail == 1.0)) {
                     
                 drawContainer(container, alphaContainer, fractionToShowText)

@@ -1752,6 +1752,9 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     // Removing all connections and containers    
     initContainersAndConnections()    
     
+	// When looking at all the nodes, we keep track of the lowest fromLevelOfDetail. This is the level that will always be shown (since it is the lowest). Not showing these nodes, would otherwise empty the screen.
+	let lowestFromLevelOfDetail = null
+	
     let nodeIdsAddedToContainers = {}    
     let nodes = NLC.nodesAndLinksData.nodes    
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {    
@@ -1781,49 +1784,29 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         
         let nodeTypeInfo = getNodeTypeInfo(node)    
         
-        let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0?
+        let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0? or should we assume 1.0?
         let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
         
         if (NLC.levelOfDetail == "auto") {
             if (nodeTypeInfo != null) {    
                 let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
                 
-                /* FIXME: remove this? 
-                let nodeTypeIsInCurrentLevelOfDetail = nodeTypeHasLevelOfDetailProperties && nodeTypeInfo.lod[NLC.levelOfDetail]
-                if (nodeTypeHasLevelOfDetailProperties && !nodeTypeIsInCurrentLevelOfDetail) {    
-                    // TODO: we sometimes want to show a node *fading-out*. In that case we do want to show it: ZUI.levelOfDetailFading is needed    
-                    // The node is not in the current levelOfDetail detail, so we are not going to show/add the node    
-                    continue    
-                }    
-                */
-                
-                // FIXME: PoC solution, clean this up: these two fractions should be in the nodeTypeInfo itself!
                 if (nodeTypeHasLevelOfDetailProperties) {
-                    if (nodeTypeInfo.lod['high']) {
-                        toLevelOfDetail = 1.0
-                    }
-                    else if (nodeTypeInfo.lod['medium']) {
-                        toLevelOfDetail = 0.3
-                    }
-                    else if (nodeTypeInfo.lod['low']) {
-                        toLevelOfDetail = 0.15
-                    }
-
-                    if (nodeTypeInfo.lod['low']) {
-                        fromLevelOfDetail = 0.0
-                    }
-                    else if (nodeTypeInfo.lod['medium']) {
-                        fromLevelOfDetail = 0.0 // FIXME: we only have medium and high for now, so we set fromLevelOfDetail to 0.0 for medium for now!
-                        // fromLevelOfDetail = 0.15
-                    }
-                    else if (nodeTypeInfo.lod['high']) {
-                        fromLevelOfDetail = 0.3
-                    }
+					toLevelOfDetail = nodeTypeInfo.lod['to']
+					fromLevelOfDetail = nodeTypeInfo.lod['from']
+					
+					if (lowestFromLevelOfDetail == null || fromLevelOfDetail < lowestFromLevelOfDetail) {
+						lowestFromLevelOfDetail = fromLevelOfDetail
+					}
                 }
+				else {
+					console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
+				}
             }    
         }
         else {
             // TODO: we now assume levelOfDetail == "all" here, so we show all details
+			lowestFromLevelOfDetail = 1.0
         }
             
         let position = {     
@@ -1917,7 +1900,16 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             
         createContainer(containerInfo)    
         nodeIdsAddedToContainers[node.id] = true    
-    }    
+    }
+	
+	// We now set the levelOfDetailToAlwaysShow to the lowestFromLevelOfDetail of all the nodes
+	if (lowestFromLevelOfDetail != null) {
+		ZUI.interaction.levelOfDetailToAlwaysShow = lowestFromLevelOfDetail
+	}
+	else {
+		// TODO: if no node has any fromLevelOfDetail information, we
+		ZUI.interaction.levelOfDetailToAlwaysShow = 0.0
+	}
     
     // TODO: we currently set the absolute positions of the container before we add the connections. Is this required? Of should/can we do this after adding the connections?    
     setContainerChildren()    
@@ -1952,54 +1944,28 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             if (linkTypeInfo != null) {    
                     
                 let linkTypeHasLevelOfDetailProperties = linkTypeInfo.hasOwnProperty('lod')    
-                /* FIXME: remove this? 
-                let linkTypeIsInCurrentLevelOfDetail = linkTypeHasLevelOfDetailProperties && linkTypeInfo.lod[NLC.levelOfDetail]    
-                if (linkTypeHasLevelOfDetailProperties && !linkTypeIsInCurrentLevelOfDetail) {    
-                    // TODO: we sometimes want to show a link *fading-out*. In that case we do want to show it: NLC.levelOfDetailFading is needed    
-                    // The link is not in the current levelOfDetail detail, so we are not going to show/add the link    
-                    continue    
-                }    
-                */
 
-                // FIXME: PoC solution, clean this up: these two fractions should be in the linkTypeInfo itself!
                 if (linkTypeHasLevelOfDetailProperties) {
-                    if (linkTypeInfo.lod['high']) {
-                        toLevelOfDetail = 1.0
-                    }
-                    else if (linkTypeInfo.lod['medium']) {
-                        toLevelOfDetail = 0.3
-                    }
-                    else if (linkTypeInfo.lod['low']) {
-                        toLevelOfDetail = 0.15
-                    }
-
-                    if (linkTypeInfo.lod['low']) {
-                        fromLevelOfDetail = 0.0
-                    }
-                    else if (linkTypeInfo.lod['medium']) {
-                        fromLevelOfDetail = 0.0 // FIXME: we only have medium and high for now, so we set fromLevelOfDetail to 0.0 for medium for now!
-                        // fromLevelOfDetail = 0.15
-                    }
-                    else if (linkTypeInfo.lod['high']) {
-                        fromLevelOfDetail = 0.3
-                    }
+					toLevelOfDetail = linkTypeInfo.lod['to']
+					fromLevelOfDetail = linkTypeInfo.lod['from']
                 }
+				else {
+					console.log("WARNING: not level of detail information for linkType: " + linkTypeInfo.identifier)
+				}
+				
             }
         }
         else {
             // TODO: we now assume levelOfDetail == "all" here, so we show all details
             
-            // FIXME: as long as we havent removed all "medium links" we are now not showing them in this mode
-            // FIXME: as long as we havent removed all "medium links" we are now not showing them in this mode
-            // FIXME: as long as we havent removed all "medium links" we are now not showing them in this mode
-            
+            // FIXME: as long as we havent removed all "common" links we are now not showing them in this mode
+            // FIXME: as long as we havent removed all "common" links we are now not showing them in this mode
+            // FIXME: as long as we havent removed all "common" links we are now not showing them in this mode
+
             if (linkTypeInfo != null) {    
-                let linkTypeHasLevelOfDetailProperties = linkTypeInfo.hasOwnProperty('lod')    
-                if (linkTypeHasLevelOfDetailProperties) {
-                    if (!linkTypeInfo.lod['high']) {
-                        toLevelOfDetail = 0.0
-                    }
-                }
+				if (linkTypeInfo.identifier === 'common') {
+					toLevelOfDetail = 0.0
+				}
             }
             
         }
