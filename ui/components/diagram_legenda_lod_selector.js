@@ -36,6 +36,12 @@ DiagramLegendaLodSelector.selectDiagram = function(diagramIdToSelect) {
     
     // FIXME: do a better job determining which diagram is default for this user!
     if (diagramIdToSelect == 'default') {
+		if (DiagramLegendaLodSelector.diagramSelector.defaultDiagramId == null) {
+			// FIXME: maybe we should reset defaultDiagramId when diagrams are removed or inserted?
+			if (NLC.nodesAndLinksData.diagrams && NLC.nodesAndLinksData.diagrams.length > 0)  {
+				DiagramLegendaLodSelector.diagramSelector.defaultDiagramId = NLC.nodesAndLinksData.diagrams[0].id
+			}
+		}
         diagramIdToSelect = DiagramLegendaLodSelector.diagramSelector.defaultDiagramId
     }
 
