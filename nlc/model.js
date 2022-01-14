@@ -2128,7 +2128,7 @@ if (link.type === 'common') {
 							commonData : {}, // FIXME: fill this! (with dataType?)
 							fromNodeId : fromNode.id,
 							toNodeId : toNode.id,
-													// FIXME: Scale * 2?
+// FIXME: Scale * 2?
 // FIXME: this doesn't work quite right yet: when setting levelOfDetail to 'all', also the ones the a low-lod can be seen. Whats causing this?
 //        see logic for: lowestFromLevelOfDetail
 							lod: { 
