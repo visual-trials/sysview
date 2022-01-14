@@ -1930,7 +1930,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         let linkHasDiagramSpecificVisualData = link.hasOwnProperty('diagramSpecificVisualData') &&     
                               link.diagramSpecificVisualData.hasOwnProperty(diagramId)    
         if (!linkHasDiagramSpecificVisualData) {    
-            // The link does not have diagramSpecificVisualData for the selectedDiagram, so we SHOULD not show/add the node    
+            // The link does not have diagramSpecificVisualData for the selectedDiagram, so we SHOULD not show/add the link
             // FIXME: we should 'continue' here, but the DEFAULT right now is to add it anyway!    
             // FIXME: continue    
         }    
@@ -1975,7 +1975,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             identifier: link.id,    
             name: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!    
             type: link.type,
-            dataType: link.dataType,    
+            dataType: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!
             fromLevelOfDetail: fromLevelOfDetail,
             toLevelOfDetail: toLevelOfDetail,
             fromContainerIdentifier: link.fromNodeId,    
