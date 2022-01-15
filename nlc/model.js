@@ -2010,6 +2010,7 @@ if (link.type === 'common') {
 //        Not using alreadyChained will cause possible while(1)-loops. So how to fix that? Maybe set something in the nodes? Or a separate crumbpath for each call to
 //        these 2 recursive functions?
 //        The other reason for setting the alreadyChained-boolean is for serial high-lod nodes being linked. Without it, you could get double-links: the same link would be created. Maybe check if the same link already exists?
+// NOTE: the proper solution is the return all the chains of nodes and links and post-process these
 				
 				if (nodeTypeHasLevelOfDetailProperties) {
 					let toNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
