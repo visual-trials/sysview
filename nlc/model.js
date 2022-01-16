@@ -1923,42 +1923,6 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
 // FIXME: only do this when levelOfDetail == "auto"!
 // FIXME: only do this when levelOfDetail == "auto"!
 
-    let nodesById = NLC.nodesAndLinksData.nodesById
-	let virtualLinks = []
-	let linksByFromNodeId = {}
-	let linksByToNodeId = {}
-    for (let linkId in NLC.nodesAndLinksData.linksById) {    
-        let link = JSON.parse(JSON.stringify(NLC.nodesAndLinksData.linksById[linkId]))
-		
-// FIXME: remove this!
-// FIXME: remove this!
-// FIXME: remove this!
-// FIXME: remove this!
-if (link.type === 'common') {
-	console.log("WARNING: removing 'common' link on-the-fly. These should not be in the db anymore!")
-	continue
-}
-		
-		// By default we assume all links are visible in all levelOfDetails. Their from-lod can/will be changed when a lower-lod link "takes over"
-		link.lod = {
-			from: 0.0,
-			to: 1.0
-		}
-		
-		// We always want the original links, so we add it to the list of virtualLinks
-		virtualLinks.push(link)
-		
-		if (!(link.fromNodeId in linksByFromNodeId)) {
-			linksByFromNodeId[link.fromNodeId] = []
-		}
-		if (!(link.toNodeId in linksByToNodeId)) {
-			linksByToNodeId[link.toNodeId] = []
-		}
-		linksByFromNodeId[link.fromNodeId].push(link)
-		linksByToNodeId[link.toNodeId].push(link)
-	}
-
-
 	let nodesByFromLevelOfDetail = {}
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {    
         let node = nodes[nodeIndex]    
@@ -1983,6 +1947,42 @@ if (link.type === 'common') {
 		}
 	}
     
+    let nodesById = NLC.nodesAndLinksData.nodesById
+	let virtualLinks = []
+	let linksByFromNodeId = {}
+	let linksByToNodeId = {}
+    for (let linkId in NLC.nodesAndLinksData.linksById) {    
+        let link = JSON.parse(JSON.stringify(NLC.nodesAndLinksData.linksById[linkId]))
+		
+// FIXME: remove this!
+// FIXME: remove this!
+// FIXME: remove this!
+// FIXME: remove this!
+if (link.type === 'common') {
+	console.log("WARNING: removing 'common' link on-the-fly. These should not be in the db anymore!")
+	continue
+}
+		
+		// By default we assume all links are visible in all levelOfDetails. Their from-lod can/will be changed when a lower-lod link "takes over"
+		link.lod = {
+			from: highLod, // FIXME: Should we take this highest in nodesByFromLevelOfDetail instead? Or simply the highest (but one) in types.js? -> highLod
+			to: maxLod
+		}
+		
+		// We always want the original links, so we add it to the list of virtualLinks
+		virtualLinks.push(link)
+		
+		if (!(link.fromNodeId in linksByFromNodeId)) {
+			linksByFromNodeId[link.fromNodeId] = []
+		}
+		if (!(link.toNodeId in linksByToNodeId)) {
+			linksByToNodeId[link.toNodeId] = []
+		}
+		linksByFromNodeId[link.fromNodeId].push(link)
+		linksByToNodeId[link.toNodeId].push(link)
+	}
+
+
 	function findToChainsWithLowerFromLevelOfDetail (node, fromLevelOfDetail, nodeCrumbPath, doLog) {
 		
 		let toChainsWithLowerFromLevelOfDetail = []
@@ -2136,7 +2136,10 @@ if (doLog) {
         - this is probably caused by the fact that you don't start with these nodes?
         -> Example: BS -> APP connections
      4 - Showing "all" (aka "highest") detail also shows virtual link that should only shown at the lowest level of detail
-     - SPEED! (also when panning!)
+     5 - In the domain-diagam, low-links are shown first, when zooming in, they are not, even though medium (and high) nodes are *not placed* in this diagram!
+        -> should we calculate using the *placed* nodes instead?
+     6 - SPEED! (also when panning!)
+     
      
      
      => SOLUTION:
@@ -2153,7 +2156,6 @@ if (doLog) {
     
     */
     
-	let previousFromLevelOfDetail = 1.0 // We start with maxLevelOfDetail
 	let fromLevelOfDetailsSorted = Object.keys(nodesByFromLevelOfDetail).sort().reverse()
 	for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
 		let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
