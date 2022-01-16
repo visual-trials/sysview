@@ -2168,7 +2168,12 @@ if (link.type === 'common') {
             
             let doLog = false
 let fromNode = nodesById[virtualLink.fromNodeId]
-if (fromNode.commonData.name == 'BIJS.BAD.DRGLPLAN.BLAUW') {
+let toNode = nodesById[virtualLink.toNodeId]
+if (fromNode.commonData.name == 'Med_RetrieveFilesAndNotify' || 
+    toNode.commonData.name == 'Med_RetrieveFilesAndNotify' || 
+    fromNode.commonData.name == 'T_B@M1_Plan' || 
+    toNode.commonData.name == 'T_B@M1_Plan'
+    ) {
     doLog = true
 }
 
@@ -2177,14 +2182,13 @@ if (fromNode.commonData.name == 'BIJS.BAD.DRGLPLAN.BLAUW') {
             // FIXME: add the virtualLink itself too!?
             let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, doLog)
                 
-// TBTimetablePlanBlauwPS                
-// BIJS.BAD.DRGLPLAN.BLAUW
-if (fromNode.commonData.name == 'BIJS.BAD.DRGLPLAN.BLAUW') {
+if (doLog) {
     console.log(fromLevelOfDetail)
+    console.log(virtualLink)
     console.log(fromNode)
+    console.log(toNode)
     console.log(fromChainsWithLowerFromLevelOfDetail) 
     console.log(toChainsWithLowerFromLevelOfDetail) 
-    doLog = false
 }
 
             for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
@@ -2231,6 +2235,8 @@ if (fromNode.commonData.name == 'BIJS.BAD.DRGLPLAN.BLAUW') {
                     let newVirtualLink = {
                         id : firstFromNode.id + '-' + lastToNode.id,  // FIXME: what should we use as id?
                         commonData : {}, // FIXME: fill this! (with dataType?)
+                        
+                        // FIXME: shouldn't we also add fromNodeName and toNodeName?
                         fromNodeId : firstFromNode.id,
                         toNodeId : lastToNode.id,
 // FIXME: Scale * 2?
@@ -2241,6 +2247,12 @@ if (fromNode.commonData.name == 'BIJS.BAD.DRGLPLAN.BLAUW') {
                             to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
                         }
                     }
+if (doLog) {
+    console.log(newVirtualLink)
+}
+// FIXME: ISSUE: the virtualLink with its id can already exist! Furthermore, these same-links can have DIFFERENT from/to-lods!
+//                 -> How do we deal with this? Do we have to do a layered approach: create a link between every possible lod-level?
+//                 -> How do we make their ids unqiue? Or do we assemble them in a list? (and later bundle them?)
                     virtualLinks.push(newVirtualLink)
                     virtualLinksByFromLod[newVirtualLink.lod.from].push(newVirtualLink)
                     linksByFromNodeId[newVirtualLink.fromNodeId].push(newVirtualLink)
@@ -2302,7 +2314,10 @@ if (fromNode.commonData.name == 'BIJS.BAD.DRGLPLAN.BLAUW') {
             toLevelOfDetail: toLevelOfDetail,
             fromContainerIdentifier: link.fromNodeId,    
             toContainerIdentifier: link.toNodeId    
-        }    
+        }
+if (link.id == '670-638') {
+    console.log(connectionInfo)
+}
             
         if (linkHasDiagramSpecificVisualData) {    
             if (link.diagramSpecificVisualData[diagramId].hasOwnProperty('fromConnectionPointIdentifier')) {    
