@@ -2148,6 +2148,8 @@ if (link.type === 'common') {
          then this means the from-node has to be chained directly with the to-node, but the current link has to be replaced (and be marked alreadyChained).
          
      - REMARK: not certain yet why 1 and 4 are a problem, but 1 might be resolved too by this solution
+     - REMARK: for resolving (1) we may need to use a layered approach: each link is limitied between two lod-levels
+     - REMARK: issue (1) also exemplifies the need for bundling/grouping links.
     
     
     */
