@@ -1983,7 +1983,7 @@ if (link.type === 'common') {
 		}
 	}
     
-	function findToChainsWithLowerFromLevelOfDetail (node, fromLevelOfDetail, nodeCrumbPath) {
+	function findToChainsWithLowerFromLevelOfDetail (node, fromLevelOfDetail, nodeCrumbPath, doLog) {
 		
 		let toChainsWithLowerFromLevelOfDetail = []
 		
@@ -2002,6 +2002,9 @@ if (link.type === 'common') {
                 nodeCrumbPath[toNode.id] = true
             }
             
+if (doLog) {
+console.log(toNode)
+}
             // FIXME: THIS IS TOO EXPENSIVE!
             let nodeTypeInfo = getNodeTypeInfo(toNode)    
             
@@ -2009,9 +2012,17 @@ if (link.type === 'common') {
 
             if (nodeTypeHasLevelOfDetailProperties) {
                 let toNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
-                if (toNodeFromLevelOfDetail === fromLevelOfDetail) {
+if (doLog) {
+    console.log('toNodeFromLevelOfDetail: ' + toNodeFromLevelOfDetail)
+    console.log('fromLevelOfDetail: ' + fromLevelOfDetail)
+}
+                if (toNodeFromLevelOfDetail == fromLevelOfDetail) {
                     // If we find a node with the same levelOfDetail, we keep searching deeper
-                    let deeperToChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(toNode, fromLevelOfDetail, nodeCrumbPath)
+if (doLog) {
+    console.log('find deeper')
+}
+                    
+                    let deeperToChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(toNode, fromLevelOfDetail, nodeCrumbPath, doLog)
                     for (let deeperToChainIndex in deeperToChainsWithLowerFromLevelOfDetail) {
                         // Add linkFromThisNode and toNode to the beginning of each the deeper to-chain
                         let deeperToChain = deeperToChainsWithLowerFromLevelOfDetail[deeperToChainIndex]
@@ -2034,7 +2045,7 @@ if (link.type === 'common') {
 		return toChainsWithLowerFromLevelOfDetail
 	}
 	
-	function findFromChainsWithLowerFromLevelOfDetail (node, fromLevelOfDetail, nodeCrumbPath) {
+	function findFromChainsWithLowerFromLevelOfDetail (node, fromLevelOfDetail, nodeCrumbPath, doLog) {
 		
 		let fromChainsWithLowerFromLevelOfDetail = []
 		
@@ -2060,9 +2071,9 @@ if (link.type === 'common') {
             
             if (nodeTypeHasLevelOfDetailProperties) {
                 let fromNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
-                if (fromNodeFromLevelOfDetail === fromLevelOfDetail) {
+                if (fromNodeFromLevelOfDetail == fromLevelOfDetail) {
                     // If we find a node with the same levelOfDetail, we keep searching deeper
-                    let deeperFromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(fromNode, fromLevelOfDetail, nodeCrumbPath)
+                    let deeperFromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(fromNode, fromLevelOfDetail, nodeCrumbPath), doLog
                     for (let deeperFromChainIndex in deeperFromChainsWithLowerFromLevelOfDetail) {
                         // Add linkToThisNode and fromNode to the end of each the deeper from-chain
                         let deeperFromChain = deeperFromChainsWithLowerFromLevelOfDetail[deeperFromChainIndex]
@@ -2110,6 +2121,26 @@ if (link.type === 'common') {
         }
     }
     
+    
+    /*
+    
+    // FIXME:
+    
+    Left-over issues:
+    
+     - Chains that contain only the highest log (like only mediations) will be visible at the *lowest* level, but will dissapear at the *medium* level
+        -> Example: Donna -> BAM
+     - highest level links that are not connected (that is: no chain leading) to a lower node, will always stay visible
+        -> See BIJS, below BAM
+     - Some medium links are not replaced by lower-lod virual links
+        - this is probably caused by the fact that you don't start with these nodes?
+        -> Example: BS -> APP connections
+     - Showing "all" (aka "highest") detail also shows virtual link that should only shown at the lowest level of detail
+     - SPEED! (also when panning!)
+    
+    
+    */
+    
 	let previousFromLevelOfDetail = 1.0 // We start with maxLevelOfDetail
 	let fromLevelOfDetailsSorted = Object.keys(nodesByFromLevelOfDetail).sort().reverse()
 	for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
@@ -2121,20 +2152,26 @@ if (link.type === 'common') {
 			
 			if (node.id in linksByFromNodeId && node.id in linksByToNodeId) {
 				// There are links from AND to this node
+                
+                let doLog = false
+if (node.commonData.name == 'BIJS.BAD.DRGLPLAN.BLAUW') {
+    doLog = true
+}
 
                 // FIXME: add the node itself too!?
-				let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(node, fromLevelOfDetail, {})
+				let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(node, fromLevelOfDetail, {}, doLog)
                 // FIXME: add the node itself too!?
-				let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(node, fromLevelOfDetail, {})
+				let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(node, fromLevelOfDetail, {}, doLog)
                 
-/*
-if (node.commonData.name == 'MeldingenRegistratiePS') {
+// TBTimetablePlanBlauwPS                
+// BIJS.BAD.DRGLPLAN.BLAUW
+if (node.commonData.name == 'BIJS.BAD.DRGLPLAN.BLAUW') {
     console.log(fromLevelOfDetail)
     console.log(node)
     console.log(fromChainsWithLowerFromLevelOfDetail) 
     console.log(toChainsWithLowerFromLevelOfDetail) 
+    doLog = false
 }
-*/
 
 				for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
 					let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
