@@ -1982,97 +1982,134 @@ if (link.type === 'common') {
 			console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
 		}
 	}
-	
-	function findToNodesWithLowerFromLevelOfDetail (node, fromLevelOfDetail) {
+    
+	function findToChainsWithLowerFromLevelOfDetail (node, fromLevelOfDetail, nodeCrumbPath) {
 		
-		let toNodesWithLowerFromLevelOfDetail = []
+		let toChainsWithLowerFromLevelOfDetail = []
 		
 		let linksFromThisNode = linksByFromNodeId[node.id]
 		
 		for (let linkFromThisNodeIndex in linksFromThisNode) {
 			let linkFromThisNode = linksFromThisNode[linkFromThisNodeIndex]
-			
-			if ('alreadyChained' in linkFromThisNode && linkFromThisNode.alreadyChained) {
-				// link is already chained!
-			}
-			else {
-				let toNode = nodesById[linkFromThisNode.toNodeId]
-				// FIXME: THIS IS TOO EXPENSIVE!
-				let nodeTypeInfo = getNodeTypeInfo(toNode)    
-				
-				let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
+            
+            let toNode = nodesById[linkFromThisNode.toNodeId]
+            
+            // To prevent from looping, we check our crumbPath of nodes we visited
+            if (toNode.id in nodeCrumbPath) {
+                continue
+            }
+            else {
+                nodeCrumbPath[toNode.id] = true
+            }
+            
+            // FIXME: THIS IS TOO EXPENSIVE!
+            let nodeTypeInfo = getNodeTypeInfo(toNode)    
+            
+            let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
 
-
-// FIXME: there is a problem when multiple applications want to reach a topic via the SAME mediation (as can be seen in the DPK diagram: MeldingenRegistratiePS).
-//        the first application is virutal-linked (via the mediation) with the topic, and sets the link towards that topic as alreadyChained
-//        the next application also want to reach this topic, BUT the link between the mediation and the toptic is not visited (since its alreadyChained)
-//        BUT it *should* be chained AGAIN! 
-//        Not using alreadyChained will cause possible while(1)-loops. So how to fix that? Maybe set something in the nodes? Or a separate crumbpath for each call to
-//        these 2 recursive functions?
-//        The other reason for setting the alreadyChained-boolean is for serial high-lod nodes being linked. Without it, you could get double-links: the same link would be created. Maybe check if the same link already exists?
-// NOTE: the proper solution is the return all the chains of nodes and links and post-process these
-				
-				if (nodeTypeHasLevelOfDetailProperties) {
-					let toNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
-					if (toNodeFromLevelOfDetail === fromLevelOfDetail) {
-						// If we find a node with the same levelOfDetail, we keep searching deeper
-						toNodesWithLowerFromLevelOfDetail.concat(findToNodesWithLowerFromLevelOfDetail(toNode, fromLevelOfDetail))
-					}
-					else if (toNodeFromLevelOfDetail < fromLevelOfDetail) {
-						toNodesWithLowerFromLevelOfDetail.push(toNode)
-					}
-					
-				}
-				
-				// FIXME: should this only be done if nodeTypeHasLevelOfDetailProperties? (see 'if' above)
-				linkFromThisNode.alreadyChained = true
-				linkFromThisNode.lod.from = fromLevelOfDetail
-			}
+            if (nodeTypeHasLevelOfDetailProperties) {
+                let toNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
+                if (toNodeFromLevelOfDetail === fromLevelOfDetail) {
+                    // If we find a node with the same levelOfDetail, we keep searching deeper
+                    let deeperToChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(toNode, fromLevelOfDetail, nodeCrumbPath)
+                    for (let deeperToChainIndex in deeperToChainsWithLowerFromLevelOfDetail) {
+                        // Add linkFromThisNode and toNode to the beginning of each the deeper to-chain
+                        let deeperToChain = deeperToChainsWithLowerFromLevelOfDetail[deeperToChainIndex]
+                        deeperToChain.unshift(toNode)
+                        deeperToChain.unshift(linkFromThisNode)
+                        toChainsWithLowerFromLevelOfDetail.push(deeperToChain)
+                    }
+                }
+                else if (toNodeFromLevelOfDetail < fromLevelOfDetail) {
+                    let toChain = []
+                    // Add linkFromThisNode and toNode to the beginning of the new toChain
+                    toChain.unshift(toNode)
+                    toChain.unshift(linkFromThisNode)
+                    toChainsWithLowerFromLevelOfDetail.push(toChain)
+                }
+                
+            }
 		}
 		
-		return toNodesWithLowerFromLevelOfDetail
+		return toChainsWithLowerFromLevelOfDetail
 	}
 	
-	function findFromNodesWithLowerFromLevelOfDetail (node, fromLevelOfDetail) {
+	function findFromChainsWithLowerFromLevelOfDetail (node, fromLevelOfDetail, nodeCrumbPath) {
 		
-		let fromNodesWithLowerFromLevelOfDetail = []
+		let fromChainsWithLowerFromLevelOfDetail = []
 		
 		let linksToThisNode = linksByToNodeId[node.id]
 		
 		for (let linkToThisNodeIndex in linksToThisNode) {
 			let linkToThisNode = linksToThisNode[linkToThisNodeIndex]
-			
-			if ('alreadyChained' in linkToThisNode && linkToThisNode.alreadyChained) {
-				// link is already chained!
-			}
-			else {
-				let fromNode = nodesById[linkToThisNode.fromNodeId]
-				// FIXME: THIS IS TOO EXPENSIVE!
-				let nodeTypeInfo = getNodeTypeInfo(fromNode)
-				
-				let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
-				
-				if (nodeTypeHasLevelOfDetailProperties) {
-					let fromNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
-					if (fromNodeFromLevelOfDetail === fromLevelOfDetail) {
-						// If we find a node with the same levelOfDetail, we keep searching deeper
-						fromNodesWithLowerFromLevelOfDetail.concat(findFromNodesWithLowerFromLevelOfDetail(fromNode, fromLevelOfDetail))
-					}
-					else if (fromNodeFromLevelOfDetail < fromLevelOfDetail) {
-						fromNodesWithLowerFromLevelOfDetail.push(fromNode)
-					}
-					
-				}
-				
-				// FIXME: should this only be done if nodeTypeHasLevelOfDetailProperties? (see 'if' above)
-				linkToThisNode.alreadyChained = true
-				linkToThisNode.lod.from = fromLevelOfDetail
-			}
+
+            let fromNode = nodesById[linkToThisNode.fromNodeId]
+            
+            // To prevent from looping, we check our crumbPath of nodes we visited
+            if (fromNode.id in nodeCrumbPath) {
+                continue
+            }
+            else {
+                nodeCrumbPath[fromNode.id] = true
+            }
+            
+            // FIXME: THIS IS TOO EXPENSIVE!
+            let nodeTypeInfo = getNodeTypeInfo(fromNode)
+            
+            let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
+            
+            if (nodeTypeHasLevelOfDetailProperties) {
+                let fromNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
+                if (fromNodeFromLevelOfDetail === fromLevelOfDetail) {
+                    // If we find a node with the same levelOfDetail, we keep searching deeper
+                    let deeperFromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(fromNode, fromLevelOfDetail, nodeCrumbPath)
+                    for (let deeperFromChainIndex in deeperFromChainsWithLowerFromLevelOfDetail) {
+                        // Add linkToThisNode and fromNode to the end of each the deeper from-chain
+                        let deeperFromChain = deeperFromChainsWithLowerFromLevelOfDetail[deeperFromChainIndex]
+                        deeperFromChain.push(fromNode)
+                        deeperFromChain.push(linkToThisNode)
+                        fromChainsWithLowerFromLevelOfDetail.push(deeperFromChain)
+                    }
+                }
+                else if (fromNodeFromLevelOfDetail < fromLevelOfDetail) {
+                    
+                    let fromChain = []
+                    // Add linkToThisNode and fromNode to end of the new fromChain
+                    fromChain.push(fromNode)
+                    fromChain.push(linkToThisNode)
+                    fromChainsWithLowerFromLevelOfDetail.push(fromChain)
+                }
+                
+            }
+            
 		}
 		
-		return fromNodesWithLowerFromLevelOfDetail
+		return fromChainsWithLowerFromLevelOfDetail
 	}
 
+    
+    function markLinksInFromChainAsChained(fromChain, fromLevelOfDetail) {
+        for (let linkElementIndex in fromChain) {
+            // In from-chains the *odd* indexes are the links
+            if (linkElementIndex % 2 == 1) {
+                let link = fromChain[linkElementIndex]
+                link.alreadyChained = true
+                link.lod.from = fromLevelOfDetail
+            }
+        }
+    }
+    
+    function markLinksInToChainAsChained(toChain, fromLevelOfDetail) {
+        for (let linkElementIndex in toChain) {
+            // In to-chains the *even* indexes are the links
+            if (linkElementIndex % 2 == 0) {
+                let link = toChain[linkElementIndex]
+                link.alreadyChained = true
+                link.lod.from = fromLevelOfDetail
+            }
+        }
+    }
+    
 	let previousFromLevelOfDetail = 1.0 // We start with maxLevelOfDetail
 	let fromLevelOfDetailsSorted = Object.keys(nodesByFromLevelOfDetail).sort().reverse()
 	for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
@@ -2084,14 +2121,25 @@ if (link.type === 'common') {
 			
 			if (node.id in linksByFromNodeId && node.id in linksByToNodeId) {
 				// There are links from AND to this node
-// console.log(fromLevelOfDetail)
 
-// FIXME: also return the connectionPoint info for the nodes that should be connected to/from! So we can re-use those!
-				let toNodesWithLowerFromLevelOfDetail = findToNodesWithLowerFromLevelOfDetail(node, fromLevelOfDetail)
-				let fromNodesWithLowerFromLevelOfDetail = findFromNodesWithLowerFromLevelOfDetail(node, fromLevelOfDetail)
+                // FIXME: add the node itself too!?
+				let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(node, fromLevelOfDetail, {})
+                // FIXME: add the node itself too!?
+				let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(node, fromLevelOfDetail, {})
+                
+/*
+if (node.commonData.name == 'MeldingenRegistratiePS') {
+    console.log(fromLevelOfDetail)
+    console.log(node)
+    console.log(fromChainsWithLowerFromLevelOfDetail) 
+    console.log(toChainsWithLowerFromLevelOfDetail) 
+}
+*/
 
-				for (let fromNodeIndex in fromNodesWithLowerFromLevelOfDetail) {
-					let fromNode = fromNodesWithLowerFromLevelOfDetail[fromNodeIndex]
+				for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
+					let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
+                    let fromNode = fromChain[0]
+                    let lastFromLink = fromChain[fromChain.length - 1]
 					
 					// FIXME: THIS IS TOO EXPENSIVE!
 					let fromNodeTypeInfo = getNodeTypeInfo(fromNode)    
@@ -2102,8 +2150,10 @@ if (link.type === 'common') {
 					
 					let fromNodeFromLevelOfDetail = fromNodeTypeInfo.lod['from']	
 						
-					for (let toNodeIndex in toNodesWithLowerFromLevelOfDetail) {
-						let toNode = toNodesWithLowerFromLevelOfDetail[toNodeIndex]
+					for (let toChainIndex in toChainsWithLowerFromLevelOfDetail) {
+						let toChain = toChainsWithLowerFromLevelOfDetail[toChainIndex]
+                        let toNode = toChain[toChain.length - 1]
+                        let firstToLink = toChain[0]
 						
 						if (fromNode.id === toNode.id) {
 							// TODO: we now prevent a connection between the same node, but don't we want to show this?
@@ -2123,24 +2173,31 @@ if (link.type === 'common') {
 						if (toNodeFromLevelOfDetail > highestLevelOfDetailOfFromAndTo) {
 							highestLevelOfDetailOfFromAndTo = toNodeFromLevelOfDetail
 						}
-						
-						let newVirtualLink = {
-							id : node.id + '-' + toNode.id,  // FIXME: what should we use as id?
-							commonData : {}, // FIXME: fill this! (with dataType?)
-							fromNodeId : fromNode.id,
-							toNodeId : toNode.id,
-// FIXME: Scale * 2?
-// FIXME: this doesn't work quite right yet: when setting levelOfDetail to 'all', also the ones the a low-lod can be seen. Whats causing this?
-//        see logic for: lowestFromLevelOfDetail
-							lod: { 
-								from: highestLevelOfDetailOfFromAndTo, // The higest levelOfDetail of either the fromNode or the toNode (since one of those to will disappear at that level, so should this link)
-								to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
-							}
-						}
-						virtualLinks.push(newVirtualLink)
-						linksByFromNodeId[newVirtualLink.fromNodeId].push(newVirtualLink)
-						linksByToNodeId[newVirtualLink.toNodeId].push(newVirtualLink)
-
+                        
+                        // Only add new virtualLink if both links to and from this node are not already Chained
+                        if (!('alreadyChained' in lastFromLink) || !('alreadyChained' in firstToLink)) {
+                            
+                            markLinksInFromChainAsChained(fromChain, fromLevelOfDetail)
+                            markLinksInToChainAsChained(toChain, fromLevelOfDetail)
+                            
+                            let newVirtualLink = {
+                                id : fromNode.id + '-' + toNode.id,  // FIXME: what should we use as id?
+                                commonData : {}, // FIXME: fill this! (with dataType?)
+                                fromNodeId : fromNode.id,
+                                toNodeId : toNode.id,
+    // FIXME: Scale * 2?
+    // FIXME: this doesn't work quite right yet: when setting levelOfDetail to 'all', also the ones the a low-lod can be seen. Whats causing this?
+    //        see logic for: lowestFromLevelOfDetail
+                                lod: { 
+                                    from: highestLevelOfDetailOfFromAndTo, // The higest levelOfDetail of either the fromNode or the toNode (since one of those to will disappear at that level, so should this link)
+                                    to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
+                                }
+                            }
+                            virtualLinks.push(newVirtualLink)
+                            linksByFromNodeId[newVirtualLink.fromNodeId].push(newVirtualLink)
+                            linksByToNodeId[newVirtualLink.toNodeId].push(newVirtualLink)
+                        }
+    
 					}
 				
 				}
