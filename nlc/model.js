@@ -2128,15 +2128,27 @@ if (doLog) {
     
     Left-over issues:
     
-     - Chains that contain only the highest log (like only mediations) will be visible at the *lowest* level, but will dissapear at the *medium* level
+     1 - Chains that contain only the highest log (like only mediations) will be chained with virtualLinks that are ONLY visible at the *lowest* level, but will dissapear at the *medium* level
         -> Example: Donna -> BAM
-     - highest level links that are not connected (that is: no chain leading) to a lower node, will always stay visible
+     2 - highest level links that are not connected (that is: no chain leading) to a lower node, will always stay visible
         -> See BIJS, below BAM
-     - Some medium links are not replaced by lower-lod virual links
+     3 - Some medium links are not replaced by lower-lod virual links
         - this is probably caused by the fact that you don't start with these nodes?
         -> Example: BS -> APP connections
-     - Showing "all" (aka "highest") detail also shows virtual link that should only shown at the lowest level of detail
+     4 - Showing "all" (aka "highest") detail also shows virtual link that should only shown at the lowest level of detail
      - SPEED! (also when panning!)
+     
+     
+     => SOLUTION:
+     
+     - set the from-lod of all orginal links to 0.5. This will solve (2): by default it will dissapear at 0.5 (and since we wont chain it it wont be visible after that)
+        - this will also 
+     - instead of looping through all the nodes with a specific from-lod, we loop through all the links (with a from-lod). We still loop through all lod's taken from the nodes
+        - this will ensure (3) can be solved: we will visit links that are not connected to the highest lod-nodes (and by default the link's from-lod is set to 0.5)
+     - when checking a link with a certain from-lod, you get the from- and to- chains. If there is a combination of both to and from chain being 1 node
+         then this means the from-node has to be chained directly with the to-node, but the current link has to be replaced (and be marked alreadyChained).
+         
+     - REMARK: not certain yet why 1 and 4 are a problem, but 1 might be resolved too by this solution
     
     
     */
