@@ -1806,7 +1806,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         }
         else {
             // TODO: we now assume levelOfDetail == "all" here, so we show all details
-			lowestFromLevelOfDetail = 1.0
+			lowestFromLevelOfDetail = highLod
         }
             
         let position = {     
@@ -2131,7 +2131,7 @@ if (link.type === 'common') {
      SOLVED 3 - Some medium links are not replaced by lower-lod virual links
         - this is probably caused by the fact that you don't start with these nodes?
         -> Example: BS -> APP connections
-     4 - Showing "all" (aka "highest") detail also shows virtual link that should only shown at the lowest level of detail
+     SOLVED 4 - Showing "all" (aka "highest") detail also shows virtual link that should only shown at the lowest level of detail
      5 - In the domain-diagam, low-links are shown first, when zooming in, they are not, even though medium (and high) nodes are *not placed* in this diagram!
         -> should we calculate using the *placed* nodes instead?
      6 - SPEED! (also when panning!)

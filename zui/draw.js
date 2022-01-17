@@ -648,9 +648,16 @@ function drawConnections() {
             let toConnectionPointIdentifier = connection.toConnectionPointIdentifier
             
             let connectionName = connection.name
+			
+			let effectiveLevelOfDetail = ZUI.interaction.viewScale
+			if (effectiveLevelOfDetail >= 1.0) {
+				effectiveLevelOfDetail = 0.999999
+			}
+			if (effectiveLevelOfDetail < ZUI.interaction.levelOfDetailToAlwaysShow) {
+				effectiveLevelOfDetail = ZUI.interaction.levelOfDetailToAlwaysShow
+			}
 
-            if (((ZUI.interaction.viewScale >= connection.fromLevelOfDetail || ZUI.interaction.levelOfDetailToAlwaysShow >= connection.fromLevelOfDetail) && ZUI.interaction.viewScale <  connection.toLevelOfDetail) ||
-                (ZUI.interaction.viewScale >= 1.0                          && connection.toLevelOfDetail == 1.0)) {
+            if (effectiveLevelOfDetail >= connection.fromLevelOfDetail && effectiveLevelOfDetail < connection.toLevelOfDetail) {
                 drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
             }
         }
