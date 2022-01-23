@@ -2120,7 +2120,7 @@ if (link.type === 'common') {
     
     /*
     
-    // FIXME:
+    => Chaining: 
     
     Left-over issues:
     
@@ -2135,10 +2135,24 @@ if (link.type === 'common') {
      5 - In the domain-diagam, low-links are shown first, when zooming in, they are not, even though medium (and high) nodes are *not placed* in this diagram!
         -> should we calculate using the *placed* nodes instead?
      6 - SPEED! (also when panning!)
+        -> Why is SEARCHING SLOW???
      
+     Extended chaining (with parents):
      
+     * - We want links that are attached to nodes that will disappear to be replaced by virtualLink that connects to the *PARENT* (or grand parent) of that node,
+         if the original link crosses the border of that parent. Otherwise we want the link to be replaced by a virtualLink that will simply chain serveral "serial" links into one virutalLink.s
+          -> each time a virtualLink is created (also the initial links become virtualLinks) each side can be checked whether thet cross this border:
+                 - if checking the to-side: the (grand)parents of the to-nodes are iterated through and each time its checked whether they are the parent of the from-node. This is done until the next lod-level is reached.
+                     -> this side of the link is marked as such being 'chainToParent'
+          -> when finding chains (in from or to side), - before going to the next link/link - we check whether we should chainToParent. That ends the chain.
      
-     => SOLUTION:
+     Bundling
+     
+     % - If more that one virualLink is found for a lod, they should be bundled into a group of virtualLinks. Their identifier is "fromId-toId". So there should be at most 2 virtualLink between 2 nodes
+          -> visualInfo about these virtualLinks can be stored in the visual-info of the from-node.
+
+
+     => SOLUTIONS:
      
      - set the from-lod of all orginal links to 0.5. This will solve (2): by default it will dissapear at 0.5 (and since we wont chain it it wont be visible after that)
         - this will also 
@@ -2151,7 +2165,10 @@ if (link.type === 'common') {
      - REMARK: for resolving (1) we may need to use a layered approach: each link is limitied between two lod-levels
      - REMARK: issue (1) also exemplifies the need for bundling/grouping links.
     
-    
+     => TODO: 
+     
+     - If it works, do an explantion how it work using the text and code written above and below. Then clean up the code.
+     
     */
     
 	let fromLevelOfDetailsSorted = Object.keys(nodesByFromLevelOfDetail).sort().reverse()
