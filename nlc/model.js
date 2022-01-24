@@ -2049,7 +2049,10 @@ function markLinksInToChainAsChained(toChain, fromLevelOfDetail) {
         }
     }
 }
-    
+
+
+// FIXME: move this up?
+NLC.chainsAndBundles = null
     
 function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId, dimUninteresting) {    
     
@@ -2227,6 +2230,12 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
 // FIXME: only do this when levelOfDetail == "auto"!
 // FIXME: only do this when levelOfDetail == "auto"!
 
+    NLC.chainsAndBundles = {}
+    NLC.chainsAndBundles.fromLevelOfDetailPerNodeId = {}
+    NLC.chainsAndBundles.toLevelOfDetailPerNodeId = {}
+    NLC.chainsAndBundles.linksByFromNodeId = {}
+	NLC.chainsAndBundles.linksByToNodeId = {}
+    
 	let nodesByFromLevelOfDetail = {}
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {    
         let node = nodes[nodeIndex]    
@@ -2237,7 +2246,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
 		let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
 		
 		if (nodeTypeHasLevelOfDetailProperties) {
-			// toLevelOfDetail = nodeTypeInfo.lod['to']
+			toLevelOfDetail = nodeTypeInfo.lod['to']
 			fromLevelOfDetail = nodeTypeInfo.lod['from']
 
 			if (!(fromLevelOfDetail in nodesByFromLevelOfDetail)) {
@@ -2245,17 +2254,26 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
 			}
 			
 			nodesByFromLevelOfDetail[fromLevelOfDetail].push(node)
+            
+            NLC.chainsAndBundles.fromLevelOfDetailPerNodeId[node.id] = fromLevelOfDetail
+            NLC.chainsAndBundles.toLevelOfDetailPerNodeId[node.id] = toLevelOfDetail
 		}
 		else {
 			console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
+            
+            // TODO: what dummy/error/default value should we give these?
+            NLC.chainsAndBundles.fromLevelOfDetailPerNodeId[node.id] = 0.0
+            NLC.chainsAndBundles.toLevelOfDetailPerNodeId[node.id] = 1.0
 		}
 	}
     
     let nodesById = NLC.nodesAndLinksData.nodesById
 	let virtualLinks = []
     let virtualLinksByFromLod = {}
-	let linksByFromNodeId = {}
-	let linksByToNodeId = {}
+    let linksByFromNodeId = NLC.chainsAndBundles.linksByFromNodeId
+	let linksByToNodeId = NLC.chainsAndBundles.linksByToNodeId
+    let fromLevelOfDetailPerNodeId = NLC.chainsAndBundles.fromLevelOfDetailPerNodeId
+    let toLevelOfDetailPerNodeId = NLC.chainsAndBundles.toLevelOfDetailPerNodeId
     
     // FIXME: we should iterate over all existing Lod-levels
     virtualLinksByFromLod[highLod] = []
@@ -2274,10 +2292,21 @@ if (link.type === 'common') {
 	console.log("WARNING: removing 'common' link on-the-fly. These should not be in the db anymore!")
 	continue
 }
+        let fromNode = nodesById[link.fromNodeId]
+        let toNode = nodesById[link.toNodeId]
+
+        let fromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[fromNode.id]
+        let toNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[toNode.id]
+
+        let highestLevelOfDetailOfFromAndTo = fromNodeFromLevelOfDetail
+        if (toNodeFromLevelOfDetail > highestLevelOfDetailOfFromAndTo) {
+            highestLevelOfDetailOfFromAndTo = toNodeFromLevelOfDetail
+        }
 		
-		// WRONG COMMENT: By default we assume all links are visible in all levelOfDetails. Their from-lod can/will be changed when a lower-lod link "takes over"
 		link.lod = {
-			from: highLod, // FIXME: Should we take this highest in nodesByFromLevelOfDetail instead? Or simply the highest (but one) in types.js? -> highLod
+            // FIXME: which one should we choose: LAYERED or NOT? (also note BS->App "color"-issue)
+            from: highestLevelOfDetailOfFromAndTo,
+			// from: highLod, // FIXME: Should we take this highest in nodesByFromLevelOfDetail instead? Or simply the highest (but one) in types.js? -> highLod
 			to: maxLod
 		}
 		
@@ -2295,8 +2324,6 @@ if (link.type === 'common') {
 		linksByToNodeId[link.toNodeId].push(link)
 	}
     
-    
-    
     /*
     
     => Chaining: 
@@ -2306,8 +2333,15 @@ if (link.type === 'common') {
      0 - There are several issue regarding having multiple virtualLinks with the same id. These should be bundled.
            HOWEVER: sometimes a new virtualLink with the same id is created after "extened chaining" (for example domain-domain link '390-370').
                    this is because the initial new virtualLink that is created (at the highest lod 0.05-0.4). But LATER this one is ALSO replaced
-                   by a virtualLink with lod 0.05-0.2. This problem is related to grouping and layering. But it also is a BUG because no overlapping
-                   virtualLink should be created when replacing one.
+                   by a virtualLink with lod 0.05-0.2 (NOTE: PstatusInzetRealisatieET related! which is a DIFFERENT chain!). 
+                   This problem is related to grouping and layering. But it also is a BUG because no overlapping virtualLink should be created when replacing one.
+           -> An UNDERLYING problem: the links that connect to the *Applications* get a from/to-lod (when they are copied as virtualLinks) are *ONLY*
+              being at the *HIGHEST* lod. YET, their from-lod should be lower, depending on where they are *ATTACHED* to
+                   
+     0.5 - PstatusInzetRealisatieET connects PSS with BAP. Which also connects DPK with Bijsturing. BUT, when this topic is not shown on a diagram,
+           the virtualLink (on a more detailed level) will dissappear, because the lower-lod link is "making room" for the more detailed one. YET, the detailed one
+           will *not* be shown.
+            -> The ISSUE is here that we should make the from/to lod of virtualLinks set according to what *IN* a diagram.
     
      1 - Chains that contain only the highest log (like only mediations) will be chained with virtualLinks that are ONLY visible at the *lowest* level, but will dissapear at the *medium* level
         -> Example: Donna -> BAM
@@ -2467,6 +2501,8 @@ if (link.type === 'common') {
 if (newVirtualLink.id == '390-370') {
 console.log('390-370')
 console.log(newVirtualLink)
+console.log(toChainsWithLowerFromLevelOfDetail)
+console.log(fromChainsWithLowerFromLevelOfDetail)
 console.log('// 390-370')
 }    
 if (doLog) {
