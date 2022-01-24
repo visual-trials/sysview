@@ -2284,6 +2284,12 @@ if (link.type === 'common') {
     
     Left-over issues:
     
+     0 - There are several issue regarding having multiple virtualLinks with the same id. These should be bundled.
+           HOWEVER: sometimes a new virtualLink with the same id is created after "extened chaining" (for example domain-domain link '390-370').
+                   this is because the initial new virtualLink that is created (at the highest lod 0.05-0.4). But LATER this one is ALSO replaced
+                   by a virtualLink with lod 0.05-0.2. This problem is related to grouping and layering. But it also is a BUG because no overlapping
+                   virtualLink should be created when replacing one.
+    
      1 - Chains that contain only the highest log (like only mediations) will be chained with virtualLinks that are ONLY visible at the *lowest* level, but will dissapear at the *medium* level
         -> Example: Donna -> BAM
      SOLVED 2 - highest level links that are not connected (that is: no chain leading) to a lower node, will always stay visible
@@ -2299,7 +2305,7 @@ if (link.type === 'common') {
      
      Extended chaining (with parents):
      
-     * - We want links that are attached to nodes that will disappear to be replaced by virtualLink that connects to the *PARENT* (or grand parent) of that node,
+     SOLVED * - We want links that are attached to nodes that will disappear to be replaced by virtualLink that connects to the *PARENT* (or grand parent) of that node,
          if the original link crosses the border of that parent. Otherwise we want the link to be replaced by a virtualLink that will simply chain serveral "serial" links into one virutalLink.s
           -> each time a virtualLink is created (also the initial links become virtualLinks) each side can be checked whether thet cross this border:
                  - if checking the to-side: the (grand)parents of the to-nodes are iterated through and each time its checked whether they are the parent of the from-node. This is done until the next lod-level is reached.
@@ -2433,14 +2439,17 @@ if (doLog) {
                         // FIXME: shouldn't we also add fromNodeName and toNodeName?
                         fromNodeId : firstFromNode.id,
                         toNodeId : lastToNode.id,
-// FIXME: Scale * 2?
-// FIXME: this doesn't work quite right yet: when setting levelOfDetail to 'all', also the ones the a low-lod can be seen. Whats causing this?
-//        see logic for: lowestFromLevelOfDetail
+                        // FIXME: Scale * 2?
                         lod: { 
                             from: highestLevelOfDetailOfFromAndTo, // The higest levelOfDetail of either the firstFromNode or the lastToNode (since one of those to will disappear at that level, so should this link)
                             to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
                         }
                     }
+if (newVirtualLink.id == '390-370') {
+console.log('390-370')
+console.log(newVirtualLink)
+console.log('// 390-370')
+}    
 if (doLog) {
     console.log(newVirtualLink)
 }
@@ -2495,7 +2504,7 @@ if (doLog) {
         let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0?
         let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
 
-// FIXME: should we do anything here ? Both cases are treated the same right?
+        // FIXME: should we do anything here ? Both cases are treated the same right?
         if (NLC.levelOfDetail == "auto") {
 			toLevelOfDetail = link.lod['to']
 			fromLevelOfDetail = link.lod['from']
@@ -2517,9 +2526,6 @@ if (doLog) {
             fromContainerIdentifier: link.fromNodeId,    
             toContainerIdentifier: link.toNodeId    
         }
-if (link.id == '670-638') {
-    console.log(connectionInfo)
-}
             
         if (linkHasDiagramSpecificVisualData) {    
             if (link.diagramSpecificVisualData[diagramId].hasOwnProperty('fromConnectionPointIdentifier')) {    
