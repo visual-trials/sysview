@@ -1691,7 +1691,9 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
     
     return colorNamesWithLight    
 }    
-    
+
+
+
 function getNodeTypeInfo(node) {    
     let nodeTypeIdentifier = node.type    
     
@@ -1746,6 +1748,308 @@ function getLinkTypeInfo(link) {
     }    
     return null    
 }    
+    
+    
+    
+// ------------------- Auto-Chaining and Bundling functions ----------------------
+    
+function getNodeParentsByIdWithinDiagram(node, diagramId) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    // TODO: isnt it a good idea to have this as a list *too*?
+    let parentsById = {}  
+    let currentNode = node
+    let rootReached = false
+    
+    // TODO: do we want a protection agains a while loop here?
+    while (currentNode && !rootReached) {
+        let parentNodeId = null
+        if (diagramId in  currentNode.diagramSpecificVisualData && 'parentNodeId' in currentNode.diagramSpecificVisualData[diagramId]) {
+            parentNodeId = currentNode.diagramSpecificVisualData[diagramId].parentNodeId
+        }    
+        
+        if (parentNodeId != null) {
+            parentsById[parentNodeId] = true
+            currentNode = nodesById[parentNodeId]
+        }
+        else {
+            rootReached = true
+        }
+    }
+    
+    return parentsById
+}
+
+function getFirstParentWithLowerFromLevelOfDetail (node, diagramId, fromLevelOfDetail) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    let currentNode = node
+    let firstPatentWithLowerLevelOfDetail = null
+    
+    let rootOrGoalReached = false
+    
+    // TODO: do we want a protection agains a while loop here?
+    while (currentNode && !rootOrGoalReached) {
+        let parentNodeId = null
+        if (diagramId in  currentNode.diagramSpecificVisualData && 'parentNodeId' in currentNode.diagramSpecificVisualData[diagramId]) {
+            parentNodeId = currentNode.diagramSpecificVisualData[diagramId].parentNodeId
+        }    
+        
+        if (parentNodeId != null) {
+            let parentNode = nodesById[parentNodeId]
+            // FIXME: THIS IS TOO EXPENSIVE!
+            let nodeTypeInfo = getNodeTypeInfo(parentNode)
+            
+            if ('lod' in nodeTypeInfo) {
+                let parentNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
+                
+                if (parentNodeFromLevelOfDetail < fromLevelOfDetail) {
+                    firstPatentWithLowerLevelOfDetail = parentNode
+                    rootOrGoalReached = true
+                }
+                else {
+                    currentNode = parentNode
+                }
+            }
+            else {
+                rootOrGoalReached = true
+            }
+        }
+        else {
+            rootOrGoalReached = true
+        }
+    }
+    
+    return firstPatentWithLowerLevelOfDetail
+}
+
+function linkCrossesToParentBorder (link, fromLevelOfDetail, diagramId, doLog) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    let toNode = nodesById[link.toNodeId]
+    let fromNode = nodesById[link.fromNodeId]
+
+    // We get the first parent of the toNode that has a lower Level Of detail than the toNode itself
+    // This means *when the toNode will disappear* this parent could take over the link.
+    let crossesToParentBorder = false
+    let toParentWithLowerLod = getFirstParentWithLowerFromLevelOfDetail(toNode, diagramId, fromLevelOfDetail)
+    
+    if (toParentWithLowerLod != null) {
+        // We now check whether the fromNode had this same parent. If it does, then this link doesn't cross the border of this parent
+        // If it doesn't have the same parent (OR MAYBE had an closer parent that also has a lower lod? -> I dont think we want this...)
+        // then it does cross the border
+        
+        // FIXME: PERFORMANCE: you want to store this (even temp) in the node! (or: ..ByNodedId)
+        let fromParentsById = getNodeParentsByIdWithinDiagram(fromNode, diagramId)
+        
+        if (!(toParentWithLowerLod.id in fromParentsById)) {
+            crossesToParentBorder = true
+        }
+    }
+    
+    if (crossesToParentBorder) {
+        return toParentWithLowerLod
+    }
+    else {
+        return null
+    }
+}
+
+function linkCrossesFromParentBorder (link, fromLevelOfDetail, diagramId, doLog) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    let toNode = nodesById[link.toNodeId]
+    let fromNode = nodesById[link.fromNodeId]
+
+    // We get the first parent of the fromNode that has a lower Level Of detail than the fromNode itself
+    // This means *when the fromNode will disappear* this parent could take over the link.
+    let crossesToParentBorder = false
+    let fromParentWithLowerLod = getFirstParentWithLowerFromLevelOfDetail(fromNode, diagramId, fromLevelOfDetail)
+    
+    if (fromParentWithLowerLod != null) {
+        // We now check whether the toNode had this same parent. If it does, then this link doesn't cross the border of this parent
+        // If it doesn't have the same parent (OR MAYBE had an closer parent that also has a lower lod? -> I dont think we want this...)
+        // then it does cross the border
+        
+        // FIXME: PERFORMANCE: you want to store this (even temp) in the node! (or: ..ByNodedId)
+        let toParentsById = getNodeParentsByIdWithinDiagram(toNode, diagramId)
+        
+        if (!(fromParentWithLowerLod.id in toParentsById)) {
+            crossesToParentBorder = true
+        }
+    }
+    
+    if (crossesToParentBorder) {
+        return fromParentWithLowerLod
+    }
+    else {
+        return null
+    }
+}
+
+function findToChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByFromNodeId, doLog) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    let toChainsWithLowerFromLevelOfDetail = []
+
+    let toParentWithLowerLod = linkCrossesToParentBorder(link, fromLevelOfDetail, diagramId, doLog)
+    if (toParentWithLowerLod != null) {
+        // FIXME: we need mark this chain as 'crossing a low-lod parent border'
+        
+        let toChain = []
+        // Add toNode to beginning of the new toChain
+        // FIXME: HACK! simply adding the parent as the end node here! We should probably add the toNode itself instead and mark the chain (and add the parent too?)
+        //toChain.unshift(toNode)
+        toChain.unshift(toParentWithLowerLod)
+        toChainsWithLowerFromLevelOfDetail.push(toChain)
+        
+        // FIXME: ugly early return!
+        return toChainsWithLowerFromLevelOfDetail
+    }
+
+    let toNode = nodesById[link.toNodeId]
+    
+    // To prevent from looping, we check our crumbPath of nodes we visited
+    if (toNode.id in nodeCrumbPath) {
+        return []
+    }
+    else {
+        nodeCrumbPath[toNode.id] = true
+    }
+    
+    // FIXME: THIS IS TOO EXPENSIVE!
+    let toNodeTypeInfo = getNodeTypeInfo(toNode)
+    
+    let toNodeTypeHasLevelOfDetailProperties = toNodeTypeInfo.hasOwnProperty('lod')    
+    
+    if (toNodeTypeHasLevelOfDetailProperties) {
+        let toNodeFromLevelOfDetail = toNodeTypeInfo.lod['from']
+        if (toNodeFromLevelOfDetail == fromLevelOfDetail) {
+            // If we find a node with the same levelOfDetail, we keep searching deeper
+            let linksFromThisToNode = linksByFromNodeId[toNode.id]
+            
+            for (let linkFromThisToNodeIndex in linksFromThisToNode) {
+                let linkFromThisToNode = linksFromThisToNode[linkFromThisToNodeIndex]
+                
+                let deeperToChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(linkFromThisToNode, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByFromNodeId, doLog)
+                for (let deeperToChainIndex in deeperToChainsWithLowerFromLevelOfDetail) {
+                    // Add linkFromThisToNode and toNode to the beginning of each the deeper to-chain
+                    let deeperToChain = deeperToChainsWithLowerFromLevelOfDetail[deeperToChainIndex]
+                    deeperToChain.unshift(linkFromThisToNode)
+                    deeperToChain.unshift(toNode)
+                    toChainsWithLowerFromLevelOfDetail.push(deeperToChain)
+                }
+            }
+        }
+        else if (toNodeFromLevelOfDetail < fromLevelOfDetail) {
+            
+            let toChain = []
+            // Add toNode to beginning of the new toChain
+            toChain.unshift(toNode)
+            toChainsWithLowerFromLevelOfDetail.push(toChain)
+        }
+        
+    }
+    
+    return toChainsWithLowerFromLevelOfDetail
+}
+
+function findFromChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByToNodeId, doLog) {
+    
+    let nodesById = NLC.nodesAndLinksData.nodesById
+    
+    let fromChainsWithLowerFromLevelOfDetail = []
+
+    let fromParentWithLowerLod = linkCrossesFromParentBorder(link, fromLevelOfDetail, diagramId, doLog)
+    if (fromParentWithLowerLod != null) {
+        // FIXME: we need mark this chain as 'crossing a low-lod parent border'
+        
+        let fromChain = []
+        // Add toNode to beginning of the new toChain
+        // FIXME: HACK! simply adding the parent as the end node here! We should probably add the toNode itself instead and mark the chain (and add the parent too?)
+        //toChain.unshift(toNode)
+        fromChain.push(fromParentWithLowerLod)
+        fromChainsWithLowerFromLevelOfDetail.push(fromChain)
+        
+        // FIXME: ugly early return!
+        return fromChainsWithLowerFromLevelOfDetail
+    }
+
+    let fromNode = nodesById[link.fromNodeId]
+    
+    // To prevent from looping, we check our crumbPath of nodes we visited
+    if (fromNode.id in nodeCrumbPath) {
+        return []
+    }
+    else {
+        nodeCrumbPath[fromNode.id] = true
+    }
+    
+    // FIXME: THIS IS TOO EXPENSIVE!
+    let fromNodeTypeInfo = getNodeTypeInfo(fromNode)
+    
+    let fromNodeTypeHasLevelOfDetailProperties = fromNodeTypeInfo.hasOwnProperty('lod')    
+    
+    if (fromNodeTypeHasLevelOfDetailProperties) {
+        let fromNodeFromLevelOfDetail = fromNodeTypeInfo.lod['from']
+        if (fromNodeFromLevelOfDetail == fromLevelOfDetail) {
+            // If we find a node with the same levelOfDetail, we keep searching deeper
+            let linksToThisFromNode = linksByToNodeId[fromNode.id]
+            
+            for (let linkToThisFromNodeIndex in linksToThisFromNode) {
+                let linkToThisFromNode = linksToThisFromNode[linkToThisFromNodeIndex]
+                
+                let deeperFromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(linkToThisFromNode, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByToNodeId, doLog)
+                for (let deeperFromChainIndex in deeperFromChainsWithLowerFromLevelOfDetail) {
+                    // Add linkToThisNode and fromNode to the end of each the deeper from-chain
+                    let deeperFromChain = deeperFromChainsWithLowerFromLevelOfDetail[deeperFromChainIndex]
+                    deeperFromChain.push(linkToThisFromNode)
+                    deeperFromChain.push(fromNode)
+                    fromChainsWithLowerFromLevelOfDetail.push(deeperFromChain)
+                }
+            }
+        }
+        else if (fromNodeFromLevelOfDetail < fromLevelOfDetail) {
+            
+            let fromChain = []
+            // Add fromNode to end of the new fromChain
+            fromChain.push(fromNode)
+            fromChainsWithLowerFromLevelOfDetail.push(fromChain)
+        }
+        
+    }
+    
+    return fromChainsWithLowerFromLevelOfDetail
+}
+
+
+// FIXME: these two function are the same!
+function markLinksInFromChainAsChained(fromChain, fromLevelOfDetail) {
+    for (let linkElementIndex in fromChain) {
+        // In from-chains the *odd* indexes are the links
+        if (linkElementIndex % 2 == 1) {
+            let link = fromChain[linkElementIndex]
+            link.alreadyChained = true
+        }
+    }
+}
+
+// FIXME: these two function are the same!
+function markLinksInToChainAsChained(toChain, fromLevelOfDetail) {
+    for (let linkElementIndex in toChain) {
+        // In to-chains the *odd* indexes are the links
+        if (linkElementIndex % 2 == 1) {
+            let link = toChain[linkElementIndex]
+            link.alreadyChained = true
+        }
+    }
+}
+    
     
 function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId, dimUninteresting) {    
     
@@ -1991,291 +2295,6 @@ if (link.type === 'common') {
 		linksByToNodeId[link.toNodeId].push(link)
 	}
     
-    function getNodeParentsByIdWithinDiagram(node, diagramId) {
-        
-        // TODO: isnt it a good idea to have this as a list *too*?
-        let parentsById = {}  
-        let currentNode = node
-        let rootReached = false
-        
-        // TODO: do we want a protection agains a while loop here?
-        while (currentNode && !rootReached) {
-            let parentNodeId = null
-            if (diagramId in  currentNode.diagramSpecificVisualData && 'parentNodeId' in currentNode.diagramSpecificVisualData[diagramId]) {
-                parentNodeId = currentNode.diagramSpecificVisualData[diagramId].parentNodeId
-            }    
-            
-            if (parentNodeId != null) {
-                parentsById[parentNodeId] = true
-                currentNode = nodesById[parentNodeId]
-            }
-            else {
-                rootReached = true
-            }
-        }
-        
-        return parentsById
-    }
-    
-    function getFirstParentWithLowerFromLevelOfDetail (node, diagramId, fromLevelOfDetail) {
-        let currentNode = node
-        let firstPatentWithLowerLevelOfDetail = null
-        
-        let rootOrGoalReached = false
-        
-        // TODO: do we want a protection agains a while loop here?
-        while (currentNode && !rootOrGoalReached) {
-            let parentNodeId = null
-            if (diagramId in  currentNode.diagramSpecificVisualData && 'parentNodeId' in currentNode.diagramSpecificVisualData[diagramId]) {
-                parentNodeId = currentNode.diagramSpecificVisualData[diagramId].parentNodeId
-            }    
-            
-            if (parentNodeId != null) {
-                let parentNode = nodesById[parentNodeId]
-                // FIXME: THIS IS TOO EXPENSIVE!
-                let nodeTypeInfo = getNodeTypeInfo(parentNode)
-                
-                if ('lod' in nodeTypeInfo) {
-                    let parentNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
-                    
-                    if (parentNodeFromLevelOfDetail < fromLevelOfDetail) {
-                        firstPatentWithLowerLevelOfDetail = parentNode
-                        rootOrGoalReached = true
-                    }
-                    else {
-                        currentNode = parentNode
-                    }
-                }
-                else {
-                    rootOrGoalReached = true
-                }
-            }
-            else {
-                rootOrGoalReached = true
-            }
-        }
-        
-        return firstPatentWithLowerLevelOfDetail
-    }
-
-    function linkCrossesToParentBorder (link, fromLevelOfDetail, diagramId, doLog) {
-        
-        let toNode = nodesById[link.toNodeId]
-        let fromNode = nodesById[link.fromNodeId]
-
-        // We get the first parent of the toNode that has a lower Level Of detail than the toNode itself
-        // This means *when the toNode will disappear* this parent could take over the link.
-        let crossesToParentBorder = false
-        let toParentWithLowerLod = getFirstParentWithLowerFromLevelOfDetail(toNode, diagramId, fromLevelOfDetail)
-        
-        if (toParentWithLowerLod != null) {
-            // We now check whether the fromNode had this same parent. If it does, then this link doesn't cross the border of this parent
-            // If it doesn't have the same parent (OR MAYBE had an closer parent that also has a lower lod? -> I dont think we want this...)
-            // then it does cross the border
-            
-            // FIXME: PERFORMANCE: you want to store this (even temp) in the node! (or: ..ByNodedId)
-            let fromParentsById = getNodeParentsByIdWithinDiagram(fromNode, diagramId)
-            
-            if (!(toParentWithLowerLod.id in fromParentsById)) {
-                crossesToParentBorder = true
-            }
-        }
-        
-        if (crossesToParentBorder) {
-            return toParentWithLowerLod
-        }
-        else {
-            return null
-        }
-    }
-
-    function linkCrossesFromParentBorder (link, fromLevelOfDetail, diagramId, doLog) {
-        
-        let toNode = nodesById[link.toNodeId]
-        let fromNode = nodesById[link.fromNodeId]
-
-        // We get the first parent of the fromNode that has a lower Level Of detail than the fromNode itself
-        // This means *when the fromNode will disappear* this parent could take over the link.
-        let crossesToParentBorder = false
-        let fromParentWithLowerLod = getFirstParentWithLowerFromLevelOfDetail(fromNode, diagramId, fromLevelOfDetail)
-        
-        if (fromParentWithLowerLod != null) {
-            // We now check whether the toNode had this same parent. If it does, then this link doesn't cross the border of this parent
-            // If it doesn't have the same parent (OR MAYBE had an closer parent that also has a lower lod? -> I dont think we want this...)
-            // then it does cross the border
-            
-            // FIXME: PERFORMANCE: you want to store this (even temp) in the node! (or: ..ByNodedId)
-            let toParentsById = getNodeParentsByIdWithinDiagram(toNode, diagramId)
-            
-            if (!(fromParentWithLowerLod.id in toParentsById)) {
-                crossesToParentBorder = true
-            }
-        }
-        
-        if (crossesToParentBorder) {
-            return fromParentWithLowerLod
-        }
-        else {
-            return null
-        }
-    }
-
-	function findToChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCrumbPath, doLog) {
-		
-		let toChainsWithLowerFromLevelOfDetail = []
-
-        // FIXME: usage of diagramId is very IMPLICIT! This variable should be PASSED!
-        let toParentWithLowerLod = linkCrossesToParentBorder(link, fromLevelOfDetail, diagramId, doLog)
-        if (toParentWithLowerLod != null) {
-            // FIXME: we need mark this chain as 'crossing a low-lod parent border'
-            
-            let toChain = []
-            // Add toNode to beginning of the new toChain
-            // FIXME: HACK! simply adding the parent as the end node here! We should probably add the toNode itself instead and mark the chain (and add the parent too?)
-            //toChain.unshift(toNode)
-            toChain.unshift(toParentWithLowerLod)
-            toChainsWithLowerFromLevelOfDetail.push(toChain)
-            
-            // FIXME: ugly early return!
-            return toChainsWithLowerFromLevelOfDetail
-        }
-
-        let toNode = nodesById[link.toNodeId]
-        
-        // To prevent from looping, we check our crumbPath of nodes we visited
-        if (toNode.id in nodeCrumbPath) {
-            return []
-        }
-        else {
-            nodeCrumbPath[toNode.id] = true
-        }
-        
-        // FIXME: THIS IS TOO EXPENSIVE!
-        let toNodeTypeInfo = getNodeTypeInfo(toNode)
-        
-        let toNodeTypeHasLevelOfDetailProperties = toNodeTypeInfo.hasOwnProperty('lod')    
-        
-        if (toNodeTypeHasLevelOfDetailProperties) {
-            let toNodeFromLevelOfDetail = toNodeTypeInfo.lod['from']
-            if (toNodeFromLevelOfDetail == fromLevelOfDetail) {
-                // If we find a node with the same levelOfDetail, we keep searching deeper
-                let linksFromThisToNode = linksByFromNodeId[toNode.id]
-                
-                for (let linkFromThisToNodeIndex in linksFromThisToNode) {
-                    let linkFromThisToNode = linksFromThisToNode[linkFromThisToNodeIndex]
-                    
-                    let deeperToChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(linkFromThisToNode, fromLevelOfDetail, nodeCrumbPath, doLog)
-                    for (let deeperToChainIndex in deeperToChainsWithLowerFromLevelOfDetail) {
-                        // Add linkFromThisToNode and toNode to the beginning of each the deeper to-chain
-                        let deeperToChain = deeperToChainsWithLowerFromLevelOfDetail[deeperToChainIndex]
-                        deeperToChain.unshift(linkFromThisToNode)
-                        deeperToChain.unshift(toNode)
-                        toChainsWithLowerFromLevelOfDetail.push(deeperToChain)
-                    }
-                }
-            }
-            else if (toNodeFromLevelOfDetail < fromLevelOfDetail) {
-                
-                let toChain = []
-                // Add toNode to beginning of the new toChain
-                toChain.unshift(toNode)
-                toChainsWithLowerFromLevelOfDetail.push(toChain)
-            }
-            
-        }
-		
-		return toChainsWithLowerFromLevelOfDetail
-	}
-	
-	function findFromChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCrumbPath, doLog) {
-		
-		let fromChainsWithLowerFromLevelOfDetail = []
-
-        // FIXME: usage of diagramId is very IMPLICIT! This variable should be PASSED!
-        let fromParentWithLowerLod = linkCrossesFromParentBorder(link, fromLevelOfDetail, diagramId, doLog)
-        if (fromParentWithLowerLod != null) {
-            // FIXME: we need mark this chain as 'crossing a low-lod parent border'
-            
-            let fromChain = []
-            // Add toNode to beginning of the new toChain
-            // FIXME: HACK! simply adding the parent as the end node here! We should probably add the toNode itself instead and mark the chain (and add the parent too?)
-            //toChain.unshift(toNode)
-            fromChain.push(fromParentWithLowerLod)
-            fromChainsWithLowerFromLevelOfDetail.push(fromChain)
-            
-            // FIXME: ugly early return!
-            return fromChainsWithLowerFromLevelOfDetail
-        }
-
-        let fromNode = nodesById[link.fromNodeId]
-        
-        // To prevent from looping, we check our crumbPath of nodes we visited
-        if (fromNode.id in nodeCrumbPath) {
-            return []
-        }
-        else {
-            nodeCrumbPath[fromNode.id] = true
-        }
-        
-        // FIXME: THIS IS TOO EXPENSIVE!
-        let fromNodeTypeInfo = getNodeTypeInfo(fromNode)
-        
-        let fromNodeTypeHasLevelOfDetailProperties = fromNodeTypeInfo.hasOwnProperty('lod')    
-        
-        if (fromNodeTypeHasLevelOfDetailProperties) {
-            let fromNodeFromLevelOfDetail = fromNodeTypeInfo.lod['from']
-            if (fromNodeFromLevelOfDetail == fromLevelOfDetail) {
-                // If we find a node with the same levelOfDetail, we keep searching deeper
-                let linksToThisFromNode = linksByToNodeId[fromNode.id]
-                
-                for (let linkToThisFromNodeIndex in linksToThisFromNode) {
-                    let linkToThisFromNode = linksToThisFromNode[linkToThisFromNodeIndex]
-                    
-                    let deeperFromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(linkToThisFromNode, fromLevelOfDetail, nodeCrumbPath, doLog)
-                    for (let deeperFromChainIndex in deeperFromChainsWithLowerFromLevelOfDetail) {
-                        // Add linkToThisNode and fromNode to the end of each the deeper from-chain
-                        let deeperFromChain = deeperFromChainsWithLowerFromLevelOfDetail[deeperFromChainIndex]
-                        deeperFromChain.push(linkToThisFromNode)
-                        deeperFromChain.push(fromNode)
-                        fromChainsWithLowerFromLevelOfDetail.push(deeperFromChain)
-                    }
-                }
-            }
-            else if (fromNodeFromLevelOfDetail < fromLevelOfDetail) {
-                
-                let fromChain = []
-                // Add fromNode to end of the new fromChain
-                fromChain.push(fromNode)
-                fromChainsWithLowerFromLevelOfDetail.push(fromChain)
-            }
-            
-        }
-		
-		return fromChainsWithLowerFromLevelOfDetail
-	}
-
-    
-    // FIXME: these two function are the same!
-    function markLinksInFromChainAsChained(fromChain, fromLevelOfDetail) {
-        for (let linkElementIndex in fromChain) {
-            // In from-chains the *odd* indexes are the links
-            if (linkElementIndex % 2 == 1) {
-                let link = fromChain[linkElementIndex]
-                link.alreadyChained = true
-            }
-        }
-    }
-    
-    // FIXME: these two function are the same!
-    function markLinksInToChainAsChained(toChain, fromLevelOfDetail) {
-        for (let linkElementIndex in toChain) {
-            // In to-chains the *odd* indexes are the links
-            if (linkElementIndex % 2 == 1) {
-                let link = toChain[linkElementIndex]
-                link.alreadyChained = true
-            }
-        }
-    }
     
     
     /*
@@ -2351,45 +2370,44 @@ if (link.type === 'common') {
                 continue
             }
             
-            
-// Debug-link: from PSS -> BAM            
-    // "id": 11405,
-    // "type": "ftpCall",
-    // "fromNodeId": 456,
-    // "toNodeId": 659,
+            // Debug-link: from PSS -> BAM            
+                // "id": 11405,
+                // "type": "ftpCall",
+                // "fromNodeId": 456,
+                // "toNodeId": 659,
             
             let doLog = false
-let fromNode = nodesById[virtualLink.fromNodeId]
-let toNode = nodesById[virtualLink.toNodeId]
-if (fromNode.commonData.name == 'PSS' && toNode.commonData.name == 'BAM') {
-    doLog = true
-    console.log('===================================')
-}
+            let fromNode = nodesById[virtualLink.fromNodeId]
+            let toNode = nodesById[virtualLink.toNodeId]
+            if (fromNode.commonData.name == 'PSS' && toNode.commonData.name == 'BAM') {
+                doLog = true
+                console.log('===================================')
+            }
 
-/*
-if (fromNode.commonData.name == 'Med_RetrieveFilesAndNotify' || 
-    toNode.commonData.name == 'Med_RetrieveFilesAndNotify' || 
-    fromNode.commonData.name == 'T_B@M1_Plan' || 
-    toNode.commonData.name == 'T_B@M1_Plan'
-    ) {
-    doLog = true
-}
-*/
+            /*
+            if (fromNode.commonData.name == 'Med_RetrieveFilesAndNotify' || 
+                toNode.commonData.name == 'Med_RetrieveFilesAndNotify' || 
+                fromNode.commonData.name == 'T_B@M1_Plan' || 
+                toNode.commonData.name == 'T_B@M1_Plan'
+                ) {
+                doLog = true
+            }
+            */
 
             // FIXME: add the virtualLink itself too!?
-            let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, doLog)
+            let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByFromNodeId, doLog)
             // FIXME: add the virtualLink itself too!?
-            let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, doLog)
+            let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByToNodeId, doLog)
                 
-if (doLog) {
-    console.log('------------------------------------')
-    console.log(fromLevelOfDetail)
-    console.log(virtualLink)
-    console.log(fromNode)
-    console.log(toNode)
-    console.log(fromChainsWithLowerFromLevelOfDetail) 
-    console.log(toChainsWithLowerFromLevelOfDetail) 
-}
+            if (doLog) {
+                console.log('------------------------------------')
+                console.log(fromLevelOfDetail)
+                console.log(virtualLink)
+                console.log(fromNode)
+                console.log(toNode)
+                console.log(fromChainsWithLowerFromLevelOfDetail) 
+                console.log(toChainsWithLowerFromLevelOfDetail) 
+            }
 
             for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
                 let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
@@ -2445,6 +2463,7 @@ if (doLog) {
                             to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
                         }
                     }
+                    
 if (newVirtualLink.id == '390-370') {
 console.log('390-370')
 console.log(newVirtualLink)
