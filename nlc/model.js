@@ -1784,6 +1784,7 @@ function getNodeParentsByIdWithinDiagram(node, diagramId) {
 function getFirstParentWithLowerFromLevelOfDetail (node, diagramId, fromLevelOfDetail) {
     
     let nodesById = NLC.nodesAndLinksData.nodesById
+    let fromLevelOfDetailPerNodeId = NLC.chainsAndBundles.fromLevelOfDetailPerNodeId
     
     let currentNode = node
     let firstPatentWithLowerLevelOfDetail = null
@@ -1799,22 +1800,15 @@ function getFirstParentWithLowerFromLevelOfDetail (node, diagramId, fromLevelOfD
         
         if (parentNodeId != null) {
             let parentNode = nodesById[parentNodeId]
-            // FIXME: THIS IS TOO EXPENSIVE!
-            let nodeTypeInfo = getNodeTypeInfo(parentNode)
             
-            if ('lod' in nodeTypeInfo) {
-                let parentNodeFromLevelOfDetail = nodeTypeInfo.lod['from']
-                
-                if (parentNodeFromLevelOfDetail < fromLevelOfDetail) {
-                    firstPatentWithLowerLevelOfDetail = parentNode
-                    rootOrGoalReached = true
-                }
-                else {
-                    currentNode = parentNode
-                }
+            let parentNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[parentNode.id]
+            
+            if (parentNodeFromLevelOfDetail < fromLevelOfDetail) {
+                firstPatentWithLowerLevelOfDetail = parentNode
+                rootOrGoalReached = true
             }
             else {
-                rootOrGoalReached = true
+                currentNode = parentNode
             }
         }
         else {
@@ -1894,6 +1888,7 @@ function linkCrossesFromParentBorder (link, fromLevelOfDetail, diagramId, doLog)
 function findToChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByFromNodeId, doLog) {
     
     let nodesById = NLC.nodesAndLinksData.nodesById
+    let fromLevelOfDetailPerNodeId = NLC.chainsAndBundles.fromLevelOfDetailPerNodeId
     
     let toChainsWithLowerFromLevelOfDetail = []
 
@@ -1922,38 +1917,30 @@ function findToChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCr
         nodeCrumbPath[toNode.id] = true
     }
     
-    // FIXME: THIS IS TOO EXPENSIVE!
-    let toNodeTypeInfo = getNodeTypeInfo(toNode)
-    
-    let toNodeTypeHasLevelOfDetailProperties = toNodeTypeInfo.hasOwnProperty('lod')    
-    
-    if (toNodeTypeHasLevelOfDetailProperties) {
-        let toNodeFromLevelOfDetail = toNodeTypeInfo.lod['from']
-        if (toNodeFromLevelOfDetail == fromLevelOfDetail) {
-            // If we find a node with the same levelOfDetail, we keep searching deeper
-            let linksFromThisToNode = linksByFromNodeId[toNode.id]
+    let toNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[toNode.id]
+    if (toNodeFromLevelOfDetail == fromLevelOfDetail) {
+        // If we find a node with the same levelOfDetail, we keep searching deeper
+        let linksFromThisToNode = linksByFromNodeId[toNode.id]
+        
+        for (let linkFromThisToNodeIndex in linksFromThisToNode) {
+            let linkFromThisToNode = linksFromThisToNode[linkFromThisToNodeIndex]
             
-            for (let linkFromThisToNodeIndex in linksFromThisToNode) {
-                let linkFromThisToNode = linksFromThisToNode[linkFromThisToNodeIndex]
-                
-                let deeperToChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(linkFromThisToNode, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByFromNodeId, doLog)
-                for (let deeperToChainIndex in deeperToChainsWithLowerFromLevelOfDetail) {
-                    // Add linkFromThisToNode and toNode to the beginning of each the deeper to-chain
-                    let deeperToChain = deeperToChainsWithLowerFromLevelOfDetail[deeperToChainIndex]
-                    deeperToChain.unshift(linkFromThisToNode)
-                    deeperToChain.unshift(toNode)
-                    toChainsWithLowerFromLevelOfDetail.push(deeperToChain)
-                }
+            let deeperToChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(linkFromThisToNode, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByFromNodeId, doLog)
+            for (let deeperToChainIndex in deeperToChainsWithLowerFromLevelOfDetail) {
+                // Add linkFromThisToNode and toNode to the beginning of each the deeper to-chain
+                let deeperToChain = deeperToChainsWithLowerFromLevelOfDetail[deeperToChainIndex]
+                deeperToChain.unshift(linkFromThisToNode)
+                deeperToChain.unshift(toNode)
+                toChainsWithLowerFromLevelOfDetail.push(deeperToChain)
             }
         }
-        else if (toNodeFromLevelOfDetail < fromLevelOfDetail) {
-            
-            let toChain = []
-            // Add toNode to beginning of the new toChain
-            toChain.unshift(toNode)
-            toChainsWithLowerFromLevelOfDetail.push(toChain)
-        }
+    }
+    else if (toNodeFromLevelOfDetail < fromLevelOfDetail) {
         
+        let toChain = []
+        // Add toNode to beginning of the new toChain
+        toChain.unshift(toNode)
+        toChainsWithLowerFromLevelOfDetail.push(toChain)
     }
     
     return toChainsWithLowerFromLevelOfDetail
@@ -1962,6 +1949,7 @@ function findToChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCr
 function findFromChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByToNodeId, doLog) {
     
     let nodesById = NLC.nodesAndLinksData.nodesById
+    let fromLevelOfDetailPerNodeId = NLC.chainsAndBundles.fromLevelOfDetailPerNodeId
     
     let fromChainsWithLowerFromLevelOfDetail = []
 
@@ -1990,38 +1978,31 @@ function findFromChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, node
         nodeCrumbPath[fromNode.id] = true
     }
     
-    // FIXME: THIS IS TOO EXPENSIVE!
-    let fromNodeTypeInfo = getNodeTypeInfo(fromNode)
-    
-    let fromNodeTypeHasLevelOfDetailProperties = fromNodeTypeInfo.hasOwnProperty('lod')    
-    
-    if (fromNodeTypeHasLevelOfDetailProperties) {
-        let fromNodeFromLevelOfDetail = fromNodeTypeInfo.lod['from']
-        if (fromNodeFromLevelOfDetail == fromLevelOfDetail) {
-            // If we find a node with the same levelOfDetail, we keep searching deeper
-            let linksToThisFromNode = linksByToNodeId[fromNode.id]
+        
+    let fromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[fromNode.id]
+    if (fromNodeFromLevelOfDetail == fromLevelOfDetail) {
+        // If we find a node with the same levelOfDetail, we keep searching deeper
+        let linksToThisFromNode = linksByToNodeId[fromNode.id]
+        
+        for (let linkToThisFromNodeIndex in linksToThisFromNode) {
+            let linkToThisFromNode = linksToThisFromNode[linkToThisFromNodeIndex]
             
-            for (let linkToThisFromNodeIndex in linksToThisFromNode) {
-                let linkToThisFromNode = linksToThisFromNode[linkToThisFromNodeIndex]
-                
-                let deeperFromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(linkToThisFromNode, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByToNodeId, doLog)
-                for (let deeperFromChainIndex in deeperFromChainsWithLowerFromLevelOfDetail) {
-                    // Add linkToThisNode and fromNode to the end of each the deeper from-chain
-                    let deeperFromChain = deeperFromChainsWithLowerFromLevelOfDetail[deeperFromChainIndex]
-                    deeperFromChain.push(linkToThisFromNode)
-                    deeperFromChain.push(fromNode)
-                    fromChainsWithLowerFromLevelOfDetail.push(deeperFromChain)
-                }
+            let deeperFromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(linkToThisFromNode, fromLevelOfDetail, nodeCrumbPath, diagramId, linksByToNodeId, doLog)
+            for (let deeperFromChainIndex in deeperFromChainsWithLowerFromLevelOfDetail) {
+                // Add linkToThisNode and fromNode to the end of each the deeper from-chain
+                let deeperFromChain = deeperFromChainsWithLowerFromLevelOfDetail[deeperFromChainIndex]
+                deeperFromChain.push(linkToThisFromNode)
+                deeperFromChain.push(fromNode)
+                fromChainsWithLowerFromLevelOfDetail.push(deeperFromChain)
             }
         }
-        else if (fromNodeFromLevelOfDetail < fromLevelOfDetail) {
-            
-            let fromChain = []
-            // Add fromNode to end of the new fromChain
-            fromChain.push(fromNode)
-            fromChainsWithLowerFromLevelOfDetail.push(fromChain)
-        }
+    }
+    else if (fromNodeFromLevelOfDetail < fromLevelOfDetail) {
         
+        let fromChain = []
+        // Add fromNode to end of the new fromChain
+        fromChain.push(fromNode)
+        fromChainsWithLowerFromLevelOfDetail.push(fromChain)
     }
     
     return fromChainsWithLowerFromLevelOfDetail
@@ -2241,6 +2222,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         let node = nodes[nodeIndex]    
 		
 		// FIXME: we already did this above. (might be expensive)
+        //     -> Yes, but *here* we loop through *all* the nodes, so we *need* to do it here! -> maybe we can skip it in the above version by running this first?
         let nodeTypeInfo = getNodeTypeInfo(node)    
 		
 		let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
@@ -2384,8 +2366,6 @@ if (link.type === 'common') {
      - REMARK: for resolving (1) we may need to use a layered approach: each link is limitied between two lod-levels
      - REMARK: issue (1) also exemplifies the need for bundling/grouping links.
     
-     => TODO: 
-     
      - If it works, do an explantion how it work using the text and code written above and below. Then clean up the code.
      
     */
