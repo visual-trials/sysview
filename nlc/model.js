@@ -2446,15 +2446,7 @@ if (link.type === 'common') {
             for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
                 let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
                 let firstFromNode = fromChain[0]
-                
-                // FIXME: THIS IS TOO EXPENSIVE!
-                let firstFromNodeTypeInfo = getNodeTypeInfo(firstFromNode)    
-                let firstFromNodeTypeHasLevelOfDetailProperties = firstFromNodeTypeInfo.hasOwnProperty('lod')    
-                if (firstFromNodeTypeHasLevelOfDetailProperties) {
-                    // FIXME: get rid of this!					
-                }
-                
-                let firstFromNodeFromLevelOfDetail = firstFromNodeTypeInfo.lod['from']	
+                let firstFromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[firstFromNode.id] 
                     
                 for (let toChainIndex in toChainsWithLowerFromLevelOfDetail) {
                     let toChain = toChainsWithLowerFromLevelOfDetail[toChainIndex]
@@ -2465,14 +2457,7 @@ if (link.type === 'common') {
                         continue
                     }
 
-                    // FIXME: THIS IS TOO EXPENSIVE!
-                    let lastToNodeTypeInfo = getNodeTypeInfo(lastToNode)    
-                    let lastToNodeTypeHasLevelOfDetailProperties = lastToNodeTypeInfo.hasOwnProperty('lod')    
-                    if (lastToNodeTypeHasLevelOfDetailProperties) {
-                        // FIXME: get rid of this!					
-                    }
-                    
-                    let lastToNodeFromLevelOfDetail = lastToNodeTypeInfo.lod['from']	
+                    let lastToNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[lastToNode.id] 
                     
                     let highestLevelOfDetailOfFromAndTo = firstFromNodeFromLevelOfDetail
                     if (lastToNodeFromLevelOfDetail > highestLevelOfDetailOfFromAndTo) {
