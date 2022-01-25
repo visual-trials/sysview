@@ -2328,7 +2328,7 @@ if (link.type === 'common') {
     
     Left-over issues:
     
-     0.1 - BAD is connecting to its OWN parent! (Bijsturing!)
+     0.1 - BAD is connecting to its OWN parent! (Bijsturing!) *if* you add ILSETimetableMutBlauwSS to the domain Bijsturing!
     
      0.2 - There are several issue regarding having multiple virtualLinks with the same id. These should be bundled.
            HOWEVER: sometimes a new virtualLink with the same id is created after "extened chaining" (for example domain-domain link '390-370').
