@@ -1892,21 +1892,6 @@ function findToChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCr
     
     let toChainsWithLowerFromLevelOfDetail = []
 
-    let toParentWithLowerLod = linkCrossesToParentBorder(link, fromLevelOfDetail, diagramId, doLog)
-    if (toParentWithLowerLod != null) {
-        // FIXME: we need mark this chain as 'crossing a low-lod parent border'
-        
-        let toChain = []
-        // Add toNode to beginning of the new toChain
-        // FIXME: HACK! simply adding the parent as the end node here! We should probably add the toNode itself instead and mark the chain (and add the parent too?)
-        //toChain.unshift(toNode)
-        toChain.unshift(toParentWithLowerLod)
-        toChainsWithLowerFromLevelOfDetail.push(toChain)
-        
-        // FIXME: ugly early return!
-        return toChainsWithLowerFromLevelOfDetail
-    }
-
     let toNode = nodesById[link.toNodeId]
     
     // To prevent from looping, we check our crumbPath of nodes we visited
@@ -1919,7 +1904,26 @@ function findToChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, nodeCr
     
     let toNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[toNode.id]
     if (toNodeFromLevelOfDetail == fromLevelOfDetail) {
-        // If we find a node with the same levelOfDetail, we keep searching deeper
+        // If we find a node with the same levelOfDetail (meaning it will disappear), we keep searching 'deeper' (in the chain) or 'higher' (in the parent)
+
+        // First we check the parent (if the current link crosses its border, if so we can use the parent)
+        let toParentWithLowerLod = linkCrossesToParentBorder(link, fromLevelOfDetail, diagramId, doLog)
+        if (toParentWithLowerLod != null) {
+            // FIXME: we need mark this chain as 'crossing a low-lod parent border'
+            
+            let toChain = []
+            // Add toNode to beginning of the new toChain
+            // FIXME: HACK! simply adding the parent as the end node here! We should probably add the toNode itself instead and mark the chain (and add the parent too?)
+            //toChain.unshift(toNode)
+            toChain.unshift(toParentWithLowerLod)
+            toChainsWithLowerFromLevelOfDetail.push(toChain)
+            
+            // FIXME: ugly early return!
+            return toChainsWithLowerFromLevelOfDetail
+        }
+        
+        // If not, we we check 'deeper' in the chain
+        
         let linksFromThisToNode = linksByFromNodeId[toNode.id]
         
         for (let linkFromThisToNodeIndex in linksFromThisToNode) {
@@ -1953,21 +1957,6 @@ function findFromChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, node
     
     let fromChainsWithLowerFromLevelOfDetail = []
 
-    let fromParentWithLowerLod = linkCrossesFromParentBorder(link, fromLevelOfDetail, diagramId, doLog)
-    if (fromParentWithLowerLod != null) {
-        // FIXME: we need mark this chain as 'crossing a low-lod parent border'
-        
-        let fromChain = []
-        // Add toNode to beginning of the new toChain
-        // FIXME: HACK! simply adding the parent as the end node here! We should probably add the toNode itself instead and mark the chain (and add the parent too?)
-        //toChain.unshift(toNode)
-        fromChain.push(fromParentWithLowerLod)
-        fromChainsWithLowerFromLevelOfDetail.push(fromChain)
-        
-        // FIXME: ugly early return!
-        return fromChainsWithLowerFromLevelOfDetail
-    }
-
     let fromNode = nodesById[link.fromNodeId]
     
     // To prevent from looping, we check our crumbPath of nodes we visited
@@ -1977,11 +1966,29 @@ function findFromChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, node
     else {
         nodeCrumbPath[fromNode.id] = true
     }
-    
         
     let fromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[fromNode.id]
     if (fromNodeFromLevelOfDetail == fromLevelOfDetail) {
-        // If we find a node with the same levelOfDetail, we keep searching deeper
+        // If we find a node with the same levelOfDetail (meaning it will disappear), we keep searching 'deeper' (in the chain) or 'higher' (in the parent)
+
+        // First we check the parent (if the current link crosses its border, if so we can use the parent)
+        let fromParentWithLowerLod = linkCrossesFromParentBorder(link, fromLevelOfDetail, diagramId, doLog)
+        if (fromParentWithLowerLod != null) {
+            // FIXME: we need mark this chain as 'crossing a low-lod parent border'
+            
+            let fromChain = []
+            // Add toNode to beginning of the new toChain
+            // FIXME: HACK! simply adding the parent as the end node here! We should probably add the toNode itself instead and mark the chain (and add the parent too?)
+            //toChain.unshift(toNode)
+            fromChain.push(fromParentWithLowerLod)
+            fromChainsWithLowerFromLevelOfDetail.push(fromChain)
+            
+            // FIXME: ugly early return!
+            return fromChainsWithLowerFromLevelOfDetail
+        }
+
+        // If not, we we check 'deeper' in the chain
+        
         let linksToThisFromNode = linksByToNodeId[fromNode.id]
         
         for (let linkToThisFromNodeIndex in linksToThisFromNode) {
@@ -2394,8 +2401,8 @@ if (link.type === 'common') {
             let fromNode = nodesById[virtualLink.fromNodeId]
             let toNode = nodesById[virtualLink.toNodeId]
             if (fromNode.commonData.name == 'PSS' && toNode.commonData.name == 'BAM') {
-                doLog = true
-                console.log('===================================')
+//                doLog = true
+//                console.log('===================================')
             }
 
             /*
@@ -2426,7 +2433,10 @@ if (link.type === 'common') {
             for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
                 let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
                 let firstFromNode = fromChain[0]
-                let firstFromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[firstFromNode.id] 
+                let firstFromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[firstFromNode.id]
+if (firstFromNode.commonData.name == 'PSS') {
+    console.log(firstFromNode)
+}
                     
                 for (let toChainIndex in toChainsWithLowerFromLevelOfDetail) {
                     let toChain = toChainsWithLowerFromLevelOfDetail[toChainIndex]
@@ -2462,14 +2472,15 @@ if (link.type === 'common') {
                             to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
                         }
                     }
-                    
+/*                    
 if (newVirtualLink.id == '390-370') {
 console.log('390-370')
 console.log(newVirtualLink)
 console.log(toChainsWithLowerFromLevelOfDetail)
 console.log(fromChainsWithLowerFromLevelOfDetail)
 console.log('// 390-370')
-}    
+}
+*/   
 if (doLog) {
     console.log(newVirtualLink)
 }
