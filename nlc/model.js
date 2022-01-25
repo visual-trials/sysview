@@ -1412,32 +1412,32 @@ NLC.levelOfDetail = "auto"
 // FIMXE: ZUI.levelOfDetailFading (for fading-in or fading-out)    
     
 function getLinkedNodeIds(nodeId) {
-	let linkedNodeIds = {}
+    let linkedNodeIds = {}
 
-	for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
-		let link = NLC.nodesAndLinksData.links[linkIndex]    
-		if (link.fromNodeId === nodeId) {
-			linkedNodeIds[link.toNodeId] = true
-		}    
-		if (link.toNodeId === nodeId) {    
-			linkedNodeIds[link.fromNodeId] = true
-		}    
-	}    
-	
-	return linkedNodeIds
+    for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
+        let link = NLC.nodesAndLinksData.links[linkIndex]    
+        if (link.fromNodeId === nodeId) {
+            linkedNodeIds[link.toNodeId] = true
+        }    
+        if (link.toNodeId === nodeId) {    
+            linkedNodeIds[link.fromNodeId] = true
+        }    
+    }    
+    
+    return linkedNodeIds
 }
 
 function getLinkedLinkIds(nodeId) {
-	let linkedLinkIds = {}
+    let linkedLinkIds = {}
 
-	for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
-		let link = NLC.nodesAndLinksData.links[linkIndex]    
-		if (link.fromNodeId === nodeId || link.toNodeId === nodeId) {
-			linkedLinkIds[link.id] = true
-		}
-	}    
-	
-	return linkedLinkIds
+    for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
+        let link = NLC.nodesAndLinksData.links[linkIndex]    
+        if (link.fromNodeId === nodeId || link.toNodeId === nodeId) {
+            linkedLinkIds[link.id] = true
+        }
+    }    
+    
+    return linkedLinkIds
 }
     
 function nodeIsInDiagram(node, diagramId) {    
@@ -2016,24 +2016,32 @@ function findFromChainsWithLowerFromLevelOfDetail (link, fromLevelOfDetail, node
 }
 
 
+function markLinkAsChained(link, chainingLinkId) {
+    link.alreadyChained = true
+    if (!('chainedBy' in link)) {
+        link.chainedBy = []
+    }
+    link.chainedBy.push(chainingLinkId)
+}
+
 // FIXME: these two function are the same!
-function markLinksInFromChainAsChained(fromChain, fromLevelOfDetail) {
+function markLinksInFromChainAsChained(fromChain, chainingLinkId) {
     for (let linkElementIndex in fromChain) {
         // In from-chains the *odd* indexes are the links
         if (linkElementIndex % 2 == 1) {
             let link = fromChain[linkElementIndex]
-            link.alreadyChained = true
+            markLinkAsChained(link, chainingLinkId)
         }
     }
 }
 
 // FIXME: these two function are the same!
-function markLinksInToChainAsChained(toChain, fromLevelOfDetail) {
+function markLinksInToChainAsChained(toChain, chainingLinkId) {
     for (let linkElementIndex in toChain) {
         // In to-chains the *odd* indexes are the links
         if (linkElementIndex % 2 == 1) {
             let link = toChain[linkElementIndex]
-            link.alreadyChained = true
+            markLinkAsChained(link, chainingLinkId)
         }
     }
 }
@@ -2047,9 +2055,9 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     // Removing all connections and containers    
     initContainersAndConnections()    
     
-	// When looking at all the nodes, we keep track of the lowest fromLevelOfDetail. This is the level that will always be shown (since it is the lowest). Not showing these nodes, would otherwise empty the screen.
-	let lowestFromLevelOfDetail = null
-	
+    // When looking at all the nodes, we keep track of the lowest fromLevelOfDetail. This is the level that will always be shown (since it is the lowest). Not showing these nodes, would otherwise empty the screen.
+    let lowestFromLevelOfDetail = null
+    
     let nodeIdsAddedToContainers = {}    
     let nodes = NLC.nodesAndLinksData.nodes    
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {    
@@ -2087,21 +2095,21 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
                 let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
                 
                 if (nodeTypeHasLevelOfDetailProperties) {
-					toLevelOfDetail = nodeTypeInfo.lod['to']
-					fromLevelOfDetail = nodeTypeInfo.lod['from']
-					
-					if (lowestFromLevelOfDetail == null || fromLevelOfDetail < lowestFromLevelOfDetail) {
-						lowestFromLevelOfDetail = fromLevelOfDetail
-					}
+                    toLevelOfDetail = nodeTypeInfo.lod['to']
+                    fromLevelOfDetail = nodeTypeInfo.lod['from']
+                    
+                    if (lowestFromLevelOfDetail == null || fromLevelOfDetail < lowestFromLevelOfDetail) {
+                        lowestFromLevelOfDetail = fromLevelOfDetail
+                    }
                 }
-				else {
-					console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
-				}
+                else {
+                    console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
+                }
             }    
         }
         else {
             // TODO: we now assume levelOfDetail == "all" here, so we show all details
-			lowestFromLevelOfDetail = highLod
+            lowestFromLevelOfDetail = highLod
         }
             
         let position = {     
@@ -2196,23 +2204,23 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         createContainer(containerInfo)    
         nodeIdsAddedToContainers[node.id] = true    
     }
-	
-	// We now set the levelOfDetailToAlwaysShow to the lowestFromLevelOfDetail of all the nodes
-	if (lowestFromLevelOfDetail != null) {
-		ZUI.interaction.levelOfDetailToAlwaysShow = lowestFromLevelOfDetail
-	}
-	else {
-		// TODO: if no node has any fromLevelOfDetail information, we
-		ZUI.interaction.levelOfDetailToAlwaysShow = 0.0
-	}
+    
+    // We now set the levelOfDetailToAlwaysShow to the lowestFromLevelOfDetail of all the nodes
+    if (lowestFromLevelOfDetail != null) {
+        ZUI.interaction.levelOfDetailToAlwaysShow = lowestFromLevelOfDetail
+    }
+    else {
+        // TODO: if no node has any fromLevelOfDetail information, we
+        ZUI.interaction.levelOfDetailToAlwaysShow = 0.0
+    }
     
     // TODO: we currently set the absolute positions of the container before we add the connections. Is this required? Of should/can we do this after adding the connections?    
     setContainerChildren()    
     recalculateWorldPositionsAndSizes(null)    
     
-	
-	
-	// ----------------- Links -> Connections ---------------------
+    
+    
+    // ----------------- Links -> Connections ---------------------
     
 // FIXME: only do this when levelOfDetail == "auto"!
 // FIXME: only do this when levelOfDetail == "auto"!
@@ -2222,49 +2230,50 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     NLC.chainsAndBundles.fromLevelOfDetailPerNodeId = {}
     NLC.chainsAndBundles.toLevelOfDetailPerNodeId = {}
     NLC.chainsAndBundles.linksByFromNodeId = {}
-	NLC.chainsAndBundles.linksByToNodeId = {}
+    NLC.chainsAndBundles.linksByToNodeId = {}
     
-	let nodesByFromLevelOfDetail = {}
+    let nodesByFromLevelOfDetail = {}
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {    
         let node = nodes[nodeIndex]    
-		
-		// FIXME: we already did this above. (might be expensive)
+        
+        // FIXME: we already did this above. (might be expensive)
         //     -> Yes, but *here* we loop through *all* the nodes, so we *need* to do it here! -> maybe we can skip it in the above version by running this first?
         let nodeTypeInfo = getNodeTypeInfo(node)    
-		
-		let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
-		
-		if (nodeTypeHasLevelOfDetailProperties) {
-			toLevelOfDetail = nodeTypeInfo.lod['to']
-			fromLevelOfDetail = nodeTypeInfo.lod['from']
+        
+        let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
+        
+        if (nodeTypeHasLevelOfDetailProperties) {
+            toLevelOfDetail = nodeTypeInfo.lod['to']
+            fromLevelOfDetail = nodeTypeInfo.lod['from']
 
-			if (!(fromLevelOfDetail in nodesByFromLevelOfDetail)) {
-				nodesByFromLevelOfDetail[fromLevelOfDetail] = []
-			}
-			
-			nodesByFromLevelOfDetail[fromLevelOfDetail].push(node)
+            if (!(fromLevelOfDetail in nodesByFromLevelOfDetail)) {
+                nodesByFromLevelOfDetail[fromLevelOfDetail] = []
+            }
+            
+            nodesByFromLevelOfDetail[fromLevelOfDetail].push(node)
             
             NLC.chainsAndBundles.fromLevelOfDetailPerNodeId[node.id] = fromLevelOfDetail
             NLC.chainsAndBundles.toLevelOfDetailPerNodeId[node.id] = toLevelOfDetail
-		}
-		else {
-			console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
+        }
+        else {
+            console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
             
             // TODO: what dummy/error/default value should we give these?
             NLC.chainsAndBundles.fromLevelOfDetailPerNodeId[node.id] = 0.0
             NLC.chainsAndBundles.toLevelOfDetailPerNodeId[node.id] = 1.0
-		}
-	}
+        }
+    }
     
     let nodesById = NLC.nodesAndLinksData.nodesById
-	let virtualLinks = []
+    let virtualLinksById = []
     let virtualLinksByFromLod = {}
     let linksByFromNodeId = NLC.chainsAndBundles.linksByFromNodeId
-	let linksByToNodeId = NLC.chainsAndBundles.linksByToNodeId
+    let linksByToNodeId = NLC.chainsAndBundles.linksByToNodeId
     let fromLevelOfDetailPerNodeId = NLC.chainsAndBundles.fromLevelOfDetailPerNodeId
     let toLevelOfDetailPerNodeId = NLC.chainsAndBundles.toLevelOfDetailPerNodeId
     
     // FIXME: we should iterate over all existing Lod-levels
+    // virtualLinksByFromLod[maxLod] = []  // not needed
     virtualLinksByFromLod[highLod] = []
     virtualLinksByFromLod[mediumLod] = []
     virtualLinksByFromLod[lowLod] = []
@@ -2272,18 +2281,18 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     
     for (let linkId in NLC.nodesAndLinksData.linksById) {    
         let link = JSON.parse(JSON.stringify(NLC.nodesAndLinksData.linksById[linkId]))
-		
+        
 // FIXME: remove this!
 // FIXME: remove this!
 // FIXME: remove this!
 // FIXME: remove this!
 if (link.type === 'common') {
-	console.log("WARNING: removing 'common' link on-the-fly. These should not be in the db anymore!")
-	continue
+    console.log("WARNING: removing 'common' link on-the-fly. These should not be in the db anymore!")
+    continue
 }
         let fromNode = nodesById[link.fromNodeId]
         let toNode = nodesById[link.toNodeId]
-
+        
         let fromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[fromNode.id]
         let toNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[toNode.id]
 
@@ -2291,27 +2300,27 @@ if (link.type === 'common') {
         if (toNodeFromLevelOfDetail > highestLevelOfDetailOfFromAndTo) {
             highestLevelOfDetailOfFromAndTo = toNodeFromLevelOfDetail
         }
-		
-		link.lod = {
+        
+        link.lod = {
             // FIXME: which one should we choose: LAYERED or NOT? (also note BS->App "color"-issue)
             from: highestLevelOfDetailOfFromAndTo,
-			// from: highLod, // FIXME: Should we take this highest in nodesByFromLevelOfDetail instead? Or simply the highest (but one) in types.js? -> highLod
-			to: maxLod
-		}
-		
-		// We always want the original links, so we add it to the list of virtualLinks
-		virtualLinks.push(link)
+            // from: highLod, // FIXME: Should we take this highest in nodesByFromLevelOfDetail instead? Or simply the highest (but one) in types.js? -> highLod
+            to: maxLod
+        }
+        
+        // We always want the original links, so we add it to the set of virtualLinks
+        virtualLinksById[link.id] = link
         virtualLinksByFromLod[link.lod.from].push(link)
-		
-		if (!(link.fromNodeId in linksByFromNodeId)) {
-			linksByFromNodeId[link.fromNodeId] = []
-		}
-		if (!(link.toNodeId in linksByToNodeId)) {
-			linksByToNodeId[link.toNodeId] = []
-		}
-		linksByFromNodeId[link.fromNodeId].push(link)
-		linksByToNodeId[link.toNodeId].push(link)
-	}
+        
+        if (!(link.fromNodeId in linksByFromNodeId)) {
+            linksByFromNodeId[link.fromNodeId] = []
+        }
+        if (!(link.toNodeId in linksByToNodeId)) {
+            linksByToNodeId[link.toNodeId] = []
+        }
+        linksByFromNodeId[link.fromNodeId].push(link)
+        linksByToNodeId[link.toNodeId].push(link)
+    }
     
     /*
     
@@ -2377,9 +2386,9 @@ if (link.type === 'common') {
      
     */
     
-	let fromLevelOfDetailsSorted = Object.keys(nodesByFromLevelOfDetail).sort().reverse()
-	for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
-		let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
+    let fromLevelOfDetailsSorted = Object.keys(nodesByFromLevelOfDetail).sort().reverse()
+    for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
+        let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
         
         let linksWithCertainFromLevelOfDetail = virtualLinksByFromLod[fromLevelOfDetail]
         
@@ -2454,11 +2463,6 @@ if (firstFromNode.commonData.name == 'PSS') {
                         highestLevelOfDetailOfFromAndTo = lastToNodeFromLevelOfDetail
                     }
                     
-                    markLinksInFromChainAsChained(fromChain, fromLevelOfDetail)
-                    markLinksInToChainAsChained(toChain, fromLevelOfDetail)
-                    // The current link has also been chained now
-                    virtualLink.alreadyChained = true
-                    
                     let newVirtualLink = {
                         id : firstFromNode.id + '-' + lastToNode.id,  // FIXME: what should we use as id?
                         commonData : {}, // FIXME: fill this! (with dataType?)
@@ -2472,6 +2476,14 @@ if (firstFromNode.commonData.name == 'PSS') {
                             to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
                         }
                     }
+
+                    // We mark all links as being chained (and add the id of the chaining-link to it)
+                    markLinksInFromChainAsChained(fromChain, newVirtualLink.id)
+                    markLinksInToChainAsChained(toChain, newVirtualLink.id)
+                    // The current link has also been chained now
+                    markLinkAsChained(virtualLink, newVirtualLink.id)
+                    
+
 /*                    
 if (newVirtualLink.id == '390-370') {
 console.log('390-370')
@@ -2487,7 +2499,7 @@ if (doLog) {
 // FIXME: ISSUE: the virtualLink with its id can already exist! Furthermore, these same-links can have DIFFERENT from/to-lods!
 //                 -> How do we deal with this? Do we have to do a layered approach: create a link between every possible lod-level?
 //                 -> How do we make their ids unqiue? Or do we assemble them in a list? (and later bundle them?)
-                    virtualLinks.push(newVirtualLink)
+                    virtualLinksById[newVirtualLink.id] = newVirtualLink
                     virtualLinksByFromLod[newVirtualLink.lod.from].push(newVirtualLink)
                     // FIXME: clean this up!
                     if (!(newVirtualLink.fromNodeId in linksByFromNodeId)) {
@@ -2505,16 +2517,55 @@ if (doLog) {
             
         }
 
-	}
-	
-	
-	
-	for (let linkIndex in virtualLinks) {
-		let link = virtualLinks[linkIndex]
-		
-		if (!('lod' in link)) {
-			console.log("ERROR: (virtual)link doesn't have lod-info!")
-		}
+    }
+
+    
+// FIXME: there is a PROBLEM here: the ids are DUPLICATED!!
+
+
+    // We loop through all the links again, but this time we check if the higher-level links are visible
+    // If they are not, we make the links that chained them have a higher to-lod
+    
+    for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
+        let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
+        
+        let linksWithCertainFromLevelOfDetail = virtualLinksByFromLod[fromLevelOfDetail]
+        
+        for (let virtualLinkIndex in linksWithCertainFromLevelOfDetail) {
+            let virtualLink = linksWithCertainFromLevelOfDetail[virtualLinkIndex]
+            
+            let fromNode = nodesById[virtualLink.fromNodeId]
+            let toNode = nodesById[virtualLink.toNodeId]
+            
+            if (!nodeIsInDiagram(fromNode, diagramId) || !nodeIsInDiagram(toNode, diagramId)) {
+                // The link can never be shown, since at least one of the nodes it is attached to are not in the current diagram
+                
+                // This means we have to change the lod-settings of the chaning-links
+                
+                if ('chainedBy' in virtualLink) {
+                    for (let chainedByIndex in virtualLink.chainedBy) {
+                        let chainedById = virtualLink.chainedBy[chainedByIndex]
+                        
+                        let chainingVirtualLink = virtualLinksById[chainedById]
+                        
+                        chainingVirtualLink.lod.to = virtualLink.lod.to
+                    }
+                }
+                else {
+                    // FIXME: do nothing here?
+                    // console.log("WARNING: link is never chained?")
+                }
+            }
+        }
+    }
+    
+    
+    for (let linkId in virtualLinksById) {
+        let link = virtualLinksById[linkId]
+        
+        if (!('lod' in link)) {
+            console.log("ERROR: (virtual)link doesn't have lod-info!")
+        }
             
         let fromAndToNodesAreAddedToDiagram = nodeIdsAddedToContainers.hasOwnProperty(link.fromNodeId) &&    
                                               nodeIdsAddedToContainers.hasOwnProperty(link.toNodeId)    
@@ -2537,15 +2588,17 @@ if (doLog) {
 
         // FIXME: should we do anything here ? Both cases are treated the same right?
         if (NLC.levelOfDetail == "auto") {
-			toLevelOfDetail = link.lod['to']
-			fromLevelOfDetail = link.lod['from']
+            toLevelOfDetail = link.lod['to']
+            fromLevelOfDetail = link.lod['from']
         }
         else {
             // TODO: we now assume levelOfDetail == "all" here, so we show all details
-			toLevelOfDetail = link.lod['to']
-			fromLevelOfDetail = link.lod['from']
+            toLevelOfDetail = link.lod['to']
+            fromLevelOfDetail = link.lod['from']
         }
-    
+
+// FIXME: maybe only add connection for links that have a from-lod that is lower than maxLod?
+        
         // link.dataType = sourceDataType    
         let connectionInfo = {    
             identifier: link.id,    
