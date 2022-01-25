@@ -2333,15 +2333,15 @@ if (link.type === 'common') {
                    this is because the initial new virtualLink that is created (at the highest lod 0.05-0.4). But LATER this one is ALSO replaced
                    by a virtualLink with lod 0.05-0.2 (NOTE: PstatusInzetRealisatieET related! which is a DIFFERENT chain!). 
                    This problem is related to grouping and layering. But it also is a BUG because no overlapping virtualLink should be created when replacing one.
-           -> An UNDERLYING problem: the links that connect to the *Applications* get a from/to-lod (when they are copied as virtualLinks) are *ONLY*
+           SOVLED -> An UNDERLYING problem: the links that connect to the *Applications* get a from/to-lod (when they are copied as virtualLinks) are *ONLY*
               being at the *HIGHEST* lod. YET, their from-lod should be lower, depending on where they are *ATTACHED* to
                    
-     0.5 - PstatusInzetRealisatieET connects PSS with BAP. Which also connects DPK with Bijsturing. BUT, when this topic is not shown on a diagram,
+     SOLVED 0.5 - PstatusInzetRealisatieET connects PSS with BAP. Which also connects DPK with Bijsturing. BUT, when this topic is not shown on a diagram,
            the virtualLink (on a more detailed level) will dissappear, because the lower-lod link is "making room" for the more detailed one. YET, the detailed one
            will *not* be shown.
             -> The ISSUE is here that we should make the from/to lod of virtualLinks set according to what *IN* a diagram.
     
-     1 - Chains that contain only the highest log (like only mediations) will be chained with virtualLinks that are ONLY visible at the *lowest* level, but will dissapear at the *medium* level
+     1 - Chains that contain only the highest lod (like only mediations) will be chained with virtualLinks that are ONLY visible at the *lowest* level, but will dissapear at the *medium* level
         -> Example: Donna -> BAM
      SOLVED 2 - highest level links that are not connected (that is: no chain leading) to a lower node, will always stay visible
                  -> See BIJS, below BAM
@@ -2349,7 +2349,7 @@ if (link.type === 'common') {
         - this is probably caused by the fact that you don't start with these nodes?
         -> Example: BS -> APP connections
      SOLVED 4 - Showing "all" (aka "highest") detail also shows virtual link that should only shown at the lowest level of detail
-     5 - In the domain-diagam, low-links are shown first, when zooming in, they are not, even though medium (and high) nodes are *not placed* in this diagram!
+     SOLVED 5 - In the domain-diagam, low-links are shown first, when zooming in, they are not, even though medium (and high) nodes are *not placed* in this diagram!
         -> should we calculate using the *placed* nodes instead?
      6 - SPEED! (also when panning!)
         -> Why is SEARCHING SLOW???
@@ -2463,25 +2463,54 @@ if (firstFromNode.commonData.name == 'PSS') {
                         highestLevelOfDetailOfFromAndTo = lastToNodeFromLevelOfDetail
                     }
                     
-                    let newVirtualLink = {
-                        id : firstFromNode.id + '-' + lastToNode.id,  // FIXME: what should we use as id?
-                        commonData : {}, // FIXME: fill this! (with dataType?)
+                    let newVirutalLinkId = firstFromNode.id + '-' + lastToNode.id // FIXME: what should we use as id?
+                    
+                    if (newVirutalLinkId in virtualLinksById) {
+                        let existingVirtualLink = virtualLinksById[newVirutalLinkId]
                         
-                        // FIXME: shouldn't we also add fromNodeName and toNodeName?
-                        fromNodeId : firstFromNode.id,
-                        toNodeId : lastToNode.id,
-                        // FIXME: Scale * 2?
-                        lod: { 
-                            from: highestLevelOfDetailOfFromAndTo, // The higest levelOfDetail of either the firstFromNode or the lastToNode (since one of those to will disappear at that level, so should this link)
-                            to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
+                        if (fromLevelOfDetail > existingVirtualLink.lod.to) {
+                            existingVirtualLink.lod.to = fromLevelOfDetail
+                            // FIXME: what about the lod.from? -> IF you change this though, you also have to put the new virtualLink info a different virtualLinksByFromLod!
                         }
+                        
+                        // FIXME: store the fact that there are two virtualLinks (so you can show it to the user)
                     }
+                    else {
+                    
+                        let newVirtualLink = {
+                            id : newVirutalLinkId,
+                            commonData : {}, // FIXME: fill this! (with dataType?)
+                            
+                            // FIXME: shouldn't we also add fromNodeName and toNodeName?
+                            fromNodeId : firstFromNode.id,
+                            toNodeId : lastToNode.id,
+                            // FIXME: Scale * 2?
+                            lod: { 
+                                from: highestLevelOfDetailOfFromAndTo, // The higest levelOfDetail of either the firstFromNode or the lastToNode (since one of those to will disappear at that level, so should this link)
+                                to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
+                            }
+                        }
 
+                        virtualLinksById[newVirutalLinkId] = newVirtualLink
+                        virtualLinksByFromLod[newVirtualLink.lod.from].push(newVirtualLink)
+                        // FIXME: clean this up!
+                        if (!(newVirtualLink.fromNodeId in linksByFromNodeId)) {
+                            linksByFromNodeId[newVirtualLink.fromNodeId] = []
+                        }
+                        linksByFromNodeId[newVirtualLink.fromNodeId].push(newVirtualLink)
+                        // FIXME: clean this up!
+                        if (!(newVirtualLink.toNodeId in linksByToNodeId)) {
+                            linksByToNodeId[newVirtualLink.toNodeId] = []
+                        }
+                        linksByToNodeId[newVirtualLink.toNodeId].push(newVirtualLink)
+                    }
+                    
+                    
                     // We mark all links as being chained (and add the id of the chaining-link to it)
-                    markLinksInFromChainAsChained(fromChain, newVirtualLink.id)
-                    markLinksInToChainAsChained(toChain, newVirtualLink.id)
+                    markLinksInFromChainAsChained(fromChain, newVirutalLinkId)
+                    markLinksInToChainAsChained(toChain, newVirutalLinkId)
                     // The current link has also been chained now
-                    markLinkAsChained(virtualLink, newVirtualLink.id)
+                    markLinkAsChained(virtualLink, newVirutalLinkId)
                     
 
 /*                    
@@ -2496,21 +2525,6 @@ console.log('// 390-370')
 if (doLog) {
     console.log(newVirtualLink)
 }
-// FIXME: ISSUE: the virtualLink with its id can already exist! Furthermore, these same-links can have DIFFERENT from/to-lods!
-//                 -> How do we deal with this? Do we have to do a layered approach: create a link between every possible lod-level?
-//                 -> How do we make their ids unqiue? Or do we assemble them in a list? (and later bundle them?)
-                    virtualLinksById[newVirtualLink.id] = newVirtualLink
-                    virtualLinksByFromLod[newVirtualLink.lod.from].push(newVirtualLink)
-                    // FIXME: clean this up!
-                    if (!(newVirtualLink.fromNodeId in linksByFromNodeId)) {
-                        linksByFromNodeId[newVirtualLink.fromNodeId] = []
-                    }
-                    linksByFromNodeId[newVirtualLink.fromNodeId].push(newVirtualLink)
-                    // FIXME: clean this up!
-                    if (!(newVirtualLink.toNodeId in linksByToNodeId)) {
-                        linksByToNodeId[newVirtualLink.toNodeId] = []
-                    }
-                    linksByToNodeId[newVirtualLink.toNodeId].push(newVirtualLink)
                 }
             
             }
