@@ -2328,7 +2328,9 @@ if (link.type === 'common') {
     
     Left-over issues:
     
-     0 - There are several issue regarding having multiple virtualLinks with the same id. These should be bundled.
+     0.1 - BAD is connecting to its OWN parent! (Bijsturing!)
+    
+     0.2 - There are several issue regarding having multiple virtualLinks with the same id. These should be bundled.
            HOWEVER: sometimes a new virtualLink with the same id is created after "extened chaining" (for example domain-domain link '390-370').
                    this is because the initial new virtualLink that is created (at the highest lod 0.05-0.4). But LATER this one is ALSO replaced
                    by a virtualLink with lod 0.05-0.2 (NOTE: PstatusInzetRealisatieET related! which is a DIFFERENT chain!). 
