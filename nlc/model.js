@@ -1798,7 +1798,8 @@ function getFirstParentWithLowerFromLevelOfDetail (node, diagramId, fromLevelOfD
             parentNodeId = currentNode.diagramSpecificVisualData[diagramId].parentNodeId
         }    
         
-        if (parentNodeId != null) {
+        // FIXME: shouldn't we get rid of the application storing 'root' and instead store null?
+        if (parentNodeId != null && parentNodeId != 'root') {
             let parentNode = nodesById[parentNodeId]
             
             let parentNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[parentNode.id]
