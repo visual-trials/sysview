@@ -2372,17 +2372,12 @@ if (link.type === 'common') {
      => SOLUTIONS:
      
      - set the from-lod of all orginal links to 0.5. This will solve (2): by default it will dissapear at 0.5 (and since we wont chain it it wont be visible after that)
-        - this will also 
      - instead of looping through all the nodes with a specific from-lod, we loop through all the links (with a from-lod). We still loop through all lod's taken from the nodes
         - this will ensure (3) can be solved: we will visit links that are not connected to the highest lod-nodes (and by default the link's from-lod is set to 0.5)
      - when checking a link with a certain from-lod, you get the from- and to- chains. If there is a combination of both to and from chain being 1 node
          then this means the from-node has to be chained directly with the to-node, but the current link has to be replaced (and be marked alreadyChained).
          
-     - REMARK: not certain yet why 1 and 4 are a problem, but 1 might be resolved too by this solution
-     - REMARK: for resolving (1) we may need to use a layered approach: each link is limitied between two lod-levels
-     - REMARK: issue (1) also exemplifies the need for bundling/grouping links.
-    
-     - If it works, do an explantion how it work using the text and code written above and below. Then clean up the code.
+     - TODO: If it works, do an explantion how it work using the text and code written above and below. Then clean up the code.
      
     */
     
@@ -2400,52 +2395,17 @@ if (link.type === 'common') {
                 continue
             }
             
-            // Debug-link: from PSS -> BAM            
-                // "id": 11405,
-                // "type": "ftpCall",
-                // "fromNodeId": 456,
-                // "toNodeId": 659,
-            
             let doLog = false
-            let fromNode = nodesById[virtualLink.fromNodeId]
-            let toNode = nodesById[virtualLink.toNodeId]
-            if (fromNode.commonData.name == 'PSS' && toNode.commonData.name == 'BAM') {
-//                doLog = true
-//                console.log('===================================')
-            }
-
-            /*
-            if (fromNode.commonData.name == 'Med_RetrieveFilesAndNotify' || 
-                toNode.commonData.name == 'Med_RetrieveFilesAndNotify' || 
-                fromNode.commonData.name == 'T_B@M1_Plan' || 
-                toNode.commonData.name == 'T_B@M1_Plan'
-                ) {
-                doLog = true
-            }
-            */
 
             // FIXME: add the virtualLink itself too!?
             let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByFromNodeId, doLog)
             // FIXME: add the virtualLink itself too!?
             let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByToNodeId, doLog)
                 
-            if (doLog) {
-                console.log('------------------------------------')
-                console.log(fromLevelOfDetail)
-                console.log(virtualLink)
-                console.log(fromNode)
-                console.log(toNode)
-                console.log(fromChainsWithLowerFromLevelOfDetail) 
-                console.log(toChainsWithLowerFromLevelOfDetail) 
-            }
-
             for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
                 let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
                 let firstFromNode = fromChain[0]
                 let firstFromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[firstFromNode.id]
-if (firstFromNode.commonData.name == 'PSS') {
-    console.log(firstFromNode)
-}
                     
                 for (let toChainIndex in toChainsWithLowerFromLevelOfDetail) {
                     let toChain = toChainsWithLowerFromLevelOfDetail[toChainIndex]
@@ -2479,7 +2439,11 @@ if (firstFromNode.commonData.name == 'PSS') {
                     
                         let newVirtualLink = {
                             id : newVirutalLinkId,
-                            commonData : {}, // FIXME: fill this! (with dataType?)
+                            
+                            // FIXME: should we fill this? (with dataType?) -> or is this done by the legenda-functions?
+                            commonData : {}, 
+                            
+                            // FIXME: this data should somehow contain all bundles and chains that we chained by this virtualLink
                             
                             // FIXME: shouldn't we also add fromNodeName and toNodeName?
                             fromNodeId : firstFromNode.id,
@@ -2512,19 +2476,6 @@ if (firstFromNode.commonData.name == 'PSS') {
                     // The current link has also been chained now
                     markLinkAsChained(virtualLink, newVirutalLinkId)
                     
-
-/*                    
-if (newVirtualLink.id == '390-370') {
-console.log('390-370')
-console.log(newVirtualLink)
-console.log(toChainsWithLowerFromLevelOfDetail)
-console.log(fromChainsWithLowerFromLevelOfDetail)
-console.log('// 390-370')
-}
-*/   
-if (doLog) {
-    console.log(newVirtualLink)
-}
                 }
             
             }
@@ -2534,9 +2485,6 @@ if (doLog) {
     }
 
     
-// FIXME: there is a PROBLEM here: the ids are DUPLICATED!!
-
-
     // We loop through all the links again, but this time we check if the higher-level links are visible
     // If they are not, we make the links that chained them have a higher to-lod
     
