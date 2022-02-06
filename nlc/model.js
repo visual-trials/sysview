@@ -531,7 +531,7 @@ function createNewNode(nodeTypeIdentifier) {
         "commonData" : {    
             "name" : newName,
         },    
-        "codeVersions" : [],    
+        // TODO: this is not default anymore, remove? "codeVersions" : [],    
         "functionalDocumentVersions" : [],    
         "technicalDocumentVersions" : [],    
         "environmentSpecificData" : {    
