@@ -2443,6 +2443,8 @@ if (link.type === 'common') {
                         let newVirtualLink = {
                             id : newVirutalLinkId,
                             
+                            type: "virtual",
+                            
                             // FIXME: should we fill this? (with dataType?) -> or is this done by the legenda-functions?
                             commonData : {}, 
                             
@@ -2540,9 +2542,25 @@ if (link.type === 'common') {
             continue    
         }    
             
-        let linkHasDiagramSpecificVisualData = link.hasOwnProperty('diagramSpecificVisualData') &&     
-                              link.diagramSpecificVisualData.hasOwnProperty(diagramId)    
-        if (!linkHasDiagramSpecificVisualData) {    
+        let diagramSpecificVisualDataForLink = null
+        if (link.hasOwnProperty('diagramSpecificVisualData') &&     
+            link.diagramSpecificVisualData.hasOwnProperty(diagramId)) {
+            diagramSpecificVisualDataForLink = link.diagramSpecificVisualData[diagramId]
+        }
+                              
+        if (link.type == 'virtual') {
+            // the visualData of a virtual link is currently stored in: fromNode.diagramSpecificVisualData[diagramId].virtualLinks[virutalLink.id]
+            let fromNode = nodesById[link.fromNodeId]
+            if ('diagramSpecificVisualData' in fromNode &&
+                diagramId in fromNode.diagramSpecificVisualData &&
+                'virtualLinks' in fromNode.diagramSpecificVisualData[diagramId] &&
+                link.id in fromNode.diagramSpecificVisualData[diagramId].virtualLinks) {
+                    
+                diagramSpecificVisualDataForLink = fromNode.diagramSpecificVisualData[diagramId].virtualLinks[link.id]
+            }
+        }
+        
+        if (diagramSpecificVisualDataForLink == null) {
             // The link does not have diagramSpecificVisualData for the selectedDiagram, so we SHOULD not show/add the link
             // FIXME: we should 'continue' here, but the DEFAULT right now is to add it anyway!    
             // FIXME: continue    
@@ -2576,12 +2594,12 @@ if (link.type === 'common') {
             toContainerIdentifier: link.toNodeId    
         }
             
-        if (linkHasDiagramSpecificVisualData) {    
-            if (link.diagramSpecificVisualData[diagramId].hasOwnProperty('fromConnectionPointIdentifier')) {    
-                connectionInfo['fromConnectionPointIdentifier'] = link.diagramSpecificVisualData[diagramId]['fromConnectionPointIdentifier']    
+        if (diagramSpecificVisualDataForLink != null) {    
+            if (diagramSpecificVisualDataForLink.hasOwnProperty('fromConnectionPointIdentifier')) {    
+                connectionInfo['fromConnectionPointIdentifier'] = diagramSpecificVisualDataForLink['fromConnectionPointIdentifier']    
             }    
-            if (link.diagramSpecificVisualData[diagramId].hasOwnProperty('toConnectionPointIdentifier')) {    
-                connectionInfo['toConnectionPointIdentifier'] = link.diagramSpecificVisualData[diagramId]['toConnectionPointIdentifier']    
+            if (diagramSpecificVisualDataForLink.hasOwnProperty('toConnectionPointIdentifier')) {    
+                connectionInfo['toConnectionPointIdentifier'] = diagramSpecificVisualDataForLink['toConnectionPointIdentifier']    
             }    
         }    
             
