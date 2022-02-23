@@ -1167,56 +1167,144 @@ function removeNodeFromDiagram(nodeId, diagramId) {
 function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo, connectionPointIdentifier) {    
       
     let linksById = NLC.nodesAndLinksData.linksById    
-        
-    if (linksById.hasOwnProperty(linkId)) {    
-        let link = linksById[linkId]    
+    let nodesById = NLC.nodesAndLinksData.nodesById
     
+    let keyToStore = 'fromConnectionPointIdentifier'    
+    if (fromOrTo === 'to') {    
+        keyToStore = 'toConnectionPointIdentifier'    
+    }    
+    
+    if ((''+linkId).includes('-')) {
+        // This is a virtualLink, meaning its visualData should be stored in the fromNode (not in the link itself, which doesn't really exist)
+        let nodeIds = linkId.split("-")
+        if (nodeIds.length != 2) {
+            console.log("ERROR: virtualLinkId does not contain fromId and toId! : " + linkId)
+            return
+        }
+        let fromNodeId = parseInt(nodeIds[0])
+        // let toNodeId = parseInt(nodeIds[1])
+        
+        if (!fromNodeId in nodesById) {
+            console.log("ERROR: could not find fromNodeId " + fromNodeId + " when trying to store link connectionPoint")
+            return
+        }
+        let fromNode = nodesById[fromNodeId]
+        
+        // FIXME: instead of this long list of if-statements we need a function that does this for us! (that is: auto-create all the in-between dicts in the frontend and backend)
+        // FIXME: instead of this long list of if-statements we need a function that does this for us! (that is: auto-create all the in-between dicts in the frontend and backend)
+        // FIXME: instead of this long list of if-statements we need a function that does this for us! (that is: auto-create all the in-between dicts in the frontend and backend)
+        
         // If there is no diagramSpecificVisualData, we create if and fill it with empy visualData for this diagram
-        if (!link.hasOwnProperty('diagramSpecificVisualData')) {    
+        if (!fromNode.hasOwnProperty('diagramSpecificVisualData')) {    
                 
-            let diagramSpecificVisualData = {}    
+            let diagramSpecificVisualData = {}
             diagramSpecificVisualData[diagramId] = {}    
+            diagramSpecificVisualData[diagramId]['virtualLinks'] = {}    
+            diagramSpecificVisualData[diagramId]['virtualLinks'][linkId] = {}    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "links", linkId, "diagramSpecificVisualData"],    
+                "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData"],    
                 "data" : diagramSpecificVisualData
             }    
-            link.diagramSpecificVisualData = diagramSpecificVisualData
+            fromNode.diagramSpecificVisualData = diagramSpecificVisualData
             NLC.dataChangesToStore.push(nlcDataChange)    
-        }    
+        }
         // If there is diagramSpecificVisualData but not for this diagram, we fill it with empy visualData for this diagram
-        if (!link.diagramSpecificVisualData.hasOwnProperty(diagramId)) {    
-                
+        else if (!fromNode.diagramSpecificVisualData.hasOwnProperty(diagramId)) {
             let visualData = {}    
+            visualData['virtualLinks'] = {}    
+            visualData['virtualLinks'][linkId] = {}    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "links", linkId, "diagramSpecificVisualData", diagramId],
+                "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId],
                 "data" : visualData
             }    
-            link.diagramSpecificVisualData[diagramId] = visualData
+            fromNode.diagramSpecificVisualData[diagramId] = visualData
             NLC.dataChangesToStore.push(nlcDataChange)    
-        }    
+        }
+        else if (!fromNode.diagramSpecificVisualData[diagramId].hasOwnProperty('virtualLinks')) {
+            let virtualLinksData = {}    
+            virtualLinksData[linkId] = {}    
+            let nlcDataChange = {    
+                "method" : "update",    
+                "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualLinks'],
+                "data" : virtualLinksData
+            }    
+            fromNode.diagramSpecificVisualData[diagramId]['virtualLinks'] = virtualLinksData
+            NLC.dataChangesToStore.push(nlcDataChange)    
+        }
+        else if (!fromNode.diagramSpecificVisualData[diagramId].virtualLinks.hasOwnProperty(linkId)) {
+            let virtualLinkData = {}
+            let nlcDataChange = {    
+                "method" : "update",    
+                "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualLinks', linkId],
+                "data" : virtualLinkData
+            }    
+            fromNode.diagramSpecificVisualData[diagramId]['virtualLinks'][linkId] = virtualLinkData
+            NLC.dataChangesToStore.push(nlcDataChange)
+        }
+        
+        fromNode.diagramSpecificVisualData[diagramId]['virtualLinks'][linkId][keyToStore] = connectionPointIdentifier
                 
-        let keyToStore = 'fromConnectionPointIdentifier'    
-        if (fromOrTo === 'to') {    
-            keyToStore = 'toConnectionPointIdentifier'    
-        }    
-        link.diagramSpecificVisualData[diagramId][keyToStore] = connectionPointIdentifier    
-            
         // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "links", linkId, "diagramSpecificVisualData", diagramId, keyToStore],    
+            "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualLinks', linkId, keyToStore],
             "data" : connectionPointIdentifier    
         }    
         NLC.dataChangesToStore.push(nlcDataChange)    
         
         // TODO: maybe its better to call this: visualDataHasChanged ?    
         NLC.dataHasChanged = true    
-    }    
-    else {    
-        console.log("ERROR: cannot store link: unknown linkId:" + linkId)    
-    }    
+        
+    }
+    else {
+        if (linksById.hasOwnProperty(linkId)) {    
+            let link = linksById[linkId]    
+        
+            // If there is no diagramSpecificVisualData, we create if and fill it with empy visualData for this diagram
+            if (!link.hasOwnProperty('diagramSpecificVisualData')) {    
+                    
+                let diagramSpecificVisualData = {}    
+                diagramSpecificVisualData[diagramId] = {}    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "links", linkId, "diagramSpecificVisualData"],    
+                    "data" : diagramSpecificVisualData
+                }    
+                link.diagramSpecificVisualData = diagramSpecificVisualData
+                NLC.dataChangesToStore.push(nlcDataChange)    
+            }    
+            // If there is diagramSpecificVisualData but not for this diagram, we fill it with empy visualData for this diagram
+            if (!link.diagramSpecificVisualData.hasOwnProperty(diagramId)) {    
+                    
+                let visualData = {}    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "links", linkId, "diagramSpecificVisualData", diagramId],
+                    "data" : visualData
+                }    
+                link.diagramSpecificVisualData[diagramId] = visualData
+                NLC.dataChangesToStore.push(nlcDataChange)    
+            }    
+                    
+            link.diagramSpecificVisualData[diagramId][keyToStore] = connectionPointIdentifier
+                
+            // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
+            let nlcDataChange = {    
+                "method" : "update",    
+                "path" : [ "links", linkId, "diagramSpecificVisualData", diagramId, keyToStore],    
+                "data" : connectionPointIdentifier    
+            }    
+            NLC.dataChangesToStore.push(nlcDataChange)    
+            
+            // TODO: maybe its better to call this: visualDataHasChanged ?    
+            NLC.dataHasChanged = true    
+        }    
+        else {    
+            console.log("ERROR: cannot store link: unknown linkId:" + linkId)    
+        }
+    }
 }    
 
 
