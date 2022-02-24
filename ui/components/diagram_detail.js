@@ -77,8 +77,8 @@ DiagramDetail.loadDiagramDetailsAndOpenDiagramDetail = function (diagramId) {
             // FIXME: this is a workaround to make sure the diagram in the diagrams-list is also updated with the new information
             oldOriginalDiagram.name = loadedDiagramDetails.name
             oldOriginalDiagram.identifier = loadedDiagramDetails.identifier
-            oldOriginalDiagram.level = loadedDiagramDetails.level
-            oldOriginalDiagram.projectUrl = loadedDiagramDetails.projectUrl
+            oldOriginalDiagram.sortIndex = loadedDiagramDetails.sortIndex
+            oldOriginalDiagram.parentDiagramId = loadedDiagramDetails.parentDiagramId
             
             // Overwriting the diagram in diagramsById
             diagramsById[loadedDiagramDetails.id] = loadedDiagramDetails

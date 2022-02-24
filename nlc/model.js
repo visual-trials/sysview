@@ -891,20 +891,29 @@ function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
         diagramChanges.push(nlcDataChange)    
     }    
         
-    if (changedDiagram.level !== originalDiagram.level) {    
+    if (changedDiagram.identifier !== originalDiagram.identifier) {    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "diagrams", originalDiagram.id, "level" ],    
-            "data" : changedDiagram.level    
+            "path" : [ "diagrams", originalDiagram.id, "identifier" ],    
+            "data" : changedDiagram.identifier
+        }    
+        diagramChanges.push(nlcDataChange)    
+    }    
+
+    if (changedDiagram.sortIndex !== originalDiagram.sortIndex) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "diagrams", originalDiagram.id, "sortIndex" ],    
+            "data" : changedDiagram.sortIndex
         }    
         diagramChanges.push(nlcDataChange)    
     }    
     
-    if (changedDiagram.projectUrl !== originalDiagram.projectUrl) {    
+    if (changedDiagram.parentDiagramId !== originalDiagram.parentDiagramId) {    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "diagrams", originalDiagram.id, "projectUrl" ],    
-            "data" : changedDiagram.projectUrl    
+            "path" : [ "diagrams", originalDiagram.id, "parentDiagramId" ],    
+            "data" : changedDiagram.parentDiagramId
         }    
         diagramChanges.push(nlcDataChange)    
     }    
