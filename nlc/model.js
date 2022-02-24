@@ -2371,14 +2371,6 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     for (let linkId in NLC.nodesAndLinksData.linksById) {    
         let link = JSON.parse(JSON.stringify(NLC.nodesAndLinksData.linksById[linkId]))
         
-// FIXME: remove this!
-// FIXME: remove this!
-// FIXME: remove this!
-// FIXME: remove this!
-if (link.type === 'common') {
-    console.log("WARNING: removing 'common' link on-the-fly. These should not be in the db anymore!")
-    continue
-}
         let fromNode = nodesById[link.fromNodeId]
         let toNode = nodesById[link.toNodeId]
         
