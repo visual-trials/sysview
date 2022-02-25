@@ -264,7 +264,7 @@ NodeAndLinkScroller.nodeAndLinkScroller = {
     // FIXME the problem with the list of nodes (and links) in the scroller now is: we loop through all the nodeTypes and show all nodes of that node.type
     //       BUT: if there are any nodes with a DIFFERENT node.type, we will NEVER see them in the GUI!
 
-    showScroller: true,
+    showScroller: false,
     
     focusPossible : false,
 
