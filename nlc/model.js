@@ -1505,7 +1505,8 @@ function storeSourcePointLocalSize(sourceDiagram, originalSourcePoint, localSize
     
 // == Combining with ZUI ==    
     
-NLC.levelOfDetail = "auto"
+// FIXME: this default setting is done TWICE! We should set this only ONCE!
+NLC.levelOfDetail = "all"
 // FIMXE: ZUI.levelOfDetailFading (for fading-in or fading-out)    
     
 function getLinkedNodeIds(nodeId) {

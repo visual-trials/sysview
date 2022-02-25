@@ -76,7 +76,8 @@ DiagramLegendaLodSelector.legendaSelector = {
 }
 
 DiagramLegendaLodSelector.lodSelector = {
-    selectedLevelOfDetail: "auto",
+    // FIXME: this default setting is done TWICE! We should set this only ONCE!
+    selectedLevelOfDetail: "all",
 }
 
 
