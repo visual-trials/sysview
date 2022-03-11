@@ -4,23 +4,12 @@ let SourceInfo = {
 
 SourceInfo.inputChanged = function (detailType, key, data, refData, fieldPath) {
 
-    let d = new Date();
-    // FIXME: there *has* to be a better/cleaner/standard way to generate an ISO datetime!
-    let currentDateTime = d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + " " + 
-                          ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2)
+	let currentDateTimeISO = getCurrentDateTimeISO()
                           
     // Right now we only allow for one sourceLink per field AND we do not allow for sourceLinks to change their type (or id)
     // So have currently have a very simple logic:
     //    If there is no sourceLink, we create one here
     //    If there is a sourceLink, we use/edit that one
-    
-    // TODO: allow for by-default set the sourceLink type to document when there is a functionDocument available (and set its sourceDocumentId)
-    // TODO: allow for changing sourceLink sourceType, sourceDocumentId, certainty
-    // TODO: allow for multiple sourceLinks per field
-    // TODO: allow for deleting a sourceLink
-    // TODO: allow for setting the value to null if all sourceLinks are deleted
-    // TODO: allow for selecting a different sourceLink to be the "dominant" of "overruling" sourceLink
-    // TODO: allow for sourceLinks to contain their own value (so you can see if sources have conflicting values)
     
     let matchingSourceLink = findMatchingSourceLink(key, refData, fieldPath)
     
@@ -36,7 +25,7 @@ SourceInfo.inputChanged = function (detailType, key, data, refData, fieldPath) {
             "certainty" : "medium", 
             "userLogin" : UserManagement.getUserLogin(),
             "userName" : UserManagement.getUserFullName(),
-            "date" : currentDateTime
+            "date" : currentDateTimeISO
         }
         
         if (detailType == 'node') {
@@ -70,7 +59,7 @@ SourceInfo.inputChanged = function (detailType, key, data, refData, fieldPath) {
         // For now we assume we are changing the current sourceLink and update it
         matchingSourceLink["userLogin"] = UserManagement.getUserLogin()
         matchingSourceLink["userName"] = UserManagement.getUserFullName()
-        matchingSourceLink["date"] = currentDateTime
+        matchingSourceLink["date"] = currentDateTimeISO
     }
 }
 

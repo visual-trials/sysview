@@ -1661,6 +1661,7 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
             
         if ('environmentSpecificData' in node) {    
                 
+			// FIXME: shouldn't this be true instead of 'Ja'?
             let deployedP = ('P' in node.environmentSpecificData) && node.environmentSpecificData.P.deployedTAB === 'Ja'    
             let deployedT = ('T' in node.environmentSpecificData) && node.environmentSpecificData.T.deployedTAB === 'Ja'    
             let versionTKnown = ('T' in node.environmentSpecificData) && ('codeVersionId' in node.environmentSpecificData.T) && node.environmentSpecificData.T.codeVersionId    
