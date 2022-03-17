@@ -21,6 +21,7 @@ let NLC = {}
 NLC.dataHasChanged = false    
 NLC.dataChangesToStore = []    
 NLC.nodesAndLinksData = {}    
+NLC.chainsAndBundles = null    
 
 
 // Known users
@@ -2147,9 +2148,6 @@ function markLinksInToChainAsChained(toChain, chainingLinkId) {
 }
 
 
-// FIXME: move this up?
-NLC.chainsAndBundles = null
-    
 function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId, dimUninteresting) {    
     
     // Removing all connections and containers    
