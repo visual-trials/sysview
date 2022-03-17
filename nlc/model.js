@@ -21,7 +21,7 @@ let NLC = {}
 NLC.dataHasChanged = false    
 NLC.dataChangesToStore = []    
 NLC.nodesAndLinksData = {}    
-NLC.chainsAndBundles = null    
+NLC.chainsAndBundles = null // created on-the-fly 
 
 // FIXME: NLC.levelOfDetail is defined far below, does it belong here? Or should we put it in a separate file?
 
