@@ -23,6 +23,8 @@ NLC.dataChangesToStore = []
 NLC.nodesAndLinksData = {}    
 NLC.chainsAndBundles = null    
 
+// FIXME: NLC.levelOfDetail is defined far below, does it belong here? Or should we put it in a separate file?
+
 
 // Known users
 
@@ -1561,11 +1563,6 @@ function linkIsInDiagram(link, diagramId) {
     return linkIsInDiagram    
 }    
     
-    
-    
-// FIXME: only use mappingFunctionNode!   
-// FIXME: only use mappingFunctionNode!   
-// FIXME: only use mappingFunctionNode!   
 function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninteresting) {    
 
     if (selectedLegendaId == null) {    
@@ -1579,130 +1576,6 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
     if ('mappingFunctionNode' in selectedLegenda && selectedLegenda.mappingFunctionNode != null) {
         colorNamesWithLight = selectedLegenda.mappingFunctionNode(node, selectedLegenda, colorMapping)
     }
-    else if (selectedLegenda.field === 'type') {    
-        let nodeTypeIdentifier = node.type    
-        // TODO: hardcoded exception!    
-        if (nodeTypeIdentifier === 'Mediation' && 'iraType' in node.commonData && node.commonData['iraType'] === 'BS') {    
-            nodeTypeIdentifier = 'Mediation|BS'    
-        }    
-        if (colorMapping.hasOwnProperty(nodeTypeIdentifier)) {    
-            colorNamesWithLight = colorMapping[nodeTypeIdentifier]    
-        }    
-    }    
-    else if (selectedLegenda.field === 'dataType') {    
-        for (let colorMappingIndex = 0; colorMappingIndex < selectedLegenda.colorMappings.length; colorMappingIndex++) {    
-            let colorMap = selectedLegenda.colorMappings[colorMappingIndex]    
-            let shouldMatchWith = colorMap.shouldMatchWith    
-            if (node.commonData.hasOwnProperty('dataType') && node.commonData.dataType.toUpperCase() === shouldMatchWith.toUpperCase()) {    
-                colorNamesWithLight = colorMap    
-                break    
-            }    
-        }    
-            
-        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {    
-            colorNamesWithLight = selectedLegenda.defaultColor    
-        }    
-            
-    }    
-    else if (selectedLegenda.field === 'migrationPlanning') {    
-        let colorKey = null    
-            
-        // FIMXE: referring to ikbApp here!!
-        let selectedDate = new Date(ikbApp.dateSelector.selectedDateISO)
-        if (selectedDate) {    
-            if ('plannedMigrationDate' in node.commonData) {    
-                let daysToStart = 30    
-                let daysToMigrate = 90    
-                let plannedMigrationDate = new Date(node.commonData.plannedMigrationDate)    
-                let startingMigrationDate = new Date(plannedMigrationDate)    
-                let doingMigrationDate = new Date(plannedMigrationDate)    
-                startingMigrationDate.setDate(plannedMigrationDate.getDate() - daysToMigrate - daysToStart)    
-                doingMigrationDate.setDate(plannedMigrationDate.getDate() - daysToMigrate)    
-                    
-                if (selectedDate > plannedMigrationDate) {    
-                    colorKey = 'migrated'    
-                }    
-                else if (selectedDate >= startingMigrationDate && selectedDate < doingMigrationDate) {    
-                    colorKey = 'starting_to_migrate'    
-                }    
-                else if (selectedDate >= doingMigrationDate && selectedDate < plannedMigrationDate) {    
-                    colorKey = 'migrating'    
-                }    
-            }    
-        }    
-            
-        if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {    
-            colorNamesWithLight = colorMapping[colorKey]    
-        }    
-        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {    
-            colorNamesWithLight = selectedLegenda.defaultColor    
-        }    
-    }
-    else if (selectedLegenda.field === 'isInSourceDiagram') {
-        let colorKey = null  
-
-		if (node.id in NLC.nodesAndLinksData.nodesInSourceDiagram) {
-            colorKey = 'isInAtLeastOneSourceDiagram'
-            
-            // FIMXE: referring to ikbApp here!!
-            if (ikbApp.currentlySelectedSourceDiagramId && 
-                ikbApp.currentlySelectedSourceDiagramId in NLC.nodesAndLinksData.nodesInSourceDiagram[node.id] &&
-                NLC.nodesAndLinksData.nodesInSourceDiagram[node.id][ikbApp.currentlySelectedSourceDiagramId]) {
-                colorKey = 'isInCurrentSourceDiagram'
-            }
-        }
-        if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {    
-            colorNamesWithLight = colorMapping[colorKey]    
-        }    
-        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {    
-            colorNamesWithLight = selectedLegenda.defaultColor    
-        }    
-    }
-    else if (selectedLegenda.field === 'T_vs_P') {    
-        let colorKey = null    
-            
-        if ('environmentSpecificData' in node) {    
-                
-			// FIXME: shouldn't this be true instead of 'Ja'?
-            let deployedP = ('P' in node.environmentSpecificData) && node.environmentSpecificData.P.deployedTAB === 'Ja'    
-            let deployedT = ('T' in node.environmentSpecificData) && node.environmentSpecificData.T.deployedTAB === 'Ja'    
-            let versionTKnown = ('T' in node.environmentSpecificData) && ('codeVersionId' in node.environmentSpecificData.T) && node.environmentSpecificData.T.codeVersionId    
-            let versionPKnown = ('P' in node.environmentSpecificData) && ('codeVersionId' in node.environmentSpecificData.P) && node.environmentSpecificData.P.codeVersionId    
-                
-            if (deployedT && !deployedP) {    
-                // We have a code version in T, but not in P    
-                colorKey = 'in_T_but_not_in_P'    
-            }    
-            else if (!deployedT && deployedP) {    
-                colorKey = 'in_P_but_not_in_T'    
-            }    
-            else if (!deployedT && !deployedP) {    
-                // not in T and not in P, we do nothing (= default color)    
-            }    
-            else if (!versionTKnown || !versionPKnown) {    
-                // both T and P have been deployed, but we don't known both versions (so we cant compare them)    
-                colorKey = 'in_T_and_in_P'    
-            }    
-            else if (versionTKnown &&  versionPKnown && node.environmentSpecificData.P.codeVersionId === node.environmentSpecificData.T.codeVersionId) {    
-                // we know both versions and the are the same    
-                colorKey = 'same_version_in_T_and_P'    
-            }    
-            else if (versionTKnown && versionPKnown && node.environmentSpecificData.P.codeVersionId !== node.environmentSpecificData.T.codeVersionId) {    
-                // TODO: we could still check if the version in P is higher or lower than in T    
-                colorKey = 'different_version_in_T_and_P'    
-            }    
-            else {    
-                console.log("ERROR: when determining the colors for T_vs_P we cane to a combination of environmentSpecificData that was not forseen!")    
-            }    
-        }    
-                
-        if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {    
-            colorNamesWithLight = colorMapping[colorKey]    
-        }    
-        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {    
-            colorNamesWithLight = selectedLegenda.defaultColor    
-        }    
-    }    
     else {    
         // This is the generic case (no hardcoded exceptions)    
         if (selectedLegenda.field in node.commonData) {    
@@ -1715,7 +1588,6 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
             colorNamesWithLight = selectedLegenda.defaultColor    
         }    
     }    
-
 
     if (colorNamesWithLight != null) {
         colorNamesWithLight.doDim = false
@@ -1731,9 +1603,6 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
     return colorNamesWithLight    
 }    
     
-// FIXME: only use mappingFunctionLink!   
-// FIXME: only use mappingFunctionLink!   
-// FIXME: only use mappingFunctionLink!   
 function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninteresting) {    
         
     if (selectedLegendaId == null) {    
@@ -1747,36 +1616,17 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
     if ('mappingFunctionLink' in selectedLegenda && selectedLegenda.mappingFunctionLink != null) {
         colorNamesWithLight = selectedLegenda.mappingFunctionLink(link, selectedLegenda, colorMapping)
     }
-    else if (selectedLegenda.field === 'type') {    
-        if (colorMapping.hasOwnProperty(link.type)) {    
-            colorNamesWithLight = colorMapping[link.type]    
-        }    
-    }    
-    else if (selectedLegenda.field === 'dataType') {    
-        for (let colorMappingIndex = 0; colorMappingIndex < selectedLegenda.colorMappings.length; colorMappingIndex++) {    
-            let colorMap = selectedLegenda.colorMappings[colorMappingIndex]    
-            let shouldMatchWith = colorMap.shouldMatchWith    
-            if (link.commonData.hasOwnProperty('dataType') && link.commonData.dataType.toUpperCase() === shouldMatchWith.toUpperCase()) {    
-                colorNamesWithLight = colorMap    
-                break    
+    else {    
+        // This is the generic case (no hardcoded exceptions)    
+        if (selectedLegenda.field in link.commonData) {    
+            let linkTypeIdentifier = link.commonData[selectedLegenda.field]    
+            if (colorMapping.hasOwnProperty(linkTypeIdentifier)) {
+                colorNamesWithLight = colorMapping[linkTypeIdentifier]    
             }    
         }    
-            
         if (colorNamesWithLight == null && selectedLegenda.defaultColor) {    
             colorNamesWithLight = selectedLegenda.defaultColor    
         }    
-            
-    }    
-    else if (selectedLegenda.field === 'T_vs_P') {    
-        /*     
-        let colorKey = null    
-            
-        // FIXME: as long as we don't have versions for links this wont work!    
-                
-        if (colorKey != null && colorMapping.hasOwnProperty(colorKey)) {    
-            colorNamesWithLight = colorMapping[colorKey]    
-        }    
-        */    
     }    
     
     if (colorNamesWithLight != null) {
@@ -1792,8 +1642,6 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
     
     return colorNamesWithLight    
 }    
-
-
 
 function getNodeTypeInfo(node) {    
     let nodeTypeIdentifier = node.type    
