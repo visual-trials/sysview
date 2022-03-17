@@ -9,6 +9,28 @@ let LinkDetail = {
     closeLinkDetailFunction : null,
 }
 
+LinkDetail.getFromNodeName = function (link) {
+	if (link.fromNodeId in NLC.nodesAndLinksData.nodesById) {
+		let fromNode = NLC.nodesAndLinksData.nodesById[link.fromNodeId]
+		let fromNodeName = fromNode.commonData.name
+		return fromNodeName
+	}
+	else {
+		console.log("WARNING: link with id " + link.id + " either has no valid fromNode!")
+	}
+}
+
+LinkDetail.getToNodeName =  function (link) {
+	if (link.toNodeId in NLC.nodesAndLinksData.nodesById) {
+		let toNode = NLC.nodesAndLinksData.nodesById[link.toNodeId]
+		let toNodeName = toNode.commonData.name
+		return toNodeName
+	}
+	else {
+		console.log("WARNING: link with id " + link.id + " either has no valid toNode!")
+	}
+}
+
 LinkDetail.setEditedLinkUsingOriginalLink = function (originalLink) {
     
     if (originalLink == null) {

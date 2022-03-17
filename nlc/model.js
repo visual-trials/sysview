@@ -2539,7 +2539,6 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
                             
                             // FIXME: this data should somehow contain all bundles and chains that we chained by this virtualLink
                             
-                            // FIXME: shouldn't we also add fromNodeName and toNodeName?
                             fromNodeId : firstFromNode.id,
                             toNodeId : lastToNode.id,
                             // FIXME: Scale * 2?

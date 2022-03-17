@@ -366,16 +366,25 @@ NodeAndLinkScroller.linkMatchesSearchAndFilter = function (link) {
     }
     
     if (NodeAndLinkScroller.nodeAndLinkScroller.searchText !== '') {
-        // If both the fromNodeName and the toNodeName doesnt match the searchText, we filter out this link
-        if ('fromNodeName' in link && 'toNodeName' in link) {
-            if (link.fromNodeName.toUpperCase().indexOf(NodeAndLinkScroller.nodeAndLinkScroller.searchText.toUpperCase()) === -1 &&
-                link.toNodeName.toUpperCase().indexOf(NodeAndLinkScroller.nodeAndLinkScroller.searchText.toUpperCase()) === -1
+		
+		if (link.fromNodeId in NLC.nodesAndLinksData.nodesById && link.toNodeId in NLC.nodesAndLinksData.nodesById) {
+		
+			// If both the fromNodeName and the toNodeName doesnt match the searchText, we filter out this link
+		
+			let fromNode = NLC.nodesAndLinksData.nodesById[link.fromNodeId]
+			let toNode = NLC.nodesAndLinksData.nodesById[link.toNodeId]
+			
+			let toNodeName = toNode.commonData.name
+			let fromNodeName = fromNode.commonData.name
+			
+            if (fromNodeName.toUpperCase().indexOf(NodeAndLinkScroller.nodeAndLinkScroller.searchText.toUpperCase()) === -1 &&
+                toNodeName.toUpperCase().indexOf(NodeAndLinkScroller.nodeAndLinkScroller.searchText.toUpperCase()) === -1
             ) {
                 match = false
             }
         }
         else {
-            console.log("WARNING: link with id " + link.id + " either has no fromNodeName or no toNodeName!")
+            console.log("WARNING: link with id " + link.id + " either has no valid fromNode or no toNode!")
             match = false
         }
     }
