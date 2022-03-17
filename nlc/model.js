@@ -49,7 +49,6 @@ function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, 
 
     // Source Documents
     nodesAndLinksData.sourceDocuments = JSON.parse(JSON.stringify(flatNodesAndLinksData.sourceDocuments))
-    nodesAndLinksData.sourceDocuments.sort(SourceDocumentManagement.compareSourceDocuments)
     nodesAndLinksData.sourceDocumentsById = groupById(flatNodesAndLinksData.sourceDocuments)
     
     // Source Diagrams
