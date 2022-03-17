@@ -26,6 +26,115 @@ NLC.chainsAndBundles = null
 // FIXME: NLC.levelOfDetail is defined far below, does it belong here? Or should we put it in a separate file?
 
 
+function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, legendas) {
+    let nodesAndLinksData  = {}
+
+    // Types
+    nodesAndLinksData.nodeTypes = nodeTypes
+    nodesAndLinksData.nodeTypesByIdentifier = groupByIdentifier(nodeTypes)
+    nodesAndLinksData.linkTypes = linkTypes
+    nodesAndLinksData.linkTypesByIdentifier = groupByIdentifier(linkTypes)
+
+    // Legendas
+    nodesAndLinksData.legendas = legendas
+    nodesAndLinksData.legendasById = groupById(legendas)
+
+    // Nodes
+    nodesAndLinksData.nodes = flatNodesAndLinksData.nodes
+    nodesAndLinksData.nodesById = groupById(flatNodesAndLinksData.nodes)
+    
+    // Links
+    nodesAndLinksData.links = flatNodesAndLinksData.links
+    nodesAndLinksData.linksById = groupById(flatNodesAndLinksData.links)
+
+    // Source Documents
+    nodesAndLinksData.sourceDocuments = JSON.parse(JSON.stringify(flatNodesAndLinksData.sourceDocuments))
+    nodesAndLinksData.sourceDocuments.sort(SourceDocumentManagement.compareSourceDocuments)
+    nodesAndLinksData.sourceDocumentsById = groupById(flatNodesAndLinksData.sourceDocuments)
+    
+    // Source Diagrams
+    nodesAndLinksData.sourceDiagrams = flatNodesAndLinksData.sourceDiagrams
+    nodesAndLinksData.sourceDiagramsById = groupById(flatNodesAndLinksData.sourceDiagrams)
+    
+    // Note: right now we loop through all sourceDiagrams and sourcePoints in order to determine which
+    //       sourceDiagram mentions which node. We store this inside nodesInSourceDiagram. This can then be used
+    //       by a legenda showing which node are mentioned by certain sourcediagrams
+    let nodesInSourceDiagram = {}
+    for (let sourceDiagramIndex in nodesAndLinksData.sourceDiagrams) {
+        let sourceDiagram = nodesAndLinksData.sourceDiagrams[sourceDiagramIndex]
+        
+        for (let sourcePointIndex in sourceDiagram.sourcePoints) {
+            let sourcePoint = sourceDiagram.sourcePoints[sourcePointIndex]
+            
+            if ('nodeId' in sourcePoint && sourcePoint.nodeId != null) {
+                let node = nodesAndLinksData.nodesById[sourcePoint.nodeId]
+                
+                if (node != null) {
+                    if (!(sourcePoint.nodeId in nodesInSourceDiagram)) {
+                        nodesInSourceDiagram[sourcePoint.nodeId]  = {}
+                    }
+                    nodesInSourceDiagram[sourcePoint.nodeId][sourceDiagram.id] = true
+                }
+                else {
+                    console.log("WARNING: sourcePoint " + sourcePoint.id + " has reference to non-existing nodeId " + sourcePoint.nodeId)
+                }
+            }
+        }
+    }
+    nodesAndLinksData.nodesInSourceDiagram = nodesInSourceDiagram
+    
+    // Diagrams
+    let diagramTree = getDiagramTreeFromList(flatNodesAndLinksData.diagrams, null, 0)
+    let diagramsFlatList = []
+    convertDiagramTreeToList(diagramTree, diagramsFlatList)
+    nodesAndLinksData.diagrams = diagramsFlatList
+    nodesAndLinksData.diagramsById = groupById(flatNodesAndLinksData.diagrams)  
+    
+    // Known users and teams
+    nodesAndLinksData.knownUsers = flatNodesAndLinksData.knownUsers
+    nodesAndLinksData.teams = flatNodesAndLinksData.teams
+    
+    return nodesAndLinksData
+}
+
+function getDiagramTreeFromList(diagrams, parentDiagramId, depth) {
+    let childrenOfParent = []
+    let otherDiagrams = []
+
+    for (let diagramIndex in diagrams) {
+        let diagram = diagrams[diagramIndex]
+        
+        // Note: null will also match with null (null = root-parent)
+        if (diagram.parentDiagramId == parentDiagramId) {
+            diagram.indentedName = repeatString("&nbsp;", depth * 4) + diagram.name
+            childrenOfParent.push(diagram) 
+        }
+        else {
+            otherDiagrams.push(diagram)
+        }
+    }
+
+    childrenOfParent.sort(compareSortIndex)
+
+    for (let childDiagramIndex in childrenOfParent) {
+        let childDiagram = childrenOfParent[childDiagramIndex]
+    
+        childDiagram.children = getDiagramTreeFromList(otherDiagrams, childDiagram.id, depth + 1)
+    }
+    
+    return childrenOfParent
+}
+
+function convertDiagramTreeToList (diagramTree, diagramsFlatList) {
+    for (let diagramIndex in diagramTree) {
+        let diagram = diagramTree[diagramIndex]
+        diagramsFlatList.push(diagram)
+        
+        convertDiagramTreeToList(diagram.children, diagramsFlatList)
+    }
+}
+
+
 // Known users
 
 function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {    
@@ -1646,54 +1755,49 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
 function getNodeTypeInfo(node) {    
     let nodeTypeIdentifier = node.type    
     
-    // FIXME: looping through all nodesTypes is a kinda slow: we should use nodeTypesById    
-    for (let nodeTypeId = 0; nodeTypeId < NLC.nodesAndLinksData.nodeTypes.length; nodeTypeId++) {    
-        let nodeTypeInfo = NLC.nodesAndLinksData.nodeTypes[nodeTypeId]    
-        if (nodeTypeInfo.identifier === nodeTypeIdentifier) {    
-            if ("_overridesBasedOnCommonDataValue" in nodeTypeInfo) {    
-                // TODO: can we make a faster deep-copy of nodeTypeInfo?    
-                nodeTypeInfo = JSON.parse(JSON.stringify(nodeTypeInfo))    
-                for (let overrideIndex = 0; overrideIndex < nodeTypeInfo._overridesBasedOnCommonDataValue.length; overrideIndex++) {    
-                    let overrideBasedOnCommonDataValue = nodeTypeInfo._overridesBasedOnCommonDataValue[overrideIndex]    
-                    let keyToMatch = overrideBasedOnCommonDataValue["keyToMatch"]    
-                    let valueToMatch = overrideBasedOnCommonDataValue["valueToMatch"]    
-                    if (keyToMatch in node.commonData && node.commonData[keyToMatch] === valueToMatch) {    
-                        for (let keyToOverride in overrideBasedOnCommonDataValue.overrides) {    
-                            nodeTypeInfo[keyToOverride] = overrideBasedOnCommonDataValue.overrides[keyToOverride]    
-                        }    
+    if (nodeTypeIdentifier in NLC.nodesAndLinksData.nodeTypesByIdentifier) {
+        let nodeTypeInfo = NLC.nodesAndLinksData.nodeTypesByIdentifier[nodeTypeIdentifier]
+        if ("_overridesBasedOnCommonDataValue" in nodeTypeInfo) {    
+            // TODO: can we make a faster deep-copy of nodeTypeInfo?    
+            nodeTypeInfo = JSON.parse(JSON.stringify(nodeTypeInfo))    
+            for (let overrideIndex = 0; overrideIndex < nodeTypeInfo._overridesBasedOnCommonDataValue.length; overrideIndex++) {    
+                let overrideBasedOnCommonDataValue = nodeTypeInfo._overridesBasedOnCommonDataValue[overrideIndex]    
+                let keyToMatch = overrideBasedOnCommonDataValue["keyToMatch"]    
+                let valueToMatch = overrideBasedOnCommonDataValue["valueToMatch"]    
+                if (keyToMatch in node.commonData && node.commonData[keyToMatch] === valueToMatch) {    
+                    for (let keyToOverride in overrideBasedOnCommonDataValue.overrides) {    
+                        nodeTypeInfo[keyToOverride] = overrideBasedOnCommonDataValue.overrides[keyToOverride]    
                     }    
-                    // TODO: we can probably break here if we want the first match to override. (now it continues to find matches)    
                 }    
+                // TODO: we can probably break here if we want the first match to override. (now it continues to find matches)    
             }    
-            return nodeTypeInfo    
         }    
+        return nodeTypeInfo    
     }    
     return null    
 }    
     
 function getLinkTypeInfo(link) {    
     let linkTypeIdentifier = link.type    
-    // FIXME: this is a kinda slow: we should use linkTypesById    
-    for (let linkTypeId = 0; linkTypeId < NLC.nodesAndLinksData.linkTypes.length; linkTypeId++) {    
-        let linkTypeInfo = NLC.nodesAndLinksData.linkTypes[linkTypeId]    
-        if (linkTypeInfo.identifier === linkTypeIdentifier) {    
-            if ("_overridesBasedOnCommonDataValue" in linkTypeInfo) {    
-                // TODO: can we make a faster deep-copy of nodeTypeInfo?    
-                linkTypeInfo = JSON.parse(JSON.stringify(linkTypeInfo))    
-                for (let overrideIndex = 0; overrideIndex < linkTypeInfo._overridesBasedOnCommonDataValue.length; overrideIndex++) {    
-                    let overrideBasedOnCommonDataValue = linkTypeInfo._overridesBasedOnCommonDataValue[overrideIndex]    
-                    let keyToMatch = overrideBasedOnCommonDataValue["keyToMatch"]    
-                    let valueToMatch = overrideBasedOnCommonDataValue["valueToMatch"]    
-                    if (keyToMatch in link.commonData && link.commonData[keyToMatch] === valueToMatch) {    
-                        for (let keyToOverride in overrideBasedOnCommonDataValue.overrides) {    
-                            linkTypeInfo[keyToOverride] = overrideBasedOnCommonDataValue.overrides[keyToOverride]    
-                        }    
+    
+    if (linkTypeIdentifier in NLC.nodesAndLinksData.linkTypesByIdentifier) {
+        let linkTypeInfo = NLC.nodesAndLinksData.linkTypesByIdentifier[linkTypeIdentifier]
+        if ("_overridesBasedOnCommonDataValue" in linkTypeInfo) {    
+            // TODO: can we make a faster deep-copy of nodeTypeInfo?    
+            linkTypeInfo = JSON.parse(JSON.stringify(linkTypeInfo))    
+            for (let overrideIndex = 0; overrideIndex < linkTypeInfo._overridesBasedOnCommonDataValue.length; overrideIndex++) {    
+                let overrideBasedOnCommonDataValue = linkTypeInfo._overridesBasedOnCommonDataValue[overrideIndex]    
+                let keyToMatch = overrideBasedOnCommonDataValue["keyToMatch"]    
+                let valueToMatch = overrideBasedOnCommonDataValue["valueToMatch"]    
+                if (keyToMatch in link.commonData && link.commonData[keyToMatch] === valueToMatch) {    
+                    for (let keyToOverride in overrideBasedOnCommonDataValue.overrides) {    
+                        linkTypeInfo[keyToOverride] = overrideBasedOnCommonDataValue.overrides[keyToOverride]    
                     }    
-                    // TODO: we can probably break here if we want the first match to override. (now it continues to find matches)    
                 }    
+                // TODO: we can probably break here if we want the first match to override. (now it continues to find matches)    
             }    
-            return linkTypeInfo    
         }    
+        return linkTypeInfo    
     }    
     return null    
 }    
@@ -2569,7 +2673,9 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     }    
         
 }    
-    
+
+
+// FIXME: DUPLICATE this is from generic.js. Can we make sure generic.js is always loaded?
 function groupById (listWithIds) {    
     let elementsById = {}    
     for (let index = 0; index < listWithIds.length; index++) {    
@@ -2578,3 +2684,12 @@ function groupById (listWithIds) {
     }    
     return elementsById    
 }    
+
+function groupByIdentifier (listWithIdentifiers) {
+    let elementsByIdentifier = {}
+    for (let index = 0; index < listWithIdentifiers.length; index++) {
+        let listElement = listWithIdentifiers[index]
+        elementsByIdentifier[listElement.identifier] = listElement
+    }
+    return elementsByIdentifier
+}
