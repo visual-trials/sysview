@@ -54,7 +54,7 @@ DiagramLegendaLodSelector.selectDiagram = function(diagramIdToSelect) {
     if (diagramIdToSelect == null) {
         // FIXME: what to do when effectively no diagram is selected? Revert to the default?
         
-        DiagramLegendaLodSelector.legendaSelector.selectedLegendaId = 0 // FIXME: hardcoded! (should probably be null)
+        DiagramLegendaLodSelector.legendaSelector.selectedLegendaId = null
         diagramSelector.selectedDiagramId = null
         // TODO: probably we should remove the queryParameter if it contains a diagram that doesn't exist and/or give the user a notice that the selected diagram doesnt exist
         DiagramLegendaLodSelector.diagramChanged()
