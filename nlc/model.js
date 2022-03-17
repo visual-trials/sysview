@@ -1639,14 +1639,15 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
         }    
     }
     else if (selectedLegenda.field === 'isInSourceDiagram') {
-        let colorKey = null    
-        if ('isInSourceDiagrams' in node) {
+        let colorKey = null  
+
+		if (node.id in NLC.nodesAndLinksData.nodesInSourceDiagram) {
             colorKey = 'isInAtLeastOneSourceDiagram'
             
             // FIMXE: referring to ikbApp here!!
             if (ikbApp.currentlySelectedSourceDiagramId && 
-                ikbApp.currentlySelectedSourceDiagramId in node.isInSourceDiagrams &&
-                node.isInSourceDiagrams[ikbApp.currentlySelectedSourceDiagramId]) {
+                ikbApp.currentlySelectedSourceDiagramId in NLC.nodesAndLinksData.nodesInSourceDiagram[node.id] &&
+                NLC.nodesAndLinksData.nodesInSourceDiagram[node.id][ikbApp.currentlySelectedSourceDiagramId]) {
                 colorKey = 'isInCurrentSourceDiagram'
             }
         }
