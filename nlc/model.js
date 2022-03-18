@@ -2499,7 +2499,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
                             
                             fromNodeId : firstFromNode.id,
                             toNodeId : lastToNode.id,
-                            // FIXME: Scale * 2?
+                            
                             lod: { 
                                 from: highestLevelOfDetailOfFromAndTo, // The higest levelOfDetail of either the firstFromNode or the lastToNode (since one of those to will disappear at that level, so should this link)
                                 to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
@@ -2614,17 +2614,26 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             
         let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0?
         let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
-
+        let connectionScale = 1.0
+        
         // FIXME: should we do anything here ? Both cases are treated the same right?
         if (NLC.levelOfDetail == "auto") {
             toLevelOfDetail = link.lod['to']
             fromLevelOfDetail = link.lod['from']
+            
+            // FIXME: we should make the scale be a mapping of { lod -> scale }
+            //        that way we can make sure we let a connection adjust its scale based on the lod shown at the moment
+            // FIXME: we probably also want the scale to be based on the nr of links in a bundle!
+            if (fromLevelOfDetail < 1 && fromLevelOfDetail > 0) {
+                connectionScale = 0.5 / fromLevelOfDetail
+            }
         }
         else {
             // TODO: we now assume levelOfDetail == "all" here, so we show all details
             toLevelOfDetail = link.lod['to']
             fromLevelOfDetail = link.lod['from']
         }
+        
 
 // FIXME: maybe only add connection for links that have a from-lod that is lower than maxLod?
         
@@ -2637,7 +2646,8 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             fromLevelOfDetail: fromLevelOfDetail,
             toLevelOfDetail: toLevelOfDetail,
             fromContainerIdentifier: link.fromNodeId,    
-            toContainerIdentifier: link.toNodeId    
+            toContainerIdentifier: link.toNodeId,
+            scale : connectionScale,
         }
             
         if (diagramSpecificVisualDataForLink != null) {    

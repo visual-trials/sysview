@@ -191,6 +191,7 @@ function createConnection(connectionData) {
     let fill = { r:170, g:170, b:170, a:1 }
     let stroke = { r:100, g:100, b:100, a:1 }
     let alpha = 1.0
+    let scale = 1.0
     
     let fromLevelOfDetail = 0.0
     let toLevelOfDetail = 1.0
@@ -203,6 +204,10 @@ function createConnection(connectionData) {
     }
     if (connectionData.alpha != null) {
         alpha = connectionData.alpha
+    }
+    
+    if (connectionData.scale != null) {
+        scale = connectionData.scale
     }
     
     if ('fromLevelOfDetail' in connectionData && connectionData.fromLevelOfDetail != null) {
@@ -232,6 +237,8 @@ function createConnection(connectionData) {
         stroke: fill, // TODO: now using fill as line color!
         
         alpha : alpha,
+        
+        scale : scale,
     }
     
     ZUI.containersAndConnections.connections[connectionData.identifier] = newConnection

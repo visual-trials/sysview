@@ -431,7 +431,7 @@ function drawNewConnection () {
         let fromCenterPosition = getCenterPositonOfContainer(fromContainer)
         let toCenterPosition = getCenterPositonOfContainer(toContainer)
         
-        let nrOfConnections = 1  // FIXME: hardcoded
+        let scale = 1  // FIXME: hardcoded
         let stroke = "#0000FF" // FIXME: hardcoded
         
         let connectionType = newConnectionBeingAdded.type
@@ -439,7 +439,7 @@ function drawNewConnection () {
         
         let singleConnectionIdentifier = ZUI.interaction.newConnectionBeingAddedIdentifier
         
-        drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
+        drawConnection(fromContainer, toContainer, connectionType, connectionName, scale, fromCenterPosition, toCenterPosition, stroke, singleConnectionIdentifier, null, null)   
     }
 }
 
@@ -600,7 +600,7 @@ function drawConnectionGroup(connectionGroup) {
     // TODO: do something (color wise) with the connectionType?
     let connectionType = connectionGroup.connectionType
     let connectionName = '' // TODO: fill this with something?
-    let nrOfConnections = connectionGroup.nrOfConnections
+    let scale = connectionGroup.nrOfConnections // Note: we are using the nrOfConnections as a simple scale-factor of the connection!
     let fromCenterPosition = connectionGroup.averageFromPosition
     let toCenterPosition = connectionGroup.averageToPosition
     let stroke = connectionGroup.stroke
@@ -612,7 +612,7 @@ function drawConnectionGroup(connectionGroup) {
         singleConnectionIdentifier = singleConnection.identifier
     }
     
-    drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, null, null)   
+    drawConnection(fromContainer, toContainer, connectionType, connectionName, scale, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, null, null)   
 }
 
 function drawConnections() {
@@ -635,7 +635,8 @@ function drawConnections() {
             if (connection.type != null) {
                 connectionType = connection.type
             }
-            let nrOfConnections = 1
+            
+            let scale = connection.scale
             
             let stroke = connection.stroke
             let alpha = connection.alpha
@@ -658,7 +659,7 @@ function drawConnections() {
 			}
 
             if (effectiveLevelOfDetail >= connection.fromLevelOfDetail && effectiveLevelOfDetail < connection.toLevelOfDetail) {
-                drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
+                drawConnection(fromContainer, toContainer, connectionType, connectionName, scale, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier)
             }
         }
     }
@@ -678,7 +679,7 @@ function pathRoundRect (x, y, width, height, radius) {
     ZUI.ctx.closePath()
 }
 
-function drawConnection(fromContainer, toContainer, connectionType, connectionName, nrOfConnections, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier) {
+function drawConnection(fromContainer, toContainer, connectionType, connectionName, scale, fromCenterPosition, toCenterPosition, stroke, alpha, singleConnectionIdentifier, fromConnectionPointIdentifier, toConnectionPointIdentifier) {
 
     let worldDistanceBetweenFromAndToCenters = distanceBetweenTwoPoints(fromCenterPosition, toCenterPosition)
     
@@ -709,15 +710,10 @@ function drawConnection(fromContainer, toContainer, connectionType, connectionNa
 
     let averageContainersWorldScale = (fromContainer.worldScale + toContainer.worldScale) / 2
     
-// FIXME: dirty HACK!
-if (connectionType === 'common') {
-    averageContainersWorldScale = averageContainersWorldScale * 2
-}
-    
     // Arrow head
     
     // The point where the line attaches to the arrow-head
-    let arrowWorldSize = 25 * nrOfConnections * averageContainersWorldScale // TODO: we apply the viewScale on a world size which is technically not correct I guess
+    let arrowWorldSize = 25 * scale * averageContainersWorldScale // TODO: we apply the viewScale on a world size which is technically not correct I guess
     let toArrowAttachPosition = getPositionFromAnglePointAndDistance(toContainerBorderPoint.position, toContainerBorderPoint.rightAngle, arrowWorldSize)
     let screenToArrowAttachPosition = fromWorldPositionToScreenPosition(toArrowAttachPosition)
 
@@ -787,10 +783,10 @@ if (connectionType === 'common') {
         
     {
         // TODO: stroke is already set here! (look at parameters of drawConnection)
-        let lineWidth = 4 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
+        let lineWidth = 4 * ZUI.interaction.viewScale * scale * averageContainersWorldScale
         
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier) {
-            ZUI.ctx.lineWidth = 6 * ZUI.interaction.viewScale * nrOfConnections * averageContainersWorldScale
+            ZUI.ctx.lineWidth = 6 * ZUI.interaction.viewScale * scale * averageContainersWorldScale
             stroke = { r:255, g:170, b:0, a:1 }
         }
         
