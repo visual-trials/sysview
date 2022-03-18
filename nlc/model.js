@@ -757,8 +757,11 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
 function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {    
     let nodesById = NLC.nodesAndLinksData.nodesById    
     
+    let removedLinksIds = []
+    
     if (removeLinksAttachedToNode) {    
-        let linksToBeRemoved = []    
+        let linksToBeRemoved = []
+        
             
         for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
             let link = NLC.nodesAndLinksData.links[linkIndex]    
@@ -772,6 +775,7 @@ function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
             
         for (let linkToBeRemovedIndex = 0; linkToBeRemovedIndex < linksToBeRemoved.length; linkToBeRemovedIndex++) {    
             let linkTobeRemoved = linksToBeRemoved[linkToBeRemovedIndex]    
+            removedLinksIds.push(linkTobeRemoved.id)
             removeLink(linkTobeRemoved)    
         }    
     }    
@@ -802,6 +806,8 @@ function removeNode (nodeToBeRemoved, removeLinksAttachedToNode) {
     NLC.dataChangesToStore.push(nlcDataChange)    
     
     NLC.dataHasChanged = true    
+    
+    return removedLinksIds
 }    
 
 

@@ -191,7 +191,11 @@ NodeDetail.saveNodeDetail = function (editedNode) {
 
 NodeDetail.removeNodeAndCloseDetail = function (editedNode) {
     let removeLinksAttachedToNode = true
-    removeNode(editedNode, removeLinksAttachedToNode)
+    let removedLinkIds = removeNode(editedNode, removeLinksAttachedToNode)
+    // This effectively removes all the sourceLinks of the deleted node, since the resulting amount of sourceLinks is empty
+    storeChangesBetweenListsOfSourceLinks(editedNode._sourceLinks, [])
+    
+    // FIXME: use removedLinkIds to remove the sourceLinks of these removedLinks as well
         
 	NodeAndLinkScroller.unselectNode()
     NodeDetail.nodeEditor.editedNode = null
