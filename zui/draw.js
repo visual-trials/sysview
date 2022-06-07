@@ -784,9 +784,14 @@ function drawConnection(fromContainer, toContainer, connectionType, connectionNa
     {
         // TODO: stroke is already set here! (look at parameters of drawConnection)
         let lineWidth = 4 * ZUI.interaction.viewScale * scale * averageContainersWorldScale
+        let doDashedLine = false
+        // FIXME: don't use a hardcoded connectionType here!
+        if (connectionType == 'concept') {
+             doDashedLine = true
+        }
         
         if (singleConnectionIdentifier != null && singleConnectionIdentifier === ZUI.interaction.currentlyHoveredConnectionIdentifier) {
-            ZUI.ctx.lineWidth = 6 * ZUI.interaction.viewScale * scale * averageContainersWorldScale
+            lineWidth = 6 * ZUI.interaction.viewScale * scale * averageContainersWorldScale
             stroke = { r:255, g:170, b:0, a:1 }
         }
         
@@ -814,12 +819,18 @@ function drawConnection(fromContainer, toContainer, connectionType, connectionNa
         ZUI.ctx.closePath()
         ZUI.ctx.fill()
         
+        if (doDashedLine) {
+            ZUI.ctx.setLineDash([lineWidth*3,lineWidth*6])
+        }
         ZUI.ctx.beginPath()
         ZUI.ctx.moveTo(       screenFromContainerPosition.x, screenFromContainerPosition.y)
         ZUI.ctx.bezierCurveTo(screenFromBendPosition.x, screenFromBendPosition.y, 
                           screenToBendPosition.x, screenToBendPosition.y, 
                           screenToArrowAttachPosition.x, screenToArrowAttachPosition.y)
         ZUI.ctx.stroke()        
+        if (doDashedLine) {
+            ZUI.ctx.setLineDash([])
+        }
         
         // Draw label
         if (singleConnectionIdentifier != null && 
