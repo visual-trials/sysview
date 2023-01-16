@@ -92,7 +92,8 @@ function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, 
     // Known users and teams
     nodesAndLinksData.knownUsers = flatNodesAndLinksData.knownUsers
     nodesAndLinksData.teams = flatNodesAndLinksData.teams
-    
+    nodesAndLinksData.teamsById = groupById(flatNodesAndLinksData.teams)
+ 
     return nodesAndLinksData
 }
 
