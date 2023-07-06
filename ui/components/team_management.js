@@ -53,3 +53,14 @@ TeamManagement.generateNewTeamIdAndAddToEditedTeams = function (newTeam) {
     }
     generateNewId(assignIdToNewTeamAndAddToEditedTeams) // ASYNC!
 }
+
+TeamManagement.getTeamMembers = function (knownUsers, teamId) {
+    let teamMembers = []
+    for (knownUserIndex in knownUsers) {
+        let knownUser = knownUsers[knownUserIndex]
+        if (knownUser.teamId == teamId) {
+            teamMembers.push(knownUser)
+        }
+    }
+    return teamMembers
+}
