@@ -7,6 +7,7 @@ let LinkDetail = {
     },
     openLinkDetailFunction : null,
     closeLinkDetailFunction : null,
+    interactWithZUI : true,
 }
 
 LinkDetail.getFromNodeName = function (link) {
@@ -58,13 +59,15 @@ LinkDetail.createNewLinkAndOpenDetail = function (linkType) {
     
     let firstSelectedNodeId = null
     let secondSelectedNodeId = null
-    let selectedNodeIds = ZUI.interaction.currentlySelectedContainerIdentifiers
-    if (selectedNodeIds && selectedNodeIds.length === 2) {
-        firstSelectedNodeId = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
-        secondSelectedNodeId = ZUI.interaction.currentlySelectedContainerIdentifiers[1]
-    }
-    else if (selectedNodeIds && selectedNodeIds.length === 1) {
-        firstSelectedNodeId = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
+    if (LinkDetail.interactWithZUI) {
+        let selectedNodeIds = ZUI.interaction.currentlySelectedContainerIdentifiers
+        if (selectedNodeIds && selectedNodeIds.length === 2) {
+            firstSelectedNodeId = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
+            secondSelectedNodeId = ZUI.interaction.currentlySelectedContainerIdentifiers[1]
+        }
+        else if (selectedNodeIds && selectedNodeIds.length === 1) {
+            firstSelectedNodeId = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
+        }
     }
     let newLink = createNewLink(linkTypeIdentifier, firstSelectedNodeId, secondSelectedNodeId)
     
