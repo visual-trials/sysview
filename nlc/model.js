@@ -639,6 +639,7 @@ function createNewNode(nodeTypeIdentifier) {
         
     let newNode = {    
         "id" : null,    
+        "identifier" : null,    
         "type" : nodeTypeIdentifier,    
         "commonData" : {    
             "name" : newName,
@@ -823,6 +824,7 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
         
     let newLink = {    
         "id" : null,    
+        "identifier" : null,    
         "type" : linkTypeIdentifier,    
         "fromNodeId" : fromNodeId,    
         "toNodeId" : toNodeId,    
@@ -905,6 +907,15 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
         linkChanges.push(nlcDataChange)    
     }    
     
+    if (JSON.stringify(changedLink.identifier) !== JSON.stringify(originalLink.identifier) ) {
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "links", originalLink.id, "identifier" ],
+            "data" : changedLink.identifier
+        }    
+        linkChanges.push(nlcDataChange)    
+    }    
+    
     // FIXME: you probably don't need the stringify right?    
     if (JSON.stringify(changedLink.type) !== JSON.stringify(originalLink.type) ) {    
         let nlcDataChange = {    
@@ -923,6 +934,8 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
     
         // TODO: we should only do this if we accept the changes    
         // FIXME: We should copy all object-attributes BACK to the originalLink (see above where we do the same for comparisons)    
+        originalLink.type = changedLink.type
+        originalLink.identifier = changedLink.identifier
         originalLink.commonData = changedLink.commonData    
         originalLink.environmentSpecificData = changedLink.environmentSpecificData    
         originalLink.fromNodeId = changedLink.fromNodeId    
