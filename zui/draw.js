@@ -786,7 +786,7 @@ function drawConnection(fromContainer, toContainer, connectionType, connectionNa
         let lineWidth = 4 * ZUI.interaction.viewScale * scale * averageContainersWorldScale
         let doDashedLine = false
         // FIXME: don't use a hardcoded connectionType here!
-        if (connectionType == 'concept') {
+        if (connectionType == 'informationFlow') {
              doDashedLine = true
         }
         
