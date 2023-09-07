@@ -144,6 +144,7 @@ function CreateNewLinkDetail() {
                 // FIXME: HOW DO WE REPLACE THE ORIGINAL LINK in the links *list*!? Should we get rid of this *list* of links?
                 // FIXME: this is a workaround to make sure the link in the links-list is also updated with the new information
                 oldOriginalLink.type = loadedLinkDetails.type
+                oldOriginalLink.identifier = loadedLinkDetails.identifier
                 oldOriginalLink.fromNodeId = loadedLinkDetails.fromNodeId
                 oldOriginalLink.toNodeId = loadedLinkDetails.toNodeId
                 
