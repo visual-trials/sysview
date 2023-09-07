@@ -1,90 +1,95 @@
-let UserManagement = {
-    knownUsersEditor: {
-        editedKnownUsers: null,
-    },
-    openKnownUsersFunction: null,
-    closeKnownUsersFunction: null,
-}
+function CreateNewUserManagement() {
 
-UserManagement.setEditedKnownUsers = function (knownUsers) {
-    UserManagement.knownUsersEditor.editedKnownUsers = JSON.parse(JSON.stringify(knownUsers))
-}
-
-// Authorization
-
-UserManagement.userAuthorization = {
-    currentUser : null,
-    isRootUser : false
-}
-
-UserManagement.saveKnownUsers = function (editedKnownUsers) {
-    storeChangesBetweenKnownUsers(NLC.nodesAndLinksData.knownUsers, editedKnownUsers) // ASYNC!
-    UserManagement.closeKnownUsersFunction()
-}
-
-UserManagement.isAllowedTo = function(action) {
-    let currentUser = UserManagement.userAuthorization.currentUser
-    
-    if (UserManagement.userAuthorization.isRootUser) {
-        return true
+    let UserManagement = {
+        knownUsersEditor: {
+            editedKnownUsers: null,
+        },
+        openKnownUsersFunction: null,
+        closeKnownUsersFunction: null,
     }
-    
-    if (action === 'edit') {
-        if (currentUser && currentUser.userPermissions && currentUser.userPermissions.isAdmin) {
+
+    UserManagement.setEditedKnownUsers = function (knownUsers) {
+        UserManagement.knownUsersEditor.editedKnownUsers = JSON.parse(JSON.stringify(knownUsers))
+    }
+
+    // Authorization
+
+    UserManagement.userAuthorization = {
+        currentUser : null,
+        isRootUser : false
+    }
+
+    UserManagement.saveKnownUsers = function (editedKnownUsers) {
+        storeChangesBetweenKnownUsers(NLC.nodesAndLinksData.knownUsers, editedKnownUsers) // ASYNC!
+        UserManagement.closeKnownUsersFunction()
+    }
+
+    UserManagement.isAllowedTo = function(action) {
+        let currentUser = UserManagement.userAuthorization.currentUser
+        
+        if (UserManagement.userAuthorization.isRootUser) {
             return true
         }
-    }
-    return false
-}
-
-UserManagement.getUserInitials = function() {
-    let initials = null
-    
-    let currentUser = UserManagement.userAuthorization.currentUser
-    if (currentUser && 'concatName' in currentUser) {
-        let nameParts = currentUser.concatName.split(', ')
-        if (nameParts.length == 2) {
-            initials = nameParts[1].substring(0,1).toUpperCase() + nameParts[0].substring(0,1).toUpperCase()
+        
+        if (action === 'edit') {
+            if (currentUser && currentUser.userPermissions && currentUser.userPermissions.isAdmin) {
+                return true
+            }
         }
-        else {
-            initials = currentUser.concatName.substring(0,2).toUpperCase()
-        }
+        return false
     }
-    return initials
-}
 
-UserManagement.getUserLogin = function() {
-    let login = null
-    
-    let currentUser = UserManagement.userAuthorization.currentUser
-    if (currentUser && 'login' in currentUser) {
-        login = currentUser.login
-    }
-    return login
-}
-
-UserManagement.getUserFullName = function() {
-    let fullName = null
-    
-    let currentUser = UserManagement.userAuthorization.currentUser
-    if (currentUser && 'concatName' in currentUser) {
-        let nameParts = currentUser.concatName.split(', ')
-        if (nameParts.length == 2) {
-            fullName = nameParts[1] + ' ' + nameParts[0]
+    UserManagement.getUserInitials = function() {
+        let initials = null
+        
+        let currentUser = UserManagement.userAuthorization.currentUser
+        if (currentUser && 'concatName' in currentUser) {
+            let nameParts = currentUser.concatName.split(', ')
+            if (nameParts.length == 2) {
+                initials = nameParts[1].substring(0,1).toUpperCase() + nameParts[0].substring(0,1).toUpperCase()
+            }
+            else {
+                initials = currentUser.concatName.substring(0,2).toUpperCase()
+            }
         }
-        else {
-            fullName = currentUser.concatName
-        }
+        return initials
     }
-    return fullName
-}
 
-UserManagement.getUserTeamId = function() {
-    let teamId = null
-    
-    let currentUser = UserManagement.userAuthorization.currentUser
-    if (currentUser && 'teamId' in currentUser) {
-        teamId = currentUser.teamId
+    UserManagement.getUserLogin = function() {
+        let login = null
+        
+        let currentUser = UserManagement.userAuthorization.currentUser
+        if (currentUser && 'login' in currentUser) {
+            login = currentUser.login
+        }
+        return login
     }
-    return teamId
+
+    UserManagement.getUserFullName = function() {
+        let fullName = null
+        
+        let currentUser = UserManagement.userAuthorization.currentUser
+        if (currentUser && 'concatName' in currentUser) {
+            let nameParts = currentUser.concatName.split(', ')
+            if (nameParts.length == 2) {
+                fullName = nameParts[1] + ' ' + nameParts[0]
+            }
+            else {
+                fullName = currentUser.concatName
+            }
+        }
+        return fullName
+    }
+
+    UserManagement.getUserTeamId = function() {
+        let teamId = null
+        
+        let currentUser = UserManagement.userAuthorization.currentUser
+        if (currentUser && 'teamId' in currentUser) {
+            teamId = currentUser.teamId
+        }
+        return teamId
+    }
+    
+    return UserManagement
 }
