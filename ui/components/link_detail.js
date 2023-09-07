@@ -34,6 +34,10 @@ function CreateNewLinkDetail() {
         }
     }
 
+    LinkDetail.unsetEditedLink = function () {
+        LinkDetail.linkEditor.editedLink = null
+    }
+        
     LinkDetail.setEditedLinkUsingOriginalLink = function (originalLink) {
         
         if (originalLink == null) {
@@ -101,7 +105,6 @@ function CreateNewLinkDetail() {
             // So we add and store it as a new link here.
             
             // FIXME: shouldn't we have created a sourceLink for every field that have been entered already (manually?) when creating a new link?
-console.log("STORING NEW LINK!")
             storeNewLink(editedLink)
             
             // TODO: we probably want to auto-select the link here!
