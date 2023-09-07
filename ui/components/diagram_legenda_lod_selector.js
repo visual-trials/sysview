@@ -114,7 +114,7 @@ function CreateNewDiagramLegendaLodSelector() {
         
         if ('legendasById' in NLC.nodesAndLinksData) {
             let legenda = NLC.nodesAndLinksData.legendasById[DiagramLegendaLodSelector.legendaSelector.selectedLegendaId]
-            if ('showSelectableDates' in legenda && legenda.showSelectableDates) {
+            if (legenda && 'showSelectableDates' in legenda && legenda.showSelectableDates) {
                 showSelectableDates = true
             }
         }
