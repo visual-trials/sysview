@@ -217,6 +217,7 @@ function CreateNewNodeDetail() {
                 // FIXME: HOW DO WE REPLACE THE ORIGINAL NODE in the nodes *list*!? Should we get rid of this *list* of nodes?
                 // FIXME: this is a workaround to make sure the node in the nodes-list is also updated with the new information
                 oldOriginalNode.type = loadedNodeDetails.type
+                oldOriginalNode.identifier = loadedNodeDetails.identifier
                 oldOriginalNode.commonData = loadedNodeDetails.commonData    
                 oldOriginalNode.diagramSpecificVisualData = loadedNodeDetails.diagramSpecificVisualData
                 // oldOriginalNode.codeVersions = loadedNodeDetails.codeVersions    

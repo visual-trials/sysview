@@ -731,6 +731,15 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         nodeChanges.push(nlcDataChange)    
     }    
         
+    if (JSON.stringify(changedNode.identifier) !== JSON.stringify(originalNode.identifier) ) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "nodes", originalNode.id, "identifier" ],    
+            "data" : changedNode.identifier
+        }    
+        nodeChanges.push(nlcDataChange)    
+    }    
+        
     // FIXME: you probably don't need the stringify right?    
     if (JSON.stringify(changedNode.type) !== JSON.stringify(originalNode.type) ) {    
         let nlcDataChange = {    
@@ -740,7 +749,7 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         }    
         nodeChanges.push(nlcDataChange)    
     }    
-        
+
     if (nodeChanges.length > 0) {    
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(nodeChanges)    
 
@@ -748,6 +757,8 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
             
         // TODO: we should only do this if we accept the changes    
         // FIXME: We should copy all object-attributes BACK to the selectedNode (see above where we do the same for comparisons)    
+        originalNode.type = changedNode.type
+        originalNode.identifier = changedNode.identifier
         originalNode.commonData = changedNode.commonData    
         originalNode.codeVersions = changedNode.codeVersions    
         originalNode.functionalDocumentVersions = changedNode.functionalDocumentVersions    
@@ -2229,6 +2240,7 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         
         let containerInfo = {    
             type: node.type,    
+// FIXME: shouldnt we also add the node.identifier?!
             identifier: node.id,    
             parentContainerIdentifier: parentNodeId,
             // FIXME; we cannot be sure commonDate.name exists!    
