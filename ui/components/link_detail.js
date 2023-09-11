@@ -3,9 +3,6 @@ function CreateNewLinkDetail() {
     let LinkDetail = {
         linkEditor: {
             editedLink: null,
-            showLinkSource: true,
-            linkSourceYPosition : null,
-            linkSourceInfo : {},    
         },
         openLinkDetailFunction : null,
         closeLinkDetailFunction : null,
@@ -49,17 +46,6 @@ function CreateNewLinkDetail() {
         }
     }
 
-    LinkDetail.toggleShowLinkSource = function () {
-        if (LinkDetail.linkEditor.showLinkSource) {
-            LinkDetail.linkEditor.showLinkSource = false
-            LinkDetail.linkEditor.linkSourceYPosition = null
-        }
-        else {
-            LinkDetail.linkEditor.showLinkSource = true
-        }
-    }
-
-
     LinkDetail.createNewLinkAndOpenDetail = function (linkType) {
         let linkTypeIdentifier = linkType.identifier
         
@@ -91,11 +77,6 @@ function CreateNewLinkDetail() {
             let selectedLink = linksById[editedLink.id]
             
             storeChangesBetweenLinks(selectedLink, editedLink) // ASYNC
-            storeChangesBetweenListsOfSourceLinks(selectedLink._sourceLinks, editedLink._sourceLinks) // ASYNC!
-            
-            // FIXME: is this correct?
-            // We are removing the old (and possibly outdated) list of sourceLinks
-            delete selectedLink._sourceLinks
             
             LinkDetail.closeLinkDetailFunction()
         }
@@ -104,7 +85,6 @@ function CreateNewLinkDetail() {
             // Since editedLink.id does not yet exist, we assume this is a new node (and its id has already been generated). 
             // So we add and store it as a new link here.
             
-            // FIXME: shouldn't we have created a sourceLink for every field that have been entered already (manually?) when creating a new link?
             storeNewLink(editedLink)
             
             // TODO: we probably want to auto-select the link here!
@@ -113,10 +93,6 @@ function CreateNewLinkDetail() {
             //       selectedConnectionIdentifier =
             
             delete editedLink.isNewLink
-            
-            // FIXME: is this correct?
-            // We are removing the old (and possibly outdated) list of sourceLinks
-            delete editedLink._sourceLinks
             
             LinkDetail.closeLinkDetailFunction()
         }
@@ -160,8 +136,6 @@ function CreateNewLinkDetail() {
                 console.log("ERROR: the details of a link is reloaded, but it doesn't exist anymore in the linksById!?")
             }
                 
-            LinkDetail.linkEditor.showLinkSource = true
-            LinkDetail.linkEditor.nodeSourceYPosition = null
             LinkDetail.openLinkDetailFunction()
         }
 

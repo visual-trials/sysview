@@ -4,29 +4,14 @@ function CreateNewNodeDetail() {
 
         nodeEditor: {
             editedNode: null,
-            showNodeSource: true,
-            nodeSourceYPosition : null,
-            
             selectedNodeEnvironmentIdentifier: null, // TODO: we should put environmentIdentifier INSIDE editedNodeEnvironment (so we won't need this field anymore)
             editedNodeEnvironment: null,  // TODO: this is effectively a child of editedNode (editedNode.environmentSpecificData[x])
             // Not supported yet: editedNodeCodeVersion: null, // TODO: this is effectively a child of editedNode (editedNode.codeVersions[x])
             editedNodeFunctionalDocumentVersion: null, // TODO: this is effectively a child of editedNode (editedNode.functionalDocumentVersions[x])
             editedNodeTechnicalDocumentVersion: null, // TODO: this is effectively a child of editedNode (editedNode.technicalDocumentVersions[x])
-            
-            nodeSourceInfo : {},
         },
         openNodeDetailFunction: null,
         closeNodeDetailFunction: null,
-    }
-
-    NodeDetail.toggleShowNodeSource = function () {
-        if (NodeDetail.nodeEditor.showNodeSource) {
-            NodeDetail.nodeEditor.showNodeSource = false
-            NodeDetail.nodeEditor.nodeSourceYPosition = null
-        }
-        else {
-            NodeDetail.nodeEditor.showNodeSource = true
-        }
     }
 
     NodeDetail.isActiveFunctionalDocumentVersion = function (functionalDocumentVersion) {
@@ -154,12 +139,7 @@ function CreateNewNodeDetail() {
             let selectedNode = nodesById[editedNode.id]
             
             storeChangesBetweenNodes(selectedNode, editedNode) // ASYNC!
-            storeChangesBetweenListsOfSourceLinks(selectedNode._sourceLinks, editedNode._sourceLinks) // ASYNC!
             
-            // FIXME: is this correct?
-            // We are removing the old (and possibly outdated) list of sourceLinks
-            delete selectedNode._sourceLinks
-
             NodeDetail.closeNodeDetailFunction()
         }
         else {
@@ -168,8 +148,6 @@ function CreateNewNodeDetail() {
             // So we add and store it as a new new node here.
             
             storeNewNode(editedNode)
-            // Since there was no previous node, we sourceLinks for the new node is an empty array, so we pass that here
-            storeChangesBetweenListsOfSourceLinks([], editedNode._sourceLinks) // ASYNC!
             
             // TODO: we probably want to auto-select the node here!
             
@@ -183,9 +161,6 @@ function CreateNewNodeDetail() {
             
             delete editedNode.isNewNode
             delete editedNode.addToDiagram
-            // FIXME: is this correct?
-            // We are removing the old (and possibly outdated) list of sourceLinks
-            delete editedNode._sourceLinks
 
             NodeDetail.closeNodeDetailFunction()
         }
@@ -194,11 +169,7 @@ function CreateNewNodeDetail() {
     NodeDetail.removeNodeAndCloseDetail = function (editedNode) {
         let removeLinksAttachedToNode = true
         let removedLinkIds = removeNode(editedNode, removeLinksAttachedToNode)
-        // This effectively removes all the sourceLinks of the deleted node, since the resulting amount of sourceLinks is empty
-        storeChangesBetweenListsOfSourceLinks(editedNode._sourceLinks, [])
         
-        // FIXME: use removedLinkIds to remove the sourceLinks of these removedLinks as well
-            
         NodeAndLinkScroller.unselectNode()
         NodeDetail.nodeEditor.editedNode = null
 
@@ -233,8 +204,6 @@ function CreateNewNodeDetail() {
                 console.log("ERROR: the details of a node is reload, but it doesn't exist anymore in the nodesById!?")
             }
                 
-            NodeDetail.nodeEditor.showNodeSource = true
-            NodeDetail.nodeEditor.nodeSourceYPosition = null
             NodeDetail.openNodeDetailFunction()
         }
         
