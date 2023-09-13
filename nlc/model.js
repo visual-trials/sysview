@@ -652,8 +652,7 @@ function createNewNode(nodeTypeIdentifier) {
             "A" : {},    
             "P" : {}    
         },    
-        "diagramSpecificVisualData" : {},
-        "_sourceLinks" : []  // FIXME: should we always create this?
+        "diagramSpecificVisualData" : {}
     }    
         
     return newNode    
