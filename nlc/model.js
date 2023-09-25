@@ -197,6 +197,7 @@ function createNewTeam() {
         
     let newTeam = {    
         "id" : null,    
+        "identifier" : newName,    
         "name" : newName,    
     }    
         
@@ -217,6 +218,21 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
         
         if (changedTeam.id in originalTeamsById) {
             let originalTeam = originalTeamsById[changedTeam.id]    
+
+            // FIXME: do we *really* want to be able to update the identifier of a team??
+            /*
+            if (changedTeam.identifier !== originalTeam.identifier) {    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "teams", originalTeam.id, "identifier" ],    
+                    "data" : changedTeam.identifier
+                }    
+                teamsChanges.push(nlcDataChange)    
+                
+                // FIXME: we do this here, but we normally do this below!    
+                originalTeamsById[changedTeam.id].identifier = changedTeam.identifier
+            } 
+            */
                 
             if (changedTeam.name !== originalTeam.name) {    
                 let nlcDataChange = {    
