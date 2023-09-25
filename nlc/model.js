@@ -203,6 +203,24 @@ function createNewTeam() {
         
     return newTeam
 }    
+
+function storeNewTeam(newTeam) {    
+    let teamsById = NLC.nodesAndLinksData.teamsById    
+    
+    teamsById[newTeam.id] = newTeam    
+    NLC.nodesAndLinksData.teams.push(newTeam)    
+    
+    // TODO: you probably want to apply this change in javascript to (on the team in NLC.nodesAndLinksData.teams and teamsById)    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "teams"],    
+        "data" : newTeam    // FIXME: we should make a clone of the newTeam, since other changes may be applied to it, which should not be included in the insert here
+                            //        in this specific case: the team is created and the team is (right after that) added to a diagram. But in the insert the diagram info is already included (which is incorrect)
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
+}    
+
     
 function storeChangesBetweenTeams(originalTeams, changedTeams) {    
     let teamsChanges = []
