@@ -506,6 +506,9 @@ function removeSourceDocument (sourceDocumentToBeRemoved) {
     return true
 }   
 
+
+/* 
+
 // SourceLinks
 
 function storeNewSourceLink(newSourceLink) {    
@@ -660,6 +663,8 @@ function getFullField(key, fieldPath) {
     }
     return field
 }
+
+*/
     
 // Nodes
     
@@ -879,7 +884,6 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
             "P" : {}    
         },    
         "diagramSpecificVisualData" : {},
-        "_sourceLinks" : [] // FIXME: should we always create this?
     }    
         
     return newLink    
