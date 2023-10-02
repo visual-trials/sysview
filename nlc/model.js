@@ -210,12 +210,14 @@ function storeNewTeam(newTeam) {
     teamsById[newTeam.id] = newTeam    
     NLC.nodesAndLinksData.teams.push(newTeam)    
     
+    let clonedNewTeam = JSON.parse(JSON.stringify(newTeam))
+    delete clonedNewTeam['_helper'] // we remove any helper data before sending it to the backend
+    
     // TODO: you probably want to apply this change in javascript to (on the team in NLC.nodesAndLinksData.teams and teamsById)    
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "teams"],    
-        "data" : newTeam    // FIXME: we should make a clone of the newTeam, since other changes may be applied to it, which should not be included in the insert here
-                            //        in this specific case: the team is created and the team is (right after that) added to a diagram. But in the insert the diagram info is already included (which is incorrect)
+        "data" : clonedNewTeam
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     NLC.dataHasChanged = true    
@@ -267,10 +269,13 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
         else {
             // The id of the changedTeam is not in the originalTeamsById. We are assuming this team was added, so we insert it
         
+            let clonedChangedTeam = JSON.parse(JSON.stringify(changedTeam))
+            delete clonedChangedTeam['_helper'] // we remove any helper data before sending it to the backend
+            
             let nlcDataChange = {    
                 "method" : "insert",    
                 "path" : [ "teams"],    
-                "data" : changedTeam
+                "data" : clonedChangedTeam
             }
             teamsChanges.push(nlcDataChange)
             // FIXME: we probably only want to copy certain fields here
@@ -415,10 +420,13 @@ function storeChangesBetweenSourceDocuments(originalSourceDocuments, changedSour
         else {
             // The id of the changedSourceDocument is not in the originalSourceDocumentsById. We are assuming this sourceDocument was added, so we insert it
         
+            let clonedChangedSourceDocument = JSON.parse(JSON.stringify(changedSourceDocument))
+            delete clonedChangedSourceDocument['_helper'] // we remove any helper data before sending it to the backend
+            
             let nlcDataChange = {    
                 "method" : "insert",    
                 "path" : [ "sourceDocuments"],    
-                "data" : changedSourceDocument
+                "data" : clonedChangedSourceDocument
             }
             sourceDocumentsChanges.push(nlcDataChange)
             // FIXME: we probably only want to copy certain fields here
@@ -512,10 +520,13 @@ function removeSourceDocument (sourceDocumentToBeRemoved) {
 // SourceLinks
 
 function storeNewSourceLink(newSourceLink) {    
+    let clonedNewSourceLink = JSON.parse(JSON.stringify(newSourceLink))
+    delete clonedNewSourceLink['_helper'] // we remove any helper data before sending it to the backend
+
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "sourceLinks"],    
-        "data" : newSourceLink    // FIXME: we should make a clone of the newSourceLink, since other changes may be applied to it, which should not be included in the insert here
+        "data" : clonedNewSourceLink
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     NLC.dataHasChanged = true    
@@ -704,12 +715,14 @@ function storeNewNode(newNode) {
     nodesById[newNode.id] = newNode    
     NLC.nodesAndLinksData.nodes.push(newNode)    
     
+    let clonedNewNode = JSON.parse(JSON.stringify(newNode))
+    delete clonedNewNode['_helper'] // we remove any helper data before sending it to the backend
+    
     // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "nodes"],    
-        "data" : newNode    // FIXME: we should make a clone of the newNode, since other changes may be applied to it, which should not be included in the insert here
-                            //        in this specific case: the node is created and the node is (right after that) added to a diagram. But in the insert the diagram info is already included (which is incorrect)
+        "data" : clonedNewNode
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     NLC.dataHasChanged = true    
@@ -897,11 +910,14 @@ function storeNewLink(newLink) {
     linksById[newLink.id] = newLink    
     NLC.nodesAndLinksData.links.push(newLink)    
     
+    let clonedNewLink = JSON.parse(JSON.stringify(newLink))
+    delete clonedNewLink['_helper'] // we remove any helper data before sending it to the backend
+    
     // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes and nodesById)    
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "links"],    
-        "data" : newLink    
+        "data" : clonedNewLink
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     NLC.dataHasChanged = true    
@@ -1046,11 +1062,14 @@ function storeNewDiagram(newDiagram) {
     diagramsById[newDiagram.id] = newDiagram    
     NLC.nodesAndLinksData.diagrams.push(newDiagram)    
     
+    let clonedNewDiagram = JSON.parse(JSON.stringify(newDiagram))
+    delete clonedNewDiagram['_helper'] // we remove any helper data before sending it to the backend
+    
     // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.diagrams and diagramsById)    
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "diagrams"],    
-        "data" : newDiagram    
+        "data" : clonedNewDiagram
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     NLC.dataHasChanged = true    
@@ -1523,11 +1542,14 @@ function storeNewSourceDiagram(newSourceDiagram) {
     sourceDiagramsById[newSourceDiagram.id] = newSourceDiagram    
     NLC.nodesAndLinksData.sourceDiagrams.push(newSourceDiagram)    
     
+    let clonedNewSourceDiagram = JSON.parse(JSON.stringify(newSourceDiagram))
+    delete clonedNewSourceDiagram['_helper'] // we remove any helper data before sending it to the backend
+    
     // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.sourceDiagrams and sourceDiagramsById)    
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "sourceDiagrams"],    
-        "data" : newSourceDiagram    
+        "data" : clonedNewSourceDiagram
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     NLC.dataHasChanged = true    
@@ -1608,10 +1630,13 @@ function addSourcePointToSourceDiagram(sourceDiagram, sourcePoint) {
     }
     sourceDiagram.sourcePoints.push(sourcePoint)
     
+    let clonedSourcePoint = JSON.parse(JSON.stringify(sourcePoint))
+    delete clonedSourcePoint['_helper'] // we remove any helper data before sending it to the backend
+    
     let nlcDataChange = {    
         "method" : "insert",    
         "path" : [ "sourceDiagrams", sourceDiagram.id, "sourcePoints" ],
-        "data" : sourcePoint
+        "data" : clonedSourcePoint
     }
     NLC.dataChangesToStore.push(nlcDataChange)    
     
