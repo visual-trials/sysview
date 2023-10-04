@@ -91,6 +91,7 @@ function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, 
     
     // Known users and teams
     nodesAndLinksData.knownUsers = flatNodesAndLinksData.knownUsers
+    nodesAndLinksData.knownUsersById = groupById(flatNodesAndLinksData.knownUsers)
     nodesAndLinksData.teams = flatNodesAndLinksData.teams
     nodesAndLinksData.teamsById = groupById(flatNodesAndLinksData.teams)
  
@@ -136,6 +137,26 @@ function convertDiagramTreeToList (diagramTree, diagramsFlatList) {
 
 
 // Known users
+
+function storeNewKnownUser(newKnownUser) {    
+    let knownUsersById = NLC.nodesAndLinksData.knownUsersById    
+    
+    knownUsersById[newKnownUser.id] = newKnownUser    
+    NLC.nodesAndLinksData.knownUsers.push(newKnownUser)    
+    
+    let clonedNewKnownUser = JSON.parse(JSON.stringify(newKnownUser))
+    delete clonedNewKnownUser['_helper'] // we remove any helper data before sending it to the backend
+    
+    // TODO: you probably want to apply this change in javascript to (on the knownUser in NLC.nodesAndLinksData.knownUsers and knownUsersById)    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "knownUsers"],    
+        "data" : clonedNewKnownUser
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
+}    
+
 
 function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {    
     let knownUsersChanges = []    
@@ -183,6 +204,38 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
         // FIXME: we now change the originals above!    
     }
 }
+
+function removeKnownUser (knownUserToBeRemoved) {
+    let knownUsersById = groupById(NLC.nodesAndLinksData.knownUsers)
+    
+    let knownUserIndexToDelete = null    
+    for (let knownUserIndex = 0; knownUserIndex < NLC.nodesAndLinksData.knownUsers.length; knownUserIndex++) {    
+        let knownUser = NLC.nodesAndLinksData.knownUsers[knownUserIndex]    
+        if (knownUser.id === knownUserToBeRemoved.id) {    
+            knownUserIndexToDelete = knownUserIndex    
+        }    
+    }    
+    if (knownUserIndexToDelete != null) {    
+        NLC.nodesAndLinksData.knownUsers.splice(knownUserIndexToDelete, 1)
+        delete knownUsersById[knownUserToBeRemoved.id]     // This is not really needed, since knownUsersById is used only locally here
+    }    
+    else {    
+        console.log("ERROR: could not find knownUser to be deleted!")    
+        return false
+    }    
+        
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.knownUsers and knownUsersById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "knownUsers", knownUserToBeRemoved.id],    
+        "data" : knownUserToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)
+        
+    NLC.dataHasChanged = true    
+    
+    return true
+}   
 
 
 // Teams
