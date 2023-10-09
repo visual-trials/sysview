@@ -46,7 +46,11 @@ function CreateNewUserManagement() {
         if (currentUser && 'userPermissions' in currentUser) {
             if ('memberOfTeamIds' in currentUser['userPermissions']) {
                 // If you are a member if a team, you are allowed to edit it
-                editableTeamIds = currentUser['userPermissions']['memberOfTeamIds']
+                // TODO: we could also simply make a CLONE here...
+                for (let memberOfTeamIdIndex in currentUser['userPermissions']['memberOfTeamIds']) {
+                    let memberOfTeamId = currentUser['userPermissions']['memberOfTeamIds'][memberOfTeamIdIndex]
+                    editableTeamIds.push(memberOfTeamId)
+                }
             }
             if ('editableTeamIds' in currentUser['userPermissions']) {
                 // If you have explicit permissions to edit a team, you may do so

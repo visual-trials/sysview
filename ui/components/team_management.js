@@ -63,7 +63,7 @@ function CreateNewTeamManagement() {
             if ('userPermissions' in knownUser && 
                 'memberOfTeamIds' in knownUser['userPermissions'] && 
                 knownUser['userPermissions']['memberOfTeamIds'].includes(teamId)) {
-                    
+            
                 teamMembers.push(knownUser)
             }
         }
