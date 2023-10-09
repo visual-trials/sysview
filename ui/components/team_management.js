@@ -60,7 +60,7 @@ function CreateNewTeamManagement() {
         let teamMembers = []
         for (knownUserIndex in knownUsers) {
             let knownUser = knownUsers[knownUserIndex]
-            if (knownUser.teamId == teamId) {
+            if (teamId != null && knownUser.teamId == teamId) {
                 teamMembers.push(knownUser)
             }
         }

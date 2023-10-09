@@ -39,6 +39,16 @@ function CreateNewUserManagement() {
         return false
     }
 
+    UserManagement.getUserEditableTeamIds = function() {
+        let editableTeamIds = []
+        
+        let currentUser = UserManagement.userAuthorization.currentUser
+        if (currentUser && 'userPermissions' in currentUser && 'editableTeamIds' in currentUser['userPermissions']) {
+            editableTeamIds = currentUser['userPermissions']['editableTeamIds']
+        }
+        return editableTeamIds
+    }
+
     UserManagement.getUserInitials = function() {
         let initials = null
         
