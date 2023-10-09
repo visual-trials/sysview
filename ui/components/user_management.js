@@ -43,8 +43,20 @@ function CreateNewUserManagement() {
         let editableTeamIds = []
         
         let currentUser = UserManagement.userAuthorization.currentUser
-        if (currentUser && 'userPermissions' in currentUser && 'editableTeamIds' in currentUser['userPermissions']) {
-            editableTeamIds = currentUser['userPermissions']['editableTeamIds']
+        if (currentUser && 'userPermissions' in currentUser) {
+            if ('memberOfTeamIds' in currentUser['userPermissions']) {
+                // If you are a member if a team, you are allowed to edit it
+                editableTeamIds = currentUser['userPermissions']['memberOfTeamIds']
+            }
+            if ('editableTeamIds' in currentUser['userPermissions']) {
+                // If you have explicit permissions to edit a team, you may do so
+                for (let editableTeamIdIndex in currentUser['userPermissions']['editableTeamIds']) {
+                    let editableTeamId = currentUser['userPermissions']['editableTeamIds'][editableTeamIdIndex]
+                    if (!(editableTeamIds.includes(editableTeamId))) {
+                        editableTeamIds.push(editableTeamId)
+                    }
+                }
+            }
         }
         return editableTeamIds
     }

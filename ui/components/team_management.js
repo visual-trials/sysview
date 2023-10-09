@@ -60,7 +60,10 @@ function CreateNewTeamManagement() {
         let teamMembers = []
         for (knownUserIndex in knownUsers) {
             let knownUser = knownUsers[knownUserIndex]
-            if (teamId != null && knownUser.teamId == teamId) {
+            if ('userPermissions' in knownUser && 
+                'memberOfTeamIds' in knownUser['userPermissions'] && 
+                knownUser['userPermissions']['memberOfTeamIds'].includes(teamId)) {
+                    
                 teamMembers.push(knownUser)
             }
         }
