@@ -251,7 +251,9 @@ function createNewTeam() {
     let newTeam = {    
         "id" : null,    
         "identifier" : newName,    
-        "name" : newName,    
+        "name" : newName,
+        "commonData" : {
+        }
     }    
         
     return newTeam
@@ -318,6 +320,16 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
                 // FIXME: we do this here, but we normally do this below!    
                 originalTeamsById[changedTeam.id].name = changedTeam.name
             }    
+            
+            if (JSON.stringify(changedTeam.commonData) !== JSON.stringify(originalTeam.commonData) ) {    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "teams", originalTeam.id, "commonData" ],    
+                    "data" : changedTeam.commonData    
+                }    
+                teamsChanges.push(nlcDataChange)    
+            }    
+            
         }
         else {
             // The id of the changedTeam is not in the originalTeamsById. We are assuming this team was added, so we insert it
