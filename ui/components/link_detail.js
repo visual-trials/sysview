@@ -68,7 +68,7 @@ function CreateNewLinkDetail() {
         LinkDetail.linkEditor.editedLink.isNewLink = true
         
         // Creating a new link id here and (if succesful) async calling open modal
-        LinkDetail.generateNewLinkIdAndOpenDetail(LinkDetail.linkEditor.editedLink)
+        LinkDetail.generateNewLinkIdAndOpenDetail(LinkDetail.linkEditor.editedLink) // ASYNC
     }
 
     LinkDetail.saveLinkDetail = function (editedLink) {
@@ -85,14 +85,17 @@ function CreateNewLinkDetail() {
             // Since editedLink.id does not yet exist, we assume this is a new node (and its id has already been generated). 
             // So we add and store it as a new link here.
             
+            // FIXME: WORKAROUND! we should put this inside of _helper!
+            delete editedLink.isNewLink
+            delete editedLink.fromNodeType
+            delete editedLink.toNodeType
+            
             storeNewLink(editedLink)
             
             // TODO: we probably want to auto-select the link here!
             
             // TODO: NodeAndLinkScroller.nodeAndLinkSelector.selectedLinkId =
             //       selectedConnectionIdentifier =
-            
-            delete editedLink.isNewLink
             
             LinkDetail.closeLinkDetailFunction()
         }
