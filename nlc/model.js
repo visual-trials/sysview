@@ -376,6 +376,9 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
 
 function getNumberOfTeamMembers (teamId) {
     let numberOfTeamMembers = 0
+// FIXME: this is SUPER SLOW!!!
+// FIXME: this is SUPER SLOW!!!
+// FIXME: this is SUPER SLOW!!!
     for (let knownUserIndex in NLC.nodesAndLinksData.knownUsers) {
         let knownUser = NLC.nodesAndLinksData.knownUsers[knownUserIndex]
 
@@ -387,6 +390,7 @@ function getNumberOfTeamMembers (teamId) {
 }
 
 function removeTeam (teamToBeRemoved) {
+    // FIXME: this is VERY SLOW! Should we remove this here? (or use the _helper.nrOfMembers value?)
     if (getNumberOfTeamMembers(teamToBeRemoved.id) > 0) {
         console.log("ERROR: this team cannot be removed since it still has members in it!")
         return false
