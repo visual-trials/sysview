@@ -3,6 +3,7 @@ function CreateNewUserManagement() {
     let UserManagement = {
         knownUsersEditor: {
             editedKnownUsers: null,
+            currentlyShowingTeamChoiceForKnownUserId : null,
         },
         openKnownUsersFunction: null,
         closeKnownUsersFunction: null,
