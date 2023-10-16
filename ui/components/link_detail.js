@@ -6,6 +6,7 @@ function CreateNewLinkDetail() {
         },
         openLinkDetailFunction : null,
         closeLinkDetailFunction : null,
+        unselectRemovedLinkFunction : null,
         interactWithZUI : true,
     }
 
@@ -104,8 +105,9 @@ function CreateNewLinkDetail() {
     LinkDetail.removeLinkAndCloseDetail = function (editedLink) {
         removeLink(editedLink)
         
-        // TODO: create function: unselectLink
-        NodeAndLinkScroller.nodeAndLinkSelector.selectedLinkId = null
+        if (LinkDetail.unselectRemovedLinkFunction) {
+            LinkDetail.unselectRemovedLinkFunction()
+        }
         LinkDetail.linkEditor.editedLink = null
         
         LinkDetail.closeLinkDetailFunction()

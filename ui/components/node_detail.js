@@ -12,6 +12,7 @@ function CreateNewNodeDetail() {
         },
         openNodeDetailFunction: null,
         closeNodeDetailFunction: null,
+        unselectRemovedNodeFunction: null,
     }
 
     NodeDetail.isActiveFunctionalDocumentVersion = function (functionalDocumentVersion) {
@@ -170,7 +171,9 @@ function CreateNewNodeDetail() {
         let removeLinksAttachedToNode = true
         let removedLinkIds = removeNode(editedNode, removeLinksAttachedToNode)
         
-        NodeAndLinkScroller.unselectNode()
+        if (NodeDetail.unselectRemovedNodeFunction) {
+            NodeDetail.unselectRemovedNodeFunction()
+        }
         NodeDetail.nodeEditor.editedNode = null
 
         NodeDetail.closeNodeDetailFunction()

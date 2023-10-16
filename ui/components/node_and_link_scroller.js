@@ -102,6 +102,10 @@ function CreateNewNodeAndLinkScroller() {
         NodeAndLinkScroller.nodeAndLinkSelector.nodeIdsLinkedToSelectedNode = null
         NodeAndLinkScroller.nodeAndLinkSelector.linkIdsLinkedToSelectedNode = null
     }
+    
+    NodeAndLinkScroller.unselectLink = function () {
+        NodeAndLinkScroller.nodeAndLinkSelector.selectedLinkId = null
+    }
 
     NodeAndLinkScroller.nodeAndLinkSelector.getConnectedNodesForSelectedNode = function () {
         let connectedNodes = []
