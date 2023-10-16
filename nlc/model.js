@@ -1863,7 +1863,7 @@ function getColorNamesWithLightForNode (node, selectedLegendaId, dimUninterestin
         colorNamesWithLight.doDim = false
         if (dimUninteresting) {
             colorNamesWithLight.doDim = true
-            // TODO: this is quite specific and should probably be put into a more specific place
+            // FIXME: this is quite specific and should probably be put into a more specific place
             if (NodeAndLinkScroller.nodeMatchesSearchAndFilter(node)) {
                 colorNamesWithLight.doDim = false
             }
@@ -1903,7 +1903,7 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
         colorNamesWithLight.doDim = false
         if (dimUninteresting) {
             colorNamesWithLight.doDim = true
-            // TODO: this is quite specific and should probably be put into a more specific place
+            // FIXME: this is quite specific and should probably be put into a more specific place
             if (NodeAndLinkScroller.linkMatchesSearchAndFilter(link)) {
                 colorNamesWithLight.doDim = false
             }
