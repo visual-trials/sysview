@@ -3,6 +3,8 @@ function CreateNewLinkDetail() {
     let LinkDetail = {
         linkEditor: {
             editedLink: null,
+            editedChainLink: null,
+            editedChainLinkIndex: null,
         },
         openLinkDetailFunction : null,
         closeLinkDetailFunction : null,
@@ -34,6 +36,11 @@ function CreateNewLinkDetail() {
 
     LinkDetail.unsetEditedLink = function () {
         LinkDetail.linkEditor.editedLink = null
+    }
+        
+    LinkDetail.unsetEditedChainLink = function () {
+        LinkDetail.linkEditor.editedChainLink = null
+        LinkDetail.linkEditor.editedChainLinkIndex = null
     }
         
     LinkDetail.setEditedLinkUsingOriginalLink = function (originalLink) {
@@ -109,6 +116,8 @@ function CreateNewLinkDetail() {
             LinkDetail.unselectRemovedLinkFunction()
         }
         LinkDetail.linkEditor.editedLink = null
+        LinkDetail.linkEditor.editedChainLink = null
+        LinkDetail.linkEditor.editedChainLinkIndex = null
         
         LinkDetail.closeLinkDetailFunction()
     }
