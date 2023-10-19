@@ -3,8 +3,10 @@ function CreateNewLinkDetail() {
     let LinkDetail = {
         linkEditor: {
             editedLink: null,
+            
             editedChainLink: null,
             editedChainLinkIndex: null,
+            addChainLinkModal: null,
         },
         openLinkDetailFunction : null,
         closeLinkDetailFunction : null,
