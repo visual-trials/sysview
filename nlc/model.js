@@ -1119,7 +1119,11 @@ function createNewDiagram() {
     let newDiagram = {    
         "id" : null,    
         "name" : newName,    
-        "identifier" : null    
+        "identifier" : null,
+        "sortIndex" : 0,
+        "parentDiagramId": null,
+        "containers" : {},
+        "connections" : {}
     }    
         
     return newDiagram    
@@ -2261,7 +2265,12 @@ function markLinksInToChainAsChained(toChain, chainingLinkId) {
     }
 }
 
+function convertNodeToContainer (node) {
+    
+    return containerInfo
+}
 
+// FIXME: rename this function!! (it contains MORE than nodes and links now!)
 function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId, dimUninteresting) {    
     
     // Removing all connections and containers    
@@ -2284,7 +2293,12 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         let parentNodeId = 'root'
         if ('parentNodeId' in node.diagramSpecificVisualData[diagramId]) {
             parentNodeId = node.diagramSpecificVisualData[diagramId].parentNodeId
-        }    
+        }
+        
+        
+        // CALL THIS: let containerInfo = convertNodeToContainer(node) 
+        
+//    -> FIXME: how do we do parentContainerIdentifier ?? CONCAT IDs? -> set AFTERWARDS here?
             
         let localScale = 1    
         /*    
@@ -2302,27 +2316,17 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0? or should we assume 1.0?
         let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
         
-        if (NLC.levelOfDetail == "auto") {
-            if (nodeTypeInfo != null) {    
-                let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
-                
-                if (nodeTypeHasLevelOfDetailProperties) {
-                    toLevelOfDetail = nodeTypeInfo.lod['to']
-                    fromLevelOfDetail = nodeTypeInfo.lod['from']
-                    
-                    if (lowestFromLevelOfDetail == null || fromLevelOfDetail < lowestFromLevelOfDetail) {
-                        lowestFromLevelOfDetail = fromLevelOfDetail
-                    }
-                }
-                else {
-                    console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
-                }
-            }    
-        }
-        else {
-            // TODO: we now assume levelOfDetail == "all" here, so we show all details
-            lowestFromLevelOfDetail = highLod
-        }
+        if (nodeTypeInfo != null) {    
+            let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
+            
+            if (nodeTypeHasLevelOfDetailProperties) {
+                toLevelOfDetail = nodeTypeInfo.lod['to']
+                fromLevelOfDetail = nodeTypeInfo.lod['from']
+            }
+            else {
+                console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
+            }
+        }    
             
         let position = {     
             x: 96, // FIXME: use a default position? Or determine where there is room?? Or set to null?    
@@ -2413,6 +2417,18 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
                 }
             }
         }    
+
+
+            
+        if (NLC.levelOfDetail == "auto") {
+            if (lowestFromLevelOfDetail == null || containerInfo.fromLevelOfDetail < lowestFromLevelOfDetail) {
+                lowestFromLevelOfDetail = containerInfo.fromLevelOfDetail
+            }
+        }
+        else {
+            // TODO: we now assume levelOfDetail == "all" here, so we show all details
+            lowestFromLevelOfDetail = highLod
+        }
             
         createContainer(containerInfo)    
         nodeIdsAddedToContainers[node.id] = true    
@@ -2588,146 +2604,151 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
      
     */
     
-    let fromLevelOfDetailsSorted = Object.keys(nodesByFromLevelOfDetail).sort().reverse()
-    for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
-        let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
-        
-        let linksWithCertainFromLevelOfDetail = virtualLinksByFromLod[fromLevelOfDetail]
-        
-        for (let virtualLinkIndex in linksWithCertainFromLevelOfDetail) {
-            let virtualLink = linksWithCertainFromLevelOfDetail[virtualLinkIndex]
+    // FIXME: should we make this a parameter? What should be the setting of doChainingAndBundling?
+    let doChainingAndBundling =  false
+    if (doChainingAndBundling) {
+        let fromLevelOfDetailsSorted = Object.keys(nodesByFromLevelOfDetail).sort().reverse()
+        for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
+            let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
             
-            // Only proceed / add new virtualLinks (to replace the current link) if this link hasn't already been chained
-            if ('alreadyChained' in virtualLink) {
-                continue
-            }
+            let linksWithCertainFromLevelOfDetail = virtualLinksByFromLod[fromLevelOfDetail]
             
-            let doLog = false
-
-            // FIXME: add the virtualLink itself too!?
-            let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByFromNodeId, doLog)
-            // FIXME: add the virtualLink itself too!?
-            let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByToNodeId, doLog)
+            for (let virtualLinkIndex in linksWithCertainFromLevelOfDetail) {
+                let virtualLink = linksWithCertainFromLevelOfDetail[virtualLinkIndex]
                 
-            for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
-                let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
-                let firstFromNode = fromChain[0]
-                let firstFromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[firstFromNode.id]
-                    
-                for (let toChainIndex in toChainsWithLowerFromLevelOfDetail) {
-                    let toChain = toChainsWithLowerFromLevelOfDetail[toChainIndex]
-                    let lastToNode = toChain[toChain.length - 1]
-                    
-                    if (firstFromNode.id === lastToNode.id) {
-                        // TODO: we now prevent a connection between the same node, but don't we want to show this?
-                        continue
-                    }
+                // Only proceed / add new virtualLinks (to replace the current link) if this link hasn't already been chained
+                if ('alreadyChained' in virtualLink) {
+                    continue
+                }
+                
+                let doLog = false
 
-                    let lastToNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[lastToNode.id] 
+                // FIXME: add the virtualLink itself too!?
+                let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByFromNodeId, doLog)
+                // FIXME: add the virtualLink itself too!?
+                let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByToNodeId, doLog)
                     
-                    let highestLevelOfDetailOfFromAndTo = firstFromNodeFromLevelOfDetail
-                    if (lastToNodeFromLevelOfDetail > highestLevelOfDetailOfFromAndTo) {
-                        highestLevelOfDetailOfFromAndTo = lastToNodeFromLevelOfDetail
-                    }
-                    
-                    let newVirutalLinkId = firstFromNode.id + '-' + lastToNode.id // FIXME: what should we use as id?
-                    
-                    if (newVirutalLinkId in virtualLinksById) {
-                        let existingVirtualLink = virtualLinksById[newVirutalLinkId]
+                for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
+                    let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
+                    let firstFromNode = fromChain[0]
+                    let firstFromNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[firstFromNode.id]
                         
-                        if (fromLevelOfDetail > existingVirtualLink.lod.to) {
-                            existingVirtualLink.lod.to = fromLevelOfDetail
-                            // FIXME: what about the lod.from? -> IF you change this though, you also have to put the new virtualLink info a different virtualLinksByFromLod!
+                    for (let toChainIndex in toChainsWithLowerFromLevelOfDetail) {
+                        let toChain = toChainsWithLowerFromLevelOfDetail[toChainIndex]
+                        let lastToNode = toChain[toChain.length - 1]
+                        
+                        if (firstFromNode.id === lastToNode.id) {
+                            // TODO: we now prevent a connection between the same node, but don't we want to show this?
+                            continue
+                        }
+
+                        let lastToNodeFromLevelOfDetail = fromLevelOfDetailPerNodeId[lastToNode.id] 
+                        
+                        let highestLevelOfDetailOfFromAndTo = firstFromNodeFromLevelOfDetail
+                        if (lastToNodeFromLevelOfDetail > highestLevelOfDetailOfFromAndTo) {
+                            highestLevelOfDetailOfFromAndTo = lastToNodeFromLevelOfDetail
                         }
                         
-                        // FIXME: store the fact that there are two virtualLinks (so you can show it to the user)
+                        let newVirutalLinkId = firstFromNode.id + '-' + lastToNode.id // FIXME: what should we use as id?
+                        
+                        if (newVirutalLinkId in virtualLinksById) {
+                            let existingVirtualLink = virtualLinksById[newVirutalLinkId]
+                            
+                            if (fromLevelOfDetail > existingVirtualLink.lod.to) {
+                                existingVirtualLink.lod.to = fromLevelOfDetail
+                                // FIXME: what about the lod.from? -> IF you change this though, you also have to put the new virtualLink info a different virtualLinksByFromLod!
+                            }
+                            
+                            // FIXME: store the fact that there are two virtualLinks (so you can show it to the user)
+                        }
+                        else {
+                        
+                            let newVirtualLink = {
+                                id : newVirutalLinkId,
+                                
+                                type: "virtual",
+                                
+                                // FIXME: should we fill this? (with dataType?) -> or is this done by the legenda-functions?
+                                commonData : {}, 
+                                
+                                // FIXME: this data should somehow contain all bundles and chains that we chained by this virtualLink
+                                
+                                fromNodeId : firstFromNode.id,
+                                toNodeId : lastToNode.id,
+                                
+                                lod: { 
+                                    from: highestLevelOfDetailOfFromAndTo, // The higest levelOfDetail of either the firstFromNode or the lastToNode (since one of those to will disappear at that level, so should this link)
+                                    to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
+                                }
+                            }
+
+                            virtualLinksById[newVirutalLinkId] = newVirtualLink
+                            virtualLinksByFromLod[newVirtualLink.lod.from].push(newVirtualLink)
+                            // FIXME: clean this up!
+                            if (!(newVirtualLink.fromNodeId in linksByFromNodeId)) {
+                                linksByFromNodeId[newVirtualLink.fromNodeId] = []
+                            }
+                            linksByFromNodeId[newVirtualLink.fromNodeId].push(newVirtualLink)
+                            // FIXME: clean this up!
+                            if (!(newVirtualLink.toNodeId in linksByToNodeId)) {
+                                linksByToNodeId[newVirtualLink.toNodeId] = []
+                            }
+                            linksByToNodeId[newVirtualLink.toNodeId].push(newVirtualLink)
+                        }
+                        
+                        
+                        // We mark all links as being chained (and add the id of the chaining-link to it)
+                        markLinksInFromChainAsChained(fromChain, newVirutalLinkId)
+                        markLinksInToChainAsChained(toChain, newVirutalLinkId)
+                        // The current link has also been chained now
+                        markLinkAsChained(virtualLink, newVirutalLinkId)
+                        
+                    }
+                
+                }
+                
+            }
+
+        }
+
+        
+        // We loop through all the links again, but this time we check if the higher-level links are visible
+        // If they are not, we make the links that chained them have a higher to-lod
+        
+        for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
+            let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
+            
+            let linksWithCertainFromLevelOfDetail = virtualLinksByFromLod[fromLevelOfDetail]
+            
+            for (let virtualLinkIndex in linksWithCertainFromLevelOfDetail) {
+                let virtualLink = linksWithCertainFromLevelOfDetail[virtualLinkIndex]
+                
+                let fromNode = nodesById[virtualLink.fromNodeId]
+                let toNode = nodesById[virtualLink.toNodeId]
+                
+                if (!nodeIsInDiagram(fromNode, diagramId) || !nodeIsInDiagram(toNode, diagramId)) {
+                    // The link can never be shown, since at least one of the nodes it is attached to are not in the current diagram
+                    
+                    // This means we have to change the lod-settings of the chaning-links
+                    
+                    if ('chainedBy' in virtualLink) {
+                        for (let chainedByIndex in virtualLink.chainedBy) {
+                            let chainedById = virtualLink.chainedBy[chainedByIndex]
+                            
+                            let chainingVirtualLink = virtualLinksById[chainedById]
+                            
+                            chainingVirtualLink.lod.to = virtualLink.lod.to
+                        }
                     }
                     else {
-                    
-                        let newVirtualLink = {
-                            id : newVirutalLinkId,
-                            
-                            type: "virtual",
-                            
-                            // FIXME: should we fill this? (with dataType?) -> or is this done by the legenda-functions?
-                            commonData : {}, 
-                            
-                            // FIXME: this data should somehow contain all bundles and chains that we chained by this virtualLink
-                            
-                            fromNodeId : firstFromNode.id,
-                            toNodeId : lastToNode.id,
-                            
-                            lod: { 
-                                from: highestLevelOfDetailOfFromAndTo, // The higest levelOfDetail of either the firstFromNode or the lastToNode (since one of those to will disappear at that level, so should this link)
-                                to: fromLevelOfDetail   // This is where the new links 'ends' (detail-wise)
-                            }
-                        }
-
-                        virtualLinksById[newVirutalLinkId] = newVirtualLink
-                        virtualLinksByFromLod[newVirtualLink.lod.from].push(newVirtualLink)
-                        // FIXME: clean this up!
-                        if (!(newVirtualLink.fromNodeId in linksByFromNodeId)) {
-                            linksByFromNodeId[newVirtualLink.fromNodeId] = []
-                        }
-                        linksByFromNodeId[newVirtualLink.fromNodeId].push(newVirtualLink)
-                        // FIXME: clean this up!
-                        if (!(newVirtualLink.toNodeId in linksByToNodeId)) {
-                            linksByToNodeId[newVirtualLink.toNodeId] = []
-                        }
-                        linksByToNodeId[newVirtualLink.toNodeId].push(newVirtualLink)
+                        // FIXME: do nothing here?
+                        // console.log("WARNING: link is never chained?")
                     }
-                    
-                    
-                    // We mark all links as being chained (and add the id of the chaining-link to it)
-                    markLinksInFromChainAsChained(fromChain, newVirutalLinkId)
-                    markLinksInToChainAsChained(toChain, newVirutalLinkId)
-                    // The current link has also been chained now
-                    markLinkAsChained(virtualLink, newVirutalLinkId)
-                    
-                }
-            
-            }
-            
-        }
-
-    }
-
-    
-    // We loop through all the links again, but this time we check if the higher-level links are visible
-    // If they are not, we make the links that chained them have a higher to-lod
-    
-    for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
-        let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
-        
-        let linksWithCertainFromLevelOfDetail = virtualLinksByFromLod[fromLevelOfDetail]
-        
-        for (let virtualLinkIndex in linksWithCertainFromLevelOfDetail) {
-            let virtualLink = linksWithCertainFromLevelOfDetail[virtualLinkIndex]
-            
-            let fromNode = nodesById[virtualLink.fromNodeId]
-            let toNode = nodesById[virtualLink.toNodeId]
-            
-            if (!nodeIsInDiagram(fromNode, diagramId) || !nodeIsInDiagram(toNode, diagramId)) {
-                // The link can never be shown, since at least one of the nodes it is attached to are not in the current diagram
-                
-                // This means we have to change the lod-settings of the chaning-links
-                
-                if ('chainedBy' in virtualLink) {
-                    for (let chainedByIndex in virtualLink.chainedBy) {
-                        let chainedById = virtualLink.chainedBy[chainedByIndex]
-                        
-                        let chainingVirtualLink = virtualLinksById[chainedById]
-                        
-                        chainingVirtualLink.lod.to = virtualLink.lod.to
-                    }
-                }
-                else {
-                    // FIXME: do nothing here?
-                    // console.log("WARNING: link is never chained?")
                 }
             }
         }
-    }
+        
+    }  // end of: doChainingAndBundling
     
     
     for (let linkId in virtualLinksById) {
