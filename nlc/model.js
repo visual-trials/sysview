@@ -1226,34 +1226,53 @@ function removeDiagram (diagramToBeRemoved) {
 }    
     
     
-function setOrDeleteValueInsideTreeStructureUsingPath (treeStructure, pathParts, value, doDelete) {
+function getSetOrDeleteValueInsideTreeStructureUsingPath (treeStructure, pathParts, value, getSetOrDelete) {
+    
+    if (pathParts.length == 0) {
+        console.log('ERROR: getSetOrDeleteValueInsideTreeStructureUsingPath got an empty array for pathParts!')
+        return false
+    }
     
     let currentPositionInStructure = treeStructure
     for (let pathPartIndex in pathParts) {
         let pathPart = pathParts[pathPartIndex]
         
-        if (pathPart in currentPositionInStructure) {
-            if (pathPartIndex == pathParts.length-1) {
-                if (doDelete) {
+        if (pathPartIndex == pathParts.length-1) {
+            if (getSetOrDelete == 'delete') {
+                if (pathPart in currentPositionInStructure) {
                     delete currentPositionInStructure[pathPart]
                     return true
                 }
-                else {
-                    currentPositionInStructure[pathPart] = value
-                    return true
+            }
+            else if (getSetOrDelete == 'get') {
+                if (pathPart in currentPositionInStructure) {
+                    let value = currentPositionInStructure[pathPart]
+                    return value
                 }
             }
-            else {
-                currentPositionInStructure = currentPositionInStructure[pathPart]
+            else { // set
+                currentPositionInStructure[pathPart] = value
+                return true
             }
         }
         else {
-            console.log('ERROR: could not find path in dataStructure')
-            console.log(pathParts)
-            console.log(dataStructure)
-            break
+            if (pathPart in currentPositionInStructure) {
+                currentPositionInStructure = currentPositionInStructure[pathPart]
+            }
+            else {
+                console.log('ERROR: could not find path in treeStructure')
+                console.log(getSetOrDelete)
+                console.log(pathParts)
+                console.log(treeStructure)
+                return false
+            }
         }
     }
+    
+    console.log('ERROR: could not find path in treeStructure')
+    console.log(getSetOrDelete)
+    console.log(pathParts)
+    console.log(treeStructure)
     return false
 }
     
@@ -1261,10 +1280,10 @@ function setOrDeleteValueInsideTreeStructureUsingPath (treeStructure, pathParts,
 
 // FIXME: rename this to addContainerToDiagram and pass a containerType!
 function addNodeToDiagram(node, parentContainerIdentifier, diagramId) {    
+
     let diagramsById = NLC.nodesAndLinksData.diagramsById
-    
     let diagram = diagramsById[diagramId]
-    
+
     // FIXME: create a more practical initial position!!    
     let newLocalPosition = {    
         "x" : 0,    
@@ -1277,21 +1296,31 @@ function addNodeToDiagram(node, parentContainerIdentifier, diagramId) {
         "containers" : {},
         "connections" : {},
     }
-    // FIXME: actually USE parentContainerIdentifier, so you can add a container into a PARENT container!
-    //        we should assemble a PATH here and use it for the setValueInsideTreeStructureUsingPath AND use it for extending the path in nlcDataChange
-    diagram.containers[node.id] = diagramContainerToChange
-        
-    // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
-    let nlcDataChange = {    
-        "method" : "update",    
-        "path" : [ "diagrams", diagramId, "containers", node.id ],    
-        "data" : diagramContainerToChange
-    }    
-    NLC.dataChangesToStore.push(nlcDataChange)    
     
-    // TODO: maybe its better to call this: visualDataHasChanged ?    
-    NLC.dataHasChanged = true    
-}    
+    let parentContainerIdentifierPath = getPathFromContainerIdentifier(parentContainerIdentifier)
+    let containerId = node.id
+    
+    // We are changing/adding the containerVisualData in the diagram
+    let isChanged = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(parentContainerIdentifierPath, ['containers', containerId]), diagramContainerToChange, 'set')
+    
+    if (isChanged) {
+        
+        // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [].concat([ "diagrams", diagramId], parentContainerIdentifierPath, ["containers", containerId]),    
+            "data" : diagramContainerToChange
+        }    
+        NLC.dataChangesToStore.push(nlcDataChange)    
+            
+        // TODO: maybe its better to call this: visualDataHasChanged ?    
+        NLC.dataHasChanged = true    
+    }
+    else {    
+        console.log("ERROR: cannot store container: unknown containerIdentifier:" + containerIdentifier)    
+    }    
+
+}
 
 function removeContainerFromDiagram(containerIdentifier, diagramId) {    
     
@@ -1301,14 +1330,14 @@ function removeContainerFromDiagram(containerIdentifier, diagramId) {
     let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
 
     // We are removing the container from the diagram
-    let isRemoved = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, containerIdentifierPath, null, true)
+    let isRemoved = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, containerIdentifierPath, null, 'delete')
     
     if (isRemoved) {
             
         // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
         let nlcDataChange = {    
             "method" : "delete",    
-            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath),
+            "path" : [].concat([ "diagrams", diagramId ], containerIdentifierPath),
             "data" : null    
         }    
         NLC.dataChangesToStore.push(nlcDataChange)    
@@ -1332,13 +1361,13 @@ function storeContainerLocalSizeInDiagram(containerIdentifier, diagramId, localS
     let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
 
     // We are changing the containerVisualData in the diagram
-    let isChanged = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, [].concat(containerIdentifierPath, ['size']), newLocalSize, false)
+    let isChanged = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(containerIdentifierPath, ['size']), newLocalSize, 'set')
     
     if (isChanged) {
         // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath, ['size']),    
+            "path" : [].concat([ "diagrams", diagramId ], containerIdentifierPath, ['size']),    
             "data" : newLocalSize
         }    
         NLC.dataChangesToStore.push(nlcDataChange)    
@@ -1359,13 +1388,13 @@ function storeContainerLocalScaleInDiagram(containerIdentifier, diagramId, local
     let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
 
     // We are changing the containerVisualData in the diagram
-    let isChanged = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, [].concat(containerIdentifierPath, ['scale']), localScale, false)
+    let isChanged = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(containerIdentifierPath, ['scale']), localScale, 'set')
     
     if (isChanged) {
         // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath, ['scale']),    
+            "path" : [].concat([ "diagrams", diagramId ], containerIdentifierPath, ['scale']),    
             "data" : localScale
         }    
         NLC.dataChangesToStore.push(nlcDataChange)    
@@ -1386,13 +1415,13 @@ function storeContainerLocalFontSizeInDiagram(containerIdentifier, diagramId, lo
     let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
 
     // We are changing the containerVisualData in the diagram
-    let isChanged = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, [].concat(containerIdentifierPath, ['localFontSize']), localFontSize, false)
+    let isChanged = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(containerIdentifierPath, ['localFontSize']), localFontSize, 'set')
     
     if (isChanged) {
         // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath, ['localFontSize']),    
+            "path" : [].concat([ "diagrams", diagramId ], containerIdentifierPath, ['localFontSize']),    
             "data" : localFontSize
         }    
         NLC.dataChangesToStore.push(nlcDataChange)    
@@ -1419,13 +1448,13 @@ function storeContainerLocalPositionInDiagram (containerIdentifier, diagramId, l
     let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
 
     // We are changing the containerVisualData in the diagram
-    let isChanged = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, [].concat(containerIdentifierPath, ['position']), newLocalPosition, false)
+    let isChanged = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(containerIdentifierPath, ['position']), newLocalPosition, 'set')
     
     if (isChanged) {
         // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath, ['position']),    
+            "path" : [].concat([ "diagrams", diagramId ], containerIdentifierPath, ['position']),    
             "data" : newLocalPosition
         }    
         NLC.dataChangesToStore.push(nlcDataChange)    
@@ -1438,35 +1467,49 @@ function storeContainerLocalPositionInDiagram (containerIdentifier, diagramId, l
     }    
 }    
 
-// FIXME: REFACTOR THIS ONE TOO! 
-// FIXME: REFACTOR THIS ONE TOO! 
-// FIXME: REFACTOR THIS ONE TOO! 
-function storeNodeParentNodeIdInDiagram(nodeId, diagramId, parentNodeId) {    
+function storeContainerInParentConntainerInDiagram(containerIdentifier, diagramId, parentContainerIdentifier) {
         
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-        
-    if (nodesById.hasOwnProperty(nodeId)) {    
-        let node = nodesById[nodeId]    
-            
-        // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
-                
-            node.diagramSpecificVisualData[diagramId].parentNodeId = parentNodeId
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagram = diagramsById[diagramId]
     
-            // TODO: you probably want to apply this change in javascript to (on the node in nodesAndLinksData.nodes)    
-            let nlcDataChange = {    
-                "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "parentNodeId"],
-                "data" : parentNodeId
-            }    
-            NLC.dataChangesToStore.push(nlcDataChange)    
-        }    
+    let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
+    let parentContainerIdentifierPath = getPathFromContainerIdentifier(parentContainerIdentifier)
+    let containerId = convertContainerIdentifierToContainerId(containerIdentifier)
+
+    // We are changing the containerVisualData in the diagram
+    let diagramContainerToMove = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, containerIdentifierPath, null, 'get')
+    let isRemoved = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, containerIdentifierPath, null, 'delete')
+    let isMoved = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(parentContainerIdentifierPath, ['containers', containerId]), diagramContainerToMove, 'set')
+    
+    // FIXME: WORKAROUND:
+    // Right now we change the container.identifier, but the ZUI might/will still have this identifier in its selected/hovered container identifiers
+    // We (for now) reset those:
+    ZUI.interaction.currentlySelectedContainerIdentifiers = []
+    ZUI.interaction.currentlyHoveredContainerIdentifier = null
+    
+    if (isRemoved && isMoved) {
         
+        // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
+        let nlcDataChangeDelete = {    
+            "method" : "delete",    
+            "path" : [].concat([ "diagrams", diagramId ], containerIdentifierPath),
+            "data" : null    
+        }    
+        NLC.dataChangesToStore.push(nlcDataChangeDelete)    
+            
+        // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [].concat([ "diagrams", diagramId ], parentContainerIdentifierPath, ["containers", containerId]),    
+            "data" : diagramContainerToMove
+        }    
+        NLC.dataChangesToStore.push(nlcDataChange)    
+            
         // TODO: maybe its better to call this: visualDataHasChanged ?    
         NLC.dataHasChanged = true    
-    }    
+    }
     else {    
-        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
+        console.log("ERROR: cannot store container: unknown containerIdentifier:" + containerIdentifier)    
     }    
 }    
 
@@ -2457,6 +2500,7 @@ function getPathFromContainerIdentifier(containerIdentifier) {
     if (containerIdentifier != null) {
         containerIdentifierPathStrings = containerIdentifier.split('-')
         for (let containerIdentifierPathStringsIndex in containerIdentifierPathStrings) {
+            containerIdentifierPath.push('containers')
             containerIdentifierPath.push(parseInt(containerIdentifierPathStrings[containerIdentifierPathStringsIndex]))
         }
     }
