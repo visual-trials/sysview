@@ -22,6 +22,7 @@ NLC.dataHasChanged = false
 NLC.dataChangesToStore = []    
 NLC.nodesAndLinksData = {}    
 NLC.chainsAndBundles = null // created on-the-fly 
+NLC.containerIdsAddedToZUI = {} // created on-the-fly 
 
 // FIXME: NLC.levelOfDetail is defined far below, does it belong here? Or should we put it in a separate file?
 
@@ -770,8 +771,7 @@ function createNewNode(nodeTypeIdentifier) {
             "T" : {},    
             "A" : {},    
             "P" : {}    
-        },    
-        "diagramSpecificVisualData" : {}
+        }
     }    
         
     return newNode    
@@ -802,8 +802,6 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
     
     // TODO: can we this function using a config of sorts? Which says what to ignore, compare and how?    
     
-    // TODO: ignoring 'diagramSpecificVisualData' for now! We should do this more explicitly!    
-        
     // TODO: do a more precise comparision (instead of using JSON.stringify, which is not reliable)    
     if (JSON.stringify(changedNode.commonData) !== JSON.stringify(originalNode.commonData) ) {    
         let nlcDataChange = {    
@@ -964,8 +962,7 @@ function createNewLink(linkTypeIdentifier, fromNodeId, toNodeId) {
             "T" : {},    
             "A" : {},    
             "P" : {}    
-        },    
-        "diagramSpecificVisualData" : {},
+        }
     }    
         
     return newLink    
@@ -998,9 +995,6 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
     
     // TODO: can we this function using a config of sorts? Which says what to ignore, compare and how?    
     
-    // TODO: compare 'type' aswell!    
-    // TODO: ignoring 'diagramSpecificVisualData' for now! We should do this more explicitly!    
-        
     // TODO: do a more precise comparision (instead of using JSON.stringify, which is not reliable)    
     if (JSON.stringify(changedLink.commonData) !== JSON.stringify(originalLink.commonData) ) {    
         let nlcDataChange = {    
@@ -1122,8 +1116,7 @@ function createNewDiagram() {
         "identifier" : null,
         "sortIndex" : 0,
         "parentDiagramId": null,
-        "containers" : {},
-        "connections" : {}
+        "containers" : {}
     }    
         
     return newDiagram    
@@ -1232,27 +1225,67 @@ function removeDiagram (diagramToBeRemoved) {
     NLC.dataHasChanged = true    
 }    
     
+    
+function setOrDeleteValueInsideTreeStructureUsingPath (treeStructure, pathParts, value, doDelete) {
+    
+    let currentPositionInStructure = treeStructure
+    for (let pathPartIndex in pathParts) {
+        let pathPart = pathParts[pathPartIndex]
+        
+        if (pathPart in currentPositionInStructure) {
+            if (pathPartIndex == pathParts.length-1) {
+                if (doDelete) {
+                    delete currentPositionInStructure[pathPart]
+                    return true
+                }
+                else {
+                    currentPositionInStructure[pathPart] = value
+                    return true
+                }
+            }
+            else {
+                currentPositionInStructure = currentPositionInStructure[pathPart]
+            }
+        }
+        else {
+            console.log('ERROR: could not find path in dataStructure')
+            console.log(pathParts)
+            console.log(dataStructure)
+            break
+        }
+    }
+    return false
+}
+    
 // Nodes in Diagrams
 
-function addNodeToDiagram(node, diagramId) {    
+// FIXME: rename this to addContainerToDiagram and pass a containerType!
+function addNodeToDiagram(node, parentContainerIdentifier, diagramId) {    
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
     
-    // FIXME: we now cast the diagramId to a string, since keys of type int are not allowed (in JSON/BSON). 
-    //        we should probably not use diagramIds as keys anyway but store the diagramSpecificVisualData inside the diagram instead and point towards the node/links.
-    let diagramIdString = '' + diagramId
+    let diagram = diagramsById[diagramId]
     
-    // FIXME: create a more practival initial position!!    
+    // FIXME: create a more practical initial position!!    
     let newLocalPosition = {    
         "x" : 0,    
         "y" : 0    
     }    
-    node.diagramSpecificVisualData[diagramIdString] = {}    
-    node.diagramSpecificVisualData[diagramIdString].position = newLocalPosition    
+    let diagramContainerToChange = {
+        "id" : node.id,
+        "type" : 'node',
+        "position" : newLocalPosition,
+        "containers" : {},
+        "connections" : {},
+    }
+    // FIXME: actually USE parentContainerIdentifier, so you can add a container into a PARENT container!
+    //        we should assemble a PATH here and use it for the setValueInsideTreeStructureUsingPath AND use it for extending the path in nlcDataChange
+    diagram.containers[node.id] = diagramContainerToChange
         
-    // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.nodes)    
+    // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
     let nlcDataChange = {    
         "method" : "update",    
-        "path" : [ "nodes", node.id, "diagramSpecificVisualData", diagramIdString],    
-        "data" : node.diagramSpecificVisualData[diagramIdString]    
+        "path" : [ "diagrams", diagramId, "containers", node.id ],    
+        "data" : diagramContainerToChange
     }    
     NLC.dataChangesToStore.push(nlcDataChange)    
     
@@ -1260,69 +1293,154 @@ function addNodeToDiagram(node, diagramId) {
     NLC.dataHasChanged = true    
 }    
 
-function storeNodeLocalSizeInDiagram(nodeId, diagramId, localSize) {    
-        
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-        
-    if (nodesById.hasOwnProperty(nodeId)) {    
-        let node = nodesById[nodeId]    
-            
-        // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
-            // TODO: do we really need to make a clone here?    
-            let newLocalSize = {    
-                "width" : localSize.width,    
-                "height" : localSize.height    
-            }    
-                
-            node.diagramSpecificVisualData[diagramId].size = newLocalSize    
+function removeContainerFromDiagram(containerIdentifier, diagramId) {    
     
-            // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)    
-            let nlcDataChange = {    
-                "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "size"],    
-                "data" : newLocalSize    
-            }    
-            NLC.dataChangesToStore.push(nlcDataChange)    
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagram = diagramsById[diagramId]
+    
+    let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
+
+    // We are removing the container from the diagram
+    let isRemoved = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, containerIdentifierPath, null, true)
+    
+    if (isRemoved) {
+            
+        // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
+        let nlcDataChange = {    
+            "method" : "delete",    
+            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath),
+            "data" : null    
         }    
-        
+        NLC.dataChangesToStore.push(nlcDataChange)    
+            
         // TODO: maybe its better to call this: visualDataHasChanged ?    
         NLC.dataHasChanged = true    
-    }    
-    else {    
-        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
     }    
 }    
 
-function storeNodeLocalScaleInDiagram(nodeId, diagramId, localScale) {    
-        
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-        
-    if (nodesById.hasOwnProperty(nodeId)) {    
-        let node = nodesById[nodeId]    
-            
-        // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
-                
-            node.diagramSpecificVisualData[diagramId].scale = localScale
+function storeContainerLocalSizeInDiagram(containerIdentifier, diagramId, localSize) {    
+
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagram = diagramsById[diagramId]
     
-            // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.nodes)    
-            let nlcDataChange = {    
-                "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "scale"],    
-                "data" : localScale
-            }    
-            NLC.dataChangesToStore.push(nlcDataChange)    
+    // TODO: do we really need to make a clone here?    
+    let newLocalSize = {    
+        "width" : localSize.width,    
+        "height" : localSize.height    
+    }    
+    
+    let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
+
+    // We are changing the containerVisualData in the diagram
+    let isChanged = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, [].concat(containerIdentifierPath, ['size']), newLocalSize, false)
+    
+    if (isChanged) {
+        // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath, ['size']),    
+            "data" : newLocalSize
         }    
+        NLC.dataChangesToStore.push(nlcDataChange)    
         
         // TODO: maybe its better to call this: visualDataHasChanged ?    
         NLC.dataHasChanged = true    
-    }    
+    }
     else {    
-        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
+        console.log("ERROR: cannot store node: unknown container:" + containerIdentifier)    
+    }    
+}    
+
+function storeContainerLocalScaleInDiagram(containerIdentifier, diagramId, localScale) {    
+        
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagram = diagramsById[diagramId]
+    
+    let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
+
+    // We are changing the containerVisualData in the diagram
+    let isChanged = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, [].concat(containerIdentifierPath, ['scale']), localScale, false)
+    
+    if (isChanged) {
+        // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath, ['scale']),    
+            "data" : localScale
+        }    
+        NLC.dataChangesToStore.push(nlcDataChange)    
+        
+        // TODO: maybe its better to call this: visualDataHasChanged ?    
+        NLC.dataHasChanged = true    
+    }
+    else {    
+        console.log("ERROR: cannot store node: unknown container:" + containerIdentifier)    
     }    
 }    
     
+function storeContainerLocalFontSizeInDiagram(containerIdentifier, diagramId, localFontSize) {    
+        
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagram = diagramsById[diagramId]
+    
+    let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
+
+    // We are changing the containerVisualData in the diagram
+    let isChanged = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, [].concat(containerIdentifierPath, ['localFontSize']), localFontSize, false)
+    
+    if (isChanged) {
+        // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath, ['localFontSize']),    
+            "data" : localFontSize
+        }    
+        NLC.dataChangesToStore.push(nlcDataChange)    
+        
+        // TODO: maybe its better to call this: visualDataHasChanged ?    
+        NLC.dataHasChanged = true    
+    }
+    else {    
+        console.log("ERROR: cannot store node: unknown container:" + containerIdentifier)    
+    }    
+}    
+    
+function storeContainerLocalPositionInDiagram (containerIdentifier, diagramId, localPosition) {    
+        
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagram = diagramsById[diagramId]
+    
+    // TODO: do we really need to make a clone here?    
+    let newLocalPosition = {    
+        "x" : localPosition.x,    
+        "y" : localPosition.y    
+    }    
+    
+    let containerIdentifierPath = getPathFromContainerIdentifier(containerIdentifier)
+
+    // We are changing the containerVisualData in the diagram
+    let isChanged = setOrDeleteValueInsideTreeStructureUsingPath(diagram.containers, [].concat(containerIdentifierPath, ['position']), newLocalPosition, false)
+    
+    if (isChanged) {
+        // TODO: you probably want to apply this change in javascript too (on the node in nodesAndLinksData.diagrams) -> Arent we doing that already above?    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [].concat([ "diagrams", diagramId, "containers" ], containerIdentifierPath, ['position']),    
+            "data" : newLocalPosition
+        }    
+        NLC.dataChangesToStore.push(nlcDataChange)    
+        
+        // TODO: maybe its better to call this: visualDataHasChanged ?    
+        NLC.dataHasChanged = true    
+    }
+    else {    
+        console.log("ERROR: cannot store node: unknown container:" + containerIdentifier)    
+    }    
+}    
+
+// FIXME: REFACTOR THIS ONE TOO! 
+// FIXME: REFACTOR THIS ONE TOO! 
+// FIXME: REFACTOR THIS ONE TOO! 
 function storeNodeParentNodeIdInDiagram(nodeId, diagramId, parentNodeId) {    
         
     let nodesById = NLC.nodesAndLinksData.nodesById    
@@ -1351,103 +1469,42 @@ function storeNodeParentNodeIdInDiagram(nodeId, diagramId, parentNodeId) {
         console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
     }    
 }    
-    
-function storeNodeLocalFontSizeInDiagram(nodeId, diagramId, localFontSize) {    
-        
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-        
-    if (nodesById.hasOwnProperty(nodeId)) {    
-        let node = nodesById[nodeId]    
-            
-        // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
-                
-            node.diagramSpecificVisualData[diagramId].localFontSize = localFontSize    
-    
-            // TODO: you probably want to apply this change in javascript to (on the node in nodesAndLinksData.nodes)    
-            let nlcDataChange = {    
-                "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "localFontSize"],    
-                "data" : localFontSize    
-            }    
-            NLC.dataChangesToStore.push(nlcDataChange)    
-        }    
-        
-        // TODO: maybe its better to call this: visualDataHasChanged ?    
-        NLC.dataHasChanged = true    
-    }    
-    else {    
-        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
-    }    
-}    
-    
-function storeNodeLocalPositionInDiagram (nodeId, diagramId, localPosition) {    
-        
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-        
-    if (nodesById.hasOwnProperty(nodeId)) {    
-        let node = nodesById[nodeId]    
-            
-        // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
-            // TODO: do we really need to make a clone here?    
-            let newLocalPosition = {    
-                "x" : localPosition.x,    
-                "y" : localPosition.y    
-            }    
-                
-            node.diagramSpecificVisualData[diagramId].position = newLocalPosition    
-    
-            // TODO: you probably want to apply this change in javascript to (on the node in nodesAndLinksData.nodes)    
-            let nlcDataChange = {    
-                "method" : "update",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId, "position"],    
-                "data" : newLocalPosition                    
-            }    
-            NLC.dataChangesToStore.push(nlcDataChange)    
-        }    
-        
-        // TODO: maybe its better to call this: visualDataHasChanged ?    
-        NLC.dataHasChanged = true    
-    }    
-    else {    
-        console.log("ERROR: cannot store node: unknown nodeId:" + nodeId)    
-    }    
-}    
-    
-function removeNodeFromDiagram(nodeId, diagramId) {    
-        
-    let nodesById = NLC.nodesAndLinksData.nodesById    
-        
-    if (nodesById.hasOwnProperty(nodeId)) {    
-        let node = nodesById[nodeId]    
-    
-        // TODO: check if key exists instead of checking for the value to be "true"    
-        if (node.diagramSpecificVisualData && node.diagramSpecificVisualData[diagramId]) {    
-            // We are removing the node from the diagram (or actually: the diagram info from the node)    
-            delete node.diagramSpecificVisualData[diagramId]    
-                
-            // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
-            let nlcDataChange = {    
-                "method" : "delete",    
-                "path" : [ "nodes", nodeId, "diagramSpecificVisualData", diagramId],    
-                "data" : null    
-            }    
-            NLC.dataChangesToStore.push(nlcDataChange)    
-        }    
-            
-        // TODO: maybe its better to call this: visualDataHasChanged ?    
-        NLC.dataHasChanged = true    
-    }    
-}    
-    
+
     
 // Links in Diagrams
 
-function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo, connectionPointIdentifier) {    
+// FIXME: NOT USED RIGHT NOW!    
+function getPathFromDiagramConnectionIdentifier (diagramConnectionIdentifier) {
+    
+    // Example: '448=234:1763:1783-276:124'
+    //           linkId = nodeId:nodeId:nodeId - nodeId:nodeId
+    
+    let connectionIdentifierParts = diagramConnectionIdentifier.split("=")
+    
+    let connectionId = connectionIdentifierParts[0]
+    let connectionPath = connectionIdentifierParts[1]
+    let fromAndToNodePaths = connectionPath.split("-")
+    let fromNodePath = fromAndToNodePaths[0].split(":")
+    let toNodePath = fromAndToNodePaths[1].split(":")
+    
+    return {
+        "connectionId" : connectionId,
+        "fromNodePath" : fromNodePath,
+        "toNodePath" : toNodePath
+    }
+}
+
+// FIXME: REFACTOR THIS ONE TOO! 
+// FIXME: REFACTOR THIS ONE TOO! 
+// FIXME: REFACTOR THIS ONE TOO! 
+function storeLinkConnectionPointIdentifierInDiagram(connectionIdentifier, diagramId, fromOrTo, connectionPointIdentifier) {    
       
     let linksById = NLC.nodesAndLinksData.linksById    
     let nodesById = NLC.nodesAndLinksData.nodesById
+
+// FIXME: IS THIS WHAT WE WANT??
+// FIXME: use this: getPathFromDiagramConnectionIdentifier() !!
+    let linkId = connectionIdentifier
     
     let keyToStore = 'fromConnectionPointIdentifier'    
     if (fromOrTo === 'to') {    
@@ -1455,10 +1512,10 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo
     }    
     
     if ((''+linkId).includes('-')) {
-        // This is a virtualLink, meaning its visualData should be stored in the fromNode (not in the link itself, which doesn't really exist)
+        // This is a virtualConnection, meaning its visualData should be stored in the fromNode (not in the link itself, which doesn't really exist)
         let nodeIds = linkId.split("-")
         if (nodeIds.length != 2) {
-            console.log("ERROR: virtualLinkId does not contain fromId and toId! : " + linkId)
+            console.log("ERROR: virtualConnectionId does not contain fromId and toId! : " + linkId)
             return
         }
         let fromNodeId = parseInt(nodeIds[0])
@@ -1479,8 +1536,8 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo
                 
             let diagramSpecificVisualData = {}
             diagramSpecificVisualData[diagramId] = {}    
-            diagramSpecificVisualData[diagramId]['virtualLinks'] = {}    
-            diagramSpecificVisualData[diagramId]['virtualLinks'][linkId] = {}    
+            diagramSpecificVisualData[diagramId]['virtualConnections'] = {}    
+            diagramSpecificVisualData[diagramId]['virtualConnections'][linkId] = {}    
             let nlcDataChange = {    
                 "method" : "update",    
                 "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData"],    
@@ -1492,8 +1549,8 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo
         // If there is diagramSpecificVisualData but not for this diagram, we fill it with empy visualData for this diagram
         else if (!fromNode.diagramSpecificVisualData.hasOwnProperty(diagramId)) {
             let visualData = {}    
-            visualData['virtualLinks'] = {}    
-            visualData['virtualLinks'][linkId] = {}    
+            visualData['virtualConnections'] = {}    
+            visualData['virtualConnections'][linkId] = {}    
             let nlcDataChange = {    
                 "method" : "update",    
                 "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId],
@@ -1502,34 +1559,34 @@ function storeLinkConnectionPointIdentifierInDiagram(linkId, diagramId, fromOrTo
             fromNode.diagramSpecificVisualData[diagramId] = visualData
             NLC.dataChangesToStore.push(nlcDataChange)    
         }
-        else if (!fromNode.diagramSpecificVisualData[diagramId].hasOwnProperty('virtualLinks')) {
-            let virtualLinksData = {}    
-            virtualLinksData[linkId] = {}    
+        else if (!fromNode.diagramSpecificVisualData[diagramId].hasOwnProperty('virtualConnections')) {
+            let virtualConnectionsData = {}    
+            virtualConnectionsData[linkId] = {}    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualLinks'],
-                "data" : virtualLinksData
+                "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualConnections'],
+                "data" : virtualConnectionsData
             }    
-            fromNode.diagramSpecificVisualData[diagramId]['virtualLinks'] = virtualLinksData
+            fromNode.diagramSpecificVisualData[diagramId]['virtualConnections'] = virtualConnectionsData
             NLC.dataChangesToStore.push(nlcDataChange)    
         }
-        else if (!fromNode.diagramSpecificVisualData[diagramId].virtualLinks.hasOwnProperty(linkId)) {
-            let virtualLinkData = {}
+        else if (!fromNode.diagramSpecificVisualData[diagramId].virtualConnections.hasOwnProperty(linkId)) {
+            let virtualConnectionData = {}
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualLinks', linkId],
-                "data" : virtualLinkData
+                "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualConnections', linkId],
+                "data" : virtualConnectionData
             }    
-            fromNode.diagramSpecificVisualData[diagramId]['virtualLinks'][linkId] = virtualLinkData
+            fromNode.diagramSpecificVisualData[diagramId]['virtualConnections'][linkId] = virtualConnectionData
             NLC.dataChangesToStore.push(nlcDataChange)
         }
         
-        fromNode.diagramSpecificVisualData[diagramId]['virtualLinks'][linkId][keyToStore] = connectionPointIdentifier
+        fromNode.diagramSpecificVisualData[diagramId]['virtualConnections'][linkId][keyToStore] = connectionPointIdentifier
                 
         // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualLinks', linkId, keyToStore],
+            "path" : [ "nodes", fromNodeId, "diagramSpecificVisualData", diagramId, 'virtualConnections', linkId, keyToStore],
             "data" : connectionPointIdentifier    
         }    
         NLC.dataChangesToStore.push(nlcDataChange)    
@@ -1815,10 +1872,14 @@ function getLinkedLinkIds(nodeId) {
     return linkedLinkIds
 }
     
-function nodeIsInDiagram(node, diagramId) {    
-    let nodeIsInDiagram = node.hasOwnProperty('diagramSpecificVisualData') &&     
-                          node.diagramSpecificVisualData.hasOwnProperty(diagramId)    
-    return nodeIsInDiagram    
+// FIXME: we should probably rename this to containerIdIsInDiagram to make it more general purpose!
+function nodeIsInDiagram(node, diagramId) {
+    if (node.id in NLC.containerIdsAddedToZUI) {
+        return true
+    }
+    else {
+        return false
+    }
 }    
     
 function linkIsInDiagram(link, diagramId) {    
@@ -2265,9 +2326,219 @@ function markLinksInToChainAsChained(toChain, chainingLinkId) {
     }
 }
 
-function convertNodeToContainer (node) {
+function convertNodeToContainer (containerVisualData, node, parentContainerIdentifier, selectedLegendaId, dimUninteresting) {
+    
+    let localScale = 1    
+    /*    
+    // TODO: this is an intereting idea!    
+    if (NLC.levelOfDetail === 'medium') {    
+        localScale = 2    
+    }    
+    */    
+    if ('scale' in containerVisualData) {
+        localScale = containerVisualData.scale
+    }    
+    
+    let nodeTypeInfo = getNodeTypeInfo(node)    
+    
+    let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0? or should we assume 1.0?
+    let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
+    
+    if (nodeTypeInfo != null) {    
+        let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
+        
+        if (nodeTypeHasLevelOfDetailProperties) {
+            toLevelOfDetail = nodeTypeInfo.lod['to']
+            fromLevelOfDetail = nodeTypeInfo.lod['from']
+        }
+        else {
+            console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
+        }
+    }    
+        
+    let position = {
+        x: 96, // FIXME: use a default position? Or determine where there is room?? Or set to null?    
+        y: 96  // FIXME: use a default position? Or determine where there is room?? Or set to null?    
+    }    
+        
+    let size = {
+        width: 96, // FIXME: change to width of text!    
+        height: 96 // FIXME: get from visualInfo or part of shape?    
+    }    
+        
+    let localFontSize = 14    
+        
+    let shape = null    
+    let textBelowContainer = null    
+    if (nodeTypeInfo != null) {    
+        if ('shapeAndColor' in nodeTypeInfo) {    
+            if ('shape' in nodeTypeInfo.shapeAndColor) {    
+                shape = nodeTypeInfo.shapeAndColor.shape    
+            }    
+            if ('textBelowContainer' in nodeTypeInfo.shapeAndColor) {    
+                textBelowContainer = nodeTypeInfo.shapeAndColor.textBelowContainer    
+            }
+            if ('defaultSize' in nodeTypeInfo.shapeAndColor) {
+                size.width = nodeTypeInfo.shapeAndColor.defaultSize.width
+                size.height = nodeTypeInfo.shapeAndColor.defaultSize.height
+            }
+            if ('defaultFontSize' in nodeTypeInfo.shapeAndColor) {
+                localFontSize = nodeTypeInfo.shapeAndColor.defaultFontSize
+            }
+        }    
+        else {    
+            console.log("ERROR: no shape and color info : " + node)    
+        }    
+    }    
+        
+    if ('size' in containerVisualData) {
+        size = containerVisualData.size    
+    }
+    if ('localFontSize' in containerVisualData) {
+        localFontSize = containerVisualData.localFontSize    
+    }    
+    if ('position' in containerVisualData) {
+        position = containerVisualData.position    
+    }    
+    
+    let containerIdentifier = parentContainerIdentifier == null ? node.id : parentContainerIdentifier + ':' + node.id
+    
+    let containerInfo = {    
+        type: node.type,    
+        // TODO: shouldnt we also add the node.identifier?!
+        containerType: 'node',
+        identifier: containerIdentifier,    
+        parentContainerIdentifier: parentContainerIdentifier,
+        // FIXME; we cannot be sure commonDate.name exists!    
+        name: node.commonData.name,    
+        localPosition: {    
+            x: position.x,    
+            y: position.y    
+        },
+        fromLevelOfDetail: fromLevelOfDetail,
+        toLevelOfDetail: toLevelOfDetail,
+        localScale: localScale,    
+        localSize: size,    
+        localFontSize : localFontSize,    
+        shape : shape,    
+        textBelowContainer : textBelowContainer    
+    }    
+
+    let colorsForNode = null    
+    let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting)
+    if (colorNamesWithLight != null) {    
+        // If we get a direct color (no translation needed) we simply copy all rgba values
+        if ('stroke' in colorNamesWithLight && 'r' in colorNamesWithLight.stroke) {
+            containerInfo.stroke = {}
+            containerInfo.stroke.r = colorNamesWithLight.stroke.r
+            containerInfo.stroke.g = colorNamesWithLight.stroke.g
+            containerInfo.stroke.b = colorNamesWithLight.stroke.b
+            containerInfo.stroke.a = colorNamesWithLight.stroke.a
+            containerInfo.fill = {}
+            containerInfo.fill.r = colorNamesWithLight.fill.r
+            containerInfo.fill.g = colorNamesWithLight.fill.g
+            containerInfo.fill.b = colorNamesWithLight.fill.b
+            containerInfo.fill.a = colorNamesWithLight.fill.a
+        }
+        else {
+            containerInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
+            containerInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)    
+            if (colorNamesWithLight.doDim) {
+                containerInfo.alpha = 0.3
+            }
+        }
+    }    
     
     return containerInfo
+}
+
+function getPathFromContainerIdentifier(containerIdentifier) {
+    let containerIdentifierPath = []
+    if (containerIdentifier != null) {
+        containerIdentifierPathStrings = containerIdentifier.split('-')
+        for (let containerIdentifierPathStringsIndex in containerIdentifierPathStrings) {
+            containerIdentifierPath.push(parseInt(containerIdentifierPathStrings[containerIdentifierPathStringsIndex]))
+        }
+    }
+    return containerIdentifierPath
+}
+
+function getContainerIdentifiersInDiagramByContainerId (containerId) {
+    let containerIdentifiersInDiagram = null
+    if (containerId in NLC.containerIdsAddedToZUI) {
+        if (Object.keys(NLC.containerIdsAddedToZUI[containerId]) && Object.keys(NLC.containerIdsAddedToZUI[containerId]).length > 0) {
+            // Note: containerIdentifiersInDiagram will be a STRING (which is correct)
+            containerIdentifiersInDiagram = Object.keys(NLC.containerIdsAddedToZUI[containerId])
+        }
+    }
+    return containerIdentifiersInDiagram
+}
+
+function convertContainerIdentifierToContainerId(containerIdentifier) {
+    let containerId = null
+    
+    if (containerIdentifier != null) {
+        let containerIdentifierString = containerIdentifier + ''
+        let containerIdentifierParts = containerIdentifierString.split('-')
+        // Note: containerId will be an INTEGER (which is correct)
+        containerId = parseInt(containerIdentifierParts[containerIdentifierParts.length - 1])
+    }
+    
+    return containerId
+}
+
+function convertDiagramContainersToZUIContainers(diagramContainers, parentContainerIdentifier, selectedLegendaId, dimUninteresting) {
+    
+    for (let containerId in diagramContainers) {
+        
+        let diagramContainerVisualData = diagramContainers[containerId]
+        let containerType = diagramContainerVisualData.type
+        
+        let containerInfo = null
+        if (containerType == 'node') {
+
+            let node = NLC.nodesAndLinksData.nodesById[containerId]
+            containerInfo = convertNodeToContainer(diagramContainerVisualData, node, parentContainerIdentifier, selectedLegendaId, dimUninteresting) 
+            createContainer(containerInfo)
+            let nodeConnectionsVisualData = null
+            if ('connections' in diagramContainerVisualData) {
+                nodeConnectionsVisualData = diagramContainerVisualData.connections
+            }
+            let nodeVirtualConnectionsVisualData = null
+            if ('virtualConnections' in diagramContainerVisualData) {
+                nodeVirtualConnectionsVisualData = diagramContainerVisualData.virtualConnections
+            }
+            let containerAddedToZUI = {}
+            // Note that containerInfo.identifier contains parentContainerIdentifier + ':' + node.id/containerId (or simply containerId if its at the root level)
+            containerAddedToZUI[containerInfo.identifier] = {
+                'connections' : nodeConnectionsVisualData,
+                'virtualConnections' : nodeVirtualConnectionsVisualData
+            }
+            NLC.containerIdsAddedToZUI[containerId] = containerAddedToZUI
+            
+            if ('containers' in diagramContainerVisualData) {
+// FIXME: do something with the RESULT!?
+                let result = convertDiagramContainersToZUIContainers(diagramContainerVisualData['containers'], containerInfo.identifier, selectedLegendaId, dimUninteresting)
+            }
+            
+        }
+        
+        if (containerInfo) {
+            if (NLC.levelOfDetail == "auto") {
+                if (ZUI.interaction.levelOfDetailToAlwaysShow == null || (containerInfo.fromLevelOfDetail != null && containerInfo.fromLevelOfDetail < ZUI.interaction.levelOfDetailToAlwaysShow)) {
+// FIXME: usly setting of global var (we should return this value somehow)
+                    ZUI.interaction.levelOfDetailToAlwaysShow = containerInfo.fromLevelOfDetail
+                }
+            }
+            else {
+                // TODO: we now assume levelOfDetail == "all" here, so we show all details
+// FIXME: usly setting of global var (we should return this value somehow)
+                ZUI.interaction.levelOfDetailToAlwaysShow = highLod
+            }
+        }
+    }
+    
+    
 }
 
 // FIXME: rename this function!! (it contains MORE than nodes and links now!)
@@ -2278,175 +2549,21 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     
     // When looking at all the nodes, we keep track of the lowest fromLevelOfDetail. This is the level that will always be shown (since it is the lowest). Not showing these nodes, would otherwise empty the screen.
     let lowestFromLevelOfDetail = null
+    let diagramContainers =  NLC.nodesAndLinksData.diagramsById[diagramId].containers
     
-    let nodeIdsAddedToContainers = {}    
-    let nodes = NLC.nodesAndLinksData.nodes    
-    for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {    
-        let node = nodes[nodeIndex]    
-            
-        let nodeInDiagram = nodeIsInDiagram(node, diagramId)    
-        if (!nodeInDiagram) {    
-            // The node does not have diagramSpecificVisualData for the selectedDiagram, so we are not going to show/add the node    
-            continue    
-        }    
-        
-        let parentNodeId = 'root'
-        if ('parentNodeId' in node.diagramSpecificVisualData[diagramId]) {
-            parentNodeId = node.diagramSpecificVisualData[diagramId].parentNodeId
-        }
-        
-        
-        // CALL THIS: let containerInfo = convertNodeToContainer(node) 
-        
-//    -> FIXME: how do we do parentContainerIdentifier ?? CONCAT IDs? -> set AFTERWARDS here?
-            
-        let localScale = 1    
-        /*    
-        // TODO: this is an intereting idea!    
-        if (NLC.levelOfDetail === 'medium') {    
-            localScale = 2    
-        }    
-        */    
-        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("scale")) {
-            localScale = node.diagramSpecificVisualData[diagramId].scale
-        }    
-        
-        let nodeTypeInfo = getNodeTypeInfo(node)    
-        
-        let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0? or should we assume 1.0?
-        let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
-        
-        if (nodeTypeInfo != null) {    
-            let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
-            
-            if (nodeTypeHasLevelOfDetailProperties) {
-                toLevelOfDetail = nodeTypeInfo.lod['to']
-                fromLevelOfDetail = nodeTypeInfo.lod['from']
-            }
-            else {
-                console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
-            }
-        }    
-            
-        let position = {     
-            x: 96, // FIXME: use a default position? Or determine where there is room?? Or set to null?    
-            y: 96  // FIXME: use a default position? Or determine where there is room?? Or set to null?    
-        }    
-            
-        let size = {     
-            width: 96, // FIXME: change to width of text!    
-            height: 96 // FIXME: get from visualInfo or part of shape?    
-        }    
-            
-        let localFontSize = 14    
-            
-        let shape = null    
-        let textBelowContainer = null    
-        if (nodeTypeInfo != null) {    
-            if ('shapeAndColor' in nodeTypeInfo) {    
-                if ('shape' in nodeTypeInfo.shapeAndColor) {    
-                    shape = nodeTypeInfo.shapeAndColor.shape    
-                }    
-                if ('textBelowContainer' in nodeTypeInfo.shapeAndColor) {    
-                    textBelowContainer = nodeTypeInfo.shapeAndColor.textBelowContainer    
-                }
-                if ('defaultSize' in nodeTypeInfo.shapeAndColor) {
-                    size.width = nodeTypeInfo.shapeAndColor.defaultSize.width
-                    size.height = nodeTypeInfo.shapeAndColor.defaultSize.height
-                }
-                if ('defaultFontSize' in nodeTypeInfo.shapeAndColor) {
-                    localFontSize = nodeTypeInfo.shapeAndColor.defaultFontSize
-                }
-            }    
-            else {    
-                console.log("ERROR: no shape and color info : " + node)    
-            }    
-        }    
-            
-        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("size")) {    
-            size = node.diagramSpecificVisualData[diagramId].size    
-        }
-        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("localFontSize")) {    
-            localFontSize = node.diagramSpecificVisualData[diagramId].localFontSize    
-        }    
-        if (node.diagramSpecificVisualData[diagramId].hasOwnProperty("position")) {    
-            position = node.diagramSpecificVisualData[diagramId].position    
-        }    
-        
-        let containerInfo = {    
-            type: node.type,    
-// FIXME: shouldnt we also add the node.identifier?!
-            identifier: node.id,    
-            parentContainerIdentifier: parentNodeId,
-            // FIXME; we cannot be sure commonDate.name exists!    
-            name: node.commonData.name,    
-            localPosition: {    
-                x: position.x,    
-                y: position.y    
-            },
-            fromLevelOfDetail: fromLevelOfDetail,
-            toLevelOfDetail: toLevelOfDetail,
-            localScale: localScale,    
-            localSize: size,    
-            localFontSize : localFontSize,    
-            shape : shape,    
-            textBelowContainer : textBelowContainer    
-        }    
-
-        let colorsForNode = null    
-        let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting)
-        if (colorNamesWithLight != null) {    
-            // If we get a direct color (no translation needed) we simply copy all rgba values
-            if ('stroke' in colorNamesWithLight && 'r' in colorNamesWithLight.stroke) {
-                containerInfo.stroke = {}
-                containerInfo.stroke.r = colorNamesWithLight.stroke.r
-                containerInfo.stroke.g = colorNamesWithLight.stroke.g
-                containerInfo.stroke.b = colorNamesWithLight.stroke.b
-                containerInfo.stroke.a = colorNamesWithLight.stroke.a
-                containerInfo.fill = {}
-                containerInfo.fill.r = colorNamesWithLight.fill.r
-                containerInfo.fill.g = colorNamesWithLight.fill.g
-                containerInfo.fill.b = colorNamesWithLight.fill.b
-                containerInfo.fill.a = colorNamesWithLight.fill.a
-            }
-            else {
-                containerInfo.stroke = getColorByColorNameAndLighten(colorNamesWithLight.stroke)    
-                containerInfo.fill = getColorByColorNameAndLighten(colorNamesWithLight.fill)    
-                if (colorNamesWithLight.doDim) {
-                    containerInfo.alpha = 0.3
-                }
-            }
-        }    
-
-
-            
-        if (NLC.levelOfDetail == "auto") {
-            if (lowestFromLevelOfDetail == null || containerInfo.fromLevelOfDetail < lowestFromLevelOfDetail) {
-                lowestFromLevelOfDetail = containerInfo.fromLevelOfDetail
-            }
-        }
-        else {
-            // TODO: we now assume levelOfDetail == "all" here, so we show all details
-            lowestFromLevelOfDetail = highLod
-        }
-            
-        createContainer(containerInfo)    
-        nodeIdsAddedToContainers[node.id] = true    
-    }
+    let parentContainerIdentifier = null
+    NLC.containerIdsAddedToZUI = {}    
+// FIXME: we set ZUI.interaction.levelOfDetailToAlwaysShow inside convertDiagramContainersToZUIContainers, which is not very elegant!
+// FIXME: do something with the RESULT!?
+    let result = convertDiagramContainersToZUIContainers(diagramContainers, parentContainerIdentifier, selectedLegendaId, dimUninteresting)
     
-    // We now set the levelOfDetailToAlwaysShow to the lowestFromLevelOfDetail of all the nodes
-    if (lowestFromLevelOfDetail != null) {
-        ZUI.interaction.levelOfDetailToAlwaysShow = lowestFromLevelOfDetail
-    }
-    else {
-        // TODO: if no node has any fromLevelOfDetail information, we
+    if (ZUI.interaction.levelOfDetailToAlwaysShow == null) {
         ZUI.interaction.levelOfDetailToAlwaysShow = 0.0
     }
     
     // TODO: we currently set the absolute positions of the container before we add the connections. Is this required? Of should/can we do this after adding the connections?    
     setContainerChildren()    
     recalculateWorldPositionsAndSizes(null)    
-    
     
     
     // ----------------- Links -> Connections ---------------------
@@ -2461,7 +2578,11 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     NLC.chainsAndBundles.linksByFromNodeId = {}
     NLC.chainsAndBundles.linksByToNodeId = {}
     
+// FIXME: shouldnt this be containersByFromLevelOfDetail INSTEAD??
+// FIXME: shouldnt this be containersByFromLevelOfDetail INSTEAD??
+// FIXME: shouldnt this be containersByFromLevelOfDetail INSTEAD??
     let nodesByFromLevelOfDetail = {}
+    let nodes = NLC.nodesAndLinksData.nodes    
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {    
         let node = nodes[nodeIndex]    
         
@@ -2480,13 +2601,15 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             }
             
             nodesByFromLevelOfDetail[fromLevelOfDetail].push(node)
-            
+
+// FIXME: we should keep track of from/toLevelOfDetailPer*Container*Id !
             NLC.chainsAndBundles.fromLevelOfDetailPerNodeId[node.id] = fromLevelOfDetail
             NLC.chainsAndBundles.toLevelOfDetailPerNodeId[node.id] = toLevelOfDetail
         }
         else {
             console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
             
+// FIXME: we should keep track of from/toLevelOfDetailPer*Container*Id !
             // TODO: what dummy/error/default value should we give these?
             NLC.chainsAndBundles.fromLevelOfDetailPerNodeId[node.id] = 0.0
             NLC.chainsAndBundles.toLevelOfDetailPerNodeId[node.id] = 1.0
@@ -2494,19 +2617,19 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     }
     
     let nodesById = NLC.nodesAndLinksData.nodesById
-    let virtualLinksById = []
-    let virtualLinksByFromLod = {}
+    let virtualConnectionsById = []
+    let virtualConnectionsByFromLod = {}
     let linksByFromNodeId = NLC.chainsAndBundles.linksByFromNodeId
     let linksByToNodeId = NLC.chainsAndBundles.linksByToNodeId
     let fromLevelOfDetailPerNodeId = NLC.chainsAndBundles.fromLevelOfDetailPerNodeId
     let toLevelOfDetailPerNodeId = NLC.chainsAndBundles.toLevelOfDetailPerNodeId
     
     // FIXME: we should iterate over all existing Lod-levels
-    // virtualLinksByFromLod[maxLod] = []  // not needed
-    virtualLinksByFromLod[highLod] = []
-    virtualLinksByFromLod[mediumLod] = []
-    virtualLinksByFromLod[lowLod] = []
-    virtualLinksByFromLod[veryLowLod] = []
+    // virtualConnectionsByFromLod[maxLod] = []  // not needed
+    virtualConnectionsByFromLod[highLod] = []
+    virtualConnectionsByFromLod[mediumLod] = []
+    virtualConnectionsByFromLod[lowLod] = []
+    virtualConnectionsByFromLod[veryLowLod] = []
     
     for (let linkId in NLC.nodesAndLinksData.linksById) {    
         let link = JSON.parse(JSON.stringify(NLC.nodesAndLinksData.linksById[linkId]))
@@ -2529,9 +2652,9 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
             to: maxLod
         }
         
-        // We always want the original links, so we add it to the set of virtualLinks
-        virtualLinksById[link.id] = link
-        virtualLinksByFromLod[link.lod.from].push(link)
+        // We always want the original links, so we add it to the set of virtualConnections
+        virtualConnectionsById[link.id] = link
+        virtualConnectionsByFromLod[link.lod.from].push(link)
         
         if (!(link.fromNodeId in linksByFromNodeId)) {
             linksByFromNodeId[link.fromNodeId] = []
@@ -2551,20 +2674,20 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
     
      0.1 - BAD is connecting to its OWN parent! (Bijsturing!) *if* you add ILSETimetableMutBlauwSS to the domain Bijsturing!
     
-     0.2 - There are several issue regarding having multiple virtualLinks with the same id. These should be bundled.
-           HOWEVER: sometimes a new virtualLink with the same id is created after "extened chaining" (for example domain-domain link '390-370').
-                   this is because the initial new virtualLink that is created (at the highest lod 0.05-0.4). But LATER this one is ALSO replaced
-                   by a virtualLink with lod 0.05-0.2 (NOTE: PstatusInzetRealisatieET related! which is a DIFFERENT chain!). 
-                   This problem is related to grouping and layering. But it also is a BUG because no overlapping virtualLink should be created when replacing one.
-           SOVLED -> An UNDERLYING problem: the links that connect to the *Applications* get a from/to-lod (when they are copied as virtualLinks) are *ONLY*
+     0.2 - There are several issue regarding having multiple virtualConnections with the same id. These should be bundled.
+           HOWEVER: sometimes a new virtualConnection with the same id is created after "extened chaining" (for example domain-domain link '390-370').
+                   this is because the initial new virtualConnection that is created (at the highest lod 0.05-0.4). But LATER this one is ALSO replaced
+                   by a virtualConnection with lod 0.05-0.2 (NOTE: PstatusInzetRealisatieET related! which is a DIFFERENT chain!). 
+                   This problem is related to grouping and layering. But it also is a BUG because no overlapping virtualConnection should be created when replacing one.
+           SOVLED -> An UNDERLYING problem: the links that connect to the *Applications* get a from/to-lod (when they are copied as virtualConnections) are *ONLY*
               being at the *HIGHEST* lod. YET, their from-lod should be lower, depending on where they are *ATTACHED* to
                    
      SOLVED 0.5 - PstatusInzetRealisatieET connects PSS with BAP. Which also connects DPK with Bijsturing. BUT, when this topic is not shown on a diagram,
-           the virtualLink (on a more detailed level) will dissappear, because the lower-lod link is "making room" for the more detailed one. YET, the detailed one
+           the virtualConnection (on a more detailed level) will dissappear, because the lower-lod link is "making room" for the more detailed one. YET, the detailed one
            will *not* be shown.
-            -> The ISSUE is here that we should make the from/to lod of virtualLinks set according to what *IN* a diagram.
+            -> The ISSUE is here that we should make the from/to lod of virtualConnections set according to what *IN* a diagram.
     
-     1 - Chains that contain only the highest lod (like only mediations) will be chained with virtualLinks that are ONLY visible at the *lowest* level, but will dissapear at the *medium* level
+     1 - Chains that contain only the highest lod (like only mediations) will be chained with virtualConnections that are ONLY visible at the *lowest* level, but will dissapear at the *medium* level
         -> Example: Donna -> BAM
      SOLVED 2 - highest level links that are not connected (that is: no chain leading) to a lower node, will always stay visible
                  -> See BIJS, below BAM
@@ -2579,17 +2702,17 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
      
      Extended chaining (with parents):
      
-     SOLVED * - We want links that are attached to nodes that will disappear to be replaced by virtualLink that connects to the *PARENT* (or grand parent) of that node,
-         if the original link crosses the border of that parent. Otherwise we want the link to be replaced by a virtualLink that will simply chain serveral "serial" links into one virutalLink.s
-          -> each time a virtualLink is created (also the initial links become virtualLinks) each side can be checked whether thet cross this border:
+     SOLVED * - We want links that are attached to nodes that will disappear to be replaced by virtualConnection that connects to the *PARENT* (or grand parent) of that node,
+         if the original link crosses the border of that parent. Otherwise we want the link to be replaced by a virtualConnection that will simply chain serveral "serial" links into one virtualConnection.s
+          -> each time a virtualConnection is created (also the initial links become virtualConnections) each side can be checked whether thet cross this border:
                  - if checking the to-side: the (grand)parents of the to-nodes are iterated through and each time its checked whether they are the parent of the from-node. This is done until the next lod-level is reached.
                      -> this side of the link is marked as such being 'chainToParent'
           -> when finding chains (in from or to side), - before going to the next link/link - we check whether we should chainToParent. That ends the chain.
      
      Bundling
      
-     % - If more that one virualLink is found for a lod, they should be bundled into a group of virtualLinks. Their identifier is "fromId-toId". So there should be at most 2 virtualLink between 2 nodes
-          -> visualInfo about these virtualLinks can be stored in the visual-info of the from-node.
+     % - If more that one virtualConnection is found for a lod, they should be bundled into a group of virtualConnections. Their identifier is "fromId-toId". So there should be at most 2 virtualConnection between 2 nodes
+          -> visualInfo about these virtualConnections can be stored in the visual-info of the from-node.
 
 
      => SOLUTIONS:
@@ -2611,22 +2734,22 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
             let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
             
-            let linksWithCertainFromLevelOfDetail = virtualLinksByFromLod[fromLevelOfDetail]
+            let linksWithCertainFromLevelOfDetail = virtualConnectionsByFromLod[fromLevelOfDetail]
             
-            for (let virtualLinkIndex in linksWithCertainFromLevelOfDetail) {
-                let virtualLink = linksWithCertainFromLevelOfDetail[virtualLinkIndex]
+            for (let virtualConnectionIndex in linksWithCertainFromLevelOfDetail) {
+                let virtualConnection = linksWithCertainFromLevelOfDetail[virtualConnectionIndex]
                 
-                // Only proceed / add new virtualLinks (to replace the current link) if this link hasn't already been chained
-                if ('alreadyChained' in virtualLink) {
+                // Only proceed / add new virtualConnections (to replace the current link) if this link hasn't already been chained
+                if ('alreadyChained' in virtualConnection) {
                     continue
                 }
                 
                 let doLog = false
 
-                // FIXME: add the virtualLink itself too!?
-                let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByFromNodeId, doLog)
-                // FIXME: add the virtualLink itself too!?
-                let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(virtualLink, fromLevelOfDetail, {}, diagramId, linksByToNodeId, doLog)
+                // FIXME: add the virtualConnection itself too!?
+                let toChainsWithLowerFromLevelOfDetail = findToChainsWithLowerFromLevelOfDetail(virtualConnection, fromLevelOfDetail, {}, diagramId, linksByFromNodeId, doLog)
+                // FIXME: add the virtualConnection itself too!?
+                let fromChainsWithLowerFromLevelOfDetail = findFromChainsWithLowerFromLevelOfDetail(virtualConnection, fromLevelOfDetail, {}, diagramId, linksByToNodeId, doLog)
                     
                 for (let fromChainIndex in fromChainsWithLowerFromLevelOfDetail) {
                     let fromChain = fromChainsWithLowerFromLevelOfDetail[fromChainIndex]
@@ -2649,29 +2772,29 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
                             highestLevelOfDetailOfFromAndTo = lastToNodeFromLevelOfDetail
                         }
                         
-                        let newVirutalLinkId = firstFromNode.id + '-' + lastToNode.id // FIXME: what should we use as id?
+                        let newVirtualConnectionId = firstFromNode.id + '-' + lastToNode.id // FIXME: what should we use as id?
                         
-                        if (newVirutalLinkId in virtualLinksById) {
-                            let existingVirtualLink = virtualLinksById[newVirutalLinkId]
+                        if (newVirtualConnectionId in virtualConnectionsById) {
+                            let existingVirtualConnection = virtualConnectionsById[newVirtualConnectionId]
                             
-                            if (fromLevelOfDetail > existingVirtualLink.lod.to) {
-                                existingVirtualLink.lod.to = fromLevelOfDetail
-                                // FIXME: what about the lod.from? -> IF you change this though, you also have to put the new virtualLink info a different virtualLinksByFromLod!
+                            if (fromLevelOfDetail > existingVirtualConnection.lod.to) {
+                                existingVirtualConnection.lod.to = fromLevelOfDetail
+                                // FIXME: what about the lod.from? -> IF you change this though, you also have to put the new virtualConnection info a different virtualConnectionsByFromLod!
                             }
                             
-                            // FIXME: store the fact that there are two virtualLinks (so you can show it to the user)
+                            // FIXME: store the fact that there are two virtualConnections (so you can show it to the user)
                         }
                         else {
                         
-                            let newVirtualLink = {
-                                id : newVirutalLinkId,
+                            let newVirtualConnection = {
+                                id : newVirtualConnectionId,
                                 
                                 type: "virtual",
                                 
                                 // FIXME: should we fill this? (with dataType?) -> or is this done by the legenda-functions?
                                 commonData : {}, 
                                 
-                                // FIXME: this data should somehow contain all bundles and chains that we chained by this virtualLink
+                                // FIXME: this data should somehow contain all bundles and chains that we chained by this virtualConnection
                                 
                                 fromNodeId : firstFromNode.id,
                                 toNodeId : lastToNode.id,
@@ -2682,26 +2805,26 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
                                 }
                             }
 
-                            virtualLinksById[newVirutalLinkId] = newVirtualLink
-                            virtualLinksByFromLod[newVirtualLink.lod.from].push(newVirtualLink)
+                            virtualConnectionsById[newVirtualConnectionId] = newVirtualConnection
+                            virtualConnectionsByFromLod[newVirtualConnection.lod.from].push(newVirtualConnection)
                             // FIXME: clean this up!
-                            if (!(newVirtualLink.fromNodeId in linksByFromNodeId)) {
-                                linksByFromNodeId[newVirtualLink.fromNodeId] = []
+                            if (!(newVirtualConnection.fromNodeId in linksByFromNodeId)) {
+                                linksByFromNodeId[newVirtualConnection.fromNodeId] = []
                             }
-                            linksByFromNodeId[newVirtualLink.fromNodeId].push(newVirtualLink)
+                            linksByFromNodeId[newVirtualConnection.fromNodeId].push(newVirtualConnection)
                             // FIXME: clean this up!
-                            if (!(newVirtualLink.toNodeId in linksByToNodeId)) {
-                                linksByToNodeId[newVirtualLink.toNodeId] = []
+                            if (!(newVirtualConnection.toNodeId in linksByToNodeId)) {
+                                linksByToNodeId[newVirtualConnection.toNodeId] = []
                             }
-                            linksByToNodeId[newVirtualLink.toNodeId].push(newVirtualLink)
+                            linksByToNodeId[newVirtualConnection.toNodeId].push(newVirtualConnection)
                         }
                         
                         
                         // We mark all links as being chained (and add the id of the chaining-link to it)
-                        markLinksInFromChainAsChained(fromChain, newVirutalLinkId)
-                        markLinksInToChainAsChained(toChain, newVirutalLinkId)
+                        markLinksInFromChainAsChained(fromChain, newVirtualConnectionId)
+                        markLinksInToChainAsChained(toChain, newVirtualConnectionId)
                         // The current link has also been chained now
-                        markLinkAsChained(virtualLink, newVirutalLinkId)
+                        markLinkAsChained(virtualConnection, newVirtualConnectionId)
                         
                     }
                 
@@ -2718,26 +2841,26 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         for (let fromLevelOfDetailIndex in fromLevelOfDetailsSorted) {
             let fromLevelOfDetail = fromLevelOfDetailsSorted[fromLevelOfDetailIndex]
             
-            let linksWithCertainFromLevelOfDetail = virtualLinksByFromLod[fromLevelOfDetail]
+            let linksWithCertainFromLevelOfDetail = virtualConnectionsByFromLod[fromLevelOfDetail]
             
-            for (let virtualLinkIndex in linksWithCertainFromLevelOfDetail) {
-                let virtualLink = linksWithCertainFromLevelOfDetail[virtualLinkIndex]
+            for (let virtualConnectionIndex in linksWithCertainFromLevelOfDetail) {
+                let virtualConnection = linksWithCertainFromLevelOfDetail[virtualConnectionIndex]
                 
-                let fromNode = nodesById[virtualLink.fromNodeId]
-                let toNode = nodesById[virtualLink.toNodeId]
+                let fromNode = nodesById[virtualConnection.fromNodeId]
+                let toNode = nodesById[virtualConnection.toNodeId]
                 
                 if (!nodeIsInDiagram(fromNode, diagramId) || !nodeIsInDiagram(toNode, diagramId)) {
                     // The link can never be shown, since at least one of the nodes it is attached to are not in the current diagram
                     
                     // This means we have to change the lod-settings of the chaning-links
                     
-                    if ('chainedBy' in virtualLink) {
-                        for (let chainedByIndex in virtualLink.chainedBy) {
-                            let chainedById = virtualLink.chainedBy[chainedByIndex]
+                    if ('chainedBy' in virtualConnection) {
+                        for (let chainedByIndex in virtualConnection.chainedBy) {
+                            let chainedById = virtualConnection.chainedBy[chainedByIndex]
                             
-                            let chainingVirtualLink = virtualLinksById[chainedById]
+                            let chainingVirtualConnection = virtualConnectionsById[chainedById]
                             
-                            chainingVirtualLink.lod.to = virtualLink.lod.to
+                            chainingVirtualConnection.lod.to = virtualConnection.lod.to
                         }
                     }
                     else {
@@ -2749,41 +2872,78 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         }
         
     }  // end of: doChainingAndBundling
+
+
     
-    
-    for (let linkId in virtualLinksById) {
-        let link = virtualLinksById[linkId]
+            
+// FIXME: we should add EACH link (POTENTIALLY) *MULTIPLE* times as a SEPARATE CONNECTION! (if the from/to nodes are present multiple times!)
+//    -> this is m x n times connections!
+
+// WE NOW DO SOMETHING LIKE THIS:
+// We keep track of containerIdentifiers when remembering whether they are VISIBLE on this diagram, in containerIdsAddedToZUI
+// containerIdsAddedToZUI[nodeId=243] = {
+//   '763:291:243' : {
+//       'connections' : {
+//          '247' : {
+//              <connectionVisualData here?>
+//          }
+//       }
+//   }
+//   '763:81:243' : {
+//       'connections' : {
+//         '<linkId>' : {
+//              <connectionVisualData here?>
+//          }
+//       },
+//       'virtualConnections' : {
+//         '243-652' : {
+//  --> FIMME: will the '-' still work here? Or should we use a different separator?
+//        WRONG:   '763:81:243-652' : null
+//     }
+//   }
+// },
+
+// Note that the connection.identifier (in the ZUI) should become something like: 
+//   -> in ZUI: connection.identifier = '448=234:1763:1783-276:124' -> = PATH naar containers in diagram!
+//  RIGHT NOW its simply the link.id (or the virtualLink.id)
+
+    for (let linkId in virtualConnectionsById) {
+        let link = virtualConnectionsById[linkId]
         
         if (!('lod' in link)) {
             console.log("ERROR: (virtual)link doesn't have lod-info!")
         }
             
-        let fromAndToNodesAreAddedToDiagram = nodeIdsAddedToContainers.hasOwnProperty(link.fromNodeId) &&    
-                                              nodeIdsAddedToContainers.hasOwnProperty(link.toNodeId)    
+        let fromAndToNodesAreAddedToDiagram = NLC.containerIdsAddedToZUI.hasOwnProperty(link.fromNodeId) &&    
+                                              NLC.containerIdsAddedToZUI.hasOwnProperty(link.toNodeId)    
             
         if (!fromAndToNodesAreAddedToDiagram) {    
             // If either the fromNode or the toNode is not added to the diagram, we do not add the link connecting them    
             continue    
         }    
+        
+// FIXME: HACK: we are FORCING the *FIRST* containerIdentifier from containerIdsAddedToZUI !! We should loop through them instead!
+// FIXME: HACK: we are FORCING the *FIRST* containerIdentifier from containerIdsAddedToZUI !! We should loop through them instead!
+// FIXME: HACK: we are FORCING the *FIRST* containerIdentifier from containerIdsAddedToZUI !! We should loop through them instead!
+        let fromContainerIdentifier = Object.keys(NLC.containerIdsAddedToZUI[link.fromNodeId])[0]
+        let toContainerIdentifier = Object.keys(NLC.containerIdsAddedToZUI[link.toNodeId])[0]
+        
+        let nodeConnectionsVisualData = NLC.containerIdsAddedToZUI[link.fromNodeId][fromContainerIdentifier].connections
+        let nodeVirtualConnectionsVisualData = NLC.containerIdsAddedToZUI[link.fromNodeId][fromContainerIdentifier].virtualConnections
             
         let diagramSpecificVisualDataForLink = null
-        if (link.hasOwnProperty('diagramSpecificVisualData') &&     
-            link.diagramSpecificVisualData.hasOwnProperty(diagramId)) {
-            diagramSpecificVisualDataForLink = link.diagramSpecificVisualData[diagramId]
+        if (nodeConnectionsVisualData && link.id in nodeConnectionsVisualData) {
+            diagramSpecificVisualDataForLink = nodeConnectionsVisualData[link.id]
+        }
+        // TODO: should this be an 'else if'?
+        if (nodeVirtualConnectionsVisualData && link.id in nodeVirtualConnectionsVisualData) {
+            diagramSpecificVisualDataForLink = nodeVirtualConnectionsVisualData[link.id]
         }
                               
-        if (link.type == 'virtual') {
-            // the visualData of a virtual link is currently stored in: fromNode.diagramSpecificVisualData[diagramId].virtualLinks[virutalLink.id]
-            let fromNode = nodesById[link.fromNodeId]
-            if ('diagramSpecificVisualData' in fromNode &&
-                diagramId in fromNode.diagramSpecificVisualData &&
-                'virtualLinks' in fromNode.diagramSpecificVisualData[diagramId] &&
-                link.id in fromNode.diagramSpecificVisualData[diagramId].virtualLinks) {
-                    
-                diagramSpecificVisualDataForLink = fromNode.diagramSpecificVisualData[diagramId].virtualLinks[link.id]
-            }
-        }
         
+        // FIXME: we should add the ability to HIDE a link using diagramSpecificVisualDataForLink (which is resided on the from/toNode)
+        
+      
         if (diagramSpecificVisualDataForLink == null) {
             // The link does not have diagramSpecificVisualData for the selectedDiagram, so we SHOULD not show/add the link
             // FIXME: we should 'continue' here, but the DEFAULT right now is to add it anyway!    
@@ -2817,14 +2977,15 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         
         // link.dataType = sourceDataType    
         let connectionInfo = {    
+// FIXME: we need to change this IDENTIFIER! (if we allow multiple nodes with the same id)
             identifier: link.id,    
             name: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!    
             type: link.type,
             dataType: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!
             fromLevelOfDetail: fromLevelOfDetail,
             toLevelOfDetail: toLevelOfDetail,
-            fromContainerIdentifier: link.fromNodeId,    
-            toContainerIdentifier: link.toNodeId,
+            fromContainerIdentifier: fromContainerIdentifier,    
+            toContainerIdentifier: toContainerIdentifier,
             scale : connectionScale,
         }
             

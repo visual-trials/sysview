@@ -45,6 +45,7 @@ function initContainersAndConnections () {
 function createContainer(containerData) {
     
     let containerIdentifier = containerData.identifier
+    let containerType = containerData.containerType
     
     let parentContainerIdentifier = containerData.parentContainerIdentifier
     
@@ -85,7 +86,8 @@ function createContainer(containerData) {
     }
     
     let newContainer = {
-        identifier: containerIdentifier,
+        containerType:  containerType,
+        identifier: containerIdentifier + '',
         name: containerData.name,
         
         type: containerData.type,  // TODO: This is from the database and is not used directly (from here). They do not really belong here, but are more convenient than to lookup the database data using the container identifier
@@ -219,6 +221,7 @@ function createConnection(connectionData) {
     
     
     let newConnection = {
+// FIXME: this should be forced to a STRING!
         identifier: connectionData.identifier,
         name: connectionData.name,
         

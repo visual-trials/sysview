@@ -91,7 +91,14 @@ function CreateNewNodeAndLinkScroller() {
         NodeAndLinkScroller.nodeAndLinkSelector.hoveredLinkId = null
         NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = node.id
 
-        ZUI.interaction.currentlyHoveredContainerIdentifier = NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId
+        let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId)
+        if (containerIdentifiersInDiagram) {
+            // FIXME: for now take the first node we find in the diagram!
+            ZUI.interaction.currentlyHoveredContainerIdentifier = containerIdentifiersInDiagram[0]
+        }
+        else {
+            ZUI.interaction.currentlyHoveredContainerIdentifier = null
+        }
         ZUI.interaction.currentlyHoveredConnectionIdentifier = null
         NodeAndLinkScroller.nodeAndLinkSelector.containerOrConnectionHoveringHasChanged = true
     }
@@ -137,10 +144,26 @@ function CreateNewNodeAndLinkScroller() {
             NodeAndLinkScroller.updateSearchHitsPerNodeType()
             
             if (updateSelectedContainers) {
+                
+                let currentlySelectedContainerIds = []
+                for (let currentlySelectedContainerIdentifiersIndex in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+                    let currentlySelectedContainerId = convertContainerIdentifierToContainerId(ZUI.interaction.currentlySelectedContainerIdentifiers[currentlySelectedContainerIdentifiersIndex])
+                    currentlySelectedContainerIds.push(currentlySelectedContainerId)
+                }
+                
                 if (ZUI.containersAndConnections.containers.hasOwnProperty(NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId) &&
-                    !ZUI.interaction.currentlySelectedContainerIdentifiers.includes(NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId)) {
-                        
-                    ZUI.interaction.currentlySelectedContainerIdentifiers = [NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId]
+                    !currentlySelectedContainerIds.includes(NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId)) {
+
+                    let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId)
+                    if (containerIdentifiersInDiagram) {
+                        // FIXME: for now take the first node we find in the diagram! AND we put it in the ARRAY of selected container
+                        //        MAYBE we can select them ALL?
+                        ZUI.interaction.currentlySelectedContainerIdentifiers = [containerIdentifiersInDiagram[0]]
+                    }
+                    else {
+                        ZUI.interaction.currentlySelectedContainerIdentifiers = []
+                    }
+                 
                     ZUI.interaction.currentlySelectedConnectionIdentifier = null
                 }
                 else {
@@ -201,7 +224,7 @@ function CreateNewNodeAndLinkScroller() {
     NodeAndLinkScroller.updateNodeAndLinkSelectionsBasedOnZUI = function () {
         
         // TODO: we should only update .hoveredNodeId if it is changed
-        let hoveredNodeId = ZUI.interaction.currentlyHoveredContainerIdentifier
+        let hoveredNodeId = convertContainerIdentifierToContainerId(ZUI.interaction.currentlyHoveredContainerIdentifier)
         if (hoveredNodeId) {
             NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = hoveredNodeId
         }
@@ -209,10 +232,17 @@ function CreateNewNodeAndLinkScroller() {
             NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = null
         }
         
-        let toBeSelectedNodeIds = ZUI.interaction.currentlySelectedContainerIdentifiers
-        if (toBeSelectedNodeIds && toBeSelectedNodeIds.length === 1) {
+        let selectedContainerIdentifiers = ZUI.interaction.currentlySelectedContainerIdentifiers
+        if (selectedContainerIdentifiers && selectedContainerIdentifiers.length === 1) {
             // TODO: right now, we only allow 1 node to be selected in Vue. Should we allow more to be selected?
-            let toBeSelectedNodeId = toBeSelectedNodeIds[0]
+            let selectedContainerIdentifier = selectedContainerIdentifiers[0]
+            
+            // Its probably better to let model.js do this, right?
+            let containerType = ZUI.containersAndConnections.containers[selectedContainerIdentifier].containerType 
+            
+            // FIXME: actually use the containerType! For now we simply assume its 'node'!
+            let toBeSelectedNodeId = convertContainerIdentifierToContainerId(selectedContainerIdentifier)
+            
             // FIXME: this is triggered when hovering over the selected container!!
             if (toBeSelectedNodeId !== NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId) {
                 let oldSelectedNodeId = NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId

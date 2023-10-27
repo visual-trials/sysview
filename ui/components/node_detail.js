@@ -157,7 +157,9 @@ function CreateNewNodeDetail() {
             
             if (editedNode.addToDiagram) {
                 let diagramId = DiagramLegendaLodSelector.diagramSelector.selectedDiagramId
-                addNodeToDiagram(editedNode, diagramId)
+                // FIXME: allow for the node to be added to a parent container!
+                let parentContainerIdentifier = null
+                addNodeToDiagram(editedNode, parentContainerIdentifier, diagramId)
             }
             
             delete editedNode.isNewNode
