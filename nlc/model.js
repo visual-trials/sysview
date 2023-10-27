@@ -2497,8 +2497,8 @@ function convertNodeToContainer (containerVisualData, node, parentContainerIdent
 
 function getPathFromContainerIdentifier(containerIdentifier) {
     let containerIdentifierPath = []
-    if (containerIdentifier != null) {
-        containerIdentifierPathStrings = containerIdentifier.split('-')
+    if (containerIdentifier != null && containerIdentifier != 'root') {
+        containerIdentifierPathStrings = containerIdentifier.split(':')
         for (let containerIdentifierPathStringsIndex in containerIdentifierPathStrings) {
             containerIdentifierPath.push('containers')
             containerIdentifierPath.push(parseInt(containerIdentifierPathStrings[containerIdentifierPathStringsIndex]))
@@ -2523,7 +2523,7 @@ function convertContainerIdentifierToContainerId(containerIdentifier) {
     
     if (containerIdentifier != null) {
         let containerIdentifierString = containerIdentifier + ''
-        let containerIdentifierParts = containerIdentifierString.split('-')
+        let containerIdentifierParts = containerIdentifierString.split(':')
         // Note: containerId will be an INTEGER (which is correct)
         containerId = parseInt(containerIdentifierParts[containerIdentifierParts.length - 1])
     }
