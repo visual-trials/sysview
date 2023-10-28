@@ -1516,45 +1516,25 @@ function storeContainerInParentConntainerInDiagram(containerIdentifier, diagramI
     
 // Links in Diagrams
 
-// FIXME: NOT USED RIGHT NOW!    
-function getPathFromDiagramConnectionIdentifier (diagramConnectionIdentifier) {
-    
-    // Example: '448=234:1763:1783-276:124'
-    //           linkId = nodeId:nodeId:nodeId - nodeId:nodeId
-    
-    let connectionIdentifierParts = diagramConnectionIdentifier.split("=")
-    
-    let connectionId = connectionIdentifierParts[0]
-    let connectionPath = connectionIdentifierParts[1]
-    let fromAndToNodePaths = connectionPath.split("-")
-    let fromNodePath = fromAndToNodePaths[0].split(":")
-    let toNodePath = fromAndToNodePaths[1].split(":")
-    
-    return {
-        "connectionId" : connectionId,
-        "fromNodePath" : fromNodePath,
-        "toNodePath" : toNodePath
-    }
-}
+function storeConnectionConnectionPointIdentifierInDiagram(connectionIdentifier, diagramId, fromOrTo, connectionPointIdentifier) {    
 
-// FIXME: REFACTOR THIS ONE TOO! 
-// FIXME: REFACTOR THIS ONE TOO! 
-// FIXME: REFACTOR THIS ONE TOO! 
-function storeLinkConnectionPointIdentifierInDiagram(connectionIdentifier, diagramId, fromOrTo, connectionPointIdentifier) {    
-      
-    let linksById = NLC.nodesAndLinksData.linksById    
-    let nodesById = NLC.nodesAndLinksData.nodesById
+// OLD WAY:      
+//    let linksById = NLC.nodesAndLinksData.linksById    
+//    let nodesById = NLC.nodesAndLinksData.nodesById
+//    let linkId = connectionIdentifier
 
-// FIXME: IS THIS WHAT WE WANT??
-// FIXME: use this: getPathFromDiagramConnectionIdentifier() !!
-    let linkId = connectionIdentifier
+    let diagramsById = NLC.nodesAndLinksData.diagramsById
+    let diagram = diagramsById[diagramId]
     
     let keyToStore = 'fromConnectionPointIdentifier'    
     if (fromOrTo === 'to') {    
         keyToStore = 'toConnectionPointIdentifier'    
     }    
     
-    if ((''+linkId).includes('-')) {
+// FIXME: solve for virtualConnections!?    if ((''+linkId).includes('-')) {
+    if (false) {
+        
+        /*
         // This is a virtualConnection, meaning its visualData should be stored in the fromNode (not in the link itself, which doesn't really exist)
         let nodeIds = linkId.split("-")
         if (nodeIds.length != 2) {
@@ -1636,54 +1616,60 @@ function storeLinkConnectionPointIdentifierInDiagram(connectionIdentifier, diagr
         
         // TODO: maybe its better to call this: visualDataHasChanged ?    
         NLC.dataHasChanged = true    
-        
+        */
     }
     else {
-        if (linksById.hasOwnProperty(linkId)) {    
-            let link = linksById[linkId]    
         
-            // If there is no diagramSpecificVisualData, we create if and fill it with empy visualData for this diagram
-            if (!link.hasOwnProperty('diagramSpecificVisualData')) {    
-                    
-                let diagramSpecificVisualData = {}    
-                diagramSpecificVisualData[diagramId] = {}    
-                let nlcDataChange = {    
-                    "method" : "update",    
-                    "path" : [ "links", linkId, "diagramSpecificVisualData"],    
-                    "data" : diagramSpecificVisualData
-                }    
-                link.diagramSpecificVisualData = diagramSpecificVisualData
-                NLC.dataChangesToStore.push(nlcDataChange)    
-            }    
-            // If there is diagramSpecificVisualData but not for this diagram, we fill it with empy visualData for this diagram
-            if (!link.diagramSpecificVisualData.hasOwnProperty(diagramId)) {    
-                    
-                let visualData = {}    
-                let nlcDataChange = {    
-                    "method" : "update",    
-                    "path" : [ "links", linkId, "diagramSpecificVisualData", diagramId],
-                    "data" : visualData
-                }    
-                link.diagramSpecificVisualData[diagramId] = visualData
-                NLC.dataChangesToStore.push(nlcDataChange)    
-            }    
-                    
-            link.diagramSpecificVisualData[diagramId][keyToStore] = connectionPointIdentifier
-                
-            // TODO: you probably want to apply this change in javascript to (on the link in NLC.nodesAndLinksData.links)    
-            let nlcDataChange = {    
-                "method" : "update",    
-                "path" : [ "links", linkId, "diagramSpecificVisualData", diagramId, keyToStore],    
-                "data" : connectionPointIdentifier    
-            }    
-            NLC.dataChangesToStore.push(nlcDataChange)    
+        if (connectionIdentifier in ZUI.containersAndConnections.connections) {
+            let connection  = ZUI.containersAndConnections.connections[connectionIdentifier]
             
-            // TODO: maybe its better to call this: visualDataHasChanged ?    
-            NLC.dataHasChanged = true    
-        }    
-        else {    
-            console.log("ERROR: cannot store link: unknown linkId:" + linkId)    
+            // Right now, the connection-visualInfo is stored in the fromContainer-visualInfo
+            let containerIdentifierPath = getPathFromContainerIdentifier(connection.fromContainerIdentifier)
+            
+// FIXME: we should get the connectionId (aka linkId) from connection.id (or connection.connectionId)!
+// FIXME: we should get the connectionId (aka linkId) from connection.id (or connection.connectionId)!
+// FIXME: we should get the connectionId (aka linkId) from connection.id (or connection.connectionId)!
+            let connectionId = parseInt(connectionIdentifier)
+            
+            let connectionVisualData = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(containerIdentifierPath, ['connections', connectionId ]), null, 'get')
+            if (!connectionVisualData) {
+                // If diagram.containers.fromContainerId.connections[connectionId] doesnt exist yet, we create it
+                let isChanged = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(containerIdentifierPath, ['connections', connectionId ]), {}, 'set')
+                
+                if (isChanged) {
+                    let nlcDataChange = {    
+                        "method" : "update",    
+                        "path" : [].concat([ "diagrams", diagramId ], containerIdentifierPath, ['connections', connectionId ]),    
+                        "data" : {}
+                    }    
+                    NLC.dataChangesToStore.push(nlcDataChange)    
+                }
+                else {    
+                    console.log("ERROR: cannot store connectionInfo, connectionIdentifier:" + connectionIdentifier)    
+                    // TODO: we should not proceed after this
+                }    
+            }
+            
+            // We set diagram.containers.fromContainerId.connections[connectionId].from/toConnectionPointIdentifier
+            let isChanged = getSetOrDeleteValueInsideTreeStructureUsingPath(diagram, [].concat(containerIdentifierPath, ['connections', connectionId, keyToStore ]), connectionPointIdentifier, 'set')
+            
+            if (isChanged) {
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [].concat([ "diagrams", diagramId ], containerIdentifierPath, ['connections', connectionId, keyToStore ]),    
+                    "data" : connectionPointIdentifier
+                }
+                NLC.dataChangesToStore.push(nlcDataChange)    
+                        
+                // TODO: maybe its better to call this: visualDataHasChanged ?    
+                NLC.dataHasChanged = true    
+            }
+            else {    
+                console.log("ERROR: cannot store connectionInfo, connectionIdentifier:" + connectionIdentifier)    
+            }    
+                
         }
+        
     }
 }    
 
@@ -2449,6 +2435,7 @@ function convertNodeToContainer (containerVisualData, node, parentContainerIdent
     let containerInfo = {    
         type: node.type,    
         // TODO: shouldnt we also add the node.identifier?!
+// FIXME: also add containerInfo.id (or containerInfo.containerId)        
         containerType: 'node',
         identifier: containerIdentifier,    
         parentContainerIdentifier: parentContainerIdentifier,
@@ -3023,8 +3010,10 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
         let connectionInfo = {    
 // FIXME: we need to change this IDENTIFIER! (if we allow multiple nodes with the same id)
             identifier: link.id,    
-            name: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!    
+// FIXME: also add connectionInfo.id (or connectionInfo.connectionId)        
+// FIXME: also add connectionInfo.connectionType
             type: link.type,
+            name: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!    
             dataType: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!
             fromLevelOfDetail: fromLevelOfDetail,
             toLevelOfDetail: toLevelOfDetail,

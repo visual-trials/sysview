@@ -682,7 +682,13 @@ function doChangeConnectionPointSelectedConnectionByKeyboard() {
     
     if (fromHasChanged) {
         fromConnectionPointIndex = fromConnectionPointIndex % nrOfpossibleConnectionPointsFrom
-        storeConnectionConnectionPoint(currentlySelectedConnection.identifier, 'from', possibleConnectionPointsFrom[fromConnectionPointIndex])
+        
+        // FIXME: we should INSTEAD check the BOUNDARIES of the possibleConnectionPointsFrom array (and loop around)!
+        let fromConnectionPointIdentifier = possibleConnectionPointsFrom[fromConnectionPointIndex]
+        if (fromConnectionPointIdentifier === undefined) {
+            fromConnectionPointIdentifier = null
+        }
+        storeConnectionConnectionPoint(currentlySelectedConnection.identifier, 'from', fromConnectionPointIdentifier)
     }
  
     // If "3" or "4" is pressed, we change the connection points of the from container
@@ -698,7 +704,13 @@ function doChangeConnectionPointSelectedConnectionByKeyboard() {
     
     if (toHasChanged) {
         toConnectionPointIndex = toConnectionPointIndex % nrOfpossibleConnectionPointsTo
-        storeConnectionConnectionPoint(currentlySelectedConnection.identifier, 'to', possibleConnectionPointsTo[toConnectionPointIndex])
+
+        // FIXME: we should INSTEAD check the BOUNDARIES of the possibleConnectionPointsFrom array (and loop around)!
+        let toConnectionPointIdentifier = possibleConnectionPointsTo[toConnectionPointIndex]
+        if (toConnectionPointIdentifier === undefined) {
+            toConnectionPointIdentifier = null
+        }
+        storeConnectionConnectionPoint(currentlySelectedConnection.identifier, 'to', toConnectionPointIdentifier)
     }
 }
 
