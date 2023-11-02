@@ -241,7 +241,7 @@ function removeKnownUser (knownUserToBeRemoved) {
 
 // Teams
     
-function createNewTeam() {    
+function createNewTeam(teamTypeIdentifier) {
         
     // FIXME: we should take into account default values and required fields!    
         
@@ -252,6 +252,7 @@ function createNewTeam() {
     let newTeam = {    
         "id" : null,    
         "identifier" : newName,    
+        "type" : teamTypeIdentifier,    
         "name" : newName,
         "commonData" : {
         }
@@ -298,6 +299,21 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
             // FIXME: do we *really* want to be able to update the identifier of a team??
             /*
             if (changedTeam.identifier !== originalTeam.identifier) {    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "teams", originalTeam.id, "identifier" ],    
+                    "data" : changedTeam.identifier
+                }    
+                teamsChanges.push(nlcDataChange)    
+                
+                // FIXME: we do this here, but we normally do this below!    
+                originalTeamsById[changedTeam.id].identifier = changedTeam.identifier
+            } 
+            */
+
+            // FIXME: do we *really* want to be able to update the type of a team??
+            /*
+            if (changedTeam.type !== originalTeam.type) {    
                 let nlcDataChange = {    
                     "method" : "update",    
                     "path" : [ "teams", originalTeam.id, "identifier" ],    
@@ -2535,15 +2551,17 @@ function convertDiagramContainersToZUIContainers(diagramContainers, parentContai
             if ('connections' in diagramContainerVisualData) {
                 nodeConnectionsVisualData = diagramContainerVisualData.connections
             }
+            /*
             let nodeVirtualConnectionsVisualData = null
             if ('virtualConnections' in diagramContainerVisualData) {
                 nodeVirtualConnectionsVisualData = diagramContainerVisualData.virtualConnections
             }
+            */
             let containerAddedToZUI = {}
             // Note that containerInfo.identifier contains parentContainerIdentifier + ':' + node.id/containerId (or simply containerId if its at the root level)
             containerAddedToZUI[containerInfo.identifier] = {
                 'connections' : nodeConnectionsVisualData,
-                'virtualConnections' : nodeVirtualConnectionsVisualData
+                // FIXME: disabled virtualConnections! 'virtualConnections' : nodeVirtualConnectionsVisualData
             }
             NLC.containerIdsAddedToZUI[containerId] = containerAddedToZUI
             
@@ -2553,6 +2571,42 @@ function convertDiagramContainersToZUIContainers(diagramContainers, parentContai
             }
             
         }
+        else if (containerType == 'team') {
+
+            let team = NLC.nodesAndLinksData.teamsById[containerId]
+// FIXME: IMPLEMENT THIS!
+// FIXME: IMPLEMENT THIS!
+// FIXME: IMPLEMENT THIS!
+            containerInfo = convertTeamToContainer(diagramContainerVisualData, team, parentContainerIdentifier, selectedLegendaId, dimUninteresting) 
+            createContainer(containerInfo)
+            // Note: we currently do not allow/show connections with team-containers!
+            let nodeConnectionsVisualData = null
+            /*
+            if ('connections' in diagramContainerVisualData) {
+                nodeConnectionsVisualData = diagramContainerVisualData.connections
+            }
+            */
+            let nodeVirtualConnectionsVisualData = null
+            /*
+            if ('virtualConnections' in diagramContainerVisualData) {
+                nodeVirtualConnectionsVisualData = diagramContainerVisualData.virtualConnections
+            }
+            */
+            let containerAddedToZUI = {}
+            // Note that containerInfo.identifier contains parentContainerIdentifier + ':' + node.id/containerId (or simply containerId if its at the root level)
+            containerAddedToZUI[containerInfo.identifier] = {
+                'connections' : nodeConnectionsVisualData,
+                // FIXME: disabled virtualConnections! 'virtualConnections' : nodeVirtualConnectionsVisualData
+            }
+            NLC.containerIdsAddedToZUI[containerId] = containerAddedToZUI
+            
+            if ('containers' in diagramContainerVisualData) {
+// FIXME: do something with the RESULT!?
+                let result = convertDiagramContainersToZUIContainers(diagramContainerVisualData['containers'], containerInfo.identifier, selectedLegendaId, dimUninteresting)
+            }
+            
+        }
+
         
         if (containerInfo) {
             if (NLC.levelOfDetail == "auto") {

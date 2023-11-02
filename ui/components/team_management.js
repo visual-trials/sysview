@@ -66,11 +66,11 @@ function CreateNewTeamManagement() {
         }
     }
 
-    TeamManagement.createNewTeamAndAddToEditedTeams = function() {
+    TeamManagement.createNewTeamAndAddToEditedTeams = function(teamTypeIdentifier) {
                 
         let teamEditor = TeamManagement.teamsEditor
         
-        let newTeam = createNewTeam()
+        let newTeam = createNewTeam(teamTypeIdentifier)
         
         // Creating a new team id here and (if succesful) async adding to editedTeams
         TeamManagement.generateNewTeamIdAndAddToEditedTeams(newTeam)
