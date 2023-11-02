@@ -27,7 +27,7 @@ NLC.containerIdsAddedToZUI = {} // created on-the-fly
 // FIXME: NLC.levelOfDetail is defined far below, does it belong here? Or should we put it in a separate file?
 
 
-function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, legendas) {
+function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, teamTypes, legendas) {
     let nodesAndLinksData  = {}
 
     // Types
