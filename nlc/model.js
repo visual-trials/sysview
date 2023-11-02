@@ -35,6 +35,8 @@ function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, 
     nodesAndLinksData.nodeTypesByIdentifier = groupByIdentifier(nodeTypes)
     nodesAndLinksData.linkTypes = linkTypes
     nodesAndLinksData.linkTypesByIdentifier = groupByIdentifier(linkTypes)
+    nodesAndLinksData.teamTypes = teamTypes
+    nodesAndLinksData.teamTypesByIdentifier = groupByIdentifier(teamTypes)
 
     // Legendas
     nodesAndLinksData.legendas = legendas
@@ -2023,6 +2025,48 @@ function getColorNamesWithLightForLink (link, selectedLegendaId, dimUninterestin
     return colorNamesWithLight    
 }    
 
+function getColorNamesWithLightForTeam (team, selectedLegendaId, dimUninteresting) {    
+
+    if (selectedLegendaId == null) {    
+        return null    
+    }    
+
+    let selectedLegenda = NLC.nodesAndLinksData.legendasById[selectedLegendaId]    
+    let colorMapping = selectedLegenda.colorMapping    
+        
+    let colorNamesWithLight = null    
+    if ('mappingFunctionTeam' in selectedLegenda && selectedLegenda.mappingFunctionTeam != null) {
+        colorNamesWithLight = selectedLegenda.mappingFunctionTeam(team, selectedLegenda, colorMapping)
+    }
+    else {    
+        // This is the generic case (no hardcoded exceptions)    
+        if (selectedLegenda.field in team.commonData) {    
+            let teamTypeIdentifier = team.commonData[selectedLegenda.field]    
+            if (colorMapping.hasOwnProperty(teamTypeIdentifier)) {    
+                colorNamesWithLight = colorMapping[nodeTypeIdentifier]    
+            }    
+        }    
+        if (colorNamesWithLight == null && selectedLegenda.defaultColor) {    
+            colorNamesWithLight = selectedLegenda.defaultColor    
+        }    
+    }    
+
+    if (colorNamesWithLight != null) {
+        colorNamesWithLight.doDim = false
+        if (dimUninteresting) {
+            colorNamesWithLight.doDim = true
+            // FIXME: this is quite specific and should probably be put into a more specific place
+// FIXME: this is either NAMED wrongly or should not be used for TEAMS!
+            if (NodeAndLinkScroller.nodeMatchesSearchAndFilter(team)) {
+                colorNamesWithLight.doDim = false
+            }
+        }
+    }
+    
+    return colorNamesWithLight    
+}    
+    
+
 function getNodeTypeInfo(node) {    
     let nodeTypeIdentifier = node.type    
     
@@ -2073,6 +2117,31 @@ function getLinkTypeInfo(link) {
     return null    
 }    
     
+    
+function getTeamTypeInfo(team) {    
+    let teamTypeIdentifier = team.type    
+    
+    if (teamTypeIdentifier in NLC.nodesAndLinksData.teamTypesByIdentifier) {
+        let teamTypeInfo = NLC.nodesAndLinksData.teamTypesByIdentifier[teamTypeIdentifier]
+        if ("_overridesBasedOnCommonDataValue" in teamTypeInfo) {    
+            // TODO: can we make a faster deep-copy of teamTypeInfo?    
+            teamTypeInfo = JSON.parse(JSON.stringify(teamTypeInfo))    
+            for (let overrideIndex = 0; overrideIndex < teamTypeInfo._overridesBasedOnCommonDataValue.length; overrideIndex++) {    
+                let overrideBasedOnCommonDataValue = teamTypeInfo._overridesBasedOnCommonDataValue[overrideIndex]    
+                let keyToMatch = overrideBasedOnCommonDataValue["keyToMatch"]    
+                let valueToMatch = overrideBasedOnCommonDataValue["valueToMatch"]    
+                if (keyToMatch in team.commonData && team.commonData[keyToMatch] === valueToMatch) {    
+                    for (let keyToOverride in overrideBasedOnCommonDataValue.overrides) {    
+                        teamTypeInfo[keyToOverride] = overrideBasedOnCommonDataValue.overrides[keyToOverride]    
+                    }    
+                }    
+                // TODO: we can probably break here if we want the first match to override. (now it continues to find matches)    
+            }    
+        }    
+        return teamTypeInfo    
+    }    
+    return null    
+}    
     
     
 // ------------------- Auto-Chaining and Bundling functions ----------------------
@@ -2371,8 +2440,9 @@ function markLinksInToChainAsChained(toChain, chainingLinkId) {
     }
 }
 
-function convertNodeToContainer (containerVisualData, node, parentContainerIdentifier, selectedLegendaId, dimUninteresting) {
+function convertNodeOrTeamToContainer (isNodeOrTeam, containerVisualData, nodeOrTeam, parentContainerIdentifier, selectedLegendaId, dimUninteresting) {
     
+ 
     let localScale = 1    
     /*    
     // TODO: this is an intereting idea!    
@@ -2384,20 +2454,27 @@ function convertNodeToContainer (containerVisualData, node, parentContainerIdent
         localScale = containerVisualData.scale
     }    
     
-    let nodeTypeInfo = getNodeTypeInfo(node)    
+    let containerTypeInfo = null
+    if (isNodeOrTeam == 'node') {
+        containerTypeInfo = getNodeTypeInfo(nodeOrTeam)
+    }
+    else  {
+        // Assuming its a team
+        containerTypeInfo = getTeamTypeInfo(nodeOrTeam)
+    }
     
     let fromLevelOfDetail = 0.0 // FIXME: should the default really be 0.0? or should we assume 1.0?
     let toLevelOfDetail = 1.0  // FIXME: should the default really be 1.0?
     
-    if (nodeTypeInfo != null) {    
-        let nodeTypeHasLevelOfDetailProperties = nodeTypeInfo.hasOwnProperty('lod')    
+    if (containerTypeInfo != null) {    
+        let nodeTypeHasLevelOfDetailProperties = containerTypeInfo.hasOwnProperty('lod')    
         
         if (nodeTypeHasLevelOfDetailProperties) {
-            toLevelOfDetail = nodeTypeInfo.lod['to']
-            fromLevelOfDetail = nodeTypeInfo.lod['from']
+            toLevelOfDetail = containerTypeInfo.lod['to']
+            fromLevelOfDetail = containerTypeInfo.lod['from']
         }
         else {
-            console.log("WARNING: not level of detail information for nodeType: " + nodeTypeInfo.identifier)
+            console.log("WARNING: not level of detail information for nodeType: " + containerTypeInfo.identifier)
         }
     }    
         
@@ -2415,24 +2492,24 @@ function convertNodeToContainer (containerVisualData, node, parentContainerIdent
         
     let shape = null    
     let textBelowContainer = null    
-    if (nodeTypeInfo != null) {    
-        if ('shapeAndColor' in nodeTypeInfo) {    
-            if ('shape' in nodeTypeInfo.shapeAndColor) {    
-                shape = nodeTypeInfo.shapeAndColor.shape    
+    if (containerTypeInfo != null) {    
+        if ('shapeAndColor' in containerTypeInfo) {    
+            if ('shape' in containerTypeInfo.shapeAndColor) {    
+                shape = containerTypeInfo.shapeAndColor.shape    
             }    
-            if ('textBelowContainer' in nodeTypeInfo.shapeAndColor) {    
-                textBelowContainer = nodeTypeInfo.shapeAndColor.textBelowContainer    
+            if ('textBelowContainer' in containerTypeInfo.shapeAndColor) {    
+                textBelowContainer = containerTypeInfo.shapeAndColor.textBelowContainer    
             }
-            if ('defaultSize' in nodeTypeInfo.shapeAndColor) {
-                size.width = nodeTypeInfo.shapeAndColor.defaultSize.width
-                size.height = nodeTypeInfo.shapeAndColor.defaultSize.height
+            if ('defaultSize' in containerTypeInfo.shapeAndColor) {
+                size.width = containerTypeInfo.shapeAndColor.defaultSize.width
+                size.height = containerTypeInfo.shapeAndColor.defaultSize.height
             }
-            if ('defaultFontSize' in nodeTypeInfo.shapeAndColor) {
-                localFontSize = nodeTypeInfo.shapeAndColor.defaultFontSize
+            if ('defaultFontSize' in containerTypeInfo.shapeAndColor) {
+                localFontSize = containerTypeInfo.shapeAndColor.defaultFontSize
             }
         }    
         else {    
-            console.log("ERROR: no shape and color info : " + node)    
+            console.log("ERROR: no shape and color info : " + nodeOrTeam)    
         }    
     }    
         
@@ -2446,17 +2523,27 @@ function convertNodeToContainer (containerVisualData, node, parentContainerIdent
         position = containerVisualData.position    
     }    
     
-    let containerIdentifier = parentContainerIdentifier == null ? node.id : parentContainerIdentifier + ':' + node.id
+    let containerIdentifier = parentContainerIdentifier == null ? nodeOrTeam.id : parentContainerIdentifier + ':' + nodeOrTeam.id
+    
+    let containerName = null
+    // FIXME: inconsistent location of the name of something!
+    if (isNodeOrTeam == 'node') {
+        // FIXME: we cannot be sure commonDate.name exists!    
+        containerName = nodeOrTeam.commonData.name
+    }
+    else {
+        // Assuming its a team
+        containerName = nodeOrTeam.name
+    }
     
     let containerInfo = {    
-        type: node.type,    
-        // TODO: shouldnt we also add the node.identifier?!
+        type: nodeOrTeam.type,    
+        // TODO: shouldnt we also add the nodeOrTeam.identifier?!
 // FIXME: also add containerInfo.id (or containerInfo.containerId)        
         containerType: 'node',
         identifier: containerIdentifier,    
         parentContainerIdentifier: parentContainerIdentifier,
-        // FIXME; we cannot be sure commonDate.name exists!    
-        name: node.commonData.name,    
+        name: containerName,
         localPosition: {    
             x: position.x,    
             y: position.y    
@@ -2471,7 +2558,14 @@ function convertNodeToContainer (containerVisualData, node, parentContainerIdent
     }    
 
     let colorsForNode = null    
-    let colorNamesWithLight = getColorNamesWithLightForNode(node, selectedLegendaId, dimUninteresting)
+    let colorNamesWithLight = null
+    if (isNodeOrTeam == 'node') {
+        colorNamesWithLight = getColorNamesWithLightForNode(nodeOrTeam, selectedLegendaId, dimUninteresting)
+    }
+    else {
+        // Assuming its a team
+        colorNamesWithLight = getColorNamesWithLightForTeam(nodeOrTeam, selectedLegendaId, dimUninteresting)
+    }
     if (colorNamesWithLight != null) {    
         // If we get a direct color (no translation needed) we simply copy all rgba values
         if ('stroke' in colorNamesWithLight && 'r' in colorNamesWithLight.stroke) {
@@ -2545,7 +2639,7 @@ function convertDiagramContainersToZUIContainers(diagramContainers, parentContai
         if (containerType == 'node') {
 
             let node = NLC.nodesAndLinksData.nodesById[containerId]
-            containerInfo = convertNodeToContainer(diagramContainerVisualData, node, parentContainerIdentifier, selectedLegendaId, dimUninteresting) 
+            containerInfo = convertNodeOrTeamToContainer('node', diagramContainerVisualData, node, parentContainerIdentifier, selectedLegendaId, dimUninteresting) 
             createContainer(containerInfo)
             let nodeConnectionsVisualData = null
             if ('connections' in diagramContainerVisualData) {
@@ -2574,10 +2668,7 @@ function convertDiagramContainersToZUIContainers(diagramContainers, parentContai
         else if (containerType == 'team') {
 
             let team = NLC.nodesAndLinksData.teamsById[containerId]
-// FIXME: IMPLEMENT THIS!
-// FIXME: IMPLEMENT THIS!
-// FIXME: IMPLEMENT THIS!
-            containerInfo = convertTeamToContainer(diagramContainerVisualData, team, parentContainerIdentifier, selectedLegendaId, dimUninteresting) 
+            containerInfo = convertNodeOrTeamToContainer('team', diagramContainerVisualData, team, parentContainerIdentifier, selectedLegendaId, dimUninteresting) 
             createContainer(containerInfo)
             // Note: we currently do not allow/show connections with team-containers!
             let nodeConnectionsVisualData = null
