@@ -256,8 +256,8 @@ function createNewTeam(teamTypeIdentifier) {
         "identifier" : newName,    
         "type" : teamTypeIdentifier,    
         "name" : newName,
-        "commonData" : {
-        }
+        "commonData" : {},
+        "parentTeamId" : null,
     }    
         
     return newTeam
@@ -347,6 +347,18 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
                     "data" : changedTeam.commonData    
                 }    
                 teamsChanges.push(nlcDataChange)    
+            }    
+            
+            if (changedTeam.parentTeamId !== originalTeam.parentTeamId) {    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "teams", originalTeam.id, "parentTeamId" ],
+                    "data" : changedTeam.parentTeamId
+                }    
+                teamsChanges.push(nlcDataChange)    
+                
+                // FIXME: we do this here, but we normally do this below!    
+                originalTeamsById[changedTeam.id].parentTeamId = changedTeam.parentTeamId
             }    
             
         }
