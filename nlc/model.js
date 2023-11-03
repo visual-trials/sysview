@@ -1211,6 +1211,15 @@ function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
         }    
         diagramChanges.push(nlcDataChange)    
     }    
+
+    if (JSON.stringify(changedDiagram.containers) !== JSON.stringify(originalDiagram.containers) ) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "diagrams", originalDiagram.id, "containers" ],    
+            "data" : changedDiagram.containers
+        }    
+        diagramChanges.push(nlcDataChange)    
+    }    
     
     if (diagramChanges.length > 0) {    
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(diagramChanges)    
