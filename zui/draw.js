@@ -1193,11 +1193,18 @@ if (container.stroke) {
 
         // Determine text position
         let textWorldPosition = {}
-        if (container.textBelowContainer) {
+        
+        // TODO: maybe add 'aboveContainer' and 'bottom' as options?
+        if (container.textPosition == 'belowContainer') {
             textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
             textWorldPosition.y = container.worldPosition.y + (container.worldSize.height * 1.15)
         }
-        else {
+        else if (container.textPosition == 'top'){
+            textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
+            // TODO: we do *3 of the font size to make the text look as being at the top. We might want to change this
+            textWorldPosition.y = container.worldPosition.y - (textSize.height * container.worldScale / 2) + localFontSize*3 * container.worldScale
+        }
+        else { // text in the middle of the container
             textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
             textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * container.worldScale / 2) + heightBottomWhiteArea * container.worldScale
         }

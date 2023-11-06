@@ -2660,6 +2660,10 @@ function convertDiagramContainersToZUIContainers(diagramContainers, parentContai
         if (containerType == 'node') {
 
             let node = NLC.nodesAndLinksData.nodesById[containerId]
+            if (node == null) {
+                console.log('ERROR: node does not exist, but was (still) in diagram: ' + containerId)
+                continue
+            }
             containerInfo = convertNodeOrTeamToContainer('node', diagramContainerVisualData, node, parentContainerIdentifier, selectedLegendaId, dimUninteresting) 
             createContainer(containerInfo)
             let nodeConnectionsVisualData = null
@@ -2689,6 +2693,10 @@ function convertDiagramContainersToZUIContainers(diagramContainers, parentContai
         else if (containerType == 'team') {
 
             let team = NLC.nodesAndLinksData.teamsById[containerId]
+            if (team == null) {
+                console.log('ERROR: team does not exist, but was (still) in diagram: ' + containerId)
+                continue
+            }
             containerInfo = convertNodeOrTeamToContainer('team', diagramContainerVisualData, team, parentContainerIdentifier, selectedLegendaId, dimUninteresting) 
             createContainer(containerInfo)
             // Note: we currently do not allow/show connections with team-containers!

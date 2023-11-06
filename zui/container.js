@@ -53,7 +53,7 @@ function createContainer(containerData) {
     let stroke = { r:255, g:255, b:0, a:1 }
     let alpha = 1.0
     let shape = 'rectangle4points'
-    let textBelowContainer = false
+    let textPosition = 'center'
     let lineWidth = 1
     
     let fromLevelOfDetail = 0.0
@@ -74,8 +74,8 @@ function createContainer(containerData) {
     if (containerData.lineWidth != null) {
         lineWidth = containerData.lineWidth
     }
-    if (containerData.textBelowContainer != null) {
-        textBelowContainer = containerData.textBelowContainer
+    if (containerData.textPosition != null) {
+        textPosition = containerData.textPosition
     }
     
     if ('fromLevelOfDetail' in containerData && containerData.fromLevelOfDetail != null) {
@@ -107,7 +107,7 @@ function createContainer(containerData) {
         localFontSize: containerData.localFontSize,
         
         shapeType : shape,  // TODO: we should rename shapeType to shape
-        textBelowContainer : textBelowContainer,
+        textPosition : textPosition,
         
         fromLevelOfDetail: fromLevelOfDetail,
         toLevelOfDetail: toLevelOfDetail,
