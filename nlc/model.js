@@ -2512,14 +2512,14 @@ function convertNodeOrTeamToContainer (isNodeOrTeam, containerVisualData, nodeOr
     let localFontSize = 14    
         
     let shape = null    
-    let textBelowContainer = null    
+    let textPosition = null    
     if (containerTypeInfo != null) {    
         if ('shapeAndColor' in containerTypeInfo) {    
             if ('shape' in containerTypeInfo.shapeAndColor) {    
                 shape = containerTypeInfo.shapeAndColor.shape    
             }    
-            if ('textBelowContainer' in containerTypeInfo.shapeAndColor) {    
-                textBelowContainer = containerTypeInfo.shapeAndColor.textBelowContainer    
+            if ('textPosition' in containerTypeInfo.shapeAndColor) {    
+                textPosition = containerTypeInfo.shapeAndColor.textPosition
             }
             if ('defaultSize' in containerTypeInfo.shapeAndColor) {
                 size.width = containerTypeInfo.shapeAndColor.defaultSize.width
@@ -2575,7 +2575,7 @@ function convertNodeOrTeamToContainer (isNodeOrTeam, containerVisualData, nodeOr
         localSize: size,    
         localFontSize : localFontSize,    
         shape : shape,    
-        textBelowContainer : textBelowContainer    
+        textPosition : textPosition
     }    
 
     let colorsForNode = null    
