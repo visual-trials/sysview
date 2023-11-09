@@ -1949,6 +1949,14 @@ function nodeIsInDiagram(node, diagramId) {
         return false
     }
 }    
+function teamIsInDiagram(team, diagramId) {
+    if (team.id in NLC.containerIdsAddedToZUI) {
+        return true
+    }
+    else {
+        return false
+    }
+}    
     
 function linkIsInDiagram(link, diagramId) {    
     // FIXME: should we not explicitily store links as being in a diagram?    

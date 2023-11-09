@@ -77,12 +77,18 @@ function CreateNewNodeAndLinkScroller() {
     NodeAndLinkScroller.nodeAndLinkSelector = {
         hoveredNodeId: null,
         hoveredLinkId: null,
+        hoveredTeamId: null,
         containerOrConnectionHoveringHasChanged: false,
         
         selectedNodeId: null,
         nodeIdsLinkedToSelectedNode: null, // this is used to show other nodes that are connected (via a link) to the selected node
-        linkIdsLinkedToSelectedNode: null, // this is used to show other links that are connected to the selected node
+        
         selectedLinkId: null,
+        linkIdsLinkedToSelectedNode: null, // this is used to show other links that are connected to the selected node
+        
+        selectedTeamId: null,
+// FIXME: do we need this?        teamIdsLinkedToSelectedNode: null, // this is used to show other nodes that are connected (via a link) to the selected node
+        
         // TODO: maybe add nodeIdsLinkedToSelectedLink and linkIdsLinkedToSelectedLink (via a node)?
         containerOrConnectionSelectionHasChanged: false,
     }
@@ -90,6 +96,7 @@ function CreateNewNodeAndLinkScroller() {
     NodeAndLinkScroller.hoverNode = function (node) {
         NodeAndLinkScroller.nodeAndLinkSelector.hoveredLinkId = null
         NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = node.id
+        NodeAndLinkScroller.nodeAndLinkSelector.hoveredTeamId = null
 
         let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId)
         if (containerIdentifiersInDiagram) {
@@ -139,6 +146,9 @@ function CreateNewNodeAndLinkScroller() {
             NodeAndLinkScroller.nodeAndLinkSelector.selectedLinkId = null
             LinkDetail.setEditedLinkUsingOriginalLink(null)
             
+            NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId = null
+            // LinkDetail.setEditedTeamUsingOriginalTeam(null)
+            
             // Since we always show the selected node (even when the search criteria doesn't match) we have to make sure the nodeType is shown aswell. 
             // This is calculated in updateSearchHitsPerNodeType
             NodeAndLinkScroller.updateSearchHitsPerNodeType()
@@ -180,6 +190,7 @@ function CreateNewNodeAndLinkScroller() {
     NodeAndLinkScroller.hoverLink = function (link) {
         NodeAndLinkScroller.nodeAndLinkSelector.hoveredLinkId = link.id
         NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = null
+        NodeAndLinkScroller.nodeAndLinkSelector.hoveredTeamId = null
         
         ZUI.interaction.currentlyHoveredConnectionIdentifier = NodeAndLinkScroller.nodeAndLinkSelector.hoveredLinkId
         ZUI.interaction.currentlyHoveredContainerIdentifier = null
@@ -199,6 +210,9 @@ function CreateNewNodeAndLinkScroller() {
             NodeAndLinkScroller.unselectNode()
             NodeDetail.setEditedNodeUsingOriginalNode(null)
         
+            NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId = null
+            // LinkDetail.setEditedTeamUsingOriginalTeam(null)
+            
             // Since we always show the selected link (even when the search criteria doesn't match) we have to make sure the linkType is shown aswell. 
             // This is calculated in updateSearchHitsPerLinkType
             NodeAndLinkScroller.updateSearchHitsPerLinkType()
@@ -217,6 +231,76 @@ function CreateNewNodeAndLinkScroller() {
         }
         else {
             console.log("ERROR: Could not find link with id: " + linkId)
+        }
+    }
+
+    NodeAndLinkScroller.hoverTeam = function (team) {
+        NodeAndLinkScroller.nodeAndLinkSelector.hoveredTeamId = team.id
+        NodeAndLinkScroller.nodeAndLinkSelector.hoveredLinkId = null
+        NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = null
+
+        let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.hoveredTeamId)
+        if (containerIdentifiersInDiagram) {
+            // FIXME: for now take the first node we find in the diagram!
+            ZUI.interaction.currentlyHoveredContainerIdentifier = containerIdentifiersInDiagram[0]
+        }
+        else {
+            ZUI.interaction.currentlyHoveredContainerIdentifier = null
+        }
+        ZUI.interaction.currentlyHoveredConnectionIdentifier = null
+        NodeAndLinkScroller.nodeAndLinkSelector.containerOrConnectionHoveringHasChanged = true
+    }
+
+    NodeAndLinkScroller.selectTeam = function (teamId, updateSelectedContainers) {
+        let teamsById = NLC.nodesAndLinksData.teamsById
+        if (teamsById.hasOwnProperty(teamId)) {
+            let selectedTeam = teamsById[teamId]
+            
+            NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId = teamId
+            NodeAndLinkScroller.nodeAndLinkSelector.nodeIdsLinkedToSelectedNode = null
+            NodeAndLinkScroller.nodeAndLinkSelector.linkIdsLinkedToSelectedNode = null
+            // NodeDetail.setEditedTeamUsingOriginalTeam(selectedTeam)
+                    
+            NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId = null
+            NodeAndLinkScroller.nodeAndLinkSelector.selectedLinkId = null
+            LinkDetail.setEditedLinkUsingOriginalLink(null)
+            NodeDetail.setEditedNodeUsingOriginalNode(null)
+            
+            // NOT? Since we always show the selected team (even when the search criteria doesn't match) we have to make sure the teamType is shown aswell. 
+            // This is calculated in updateSearchHitsPerTeamType
+            NodeAndLinkScroller.updateSearchHitsPerTeamType()
+            
+            if (updateSelectedContainers) {
+                
+                let currentlySelectedContainerIds = []
+                for (let currentlySelectedContainerIdentifiersIndex in ZUI.interaction.currentlySelectedContainerIdentifiers) {
+                    let currentlySelectedContainerId = convertContainerIdentifierToContainerId(ZUI.interaction.currentlySelectedContainerIdentifiers[currentlySelectedContainerIdentifiersIndex])
+                    currentlySelectedContainerIds.push(currentlySelectedContainerId)
+                }
+                
+                if (ZUI.containersAndConnections.containers.hasOwnProperty(NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId) &&
+                    !currentlySelectedContainerIds.includes(NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId)) {
+
+                    let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId)
+                    if (containerIdentifiersInDiagram) {
+                        // FIXME: for now take the first team we find in the diagram! AND we put it in the ARRAY of selected container
+                        //        MAYBE we can select them ALL?
+                        ZUI.interaction.currentlySelectedContainerIdentifiers = [containerIdentifiersInDiagram[0]]
+                    }
+                    else {
+                        ZUI.interaction.currentlySelectedContainerIdentifiers = []
+                    }
+                 
+                    ZUI.interaction.currentlySelectedConnectionIdentifier = null
+                }
+                else {
+                    ZUI.interaction.currentlySelectedContainerIdentifiers = []
+                }
+            }
+            
+        }
+        else {
+            console.log("ERROR: Could not find node with id: " + nodeId)
         }
     }
 
@@ -312,6 +396,7 @@ function CreateNewNodeAndLinkScroller() {
         filterOnResponsibleTeam: false, 
         searchHitsPerNodeType : {},
         searchHitsPerLinkType : {},
+        searchHitsPerTeamType : {},
     }
 
     NodeAndLinkScroller.toggleScroller = function () {
@@ -321,6 +406,7 @@ function CreateNewNodeAndLinkScroller() {
     NodeAndLinkScroller.searchChanged = function () {
         NodeAndLinkScroller.updateSearchHitsPerNodeType()
         NodeAndLinkScroller.updateSearchHitsPerLinkType()
+        NodeAndLinkScroller.updateSearchHitsPerTeamType()
         
         NodeAndLinkScroller.nodeAndLinkScroller.focusPossible = true
         
@@ -440,12 +526,53 @@ function CreateNewNodeAndLinkScroller() {
         
         return match
     }
+    
+    
+    NodeAndLinkScroller.teamMatchesSearchAndFilter = function (team) {
+        
+        let match = true
+        
+        if (NodeAndLinkScroller.nodeAndLinkScroller.filterOnDiagramContent) {
+            if (!teamIsInDiagram(team, DiagramLegendaLodSelector.diagramSelector.selectedDiagramId)) {
+                match = false
+            }
+        }
+        
+        if (NodeAndLinkScroller.nodeAndLinkScroller.filterOnResponsibleTeam) {
+            let currentUserTeamId = UserManagement.getUserTeamId()
+            // FIXME: we might also want to add the Cluster and the ResultArea the team is part of!
+            if (team.id !== currentUserTeamId) {
+                match = false
+            }
+        }
+        
+        if (NodeAndLinkScroller.nodeAndLinkScroller.searchText !== '') {
+            // If the name doesn't match the search text (but the search text is filled) then we filter it out
+            if (team.name.toUpperCase().indexOf(NodeAndLinkScroller.nodeAndLinkScroller.searchText.toUpperCase()) === -1) {
+                match = false
+            }
+        }
+
+        if (NodeAndLinkScroller.nodeAndLinkScroller.filterOnConnectedElements) {
+            // FIXME: is this still used? What should we do here?
+        }
+
+        // Always show the selected node
+        // TODO: should we also do this when the selected team is not on the diagram? (and we are filtering on diagram content?)
+        if (NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId === team.id) {
+// FIXME: should we enable this again?
+    //        match = true
+        }
+        
+        return match
+    }
+    
 
     NodeAndLinkScroller.updateSearchHitsPerNodeType = function () {
         let nodes = NLC.nodesAndLinksData.nodes
         
         NodeAndLinkScroller.nodeAndLinkScroller.searchHitsPerNodeType = {}
-        for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
+        for (let nodeIndex in nodes) {
             let node = nodes[nodeIndex]
             if (NodeAndLinkScroller.nodeMatchesSearchAndFilter(node)) {
                 if (!NodeAndLinkScroller.nodeAndLinkScroller.searchHitsPerNodeType.hasOwnProperty(node.type)) {
@@ -460,7 +587,7 @@ function CreateNewNodeAndLinkScroller() {
         let links = NLC.nodesAndLinksData.links
         
         NodeAndLinkScroller.nodeAndLinkScroller.searchHitsPerLinkType = {}
-        for (let linkIndex = 0; linkIndex < links.length; linkIndex++) {
+        for (let linkIndex in links) {
             let link = links[linkIndex]
             if (NodeAndLinkScroller.linkMatchesSearchAndFilter(link)) {
                 if (!NodeAndLinkScroller.nodeAndLinkScroller.searchHitsPerLinkType.hasOwnProperty(link.type)) {
@@ -471,5 +598,20 @@ function CreateNewNodeAndLinkScroller() {
         }
     }
     
+    NodeAndLinkScroller.updateSearchHitsPerTeamType = function () {
+        let teams = NLC.nodesAndLinksData.teams
+        
+        NodeAndLinkScroller.nodeAndLinkScroller.searchHitsPerTeamType = {}
+        for (let teamIndex in teams) {
+            let team = teams[teamIndex]
+            if (NodeAndLinkScroller.teamMatchesSearchAndFilter(team)) {
+                if (!NodeAndLinkScroller.nodeAndLinkScroller.searchHitsPerTeamType.hasOwnProperty(team.type)) {
+                    NodeAndLinkScroller.nodeAndLinkScroller.searchHitsPerTeamType[team.type] = 0
+                }
+                NodeAndLinkScroller.nodeAndLinkScroller.searchHitsPerTeamType[team.type]++
+            }
+        }
+    }
+        
     return NodeAndLinkScroller
 }
