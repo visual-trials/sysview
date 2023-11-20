@@ -92,10 +92,15 @@ function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, 
     nodesAndLinksData.diagrams = diagramsFlatList
     nodesAndLinksData.diagramsById = groupById(flatNodesAndLinksData.diagrams)  
     
-    // Known users and teams
+    // Known users
     nodesAndLinksData.knownUsers = flatNodesAndLinksData.knownUsers
     nodesAndLinksData.knownUsersById = groupById(flatNodesAndLinksData.knownUsers)
-    nodesAndLinksData.teams = flatNodesAndLinksData.teams
+    
+    // Teams
+    let teamTree = getTeamTreeFromList(flatNodesAndLinksData.teams, null, 0)
+    let teamsFlatList = []
+    convertTeamTreeToList(teamTree, teamsFlatList)
+    nodesAndLinksData.teams = teamsFlatList
     nodesAndLinksData.teamsById = groupById(flatNodesAndLinksData.teams)
  
     return nodesAndLinksData
@@ -135,6 +140,43 @@ function convertDiagramTreeToList (diagramTree, diagramsFlatList) {
         diagramsFlatList.push(diagram)
         
         convertDiagramTreeToList(diagram.children, diagramsFlatList)
+    }
+}
+
+function getTeamTreeFromList(teams, parentTeamId, depth) {
+    let childrenOfParent = []
+    let otherTeams = []
+
+    for (let teamIndex in teams) {
+        let team = teams[teamIndex]
+        
+        // Note: null will also match with null (null = root-parent)
+        if (team.parentTeamId == parentTeamId) {
+            team.indentedName = repeatString("&nbsp;", depth * 4) + team.name
+            childrenOfParent.push(team) 
+        }
+        else {
+            otherTeams.push(team)
+        }
+    }
+
+    childrenOfParent.sort(compareName)
+
+    for (let childTeamIndex in childrenOfParent) {
+        let childTeam = childrenOfParent[childTeamIndex]
+    
+        childTeam.children = getTeamTreeFromList(otherTeams, childTeam.id, depth + 1)
+    }
+    
+    return childrenOfParent
+}
+
+function convertTeamTreeToList (teamTree, teamsFlatList) {
+    for (let teamIndex in teamTree) {
+        let team = teamTree[teamIndex]
+        teamsFlatList.push(team)
+        
+        convertTeamTreeToList(team.children, teamsFlatList)
     }
 }
 
