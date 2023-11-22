@@ -845,6 +845,7 @@ function createNewNode(nodeTypeIdentifier) {
         "id" : null,    
         "identifier" : null,    
         "type" : nodeTypeIdentifier,    
+        "responsibleTeamId" : null,
         "commonData" : {    
             "name" : newName,
         },    
@@ -933,6 +934,15 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         nodeChanges.push(nlcDataChange)    
     }    
         
+    if (JSON.stringify(changedNode.responsibleTeamId) !== JSON.stringify(originalNode.responsibleTeamId) ) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "nodes", originalNode.id, "responsibleTeamId" ],    
+            "data" : changedNode.responsibleTeamId
+        }    
+        nodeChanges.push(nlcDataChange)    
+    }    
+    
     if (JSON.stringify(changedNode.identifier) !== JSON.stringify(originalNode.identifier) ) {    
         let nlcDataChange = {    
             "method" : "update",    
