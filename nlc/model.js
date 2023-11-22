@@ -160,7 +160,7 @@ function getTeamTreeFromList(teams, parentTeamId, depth) {
         }
     }
 
-    childrenOfParent.sort(compareName)
+    childrenOfParent.sort(compareSortIndex)
 
     for (let childTeamIndex in childrenOfParent) {
         let childTeam = childrenOfParent[childTeamIndex]
@@ -300,6 +300,7 @@ function createNewTeam(teamTypeIdentifier) {
         "name" : newName,
         "commonData" : {},
         "parentTeamId" : null,
+        "sortIndex" : null,
     }    
         
     return newTeam
@@ -403,6 +404,17 @@ function storeChangesBetweenTeams(originalTeams, changedTeams) {
                 originalTeamsById[changedTeam.id].parentTeamId = changedTeam.parentTeamId
             }    
             
+            if (changedTeam.sortIndex !== originalTeam.sortIndex) {    
+                let nlcDataChange = {    
+                    "method" : "update",    
+                    "path" : [ "teams", originalTeam.id, "sortIndex" ],
+                    "data" : changedTeam.sortIndex
+                }    
+                teamsChanges.push(nlcDataChange)    
+                
+                // FIXME: we do this here, but we normally do this below!    
+                originalTeamsById[changedTeam.id].sortIndex = changedTeam.sortIndex
+            }    
         }
         else {
             // The id of the changedTeam is not in the originalTeamsById. We are assuming this team was added, so we insert it
