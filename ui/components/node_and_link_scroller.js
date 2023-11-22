@@ -427,8 +427,8 @@ function CreateNewNodeAndLinkScroller() {
         if (NodeAndLinkScroller.nodeAndLinkScroller.filterOnResponsibleTeam) {
             let teamIsResponsibleForNode = false
             let currentUserTeamId = UserManagement.getUserTeamId()
-            if ('responsibleTeamId' in node.commonData &&
-                currentUserTeamId && node.commonData.responsibleTeamId === currentUserTeamId) {
+            if ('responsibleTeamId' in node &&
+                currentUserTeamId && node.responsibleTeamId === currentUserTeamId) {
                 teamIsResponsibleForNode = true
             }
             if (!teamIsResponsibleForNode) {
@@ -478,8 +478,8 @@ function CreateNewNodeAndLinkScroller() {
         if (NodeAndLinkScroller.nodeAndLinkScroller.filterOnResponsibleTeam) {
             let teamIsResponsibleForLink = false
             let currentUserTeamId = UserManagement.getUserTeamId()
-            if ('responsibleTeamId' in link.commonData &&
-                currentUserTeamId && link.commonData.responsibleTeamId === currentUserTeamId) {
+            if ('responsibleTeamId' in link &&
+                currentUserTeamId && link.responsibleTeamId === currentUserTeamId) {
                 teamIsResponsibleForLink = true
             }
             if (!teamIsResponsibleForLink) {
