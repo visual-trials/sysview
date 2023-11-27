@@ -118,5 +118,12 @@ function CreateNewUserManagement() {
         return teamId
     }
     
+    UserManagement.setUserTeamId = function(teamId) {
+        let currentUser = UserManagement.userAuthorization.currentUser
+        if (currentUser) {
+            currentUser.teamId = teamId
+        }
+    }
+    
     return UserManagement
 }
