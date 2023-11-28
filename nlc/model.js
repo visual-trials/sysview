@@ -1978,12 +1978,12 @@ NLC.levelOfDetail = "all"
 function getLinkedNodeIds(nodeId) {
     let linkedNodeIds = {}
 
-    for (let linkIndex = 0; linkIndex < NLC.nodesAndLinksData.links.length; linkIndex++) {    
+    for (let linkIndex in NLC.nodesAndLinksData.links) {    
         let link = NLC.nodesAndLinksData.links[linkIndex]    
-        if (link.fromNodeId === nodeId) {
+        if (link.fromNodeId == nodeId) {
             linkedNodeIds[link.toNodeId] = true
         }    
-        if (link.toNodeId === nodeId) {    
+        if (link.toNodeId == nodeId) {    
             linkedNodeIds[link.fromNodeId] = true
         }    
     }    
