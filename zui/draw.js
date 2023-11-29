@@ -68,6 +68,14 @@ function initIcons() {
 
     let menuIconsRaw = {}
     // see: https://ezgif.com/image-to-datauri
+    // also (for making transparent): https://onlinepngtools.com/create-transparent-png
+    // look in /img/ for source files
+    
+    // 64x64 pixels
+    menuIconsRaw['view'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAVtJREFUeF7tmlESgyAMROX+h6bTFhjKVJE2sKvZ/sqE8HiJVA2b819wvv5NAGSAcwIqAecCqAlalkBMNlnGnC6oZbIC0GyXJdxpJlgmmQ3IyVrGvg6AGN8cQijrpwZhmdxr5QKQDCh1QG7CNAMEoL0lkJow3QB2E5YBYAUhAIYnjI/bYC8uyzlhuQFspQADwAJCAHq1OnB9qAe0cVE9AW4AuhRoAKBACMBAjfeG/tUDUD2BzoDVpQAHUHX/nmGWuZa5LIP+VAJuAOSF5kdmq1Xf02uZAW4BtIq7M8AtgIOz/ddmebv/Am4BVN12r8He2wAB2E5/dEFhgvk54PletHemTddvB+DkusswAajfJqOOxmd1Hd3dkfFQEwRgZKsmjZUByF7AUAJZLMhHVgIwqa4vE5bJAAg0AYBgJ5pUBhBtBiQVGQDBTjSpDCDaDEgqMgCCnWhSGUC0GZBUHhukrkGN6AW2AAAAAElFTkSuQmCC'
+    menuIconsRaw['move'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAW9JREFUeF7tl0kWxCAIRJP7H7p70WZDx8ck8JTK1gHrUxq4r+bf3Vz/BQBwQHMCuALNDYBHEFcAV6A5AVyBYgN8RvyyRJQFHsLbAniEUwOmJyQ9IMl8OwCzzJeByHZAWwBS4elOyHJAewCzcqPtb/ABAgCoBH8Est6iv6u4OrDW0tHz2VYHAFhEsgn0NycFa3XAcyppnKkK9waT2l667/YAvF2dF4DbCdJMcYWMtYTdFoC1tJW9KPZZ6oSqFzD9vP3oa1aq9agXkHPiDZgkTgp22zeA6kYdQIhkOUAaJ7wQsra31ivgFu4uICZIowVp92f/LctIspHeJywXpD0HAGiJLZ4PBwygZU7MCmztHcLPFx7A2TuEny88gLB3sLbT7icJANwIbRt4u0hb1JdV2Q6gJXOZ9aNKYW1mUAd0qQO0zkibX/UGpAnkAgEAR+j0cTjg9Axz+uAAjtDp43DA6Rnm9MEBHKHTx+GA0zPM6fsCqQA+QZt1I4cAAAAASUVORK5CYII='
+    
+    /* 32x32 pixels
     menuIconsRaw['view'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAp0lEQVRYR+3W4QqAIAwE4Pn+D10ICTISvdvhCvRfYPZ52rRYcivJ37cD+FUCl5l+yZAEKqA25J3pHkcGawlIk2AAdVYyBAuQISIACSIKCCMUgBBCBaARSgCFUANghArQqmRf+ZbGXur0jOqLT/9MFyYW4M+FrYDRzCkEmoA/DcPLgALe+ocQCGB0tqcD/L8P7QVFAp8ANAR8ZVMlML37jTocwEkgPYEbdmUtIUAAjAQAAAAASUVORK5CYII='
     menuIconsRaw['move'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAApUlEQVRYR+2V4QrAIAiE7f0feqOBEFtqepAN7Odw3pde2ij5tGR9KoCqAFqBiwjzEQLQxfmE80R/HMUhiAjATDwMEQEYZ1eqBzrINgBJyPv9M/lXWsA9n8VqAF3MzG8FWE/NAjAhNADN7d4lKuocXQG+ZaoHRgivCa3qPrmXgpSGb5sDEkMKwBG7IHUbvl8H5KXfm9A7EUPLCBbREqAtgOEKoCpwA2MJHyFyeKK8AAAAAElFTkSuQmCC'
     menuIconsRaw['connect'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA60lEQVRYR+2WsQ2EIBSGn7UNE9HTOIWtqzgBoaCxt3ENC1awo2ECLpDY3Omh8MBCSCgICd/HD+HRwMOteZgPVeAdCYzjaKWUsK7rz4azJeCgQghQSvl7zhiDZVnKCQzDYKdpAq21F+CcQ9/35QQclBBi27aFbdvc8DDtbEfg4F3XAaUU5nl2vZzADpdSeijn3B7FfxpLyuv4DQ+thXoEd+GoCcTA0QRi4SgCKfBkgVR4kgAGPFoACx4lgAm/LYANvyWQA35ZIBf8kkBOeFAgN/yvQAn4qYD7ThljYK/noZKaMo9ajmNEqkBN4AOo0XEhIBB/ywAAAABJRU5ErkJggg=='
@@ -75,6 +83,7 @@ function initIcons() {
     menuIconsRaw['square'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAW0lEQVRYR+2WQQoAIAgE9f+PTnpArWSgh+mabeNApFvz8ub7DQAMjDewPr2SY6PKwAZQNYrxmqHCAcAABjCAAQxgYIQB9d9n9p8Hkkx4qUYNJKXwzGEAMNBuIABaPSIhIHxqIwAAAABJRU5ErkJggg=='
     menuIconsRaw['grid'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAABeSURBVEhL7dFBCgAhDEPROve/VQ+mgxFxUwLFLoS8lVmJfusHd1+n6cr8rFj5Be1/yzoWwU9B7pchmu83UOQtmopMKTKlyBxSQC4jRFORKUWmFJlDCshlhGi+3sBsAB2ejdkSVbdvAAAAAElFTkSuQmCC'
     // menuIconsRaw['grid'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC'
+    */
     
     for (let mode in menuIconsRaw) {
         let iconImage = new Image
@@ -181,7 +190,7 @@ function drawButton(buttonData, drawOnlySelected) {
             buttonData.mode === ZUI.interaction.currentlySelectedMode) {
                 
             ZUI.ctx.lineWidth = 1
-            ZUI.ctx.fillStyle = "#FFFFFF"
+            ZUI.ctx.fillStyle = "#FFFAA0"
             ZUI.ctx.strokeStyle = "#000000"
             ZUI.ctx.fillRect(buttonPosition.x, buttonPosition.y, buttonSize.width, buttonSize.height)
             // TODO: how to deal with stoking and offset: 0.5 ?
