@@ -148,23 +148,25 @@ function CreateNewNodeDetail() {
             // Since editedNode.id does not yet exist, we assume this is a new node (and its id has already been generated). 
             // So we add and store it as a new new node here.
             
+            // FIXME: We need to remove these added attributes from the editedNode, we would to put this in _helper INSTEAD!
+            let addToDiagram = editedNode.addToDiagram
+            delete editedNode.isNewNode
+            delete editedNode.addToDiagram
+
             storeNewNode(editedNode)
-            
+
             // TODO: we probably want to auto-select the node here!
             
             // TODO: NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId =
             //        selectedContainerIdentifier(s) =
             
-            if (editedNode.addToDiagram) {
+            if (addToDiagram) {
                 let diagramId = DiagramLegendaLodSelector.diagramSelector.selectedDiagramId
                 // FIXME: allow for the node to be added to a parent container!
                 let parentContainerIdentifier = null
                 addNodeToDiagram(editedNode, parentContainerIdentifier, diagramId)
             }
             
-            delete editedNode.isNewNode
-            delete editedNode.addToDiagram
-
             NodeDetail.closeNodeDetailFunction()
         }
     }
