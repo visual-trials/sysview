@@ -2020,7 +2020,16 @@ function teamIsInDiagram(team, diagramId) {
     else {
         return false
     }
-}    
+}   
+function containerTypeByIdentifier (containerIdentifier)  {
+    if (containerIdentifier in ZUI.containersAndConnections.containers) {
+        return ZUI.containersAndConnections.containers[containerIdentifier].containerType
+    }
+    else {
+        return null
+    }
+    
+}
     
 function linkIsInDiagram(link, diagramId) {    
     // FIXME: should we not explicitily store links as being in a diagram?    
@@ -2633,7 +2642,7 @@ function convertNodeOrTeamToContainer (isNodeOrTeam, containerVisualData, nodeOr
         type: nodeOrTeam.type,    
         // TODO: shouldnt we also add the nodeOrTeam.identifier?!
 // FIXME: also add containerInfo.id (or containerInfo.containerId)        
-        containerType: 'node',
+        containerType: isNodeOrTeam,
         identifier: containerIdentifier,    
         parentContainerIdentifier: parentContainerIdentifier,
         name: containerName,
