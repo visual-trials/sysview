@@ -2,6 +2,7 @@ function CreateNewNodeAndLinkScroller() {
 
     let NodeAndLinkScroller = {
         scrollToSelectedNodeFunction: null,
+        scrollToSelectedTeamFunction: null,
         scrollToSelectedLinkFunction: null,
     }
 
@@ -308,12 +309,18 @@ function CreateNewNodeAndLinkScroller() {
     NodeAndLinkScroller.updateNodeAndLinkSelectionsBasedOnZUI = function () {
         
         // TODO: we should only update .hoveredNodeId if it is changed
-        let hoveredNodeId = convertContainerIdentifierToContainerId(ZUI.interaction.currentlyHoveredContainerIdentifier)
-        if (hoveredNodeId) {
-            NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = hoveredNodeId
-        }
-        else {
-            NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = null
+        let hoveredContainerId = convertContainerIdentifierToContainerId(ZUI.interaction.currentlyHoveredContainerIdentifier)
+        let hoveredContainerType = containerTypeByIdentifier(ZUI.interaction.currentlyHoveredContainerIdentifier)
+        
+        NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = null
+        NodeAndLinkScroller.nodeAndLinkSelector.hoveredTeamId = null
+        if (hoveredContainerId) {
+            if (hoveredContainerType == 'node') {
+                NodeAndLinkScroller.nodeAndLinkSelector.hoveredNodeId = hoveredContainerId
+            }
+            else if (hoveredContainerType == 'team') {
+                NodeAndLinkScroller.nodeAndLinkSelector.hoveredTeamId = hoveredContainerId
+            }
         }
         
         let selectedContainerIdentifiers = ZUI.interaction.currentlySelectedContainerIdentifiers
@@ -321,25 +328,43 @@ function CreateNewNodeAndLinkScroller() {
             // TODO: right now, we only allow 1 node to be selected in Vue. Should we allow more to be selected?
             let selectedContainerIdentifier = selectedContainerIdentifiers[0]
             
-            // Its probably better to let model.js do this, right?
-            let containerType = ZUI.containersAndConnections.containers[selectedContainerIdentifier].containerType 
-            
-            // FIXME: actually use the containerType! For now we simply assume its 'node'!
-            let toBeSelectedNodeId = convertContainerIdentifierToContainerId(selectedContainerIdentifier)
-            
-            // FIXME: this is triggered when hovering over the selected container!!
-            if (toBeSelectedNodeId !== NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId) {
-                let oldSelectedNodeId = NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId
-                let updateSelectedContainers = false  // We do not want the selected containers to be updated, only the node
-                NodeAndLinkScroller.selectNode(toBeSelectedNodeId, updateSelectedContainers)
-                if (NodeAndLinkScroller.scrollToSelectedNodeFunction != null) {
-                    NodeAndLinkScroller.scrollToSelectedNodeFunction(toBeSelectedNodeId, oldSelectedNodeId)
+            let toBeSelectedContainerId = convertContainerIdentifierToContainerId(selectedContainerIdentifier)
+console.log(toBeSelectedContainerId)
+            let containerType = containerTypeByIdentifier(selectedContainerIdentifier)
+console.log(containerType)
+            if (containerType == 'node') {
+                let toBeSelectedNodeId = toBeSelectedContainerId
+                // FIXME: this is triggered when hovering over the selected container!!
+                if (toBeSelectedNodeId !== NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId) {
+                    let oldSelectedNodeId = NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId
+                    let updateSelectedContainers = false  // We do not want the selected containers to be updated, only the node
+                    NodeAndLinkScroller.selectNode(toBeSelectedNodeId, updateSelectedContainers)
+                    if (NodeAndLinkScroller.scrollToSelectedNodeFunction != null) {
+console.log('scrollToSelectedNodeFunction')
+                        NodeAndLinkScroller.scrollToSelectedNodeFunction(toBeSelectedNodeId, oldSelectedNodeId)
+                    }
+        // FIXME: we want localStorage not to be a global here! We probably want to call a function which has the side-effect of storing something in localStorage.
+        console.log("currentlySelectedNode: " + toBeSelectedNodeId)
+        localStorage.setItem('currentlySelectedNode', JSON.stringify({'id' : toBeSelectedNodeId}))
+        localStorage.removeItem('currentlySelectedNode')
                 }
-    // FIXME: we want localStorage not to be a global here! We probably want to call a function which has the side-effect of storing something in localStorage.
-    console.log("currentlySelectedNode: " + toBeSelectedNodeId)
-    localStorage.setItem('currentlySelectedNode', JSON.stringify({'id' : toBeSelectedNodeId}))
-    localStorage.removeItem('currentlySelectedNode')
             }
+            else if (containerType == 'team') {
+                let toBeSelectedTeamId = toBeSelectedContainerId
+                // FIXME: this is triggered when hovering over the selected container!!
+                if (toBeSelectedTeamId !== NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId) {
+                    let oldSelectedTeamId = NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId
+                    let updateSelectedContainers = false  // We do not want the selected containers to be updated, only the node
+                    NodeAndLinkScroller.selectTeam(toBeSelectedTeamId, updateSelectedContainers)
+                    if (NodeAndLinkScroller.scrollToSelectedTeamFunction != null) {
+console.log('scrollToSelectedTeamFunction')
+                        NodeAndLinkScroller.scrollToSelectedTeamFunction(toBeSelectedTeamId, oldSelectedTeamId)
+                    }
+        // FIXME: we want localStorage not to be a global here! We probably want to call a function which has the side-effect of storing something in localStorage.
+        console.log("currentlySelectedTeam: " + toBeSelectedTeamId)
+                }
+            }
+            
         }
         else {
             // FIXME: do we want to deselect the node if the container is deselected/null? Or only when we explicitily selected into "nothing"?
