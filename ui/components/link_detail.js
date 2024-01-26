@@ -166,7 +166,7 @@ function CreateNewLinkDetail() {
         function assignIdToNewLinkAndOpenModal(newId) {
             editedLink.id = newId
             // FIXME: this is also done in conversions/...js!
-            editedLink.identifier = 'LINK-' + newId
+            editedLink.identifier = 'IKB-LINK-' + newId
             
             LinkDetail.openLinkDetailFunction()
         }
