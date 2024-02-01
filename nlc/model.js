@@ -42,6 +42,10 @@ function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, 
     nodesAndLinksData.legendas = legendas
     nodesAndLinksData.legendasById = groupById(legendas)
 
+    // DataTypes
+    nodesAndLinksData.dataTypes = flatNodesAndLinksData.dataTypes
+    nodesAndLinksData.dataTypesById = groupById(flatNodesAndLinksData.dataTypes)
+    
     // Nodes
     nodesAndLinksData.nodes = flatNodesAndLinksData.nodes
     nodesAndLinksData.nodesById = groupById(flatNodesAndLinksData.nodes)
