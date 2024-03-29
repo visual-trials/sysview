@@ -1337,6 +1337,13 @@ function updateWorld(timeElapsed) {
         if (rectangleAroundWorld.position.x == null) { // FIXME: this is a bit ugly
             rectangleAroundWorld = getRectangleAroundWorld(false)
         }
+        // If we can't find a rectangle using all containers, we just use a hardcoded rectangle
+        if (rectangleAroundWorld.position.x == null) { // FIXME: this is a bit ugly
+            rectangleAroundWorld = {
+                "position" : { "x": 0, "y": 0},
+                "size" : { "width": 1000, "height": 1000}
+            }
+        }
         
         // TODO: put this in a function that centers the view on a world-rectangle
         {
