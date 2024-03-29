@@ -89,6 +89,10 @@ function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, 
     }
     nodesAndLinksData.nodesInSourceDiagram = nodesInSourceDiagram
     
+    // Infra Diagrams
+    nodesAndLinksData.infraDiagrams = flatNodesAndLinksData.infraDiagrams
+    nodesAndLinksData.infraDiagramsById = groupById(flatNodesAndLinksData.infraDiagrams)
+    
     // Diagrams
     let diagramTree = getDiagramTreeFromList(flatNodesAndLinksData.diagrams, null, 0)
     let diagramsFlatList = []
@@ -1969,6 +1973,202 @@ function storeSourcePointLocalSize(sourceDiagram, originalSourcePoint, localSize
     }
 
 }    
+
+
+
+
+// Infra diagrams
+    
+function createNewInfraDiagram() {    
+        
+    // FIXME: we should take into account default values and required fields!    
+        
+    // Create the infraDiagram locally    
+        
+    let newName = "Nieuw" // FIXME: should we require a new to be typed first? (or is this edited afterwards?)    
+        
+    let newInfraDiagram = {    
+        "id" : null,    
+        "name" : newName,    
+        // "imageUrl" : null,
+        "infraResources" : [],
+    }    
+        
+    return newInfraDiagram    
+}    
+    
+function storeNewInfraDiagram(newInfraDiagram) {    
+    let infraDiagramsById = NLC.nodesAndLinksData.infraDiagramsById
+    
+    infraDiagramsById[newInfraDiagram.id] = newInfraDiagram    
+    NLC.nodesAndLinksData.infraDiagrams.push(newInfraDiagram)    
+    
+    let clonedNewInfraDiagram = JSON.parse(JSON.stringify(newInfraDiagram))
+    delete clonedNewInfraDiagram['_helper'] // we remove any helper data before sending it to the backend
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.infraDiagrams and infraDiagramsById)    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "infraDiagrams"],    
+        "data" : clonedNewInfraDiagram
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    NLC.dataHasChanged = true    
+}    
+    
+function storeChangesBetweenInfraDiagrams(originalInfraDiagram, changedInfraDiagram) {    
+    let infraDiagramChanges = []    
+        
+    // FIXME: we should make sure that all fields we want to diff are placed somewhere central and is reused    
+    
+    if (changedInfraDiagram.name !== originalInfraDiagram.name) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "infraDiagrams", originalInfraDiagram.id, "name" ],    
+            "data" : changedInfraDiagram.name    
+        }    
+        infraDiagramChanges.push(nlcDataChange)    
+    }    
+    
+    /*
+    if (changedInfraDiagram.imageUrl !== originalInfraDiagram.imageUrl) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "infraDiagrams", originalInfraDiagram.id, "imageUrl" ],    
+            "data" : changedInfraDiagram.imageUrl    
+        }    
+        infraDiagramChanges.push(nlcDataChange)    
+    } 
+    */    
+    
+    if (infraDiagramChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(infraDiagramChanges)    
+            
+        NLC.dataHasChanged = true    
+            
+        // TODO: we should only do this if we accept the changes    
+        originalInfraDiagram.name = changedInfraDiagram.name    
+        // originalInfraDiagram.imageUrl = changedInfraDiagram.imageUrl  // FIXME: we should get rid of this!    
+    }    
+}    
+
+function removeInfraDiagram (infraDiagramToBeRemoved) {    
+    let infraDiagramsById = NLC.nodesAndLinksData.infraDiagramsById
+    
+    let infraDiagramIndexToDelete = null    
+    for (let infraDiagramIndex = 0; infraDiagramIndex < NLC.nodesAndLinksData.infraDiagrams.length; infraDiagramIndex++) {    
+        let infraDiagram = NLC.nodesAndLinksData.infraDiagrams[infraDiagramIndex]    
+        if (infraDiagram.id === infraDiagramToBeRemoved.id) {    
+            infraDiagramIndexToDelete = infraDiagramIndex    
+        }    
+    }    
+    if (infraDiagramIndexToDelete != null) {    
+        NLC.nodesAndLinksData.infraDiagrams.splice(infraDiagramIndexToDelete, 1)
+        delete infraDiagramsById[infraDiagramToBeRemoved.id]    
+    }    
+    else {    
+        console.log("ERROR: could not find infraDiagram to be deleted!")    
+    }    
+        
+    // FIXME: remove all visualData from nodes and links pointing to this infraDiagram!    
+        
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.infraDiagrams and infraDiagramsById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "infraDiagrams", infraDiagramToBeRemoved.id],    
+        "data" : infraDiagramToBeRemoved    
+    }    
+    NLC.dataChangesToStore.push(nlcDataChange)
+    NLC.dataHasChanged = true    
+}    
+    
+    
+// Infra resources in infra diagrams
+
+function addInfraResourceToInfraDiagram(infraDiagram, infraResource) {    
+        
+    if (!('infraResources' in infraDiagram)) {
+        infraDiagram.infraResources = []
+    }
+    infraDiagram.infraResources.push(infraResource)
+    
+    let clonedInfraResource = JSON.parse(JSON.stringify(infraResource))
+    delete clonedInfraResource['_helper'] // we remove any helper data before sending it to the backend
+    
+    let nlcDataChange = {    
+        "method" : "insert",    
+        "path" : [ "infraDiagrams", infraDiagram.id, "infraResources" ],
+        "data" : clonedInfraResource
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)    
+    
+    // TODO: maybe its better to call this: visualDataHasChanged ?    
+    NLC.dataHasChanged = true    
+}    
+
+/*
+function storeInfraResourceNodeId(infraDiagram, originalInfraResource, nodeId) {    
+
+    let infraDiagramsChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point nodeid and the new nodeid
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "infraDiagrams", infraDiagram.id, "infraResources", originalInfraResource.id, "nodeId" ],    
+            "data" : nodeId
+        }    
+        originalInfraResource.nodeId = nodeId
+        infraDiagramsChanges.push(nlcDataChange)    
+    }
+                
+    if (infraDiagramsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(infraDiagramsChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}
+*/   
+
+function storeInfraResourceLocalPosition(infraDiagram, originalInfraResource, localPosition) {    
+
+    let infraDiagramsChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point position and the new position
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "infraDiagrams", infraDiagram.id, "infraResources", originalInfraResource.id, "position" ],    
+            "data" : localPosition
+        }    
+        originalInfraResource.position = localPosition
+        infraDiagramsChanges.push(nlcDataChange)    
+    }
+                
+    if (infraDiagramsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(infraDiagramsChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
+
+function storeInfraResourceLocalSize(infraDiagram, originalInfraResource, localSize) {    
+
+    let infraDiagramsChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point size and the new size
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "infraDiagrams", infraDiagram.id, "infraResources", originalInfraResource.id, "size" ],    
+            "data" : localSize
+        }    
+        originalInfraResource.size = localSize
+        infraDiagramsChanges.push(nlcDataChange)    
+    }
+                
+    if (infraDiagramsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(infraDiagramsChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
+
 
     
     
