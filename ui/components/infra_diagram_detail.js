@@ -5,7 +5,6 @@ function CreateNewInfraDiagramDetail() {
         closeInfraDiagramDetailFunction: null,
         infraDiagramEditor : {
             editedInfraDiagram: null,
-            availableInfraDiagramImages: [],
         }
     }
 
@@ -18,10 +17,6 @@ function CreateNewInfraDiagramDetail() {
             // TODO: right now, we clone the link! Only when we SAVE will it be copied back again!
             InfraDiagramDetail.infraDiagramEditor.editedInfraDiagram = JSON.parse(JSON.stringify(originalInfraDiagram))
         }
-    }
-
-    InfraDiagramDetail.setAvailableInfraDiagramImages = function (availableInfraDiagramImages) {
-        InfraDiagramDetail.infraDiagramEditor.availableInfraDiagramImages = availableInfraDiagramImages
     }
 
     InfraDiagramDetail.createNewInfraDiagramAndOpenDetail = function() {
@@ -81,7 +76,6 @@ function CreateNewInfraDiagramDetail() {
                 // FIXME: HOW DO WE REPLACE THE ORIGINAL SOURCE DIAGRAM in the infraDiagrams *list*!? Should we get rid of this *list* of infraDiagrams?
                 // FIXME: this is a workaround to make sure the infraDiagram in the infraDiagrams-list is also updated with the new information
                 oldOriginalInfraDiagram.name = loadedInfraDiagramDetails.name
-                oldOriginalInfraDiagram.imageUrl = loadedInfraDiagramDetails.imageUrl
                 oldOriginalInfraDiagram.infraPoints = loadedInfraDiagramDetails.infraPoints
                 
                 // Overwriting the infraDiagram in infraDiagramsById
