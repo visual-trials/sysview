@@ -40,10 +40,31 @@ function CreateNewInfraResourceDetail() {
         InfraResourceDetail.closeInfraResourceDetailFunction()
     }
 
-    InfraResourceDetail.saveInfraResourceDetail = function (editedInfraResource) {
-// FIXME: this WONT WORK!
-// FIXME: this WONT WORK!
-// FIXME: this WONT WORK!
+    InfraResourceDetail.saveInfraResourceDetail = function (selectedInfraDiagram, editedInfraResource) {
+
+        // Note: infraResources do not have their own table at them moment, but are stored withing InfraDiagrams. 
+        // So we have to replace the old infraResource inside the infraDiagram with the edited infraResource.
+        
+        let editedInfraDiagram = JSON.parse(JSON.stringify(selectedInfraDiagram))
+        // We empty the resource list and then add them back (but when we encounted the edited one, we add the edited one instead)
+        editedInfraDiagram.infraResources = []
+        for (let resourceIndex in selectedInfraDiagram.infraResources) {
+            let copyOfOriginalInfraResource = JSON.parse(JSON.stringify(selectedInfraDiagram.infraResources[resourceIndex]))
+            
+            if (copyOfOriginalInfraResource.id == editedInfraResource.id) {
+                editedInfraDiagram.infraResources.push(editedInfraResource)
+            }
+            else {
+                editedInfraDiagram.infraResources.push(copyOfOriginalInfraResource)
+            }
+            
+        }
+        
+        storeChangesBetweenInfraDiagrams(selectedInfraDiagram, editedInfraDiagram) // ASYNC!
+
+        InfraResourceDetail.closeInfraResourceDetailFunction()
+
+/*
         let infraResourcesById = NLC.nodesAndLinksData.infraResourcesById
         if (editedInfraResource.id in infraResourcesById) {
             let selectedInfraResource = infraResourcesById[editedInfraResource.id]
@@ -65,6 +86,7 @@ function CreateNewInfraResourceDetail() {
             
             InfraResourceDetail.closeInfraResourceDetailFunction()
         }
+        */
     }
 
     InfraResourceDetail.openInfraResourceDetail = function (infraDiagram, infraResourceId) {

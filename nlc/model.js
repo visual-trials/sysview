@@ -2030,16 +2030,14 @@ function storeChangesBetweenInfraDiagrams(originalInfraDiagram, changedInfraDiag
         infraDiagramChanges.push(nlcDataChange)    
     }    
     
-    /*
-    if (changedInfraDiagram.imageUrl !== originalInfraDiagram.imageUrl) {    
+    if (JSON.stringify(changedInfraDiagram.infraResources) !== JSON.stringify(originalInfraDiagram.infraResources) ) {    
         let nlcDataChange = {    
             "method" : "update",    
-            "path" : [ "infraDiagrams", originalInfraDiagram.id, "imageUrl" ],    
-            "data" : changedInfraDiagram.imageUrl    
+            "path" : [ "infraDiagrams", originalInfraDiagram.id, "infraResources" ],    
+            "data" : changedInfraDiagram.infraResources    
         }    
         infraDiagramChanges.push(nlcDataChange)    
     } 
-    */    
     
     if (infraDiagramChanges.length > 0) {    
         NLC.dataChangesToStore = NLC.dataChangesToStore.concat(infraDiagramChanges)    
