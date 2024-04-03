@@ -2127,6 +2127,28 @@ function storeInfraResourceNodeId(infraDiagram, originalInfraResource, nodeId) {
 }
 */   
 
+
+function storeInfraResourceInParentResource(infraDiagram, originalInfraResource, parentContainerIdentifier) {    
+
+    let infraDiagramsChanges = []
+    if (true) { // FIXME: We should check here if there is a difference between the original point position and the new position
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "infraDiagrams", infraDiagram.id, "infraResources", originalInfraResource.id, "visualParent" ],    
+            "data" : parentContainerIdentifier
+        }    
+        originalInfraResource.visualParent = parentContainerIdentifier
+        infraDiagramsChanges.push(nlcDataChange)    
+    }
+                
+    if (infraDiagramsChanges.length > 0) {    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(infraDiagramsChanges)    
+        NLC.dataHasChanged = true
+    }
+
+}    
+
+
 function storeInfraResourceLocalPosition(infraDiagram, originalInfraResource, localPosition) {    
 
     let infraDiagramsChanges = []
