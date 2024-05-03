@@ -414,6 +414,45 @@ function drawGrid () {
     
 }
 
+function drawLabelOfHoveredContainer () {
+
+    // Draw label of hovered container
+    if (ZUI.interaction.highlightHoveredContainer &&
+        ZUI.interaction.currentlyHoveredContainerIdentifier != null) {
+           
+        let container = getContainerByIdentifier(ZUI.interaction.currentlyHoveredContainerIdentifier)
+        if (container) {
+            
+            let textToDraw = container.name ? container.name : ''
+            
+            // Get text size
+            let textSize = {}
+            let localFontSize = 14
+            if (container.localFontSize != null) {
+                localFontSize = container.localFontSize
+            }
+            
+            let heightBottomWhiteArea = localFontSize / 6
+            ZUI.ctx.font = localFontSize + "px Arial"
+            ZUI.ctx.textBaseline = "top"
+            let textHeightToFontSizeRatioArial = 1.1499023
+            
+            textSize.width = ZUI.ctx.measureText(textToDraw).width
+            textSize.height = textHeightToFontSizeRatioArial * localFontSize
+            
+            let hoverTextWorldPosition = {}
+            hoverTextWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2)
+            // TODO: we do *3 of the font size to make the text look as being at the top. We might want to change this
+            hoverTextWorldPosition.y = container.worldPosition.y - (textSize.height * container.worldScale / 2) + localFontSize*3 * container.worldScale
+            let hoverScreenTextPosition = fromWorldPositionToScreenPosition(hoverTextWorldPosition)
+                
+            // FIXME: the size of the font is set within drawLabel, but it is also set above, which might differ!
+            drawLabel(textToDraw, hoverScreenTextPosition)
+        }
+    }
+}
+
+
 function drawNewConnection () {
     if (ZUI.interaction.newConnectionBeingAddedIdentifier != null) {
         let newConnectionBeingAdded = getConnectionByIdentifier(ZUI.interaction.newConnectionBeingAddedIdentifier)
@@ -1247,6 +1286,7 @@ if (container.stroke) {
         
         
         // TODO: we want to do something like this, but labels should be drawn at the end (not it is behind other containers and to the upper-left)
+        /*
         // Draw label
         if (ZUI.interaction.highlightHoveredContainer &&
             ZUI.interaction.currentlyHoveredContainerIdentifier != null &&
@@ -1260,7 +1300,7 @@ if (container.stroke) {
                 
             drawLabel(textToDraw, hoverScreenTextPosition)
         }
-        
+        */
     }
     
     
