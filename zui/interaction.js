@@ -1431,41 +1431,63 @@ function updateWorld(timeElapsed) {
                     y: ZUI.interaction.viewOffset.y
                 }
                 
-                // For now we are resetting to the default
-                let targetViewScale = 0.8 // FIXME: hardcoded!
-                let targetViewOffset = { x: 0, y: 0 }
-
-                ZUI.interaction.viewScale = targetViewScale
-                ZUI.interaction.viewOffset = {
-                    x: targetViewOffset.x, 
-                    y: targetViewOffset.y 
+                // We calculate everything and set it, as-if there is not animation
+                {
+                    
+                    let containerRectangle = {
+                        "position" : currentlySelectedContainer.worldPosition,
+                        "size" : currentlySelectedContainer.localSize,
+                    }
+                    let middlePointOfContainer = getCenterPointOfRectangle(containerRectangle)
+                    
+                    // For now we are resetting to the default
+                    ZUI.interaction.viewScale = 1
+                    ZUI.interaction.viewOffset = { x: 0, y: 0 }
+                    
+                    // We first set the viewScale
+                    let containerWidthOnScreen = currentlySelectedContainer.localSize.width  // Since we have a viewScale of 1, localSize is equal to screenSize
+                    let containerHeightOnScreen = currentlySelectedContainer.localSize.height
+                    
+                    // We check if the height or the width is the constraint and choose that one
+                    let scaleToFitWidth = ZUI.canvasElement.width * 0.8 / containerWidthOnScreen
+                    let scaleToFitHeight = ZUI.canvasElement.height * 0.8 / containerHeightOnScreen
+                    if (scaleToFitWidth < scaleToFitHeight) {
+                        ZUI.interaction.viewScale = scaleToFitWidth
+                    }
+                    else {
+                        ZUI.interaction.viewScale = scaleToFitHeight
+                    }
+                    
+                    // After setting the scale we can calculate the viewOffset
+                    let middleOfContainerOnScreen = fromWorldPositionToScreenPosition(middlePointOfContainer)
+                    let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
+                    ZUI.interaction.viewOffset = { x: middleOfScreen.x - middleOfContainerOnScreen.x, y: middleOfScreen.y - middleOfContainerOnScreen.y } 
                 }
                 
-                // After setting the scale we can calculate the viewOffset
-                let containerPositionOnScreen = fromWorldPositionToScreenPosition(currentlySelectedContainer.worldPosition)
-                
-                let middleOfScreen = { x: ZUI.canvasElement.width / 2, y: ZUI.canvasElement.height / 2 }
-                // TODO: this is probably not correct: for the size we have to take into account the viewScale, right? And what about (local)scale?
-                targetViewOffset = { x: middleOfScreen.x - containerPositionOnScreen.x - currentlySelectedContainer.localSize.width / 2, 
-                                     y: middleOfScreen.y - containerPositionOnScreen.y - currentlySelectedContainer.localSize.height / 2} 
-                                     
-                // FIXME: here we restore them
-                ZUI.interaction.viewOffset = {
-                    x: originalViewOffset.x, 
-                    y: originalViewOffset.y 
+                {
+                    // We use the result as our target
+                    let targetViewScale = ZUI.interaction.viewScale
+                    let targetViewOffset = { x: ZUI.interaction.viewOffset.x, y: ZUI.interaction.viewOffset.y }
+                    
+                    // FIXME: here we restore them
+                    ZUI.interaction.viewOffset = {
+                        x: originalViewOffset.x, 
+                        y: originalViewOffset.y 
+                    }
+                    ZUI.interaction.viewScale = originalViewScale
+                    
+                    ZUI.interaction.timeScrolled = 0
+                    ZUI.interaction.panningAnimationIsActive = true
+            
+                    ZUI.interaction.startPanningViewOffset = {
+                        x: ZUI.interaction.viewOffset.x,
+                        y: ZUI.interaction.viewOffset.y
+                    }
+                    ZUI.interaction.startPanningViewScale = ZUI.interaction.viewScale
+                    ZUI.interaction.targetPanningViewOffset = targetViewOffset
+                    ZUI.interaction.targetPanningViewScale = targetViewScale
                 }
-                ZUI.interaction.viewScale = originalViewScale
                 
-                ZUI.interaction.timeScrolled = 0
-                ZUI.interaction.panningAnimationIsActive = true
-        
-                ZUI.interaction.startPanningViewOffset = {
-                    x: ZUI.interaction.viewOffset.x,
-                    y: ZUI.interaction.viewOffset.y
-                }
-                ZUI.interaction.startPanningViewScale = ZUI.interaction.viewScale
-                ZUI.interaction.targetPanningViewOffset = targetViewOffset
-                ZUI.interaction.targetPanningViewScale = targetViewScale
             }
             else {
                 console.log("WARNING: trying to center on a container that does not exist!")
