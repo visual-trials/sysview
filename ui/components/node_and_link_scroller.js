@@ -162,24 +162,19 @@ function CreateNewNodeAndLinkScroller() {
                     currentlySelectedContainerIds.push(currentlySelectedContainerId)
                 }
                 
-                if (ZUI.containersAndConnections.containers.hasOwnProperty(NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId) &&
+                let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId)
+                if (containerIdentifiersInDiagram &&
                     !currentlySelectedContainerIds.includes(NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId)) {
 
-                    let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.selectedNodeId)
-                    if (containerIdentifiersInDiagram) {
-                        // FIXME: for now take the first node we find in the diagram! AND we put it in the ARRAY of selected container
-                        //        MAYBE we can select them ALL?
-                        ZUI.interaction.currentlySelectedContainerIdentifiers = [containerIdentifiersInDiagram[0]]
-                    }
-                    else {
-                        ZUI.interaction.currentlySelectedContainerIdentifiers = []
-                    }
-                 
-                    ZUI.interaction.currentlySelectedConnectionIdentifier = null
+                    // FIXME: for now take the first node we find in the diagram! AND we put it in the ARRAY of selected container
+                    //        MAYBE we can select them ALL?
+                    ZUI.interaction.currentlySelectedContainerIdentifiers = [containerIdentifiersInDiagram[0]]
                 }
                 else {
                     ZUI.interaction.currentlySelectedContainerIdentifiers = []
                 }
+             
+                ZUI.interaction.currentlySelectedConnectionIdentifier = null
             }
             
         }
@@ -279,24 +274,19 @@ function CreateNewNodeAndLinkScroller() {
                     currentlySelectedContainerIds.push(currentlySelectedContainerId)
                 }
                 
-                if (ZUI.containersAndConnections.containers.hasOwnProperty(NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId) &&
+                let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId)
+                if (containerIdentifiersInDiagram &&
                     !currentlySelectedContainerIds.includes(NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId)) {
 
-                    let containerIdentifiersInDiagram = getContainerIdentifiersInDiagramByContainerId(NodeAndLinkScroller.nodeAndLinkSelector.selectedTeamId)
-                    if (containerIdentifiersInDiagram) {
-                        // FIXME: for now take the first team we find in the diagram! AND we put it in the ARRAY of selected container
-                        //        MAYBE we can select them ALL?
-                        ZUI.interaction.currentlySelectedContainerIdentifiers = [containerIdentifiersInDiagram[0]]
-                    }
-                    else {
-                        ZUI.interaction.currentlySelectedContainerIdentifiers = []
-                    }
-                 
-                    ZUI.interaction.currentlySelectedConnectionIdentifier = null
+                    // FIXME: for now take the first team we find in the diagram! AND we put it in the ARRAY of selected container
+                    //        MAYBE we can select them ALL?
+                    ZUI.interaction.currentlySelectedContainerIdentifiers = [containerIdentifiersInDiagram[0]]
                 }
                 else {
                     ZUI.interaction.currentlySelectedContainerIdentifiers = []
                 }
+             
+                ZUI.interaction.currentlySelectedConnectionIdentifier = null
             }
             
         }
@@ -329,9 +319,9 @@ function CreateNewNodeAndLinkScroller() {
             let selectedContainerIdentifier = selectedContainerIdentifiers[0]
             
             let toBeSelectedContainerId = convertContainerIdentifierToContainerId(selectedContainerIdentifier)
-console.log(toBeSelectedContainerId)
+
             let containerType = containerTypeByIdentifier(selectedContainerIdentifier)
-console.log(containerType)
+
             if (containerType == 'node') {
                 let toBeSelectedNodeId = toBeSelectedContainerId
                 // FIXME: this is triggered when hovering over the selected container!!
@@ -340,7 +330,7 @@ console.log(containerType)
                     let updateSelectedContainers = false  // We do not want the selected containers to be updated, only the node
                     NodeAndLinkScroller.selectNode(toBeSelectedNodeId, updateSelectedContainers)
                     if (NodeAndLinkScroller.scrollToSelectedNodeFunction != null) {
-console.log('scrollToSelectedNodeFunction')
+
                         NodeAndLinkScroller.scrollToSelectedNodeFunction(toBeSelectedNodeId, oldSelectedNodeId)
                     }
         // FIXME: we want localStorage not to be a global here! We probably want to call a function which has the side-effect of storing something in localStorage.
@@ -357,7 +347,7 @@ console.log('scrollToSelectedNodeFunction')
                     let updateSelectedContainers = false  // We do not want the selected containers to be updated, only the node
                     NodeAndLinkScroller.selectTeam(toBeSelectedTeamId, updateSelectedContainers)
                     if (NodeAndLinkScroller.scrollToSelectedTeamFunction != null) {
-console.log('scrollToSelectedTeamFunction')
+
                         NodeAndLinkScroller.scrollToSelectedTeamFunction(toBeSelectedTeamId, oldSelectedTeamId)
                     }
         // FIXME: we want localStorage not to be a global here! We probably want to call a function which has the side-effect of storing something in localStorage.
