@@ -889,6 +889,9 @@ function drawLabel(textToDraw, screenMiddlePoint) {
     let horizontalPadding = 12
     let verticalPadding = 6
     
+    ZUI.ctx.font = fontSize + "px Arial"
+    ZUI.ctx.textBaseline = "top"
+    
     textSize.width = ZUI.ctx.measureText(textToDraw).width
     textSize.height = textHeightToFontSizeRatioArial * fontSize
     
@@ -912,15 +915,13 @@ function drawLabel(textToDraw, screenMiddlePoint) {
     ZUI.ctx.lineWidth = borderWidth
     ZUI.ctx.strokeStyle = rgba(borderColor)
     ZUI.ctx.fillStyle = rgba(backgroundColor)
-    
+
     pathRoundRect (textBox.position.x, textBox.position.y, textBox.size.width, textBox.size.height, borderRadius)
     ZUI.ctx.fill()
     ZUI.ctx.stroke()
 
     // Draw text
     
-    ZUI.ctx.font = fontSize + "px Arial"
-    ZUI.ctx.textBaseline = "top"
     ZUI.ctx.fillStyle = rgba(textColor)
     ZUI.ctx.fillText(textToDraw, textPosition.x, textPosition.y)
 }
@@ -1244,15 +1245,22 @@ if (container.stroke) {
         
         ZUI.ctx.restore()
         
-        /*
+        
         // TODO: we want to do something like this, but labels should be drawn at the end (not it is behind other containers and to the upper-left)
         // Draw label
         if (ZUI.interaction.highlightHoveredContainer &&
             ZUI.interaction.currentlyHoveredContainerIdentifier != null &&
             ZUI.interaction.currentlyHoveredContainerIdentifier === container.identifier) {
-            drawLabel(textToDraw, screenTextPosition)
+                
+            let hoverTextWorldPosition = {}
+            hoverTextWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2)
+            // TODO: we do *3 of the font size to make the text look as being at the top. We might want to change this
+            hoverTextWorldPosition.y = container.worldPosition.y - (textSize.height * container.worldScale / 2) + localFontSize*3 * container.worldScale
+            let hoverScreenTextPosition = fromWorldPositionToScreenPosition(hoverTextWorldPosition)
+                
+            drawLabel(textToDraw, hoverScreenTextPosition)
         }
-        */
+        
     }
     
     
