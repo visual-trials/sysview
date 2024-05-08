@@ -27,16 +27,24 @@ function CreateNewUserManagement() {
 
     UserManagement.isAllowedTo = function(action) {
         let currentUser = UserManagement.userAuthorization.currentUser
-        
+
         if (UserManagement.userAuthorization.isRootUser) {
             return true
         }
         
+        if (currentUser && currentUser.userPermissions && currentUser.userPermissions.isAdmin) {
+            return true
+        }
+        
+        // FIXME: we need to be more specific about WHAT the uses is allowed to edit!
+        // FIXME: we need to be more specific about WHAT the uses is allowed to edit!
+        // FIXME: we need to be more specific about WHAT the uses is allowed to edit!
         if (action === 'edit') {
-            if (currentUser && currentUser.userPermissions && currentUser.userPermissions.isAdmin) {
+            if (currentUser && currentUser.userPermissions && currentUser.userPermissions.isEditor) {
                 return true
             }
         }
+        
         return false
     }
 
