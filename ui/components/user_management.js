@@ -36,12 +36,33 @@ function CreateNewUserManagement() {
             return true
         }
         
-        // FIXME: we need to be more specific about WHAT the uses is allowed to edit!
-        // FIXME: we need to be more specific about WHAT the uses is allowed to edit!
-        // FIXME: we need to be more specific about WHAT the uses is allowed to edit!
         if (action === 'edit') {
             if (currentUser && currentUser.userPermissions && currentUser.userPermissions.isEditor) {
-                return true
+                // We need to be more specific about WHAT the uses is allowed to edit
+                
+                // FIXME: WORKAROUND: we now simply check if we are on the 
+                let userEditableTeamIds = UserManagement.getUserEditableTeamIds()
+                
+                let currentTeamId = null
+                if (teamApp) {
+                    // FIXME: UGLY HACK to see if we have in the teamApp! We should *PASS* the currentTeamId somehow INSTEAD!
+                    // FIXME: UGLY HACK to see if we have in the teamApp! We should *PASS* the currentTeamId somehow INSTEAD!
+                    // FIXME: UGLY HACK to see if we have in the teamApp! We should *PASS* the currentTeamId somehow INSTEAD!
+                    currentTeamId = teamApp.currentTeamId
+                }
+                else {
+                    // FIXME: we dont have a teamApp, so probably an ikbApp, VERY UGLY!
+                    // FIXME: we dont have a teamApp, so probably an ikbApp, VERY UGLY!
+                    // FIXME: we dont have a teamApp, so probably an ikbApp, VERY UGLY!
+                    currentTeamId = ikbApp.currentTeamId
+                }
+                if (userEditableTeamIds.includes(currentTeamId)) {
+                    return true
+                }
+                else {
+                    return false
+                    
+                }
             }
         }
         
