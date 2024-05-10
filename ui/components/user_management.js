@@ -44,7 +44,7 @@ function CreateNewUserManagement() {
                 let userEditableTeamIds = UserManagement.getUserEditableTeamIds()
                 
                 let currentTeamId = null
-                if (teamApp) {
+                if (typeof teamApp !== 'undefined') {
                     // FIXME: UGLY HACK to see if we have in the teamApp! We should *PASS* the currentTeamId somehow INSTEAD!
                     // FIXME: UGLY HACK to see if we have in the teamApp! We should *PASS* the currentTeamId somehow INSTEAD!
                     // FIXME: UGLY HACK to see if we have in the teamApp! We should *PASS* the currentTeamId somehow INSTEAD!
