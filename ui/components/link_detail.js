@@ -12,6 +12,7 @@ function CreateNewLinkDetail() {
         closeLinkDetailFunction : null,
         unselectRemovedLinkFunction : null,
         interactWithZUI : true,
+        initialFromSelectedNodeId :  null,
     }
 
     LinkDetail.getFromNodeName = function (link) {
@@ -71,6 +72,12 @@ function CreateNewLinkDetail() {
                 firstSelectedNodeId = ZUI.interaction.currentlySelectedContainerIdentifiers[0]
             }
         }
+        else {
+            if (LinkDetail.initialFromSelectedNodeId) {
+                firstSelectedNodeId = LinkDetail.initialFromSelectedNodeId
+            }
+        }
+        
         let newLink = createNewLink(linkTypeIdentifier, firstSelectedNodeId, secondSelectedNodeId)
         
         LinkDetail.setEditedLinkUsingOriginalLink(newLink)
