@@ -1097,6 +1097,13 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
     
     // TODO: can we this function using a config of sorts? Which says what to ignore, compare and how?    
     
+    // *** Note: below is the OLD way of updating links. The problem with this approach is with
+    //           the fact when fromNodeId AND toNodeId *both* get changed they are send to the backend as TWO
+    //           changes. This however is a problem for RIGHTS management: either the fromNode or the toNode
+    //           has to be editable by the user, but if one is changed first (and later on the other) the first
+    //           change might be *declined*, even though the other node might be editable (so it shouldnt be declined).   
+
+    /*
     // TODO: do a more precise comparision (instead of using JSON.stringify, which is not reliable)    
     if (JSON.stringify(changedLink.commonData) !== JSON.stringify(originalLink.commonData) ) {    
         let nlcDataChange = {    
@@ -1169,6 +1176,59 @@ function storeChangesBetweenLinks(originalLink, changedLink) {
         originalLink.environmentSpecificData = changedLink.environmentSpecificData    
         originalLink.fromNodeId = changedLink.fromNodeId    
         originalLink.toNodeId = changedLink.toNodeId    
+    }    
+    */
+    
+    
+    // Solution (see note above): we assemble all changes to the link and change the whole link as *one* change to the backend instead.
+    
+    let linkHasChanged = false
+    
+    // TODO: do a more precise comparision (instead of using JSON.stringify, which is not reliable)    
+    if (JSON.stringify(changedLink.commonData) !== JSON.stringify(originalLink.commonData) ) {    
+        originalLink.commonData = changedLink.commonData    
+        linkHasChanged = true
+    }    
+    
+    if (JSON.stringify(changedLink.environmentSpecificData) !== JSON.stringify(originalLink.environmentSpecificData) ) {    
+        originalLink.environmentSpecificData = changedLink.environmentSpecificData    
+        linkHasChanged = true
+    }    
+        
+    // FIXME: you probably don't need the stringify right? How about NUMBER vs STRING here?    
+    if (JSON.stringify(changedLink.fromNodeId) !== JSON.stringify(originalLink.fromNodeId) ) {    
+        originalLink.fromNodeId = changedLink.fromNodeId    
+        linkHasChanged = true
+    }    
+        
+    // FIXME: you probably don't need the stringify right? How about NUMBER vs STRING here?    
+    if (JSON.stringify(changedLink.toNodeId) !== JSON.stringify(originalLink.toNodeId) ) {    
+        originalLink.toNodeId = changedLink.toNodeId    
+        linkHasChanged = true
+    }    
+    
+    if (JSON.stringify(changedLink.identifier) !== JSON.stringify(originalLink.identifier) ) {
+        originalLink.identifier = changedLink.identifier
+        linkHasChanged = true
+    }    
+    
+    // FIXME: you probably don't need the stringify right?    
+    if (JSON.stringify(changedLink.type) !== JSON.stringify(originalLink.type) ) {    
+        originalLink.type = changedLink.type
+        linkHasChanged = true
+    }    
+    
+    if (linkHasChanged > 0) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "links", originalLink.id ],
+            "data" : originalLink
+        }    
+        linkChanges.push(nlcDataChange)    
+    
+        NLC.dataChangesToStore = NLC.dataChangesToStore.concat(linkChanges)    
+            
+        NLC.dataHasChanged = true    
     }    
 }    
 
