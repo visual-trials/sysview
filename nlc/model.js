@@ -1218,6 +1218,7 @@ function createNewDiagram() {
         "identifier" : null,
         "sortIndex" : 0,
         "parentDiagramId": null,
+        "responsibleTeamId": null,
         "containers" : {}
     }    
         
@@ -1280,6 +1281,15 @@ function storeChangesBetweenDiagrams(originalDiagram, changedDiagram) {
             "method" : "update",    
             "path" : [ "diagrams", originalDiagram.id, "parentDiagramId" ],    
             "data" : changedDiagram.parentDiagramId
+        }    
+        diagramChanges.push(nlcDataChange)    
+    }    
+    
+    if (changedDiagram.responsibleTeamId !== originalDiagram.responsibleTeamId) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "diagrams", originalDiagram.id, "responsibleTeamId" ],    
+            "data" : changedDiagram.responsibleTeamId
         }    
         diagramChanges.push(nlcDataChange)    
     }    
