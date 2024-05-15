@@ -63,6 +63,8 @@ ZUI.groupedConnections = {}
 
 ZUI.menuButtons = []
 ZUI.menuIcons = {}
+ZUI.containerIconsRaw = {}
+ZUI.containerIcons = {}
 
 function initIcons() {
 
@@ -74,7 +76,7 @@ function initIcons() {
     // 64x64 pixels
     menuIconsRaw['view'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAVtJREFUeF7tmlESgyAMROX+h6bTFhjKVJE2sKvZ/sqE8HiJVA2b819wvv5NAGSAcwIqAecCqAlalkBMNlnGnC6oZbIC0GyXJdxpJlgmmQ3IyVrGvg6AGN8cQijrpwZhmdxr5QKQDCh1QG7CNAMEoL0lkJow3QB2E5YBYAUhAIYnjI/bYC8uyzlhuQFspQADwAJCAHq1OnB9qAe0cVE9AW4AuhRoAKBACMBAjfeG/tUDUD2BzoDVpQAHUHX/nmGWuZa5LIP+VAJuAOSF5kdmq1Xf02uZAW4BtIq7M8AtgIOz/ddmebv/Am4BVN12r8He2wAB2E5/dEFhgvk54PletHemTddvB+DkusswAajfJqOOxmd1Hd3dkfFQEwRgZKsmjZUByF7AUAJZLMhHVgIwqa4vE5bJAAg0AYBgJ5pUBhBtBiQVGQDBTjSpDCDaDEgqMgCCnWhSGUC0GZBUHhukrkGN6AW2AAAAAElFTkSuQmCC'
     menuIconsRaw['move'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAW9JREFUeF7tl0kWxCAIRJP7H7p70WZDx8ck8JTK1gHrUxq4r+bf3Vz/BQBwQHMCuALNDYBHEFcAV6A5AVyBYgN8RvyyRJQFHsLbAniEUwOmJyQ9IMl8OwCzzJeByHZAWwBS4elOyHJAewCzcqPtb/ABAgCoBH8Est6iv6u4OrDW0tHz2VYHAFhEsgn0NycFa3XAcyppnKkK9waT2l667/YAvF2dF4DbCdJMcYWMtYTdFoC1tJW9KPZZ6oSqFzD9vP3oa1aq9agXkHPiDZgkTgp22zeA6kYdQIhkOUAaJ7wQsra31ivgFu4uICZIowVp92f/LctIspHeJywXpD0HAGiJLZ4PBwygZU7MCmztHcLPFx7A2TuEny88gLB3sLbT7icJANwIbRt4u0hb1JdV2Q6gJXOZ9aNKYW1mUAd0qQO0zkibX/UGpAnkAgEAR+j0cTjg9Axz+uAAjtDp43DA6Rnm9MEBHKHTx+GA0zPM6fsCqQA+QZt1I4cAAAAASUVORK5CYII='
-    
+
     /* 32x32 pixels
     menuIconsRaw['view'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAp0lEQVRYR+3W4QqAIAwE4Pn+D10ICTISvdvhCvRfYPZ52rRYcivJ37cD+FUCl5l+yZAEKqA25J3pHkcGawlIk2AAdVYyBAuQISIACSIKCCMUgBBCBaARSgCFUANghArQqmRf+ZbGXur0jOqLT/9MFyYW4M+FrYDRzCkEmoA/DcPLgALe+ocQCGB0tqcD/L8P7QVFAp8ANAR8ZVMlML37jTocwEkgPYEbdmUtIUAAjAQAAAAASUVORK5CYII='
     menuIconsRaw['move'] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAApUlEQVRYR+2V4QrAIAiE7f0feqOBEFtqepAN7Odw3pde2ij5tGR9KoCqAFqBiwjzEQLQxfmE80R/HMUhiAjATDwMEQEYZ1eqBzrINgBJyPv9M/lXWsA9n8VqAF3MzG8FWE/NAjAhNADN7d4lKuocXQG+ZaoHRgivCa3qPrmXgpSGb5sDEkMKwBG7IHUbvl8H5KXfm9A7EUPLCBbREqAtgOEKoCpwA2MJHyFyeKK8AAAAAElFTkSuQmCC'
@@ -94,6 +96,16 @@ function initIcons() {
             // drawCanvas(true, true)
         }
     }
+
+    let defaultContainerIconSize = { 'width': 50, 'height': 50 }
+    for (let containerIconName in ZUI.containerIconsRaw) {
+        let iconImage = new Image
+        iconImage.src = ZUI.containerIconsRaw[containerIconName]
+        iconImage.onload = function(){
+            ZUI.containerIcons[containerIconName] = { 'img' : iconImage, 'width': defaultContainerIconSize.width, 'height': defaultContainerIconSize.height }
+        }
+    }
+    
 }
 
 function clearCanvas() {
@@ -1212,6 +1224,33 @@ function drawContainer(container, alpha, textAlpha) {
                 ZUI.ctx.stroke()
             }
         }
+        
+        
+        let containerIconName = container.iconName
+            
+        if (containerIconName != null && containerIconName in ZUI.containerIcons) {
+            
+            let iconMargin = { x: 20, y: 20 }
+            let iconImageWorldPosition = { x: container.worldPosition.x + iconMargin.x, y: container.worldPosition.y + iconMargin.y}
+            
+            let iconImageScreenPosition = fromWorldPositionToScreenPosition(iconImageWorldPosition)
+            
+            ZUI.ctx.save()
+            ZUI.ctx.translate(iconImageScreenPosition.x, iconImageScreenPosition.y) // move the image to the screen position (since we draw the image at 0,0)
+            ZUI.ctx.scale(ZUI.interaction.viewScale, ZUI.interaction.viewScale) // make the image smaller/bigger according to zoom (viewScale)
+            
+            if (ZUI.interaction.percentageIsoMetric > 0) {
+                ZUI.ctx.scale(1, ZUI.currentIsoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
+                ZUI.ctx.rotate(ZUI.currentIsoMetricSettings.rotate * Math.PI / 180)    // rotate the text due to isometric view
+            }
+            
+            let iconImage = ZUI.containerIcons[containerIconName]
+            ZUI.ctx.drawImage(iconImage.img, 0, 0, iconImage.width, iconImage.height)
+            
+            ZUI.ctx.restore()
+            
+        }
+        
         
     }
     ZUI.ctx.restore()

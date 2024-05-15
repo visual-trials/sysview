@@ -55,6 +55,7 @@ function createContainer(containerData) {
     let shape = 'rectangle4points'
     let textPosition = 'center'
     let lineWidth = 1
+    let iconName = null
     
     let fromLevelOfDetail = 0.0
     let toLevelOfDetail = 1.0
@@ -76,6 +77,9 @@ function createContainer(containerData) {
     }
     if (containerData.textPosition != null) {
         textPosition = containerData.textPosition
+    }
+    if (containerData.iconName != null) {
+        iconName = containerData.iconName
     }
     
     if ('fromLevelOfDetail' in containerData && containerData.fromLevelOfDetail != null) {
@@ -107,6 +111,7 @@ function createContainer(containerData) {
         localFontSize: containerData.localFontSize,
         
         shapeType : shape,  // TODO: we should rename shapeType to shape
+        iconName : iconName,
         textPosition : textPosition,
         
         fromLevelOfDetail: fromLevelOfDetail,
