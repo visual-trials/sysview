@@ -232,7 +232,7 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
             knownUsersChanges.push(nlcDataChange)    
             
             // FIXME: we do this here, but we normally do this below!    
-            originalKnownUsersById[changedKnownUser.id].teamId = changedKnownUser.teamId
+            originalKnownUsersById[changedKnownUser.id].userSettings = changedKnownUser.userSettings
         }    
             
         if (JSON.stringify(changedKnownUser.userPermissions) !== JSON.stringify(originalKnownUser.userPermissions) ) {    
