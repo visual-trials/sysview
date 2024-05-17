@@ -141,8 +141,8 @@ function CreateNewUserManagement() {
         let teamId = null
         
         let currentUser = UserManagement.userAuthorization.currentUser
-        if (currentUser && 'teamId' in currentUser) {
-            teamId = currentUser.teamId
+        if (currentUser && 'userSettings' in currentUser && 'teamId' in currentUser.userSettings) {
+            teamId = currentUser.userSettings.teamId
         }
         return teamId
     }
@@ -150,7 +150,7 @@ function CreateNewUserManagement() {
     UserManagement.setUserTeamId = function(teamId) {
         let currentUser = UserManagement.userAuthorization.currentUser
         if (currentUser) {
-            currentUser.teamId = teamId
+            currentUser.userSettings.teamId = teamId
         }
     }
     

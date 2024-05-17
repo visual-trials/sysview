@@ -223,11 +223,11 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
         // FIXME: we should check if the id exists!    
         let originalKnownUser = originalKnownUsersById[changedKnownUser.id]    
             
-        if (changedKnownUser.teamId !== originalKnownUser.teamId) {    
+        if (JSON.stringify(changedKnownUser.userSettings) !== JSON.stringify(originalKnownUser.userSettings) ) {    
             let nlcDataChange = {    
                 "method" : "update",    
-                "path" : [ "knownUsers", originalKnownUser.id, "teamId" ],    
-                "data" : changedKnownUser.teamId
+                "path" : [ "knownUsers", originalKnownUser.id, "userSettings" ],    
+                "data" : changedKnownUser.userSettings
             }    
             knownUsersChanges.push(nlcDataChange)    
             
