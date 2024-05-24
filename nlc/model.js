@@ -3555,6 +3555,24 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
 
 // FIXME: maybe only add connection for links that have a from-lod that is lower than maxLod?
         
+        
+        let linkName = '[onbekend]'
+        
+        if (link.commonData.fromToDataType) {
+            if (link.commonData.toFromDataType) {
+                linkName = link.commonData.toFromDataType + ' - ' + link.commonData.toFromDataType
+            }
+            else {
+                linkName = link.commonData.fromToDataType
+            }
+        }
+        else if (link.commonData.toFromDataType) {
+            linkName = link.commonData.toFromDataType
+        }
+
+// FIXME: we probably want a fromTo and toFrom data type for a link as well!
+        let linkDataType = linkName
+        
         // link.dataType = sourceDataType    
         let connectionInfo = {    
 // FIXME: we need to change this IDENTIFIER! (if we allow multiple nodes with the same id)
@@ -3562,8 +3580,8 @@ function setNodesAndLinksAsContainersAndConnections(diagramId, selectedLegendaId
 // FIXME: also add connectionInfo.id (or connectionInfo.connectionId)        
 // FIXME: also add connectionInfo.connectionType
             type: link.type,
-            name: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!    
-            dataType: link.commonData.dataType,  // TODO:  we are assuming commonData.dataType exists here!
+            name: linkName,
+            dataType: linkDataType,  // TODO:  we are assuming commonData.dataType exists here!
             fromLevelOfDetail: fromLevelOfDetail,
             toLevelOfDetail: toLevelOfDetail,
             fromContainerIdentifier: fromContainerIdentifier,    
