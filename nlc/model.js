@@ -2468,6 +2468,7 @@ function getNodeTypeInfo(node) {
     
     if (nodeTypeIdentifier in NLC.nodesAndLinksData.nodeTypesByIdentifier) {
         let nodeTypeInfo = NLC.nodesAndLinksData.nodeTypesByIdentifier[nodeTypeIdentifier]
+        /*
         if ("_overridesBasedOnCommonDataValue" in nodeTypeInfo) {    
             // TODO: can we make a faster deep-copy of nodeTypeInfo?    
             nodeTypeInfo = JSON.parse(JSON.stringify(nodeTypeInfo))    
@@ -2482,7 +2483,8 @@ function getNodeTypeInfo(node) {
                 }    
                 // TODO: we can probably break here if we want the first match to override. (now it continues to find matches)    
             }    
-        }    
+        }
+        */
         return nodeTypeInfo    
     }    
     return null    
