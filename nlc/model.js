@@ -2932,6 +2932,11 @@ function convertNodeOrTeamToContainer (isNodeOrTeam, containerVisualData, nodeOr
     else {
         // Assuming its a team
         containerName = nodeOrTeam.name
+        if ('commonData' in nodeOrTeam && 'shortName' in nodeOrTeam.commonData) {
+            // TODO: we probably shouldn't *always* do this...
+            // We are using the short name for the container (now used for RGs)
+            containerName = nodeOrTeam.commonData.shortName
+        }
     }
     
     let containerInfo = {    
