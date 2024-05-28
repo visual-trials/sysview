@@ -1037,7 +1037,7 @@ function drawContainers(containerIdentifiers, alpha) {
             if (((ZUI.interaction.viewScale >= container.fromLevelOfDetail || ZUI.interaction.levelOfDetailToAlwaysShow >= container.fromLevelOfDetail) && ZUI.interaction.viewScale <  container.toLevelOfDetail) ||
                 (ZUI.interaction.viewScale >= 1.0                         && container.toLevelOfDetail == 1.0)) {
                     
-                drawContainer(container, alphaContainer, fractionToShowText)
+                drawContainer(container, alphaContainer, fractionToShowText, fractionToShowContainerChildren)
                 if (fractionToShowContainerChildren > 0) {
                     drawContainers(container.children, fractionToShowContainerChildren)
                 }
@@ -1140,7 +1140,7 @@ function drawContainerShape (container) {
     ZUI.ctx.closePath()
 }
 
-function drawContainer(container, alpha, textAlpha) {
+function drawContainer(container, alpha, textAlpha, fractionToShowContainerChildren) {
     
     ZUI.ctx.save()
     {
@@ -1256,10 +1256,12 @@ function drawContainer(container, alpha, textAlpha) {
     ZUI.ctx.restore()
     
     let textColor = { r:0, g:0, b:0, a:1 * textAlpha }
-// FIXME: do this more properly (also see above in this function)
-if (container.stroke) {
-    textColor = darken(container.stroke, 0.4)
-}
+    // FIXME: do this more properly (also see above in this function)
+    if (container.stroke) {
+        textColor = darken(container.stroke, 0.4)
+        textColor.a = textColor.a*textAlpha
+    }
+    
     {
         // Draw text
         let textToDraw = container.name ? container.name : ''
@@ -1287,10 +1289,31 @@ if (container.stroke) {
             textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
             textWorldPosition.y = container.worldPosition.y + (container.worldSize.height * 1.15)
         }
-        else if (container.textPosition == 'top'){
+        else if (container.textPosition == 'top') {
             textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
             // TODO: we do *3 of the font size to make the text look as being at the top. We might want to change this
             textWorldPosition.y = container.worldPosition.y - (textSize.height * container.worldScale / 2) + localFontSize*3 * container.worldScale
+        }
+        else if (container.textPosition == 'centerMaxWidth') { // text in the middle of the container, but resized to maxWidth 
+
+            // First we recalculate the max localFontSize
+            
+            // Only enlarge if the text isnt already too large
+            if (textSize.width * container.worldScale < container.worldSize.width) {
+                localFontSize = localFontSize * (container.worldSize.width / (textSize.width * container.worldScale)) * 0.8
+            }
+        
+            // Then we recalculate the text size
+            let heightBottomWhiteArea = localFontSize / 6
+            ZUI.ctx.font = localFontSize + "px Arial"
+            ZUI.ctx.textBaseline = "top"
+            let textHeightToFontSizeRatioArial = 1.1499023
+            
+            textSize.width = ZUI.ctx.measureText(textToDraw).width
+            textSize.height = textHeightToFontSizeRatioArial * localFontSize
+        
+            textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
+            textWorldPosition.y = container.worldPosition.y + (container.worldSize.height / 2) - (textSize.height * container.worldScale / 2) + heightBottomWhiteArea * container.worldScale
         }
         else { // text in the middle of the container
             textWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize.width * container.worldScale / 2)
@@ -1324,22 +1347,60 @@ if (container.stroke) {
         ZUI.ctx.restore()
         
         
-        // TODO: we want to do something like this, but labels should be drawn at the end (not it is behind other containers and to the upper-left)
-        /*
-        // Draw label
-        if (ZUI.interaction.highlightHoveredContainer &&
-            ZUI.interaction.currentlyHoveredContainerIdentifier != null &&
-            ZUI.interaction.currentlyHoveredContainerIdentifier === container.identifier) {
-                
-            let hoverTextWorldPosition = {}
-            hoverTextWorldPosition.x = container.worldPosition.x + (container.worldSize.width / 2)
+        // FIXME: this is not so nice...
+        drawCollapsedText = (container.textPosition == 'centerMaxWidth')
+
+        if (drawCollapsedText) {
+            
+            // Get text size for collapsed text
+            let textSize2 = {}
+            let localFontSize2 = 14
+            if (container.localFontSize != null) {
+                localFontSize2 = container.localFontSize
+            }
+            
+            let heightBottomWhiteArea2 = localFontSize2 / 6
+            ZUI.ctx.font = localFontSize2 + "px Arial"
+            ZUI.ctx.textBaseline = "top"
+            let textHeightToFontSizeRatioArial = 1.1499023
+            
+            textSize2.width = ZUI.ctx.measureText(textToDraw).width
+            textSize2.height = textHeightToFontSizeRatioArial * localFontSize2
+            
+            // Determine text position of collapsed text
+            let textWorldPosition2 = {}
+            
+            textWorldPosition2.x = container.worldPosition.x + (container.worldSize.width / 2) - (textSize2.width * container.worldScale / 2)
             // TODO: we do *3 of the font size to make the text look as being at the top. We might want to change this
-            hoverTextWorldPosition.y = container.worldPosition.y - (textSize.height * container.worldScale / 2) + localFontSize*3 * container.worldScale
-            let hoverScreenTextPosition = fromWorldPositionToScreenPosition(hoverTextWorldPosition)
-                
-            drawLabel(textToDraw, hoverScreenTextPosition)
+            textWorldPosition2.y = container.worldPosition.y - (textSize2.height * container.worldScale / 2) + localFontSize2*3 * container.worldScale
+            
+            let screenTextPosition2 = fromWorldPositionToScreenPosition(textWorldPosition2)
+            
+            // Note we use the fractionToShowContainerChildren for the collapsedText here!
+            let textColor2 = { r:0, g:0, b:0, a:1 * fractionToShowContainerChildren }
+            // FIXME: do this more properly (also see above in this function)
+            if (container.stroke) {
+                textColor2 = darken(container.stroke, 0.4)
+                textColor2.a = textColor2.a*fractionToShowContainerChildren
+            }
+        
+            ZUI.ctx.save()
+            ZUI.ctx.translate(screenTextPosition2.x, screenTextPosition2.y) // move the text to the screen position (since we draw the text at 0,0)
+            ZUI.ctx.scale(ZUI.interaction.viewScale * container.worldScale, ZUI.interaction.viewScale * container.worldScale) // make the text smaller/bigger according to zoom (viewScale)
+            
+            if (ZUI.interaction.percentageIsoMetric > 0) {
+                ZUI.ctx.scale(1, ZUI.currentIsoMetricSettings.scale)                   // make the text smaller vertically due to isometric view
+                ZUI.ctx.rotate(ZUI.currentIsoMetricSettings.rotate * Math.PI / 180)    // rotate the text due to isometric view
+            }
+            
+            // Draw the text at the text positions
+            ZUI.ctx.fillStyle = rgba(textColor2)
+            ZUI.ctx.fillText(textToDraw, 0, 0)
+            
+            ZUI.ctx.restore()
         }
-        */
+        
+        
     }
     
     
