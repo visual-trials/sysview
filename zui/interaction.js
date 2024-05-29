@@ -1436,7 +1436,7 @@ function updateWorld(timeElapsed) {
                     
                     let containerRectangle = {
                         "position" : currentlySelectedContainer.worldPosition,
-                        "size" : currentlySelectedContainer.localSize,
+                        "size" : currentlySelectedContainer.worldSize,
                     }
                     let middlePointOfContainer = getCenterPointOfRectangle(containerRectangle)
                     
@@ -1449,10 +1449,10 @@ function updateWorld(timeElapsed) {
                     let containerHeightOnScreen = currentlySelectedContainer.localSize.height
                     
                     // We check if the height or the width is the constraint and choose that one
-                    let scaleToFitWidth = ZUI.canvasElement.width * 0.8 / containerWidthOnScreen
-                    let scaleToFitHeight = ZUI.canvasElement.height * 0.8 / containerHeightOnScreen
+                    let scaleToFitWidth = (ZUI.canvasElement.width * 0.8 / containerWidthOnScreen) / currentlySelectedContainer.worldScale
+                    let scaleToFitHeight = (ZUI.canvasElement.height * 0.8 / containerHeightOnScreen) / currentlySelectedContainer.worldScale
                     if (scaleToFitWidth < scaleToFitHeight) {
-                        ZUI.interaction.viewScale = scaleToFitWidth
+                        ZUI.interaction.viewScale = scaleToFitWidth 
                     }
                     else {
                         ZUI.interaction.viewScale = scaleToFitHeight
