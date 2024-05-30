@@ -1348,7 +1348,7 @@ function drawContainer(container, alpha, textAlpha, fractionToShowContainerChild
         
         
         // FIXME: this is not so nice...
-        drawCollapsedText = (container.textPosition == 'centerMaxWidth')
+        drawCollapsedText = (container.textPosition == 'centerMaxWidth' && container.children.length > 0)
 
         if (drawCollapsedText) {
             
