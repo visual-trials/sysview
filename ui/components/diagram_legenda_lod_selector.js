@@ -6,6 +6,15 @@ function CreateNewDiagramLegendaLodSelector() {
         selectedDiagramId: null,
         defaultDiagramId: null,
     }
+    
+    DiagramLegendaLodSelector.diagramIsEmpty = function(diagram) {
+        if (diagram && diagram.containers && Object.keys(diagram.containers).length != 0) {
+            return false
+        }
+        else {
+            return true
+        }
+    }
 
     DiagramLegendaLodSelector.diagramChanged = function() {
         // TODO: is this the right way? or should we change the name of dataHasChanged?
