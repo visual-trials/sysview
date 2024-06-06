@@ -123,7 +123,9 @@ function getDiagramTreeFromList(diagrams, parentDiagramId, depth) {
         
         // Note: null will also match with null (null = root-parent)
         if (diagram.parentDiagramId == parentDiagramId) {
+// FIXME: shouldnt this be in _helper?
             diagram.indentedName = repeatString("&nbsp;", depth * 4) + diagram.name
+            diagram.depth = depth
             childrenOfParent.push(diagram) 
         }
         else {
