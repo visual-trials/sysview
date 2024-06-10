@@ -2177,6 +2177,37 @@ function addInfraResourceToInfraDiagram(infraDiagram, infraResource) {
     NLC.dataHasChanged = true    
 }    
 
+
+function removeInfraResourceFromInfraDiagram (infraDiagram, infraResourceToBeRemoved) {
+    
+    let infraResourceIndexToDelete = null    
+    for (let infraResourceIndex = 0; infraResourceIndex < infraDiagram.infraResources.length; infraResourceIndex++) {    
+        let infraResource = infraDiagram.infraResources[infraResourceIndex]
+        if (infraResource.id === infraResourceToBeRemoved.id) {    
+            infraResourceIndexToDelete = infraResourceIndex
+        }
+    }
+    if (infraResourceIndexToDelete != null) {    
+        infraDiagram.infraResources.splice(infraResourceIndexToDelete, 1)
+    }
+    else {
+        console.log("ERROR: could not find infraResource to be deleted!")    
+    }
+        
+    // FIXME: remove all visualData from nodes and links pointing to this infraDiagram!    
+        
+    
+    // TODO: you probably want to apply this change in javascript to (on the node in NLC.nodesAndLinksData.infraDiagrams and infraDiagramsById)    
+    let nlcDataChange = {    
+        "method" : "delete",    
+        "path" : [ "infraDiagrams", infraDiagram.id, "infraResources", infraResourceToBeRemoved.id],    
+        "data" : infraResourceToBeRemoved    
+    }
+    NLC.dataChangesToStore.push(nlcDataChange)
+    NLC.dataHasChanged = true
+}    
+
+
 /*
 function storeInfraResourceNodeId(infraDiagram, originalInfraResource, nodeId) {    
 
