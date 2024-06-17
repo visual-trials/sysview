@@ -102,7 +102,9 @@ function initIcons() {
         let iconImage = new Image
         iconImage.src = ZUI.containerIconsRaw[containerIconName]
         iconImage.onload = function(){
-            ZUI.containerIcons[containerIconName] = { 'img' : iconImage, 'width': defaultContainerIconSize.width, 'height': defaultContainerIconSize.height }
+            // FIXME: its pretty random to divide by 3 here!
+            ZUI.containerIcons[containerIconName] = { 'img' : iconImage, 'width': iconImage.width / 3, 'height': iconImage.height / 3 }
+            // ZUI.containerIcons[containerIconName] = { 'img' : iconImage, 'width': defaultContainerIconSize.width, 'height': defaultContainerIconSize.height }
         }
     }
     
