@@ -97,14 +97,26 @@ function initIcons() {
         }
     }
 
-    let defaultContainerIconSize = { 'width': 50, 'height': 50 }
     for (let containerIconName in ZUI.containerIconsRaw) {
         let iconImage = new Image
-        iconImage.src = ZUI.containerIconsRaw[containerIconName]
+        iconImage.src = ZUI.containerIconsRaw[containerIconName].url
         iconImage.onload = function(){
-            // FIXME: its pretty random to divide by 3 here!
-            ZUI.containerIcons[containerIconName] = { 'img' : iconImage, 'width': iconImage.width / 3, 'height': iconImage.height / 3 }
-            // ZUI.containerIcons[containerIconName] = { 'img' : iconImage, 'width': defaultContainerIconSize.width, 'height': defaultContainerIconSize.height }
+            let iconImageWidth = iconImage.width
+            let iconImageHeight = iconImage.height
+            
+            if ('scale' in ZUI.containerIconsRaw[containerIconName]) {
+                iconImageWidth = iconImageWidth * ZUI.containerIconsRaw[containerIconName].scale
+                iconImageHeight = iconImageHeight * ZUI.containerIconsRaw[containerIconName].scale
+            }
+            else {
+                if ('width' in ZUI.containerIconsRaw[containerIconName]) {
+                    iconImageWidth = ZUI.containerIconsRaw[containerIconName].width
+                }
+                if ('height' in ZUI.containerIconsRaw[containerIconName]) {
+                    iconImageHeight = ZUI.containerIconsRaw[containerIconName].height
+                }
+            }
+            ZUI.containerIcons[containerIconName] = { 'img' : iconImage, 'width': iconImageWidth, 'height': iconImageHeight }
         }
     }
     
