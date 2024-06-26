@@ -24,9 +24,11 @@ function CreateNewInfraDiagramDetail() {
         let infraDiagramEditor = InfraDiagramDetail.infraDiagramEditor
         
         let newInfraDiagram = createNewInfraDiagram()
+        newInfraDiagram['_helper'] = {}
+        newInfraDiagram['_helper'].isNewInfraDiagram = true
+        
         InfraDiagramDetail.setEditedInfraDiagramUsingOriginalInfraDiagram(newInfraDiagram)
         
-        infraDiagramEditor.editedInfraDiagram.isNewInfraDiagram = true
         
         // Creating a new infraDiagram id here and (if succesful) async calling open modal
         InfraDiagramDetail.generateNewInfraDiagramIdAndOpenDetail(infraDiagramEditor.editedInfraDiagram)
@@ -51,14 +53,16 @@ function CreateNewInfraDiagramDetail() {
         else {
             
             // Since editedInfraDiagram.id does not yet exist, we assume this is a new infraDiagram (and its id has already been generated). 
-            // So we add and store it as a new new infraDiagram here.
+            // So we add and store it as a new infraDiagram here.
             storeNewInfraDiagram(editedInfraDiagram)
             
             // TODO: we probably want to auto-select the infraDiagram here!
             
             // TODO: InfraDiagramLegendaLodSelector.infraDiagramSelector.selectedInfraDiagramId =
             
-            delete editedInfraDiagram.isNewInfraDiagram
+            if ('_helper' in editedInfraDiagram) {
+                delete editedInfraDiagram._helper.isNewInfraDiagram
+            }
             
             InfraDiagramDetail.closeInfraDiagramDetailFunction()
         }
