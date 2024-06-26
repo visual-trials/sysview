@@ -2063,7 +2063,6 @@ function createNewInfraDiagram() {
         "id" : null,    
         "name" : newName,    
         "infraResources" : [],
-        "templateVars" : [],
     }    
         
     return newInfraDiagram    
@@ -2107,15 +2106,6 @@ function storeChangesBetweenInfraDiagrams(originalInfraDiagram, changedInfraDiag
             "method" : "update",    
             "path" : [ "infraDiagrams", originalInfraDiagram.id, "infraResources" ],    
             "data" : changedInfraDiagram.infraResources    
-        }    
-        infraDiagramChanges.push(nlcDataChange)    
-    } 
-    
-    if (JSON.stringify(changedInfraDiagram.templateVars) !== JSON.stringify(originalInfraDiagram.templateVars) ) {    
-        let nlcDataChange = {    
-            "method" : "update",    
-            "path" : [ "infraDiagrams", originalInfraDiagram.id, "templateVars" ],    
-            "data" : changedInfraDiagram.templateVars
         }    
         infraDiagramChanges.push(nlcDataChange)    
     } 
