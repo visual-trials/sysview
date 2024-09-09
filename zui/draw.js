@@ -21,6 +21,9 @@
 ZUI.canvasElement = null
 ZUI.ctx = null
 
+ZUI.selectedContainerBorderColor = "#FF0000"
+ZUI.encompassingContainerBorderColor = "#00CC00"
+
 // TODO: we dont want to call this vue...! (maybe external... ?)
 function setCanvas(vueCanvasElement) {
     ZUI.canvasElement = vueCanvasElement
@@ -1222,7 +1225,7 @@ function drawContainer(container, alpha, textAlpha, fractionToShowContainerChild
         if (ZUI.interaction.currentlySelectedContainerIdentifiers.length > 0) {
             if (ZUI.interaction.currentlySelectedContainerIdentifiers.includes(container.identifier)) {
                 ZUI.ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                ZUI.ctx.strokeStyle = "#FF0000"
+                ZUI.ctx.strokeStyle = ZUI.selectedContainerBorderColor
                 
                 drawContainerShape(container)
                 ZUI.ctx.stroke()
@@ -1232,7 +1235,7 @@ function drawContainer(container, alpha, textAlpha, fractionToShowContainerChild
                      container.identifier === ZUI.interaction.emcompassingContainerIdentifier) {
 
                 ZUI.ctx.lineWidth = 2 // TODO: do we want to scale this too?
-                ZUI.ctx.strokeStyle = "#00CC00"
+                ZUI.ctx.strokeStyle = ZUI.encompassingContainerBorderColor
                 
                 drawContainerShape(container)
                 ZUI.ctx.stroke()
