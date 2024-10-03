@@ -406,7 +406,7 @@ function CreateNewNodeAndLinkScroller() {
         dimUninteresting : false, // This option allows you to dim nodes and links in the ZUI that are not in the search/filter
 
         searchText: '',
-        filterOnDiagramContent : true,
+        filterOnDiagramContent : false,
         filterOnConnectedElements : false,
         filterOnResponsibleTeam: false, 
         searchHitsPerNodeType : {},
