@@ -237,7 +237,12 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
             originalKnownUsersById[changedKnownUser.id].concatName = changedKnownUser.concatName
         }    
         
-        if (JSON.stringify(changedKnownUser.userSettings) !== JSON.stringify(originalKnownUser.userSettings) ) {    
+        // FIXME: crude workaround to compare two (non-deep) objects: https://stackoverflow.com/questions/16167581/sort-object-properties-and-json-stringify
+        sortedStringifyNonDeep = function (obj) {
+            return JSON.stringify(obj, Object.keys(obj).sort())
+        }
+        
+        if (sortedStringifyNonDeep(changedKnownUser.userSettings) !== sortedStringifyNonDeep(originalKnownUser.userSettings) ) {    
             let nlcDataChange = {    
                 "method" : "update",    
                 "path" : [ "knownUsers", originalKnownUser.id, "userSettings" ],    
@@ -248,8 +253,8 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
             // FIXME: we do this here, but we normally do this below!    
             originalKnownUsersById[changedKnownUser.id].userSettings = changedKnownUser.userSettings
         }    
-            
-        if (JSON.stringify(changedKnownUser.userPermissions) !== JSON.stringify(originalKnownUser.userPermissions) ) {    
+
+        if (sortedStringifyNonDeep(changedKnownUser.userPermissions) !== sortedStringifyNonDeep(originalKnownUser.userPermissions) ) {    
             let nlcDataChange = {    
                 "method" : "update",    
                 "path" : [ "knownUsers", originalKnownUser.id, "userPermissions" ],    
