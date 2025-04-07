@@ -225,6 +225,18 @@ function storeChangesBetweenKnownUsers(originalKnownUsers, changedKnownUsers) {
         // FIXME: we should check if the id exists!    
         let originalKnownUser = originalKnownUsersById[changedKnownUser.id]    
             
+        if (changedKnownUser.concatName !== originalKnownUser.concatName) {    
+            let nlcDataChange = {    
+                "method" : "update",    
+                "path" : [ "knownUsers", originalKnownUser.id, "concatName" ],    
+                "data" : changedKnownUser.concatName
+            }    
+            knownUsersChanges.push(nlcDataChange)    
+            
+            // FIXME: we do this here, but we normally do this below!    
+            originalKnownUsersById[changedKnownUser.id].concatName = changedKnownUser.concatName
+        }    
+        
         if (JSON.stringify(changedKnownUser.userSettings) !== JSON.stringify(originalKnownUser.userSettings) ) {    
             let nlcDataChange = {    
                 "method" : "update",    
