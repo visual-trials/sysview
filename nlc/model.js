@@ -872,6 +872,7 @@ function createNewNode(nodeTypeIdentifier) {
         "id" : null,    
         "identifier" : null,    
         "type" : nodeTypeIdentifier,    
+        "parentNodeId" : null,
         "responsibleTeamId" : null,
         "opsTeamId" : null,
         "commonData" : {    
@@ -914,6 +915,15 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
     let nodeChanges = []    
     
     // TODO: can we this function using a config of sorts? Which says what to ignore, compare and how?    
+    
+    if (JSON.stringify(changedNode.parentNodeId) !== JSON.stringify(originalNode.parentNodeId) ) {    
+        let nlcDataChange = {    
+            "method" : "update",    
+            "path" : [ "nodes", originalNode.id, "parentNodeId" ],    
+            "data" : changedNode.parentNodeId
+        }    
+        nodeChanges.push(nlcDataChange)    
+    }    
     
     // TODO: do a more precise comparision (instead of using JSON.stringify, which is not reliable)    
     if (JSON.stringify(changedNode.commonData) !== JSON.stringify(originalNode.commonData) ) {    
@@ -1008,6 +1018,9 @@ function storeChangesBetweenNodes(originalNode, changedNode) {
         // FIXME: We should copy all object-attributes BACK to the selectedNode (see above where we do the same for comparisons)    
         originalNode.type = changedNode.type
         originalNode.identifier = changedNode.identifier
+        originalNode.parentNodeId = changedNode.parentNodeId
+        originalNode.opsTeamId = changedNode.opsTeamId
+        originalNode.responsibleTeamId = changedNode.responsibleTeamId
         originalNode.commonData = changedNode.commonData    
         originalNode.codeVersions = changedNode.codeVersions    
         originalNode.functionalDocumentVersions = changedNode.functionalDocumentVersions    
