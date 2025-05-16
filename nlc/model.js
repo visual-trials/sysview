@@ -90,8 +90,10 @@ function prepareNodesAndLinksData (flatNodesAndLinksData, nodeTypes, linkTypes, 
     nodesAndLinksData.nodesInSourceDiagram = nodesInSourceDiagram
     
     // Infra Diagrams
-    nodesAndLinksData.infraDiagrams = flatNodesAndLinksData.infraDiagrams
-    nodesAndLinksData.infraDiagramsById = groupById(flatNodesAndLinksData.infraDiagrams)
+    if ('infraDiagrams' in flatNodesAndLinksData) {
+        nodesAndLinksData.infraDiagrams = flatNodesAndLinksData.infraDiagrams
+        nodesAndLinksData.infraDiagramsById = groupById(flatNodesAndLinksData.infraDiagrams)
+    }
     
     // Diagrams
     let diagramTree = getDiagramTreeFromList(flatNodesAndLinksData.diagrams, null, 0)
